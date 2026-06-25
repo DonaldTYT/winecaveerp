@@ -1,0 +1,56 @@
+<zk>
+<separator height="5px"/>
+<div style="background:white; padding:5px;">
+	<hlayout>
+		<div width="50px">
+		</div>
+		<label style="display:none; color:#2980b9;font-family:Comic Sans MS,cursive;" >
+			Parameters to fill in
+		</label>
+	<vlayout>
+		<hlayout>
+			<div width="120px" align="right">
+				<label>Capital (USD)</label>
+			</div>
+			<doublebox id="cprtn_capital"></doublebox>
+		</hlayout>
+		<hlayout>
+			<div width="120px" align="right">
+				<label>Win Rate (%)</label>
+			</div>
+			<doublebox id="cprtn_winrate"></doublebox>
+		</hlayout>
+		<hlayout>
+			<div width="120px" align="right">
+				<label>Risk Reward Ratio</label>
+			</div>
+			<doublebox id="cprtn_rewardratio"></doublebox>
+		</hlayout>
+		<hlayout>
+			<div width="120px" align="right">
+				<label>Risk Per Trade (%)</label>
+			</div>
+			<doublebox id="cprtn_riskpertrade"></doublebox>
+		</hlayout>
+	</vlayout>
+	<vlayout>
+		<hlayout>
+			<div width="120px" align="right">
+				<label>Win</label>
+			</div>
+			<intbox id="cprtn_wincount" readonly="true">
+				<custom-attributes postformula="excelCOUNTIFS([cprtn_result[0]:cprtn_result[]],'Win')"></custom-attributes>
+			</intbox>
+		</hlayout>
+		<hlayout>
+			<div width="120px" align="right">
+				<label>Loss</label>
+			</div>
+			<intbox id="cprtn_losscount" readonly="true">
+			</intbox>
+		</hlayout>
+	</vlayout>
+	</hlayout>
+</div>
+<separator height="5px"/>
+</zk>

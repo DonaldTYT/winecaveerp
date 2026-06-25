@@ -1,0 +1,958 @@
+﻿Advanced Search
+高級搜索
+Field Name
+字段名稱
+Operator
+算子
+Value
+字段值
+Profile
+用戶資料
+Logout
+登出
+Dashboard
+儀表板
+Not Use
+沒有用
+Setup
+建立
+Login Id
+登錄名
+Password
+密碼
+Keep me signed in
+保持登錄
+Submit
+提交
+Reset
+重置
+System Login
+系統登錄
+ERP System
+企業資源規劃系統
+Language
+語言
+Style
+風格
+Stock Item
+庫存物品
+Export file name:
+導出文件名:
+Password:
+密碼:
+Confirm export to excel?
+確認導出為excel?
+Invoice
+發票
+Purchase Order
+採購訂單
+Quotation
+報價
+Sales Order
+銷售訂單
+Add Record
+新增記錄
+Update Record
+修改記錄
+Reload Records From Database
+從數據庫重新加載記錄
+Preset Search
+預設搜索
+Custom Dashboard
+自定儀表板
+Login User
+登錄用戶
+Customer
+客戶
+Access Key
+訪問密鑰
+Access Unit
+訪問單元
+Delivery Notes
+送貨單
+Digital Print Order
+數碼打印訂單
+Finished Goods In
+完成品In
+Finished Goods Out
+完成品Out
+Finished Goods Balance
+完成品結餘
+Edit
+編輯
+Sort
+排序
+Add All
+全部添加
+Remove All
+全部刪除
+Save
+保存
+Choose preset search
+選擇預設搜索
+data maintenance
+數據維護
+Production updates
+生產更新
+Work Order
+工程單
+Production Planning
+生產規劃
+Report
+報表
+Production Report
+生產報表
+Manufacturing Process
+工序
+Outsourcing Process
+外發工序
+Department
+部門
+Product Manufacturing Process
+產品工序
+Barcode
+條碼
+Old Password
+舊密碼
+New Password
+新密碼
+New Password Confirm
+新密碼確認   						
+Preferred Language
+首選語言
+Sitemap
+網站地圖
+Quick Search
+快速搜索
+AND Condition
+符合所有條件
+System Message
+系統信息
+Error Message
+錯誤信息
+Are you sure to leave this page?
+要離開這個頁面嗎?
+Confirmation
+確認
+custm_custname
+公司名稱
+custm_cardcode
+卡片編號
+custm_cardstatus
+卡片狀態
+custm_ccy
+貨幣代碼
+custd_image
+圖像
+custd_lettercat
+字母分類
+custd_desc
+說明
+custd_custom1
+自訂列1
+custd_custom2
+自訂列2
+custd_custom3
+自訂列3
+custd_addr1
+地址行列1
+custd_addr2
+地址行列2
+custd_addr3
+地址行列3
+custd_addr4
+地址行列4
+custd_phone1
+電話#1
+custd_phone2
+電話#2
+custd_phone3
+電話#3
+custd_fax
+傳真#
+custd_email
+電郵
+custd_website
+網址
+custd_contact
+聯絡人
+Inventory Control
+庫存管理
+Sales Control
+銷售管理
+Purchase Order Control
+採購管理
+Delivery Control
+交貨管理
+Service and Warranty
+服務及保養
+System Administration
+系統管理
+Stock Record
+庫存記錄
+Stock Adjustment
+存貨調整
+Stock Take
+盤點
+Stock Reserve
+庫存預留
+Stock Type
+庫存類型
+Stock Unit
+存貨單位
+Customer Stock Out/Return
+零售／客戶退換貨
+Supplier Stock In/Return
+供應商進貨/退貨
+Set Product
+設置產品
+Set Product Detail
+設置產品細節
+Product Brand
+產品品牌
+Goods Receive
+收貨
+Supplier
+供應商
+Warehouse
+倉庫
+Category and Packing
+類別及包裝規格
+Delivery Order
+交貨訂單
+Service Order
+服務訂單
+Warranty
+保養
+User
+用戶
+Ref No
+參考編號
+Type
+類型
+Name
+名稱
+Unit
+單位
+Model
+型號
+Brand
+品牌
+Create Date
+創建日期
+Update Date
+更新日期
+Status
+狀態
+Create By
+創建人
+Update By
+更新人
+Quotation No
+報價編號
+Date
+日期
+Customer Ref No
+客戶編號
+Customer Record
+客戶記錄
+Seq No
+序號
+Total Amount
+總金額
+Item Ref No
+項目編號
+Unit Price
+單價
+Quantity
+數量
+Amount
+金額
+Item Code
+產品編號
+Item Name
+產品名稱
+Remark
+備註
+User Name
+用戶名
+User Type
+用戶類型
+Login in progress...
+正在登錄...
+Record Saved
+記錄已保存
+Are you sure to logout?
+你確定要登出嗎?
+Delivery Address
+送貨地址
+System Message
+系統信息
+Home
+主頁
+User Profile
+用戶資料
+Mobile Layout
+手機版
+Switch to Mobile Layout
+切換至手機版
+Switch to PC Layout
+切換至桌面版
+Desktop Layout
+桌面版
+Switch To Normal Scale
+切換至正常版面
+Switch To Large Scale
+切換至大版面
+Expiry Date/Lot Number
+到期日/批次號
+Pending for Delivery
+待送貨
+Print Label
+打印標籤
+Filter:
+篩選:
+Report Column
+報表列
+Aggregate Function
+聚合函數
+Aggregate Column
+聚合列
+Create Report
+創建報表
+Save Preset
+保存預設
+Clear Preset
+清除預設
+Column List
+列清單
+Output format
+輸出格式
+File name
+檔名
+Orientation
+方向
+Paper size
+紙張尺寸
+Font size
+字型大小
+Alternate row color
+交替行顏色
+Hide empty columns
+隱藏空列
+Portrait
+豎向
+Landscape
+橫向
+General Report
+一般報表
+Order No
+訂單號
+Quick Filter
+快速篩選
+No Record
+沒有記錄
+No Record Details
+無記錄詳情
+Please enter record detail
+請輸入記錄詳情
+Salesman
+銷售員
+Promotion
+促銷
+*required
+*必需的
+Required
+必需的
+Pick By Select
+通過選擇來挑選
+Please input any keyword
+請輸入任意關鍵字
+Menu Filter
+菜單篩選
+Hide this menu
+隱藏此菜單
+Download
+下載
+Print
+打印
+Add new record
+添加新記錄
+Delete record
+刪除記錄
+Click to expand button group
+單擊以展開按鈕組
+Previous Record
+上一個記錄
+Reload Current Record From DB
+從數據庫重新加載當前記錄
+Save Record
+保存記錄
+Close Record
+關閉記錄
+Today
+今天
+Month Start
+月開始
+Month End
+月末
+Clear
+清除
+Please choose an option
+請選擇項目
+Monday
+星期一
+Tuesday
+星期二
+Wednesday
+星期三
+Thursday
+星期四
+Friday
+星期五
+Saturday
+星期六
+Sunday
+星期日
+Title
+標題
+Record Limit
+記錄限制
+Condition List
+條件清單
+All Field Mode
+所有字段模式
+Any Field Mode
+任意字段模式
+Condition Block
+條件塊
+Please drag data field here to build condition block
+請將數據字段拖至此處以構建條件塊
+Please drag field here
+請將字段拖至此處
+Please drag data field here to build predicate
+請將數據字段拖至此處以構建謂詞
+Add data field to condition block
+將數據字段添加到條件塊
+Custom Query String
+自定義查詢字符串
+Save Preset
+保存預設
+Delete Preset
+刪除預設
+Set as default
+設為默認
+Public mode
+公共模式
+Accesskey
+訪問密鑰
+Accesskey for public mode
+公共模式的訪問密鑰
+Display record count in dashboard
+在儀表板中顯示記錄計數
+Set current preset as default.
+將當前預設設置為默認。
+Not applicable to public preset.
+不適用於公共預設。
+Choose preset search condition.
+選擇預設的搜索條件。
+You can define your own search condition by using advanced search.
+您可以使用高級搜索來定義自己的搜索條件。
+Match all fields within block and match any blocks
+匹配塊內的所有字段並匹配任意塊
+- Join Fields with AND connector.
+- 使用AND連接器連接字段。
+- Join Condition Blocks with OR connector.
+- 使用OR連接器連接條件塊。
+Match any fields within block and match all blocks
+匹配塊內的任意字段並匹配所有塊
+- Join Fields with OR connector.
+- 使用OR連接器連接字段。
+- Join Condition Blocks with AND connector.
+- 使用AND連接器連接條件塊。
+Up
+向上
+Down
+向下
+Blocks Connector
+塊連接器
+Fields Connector
+字段連接器
+Custom SQL
+自定義SQL
+Reset to default
+重置到默認
+Search by condition
+按條件搜索
+Refresh search results based on query conditions
+根據查詢條件刷新搜索結果
+Record reloaded
+記錄已重新加載
+Load record - %d records found
+加載記錄 - 找到%d條記錄
+Please select a record first
+請先選擇一條記錄
+Preset saved
+預設已保存
+Preset deleted
+預設已刪除
+Reload record - %d records found
+重新加載記錄 - 找到%d條記錄
+Reload record - Query result has more than the limit of %d Records. Please refine search condition or increase the limit
+重新加載記錄 - 查詢結果超過%d條記錄的限制。 請優化搜索條件或提高限制
+Input field removed
+輸入字段已刪除
+Input field cleared
+輸入字段已清除
+Hotkey(Alt+%c) not supported
+不支持熱鍵(Alt+%c)
+Batch mode not allowed to select record
+批處理模式不允許選擇記錄
+Reloads record - Error:%s
+重新加載記錄 - 錯誤：%s
+Load record fail
+加載記錄失敗
+Unable to obtain record index
+無法獲取記錄索引
+Please input condition!
+請輸入條件!
+First, select record(s) for maintain
+首先，選擇要維護的記錄
+Next, choose action
+接下來，選擇操作
+Record is currently locked and ready for save
+記錄當前已鎖定並準備保存
+Next Record loaded
+已加載下一條記錄
+No Next Record
+沒有下一條記錄
+Previous Record loaded
+已加載上一條記錄
+No Previous Record
+沒有上一條記錄
+Record is updating. Reload action abort
+記錄正在更新。重新加載操作中止
+Confirm Save Changes?
+確認保存更改嗎？
+%d Added, %d Updated, %d Deleted
+增加%d、更新%d、刪除%d
+Unknow Action
+未知操作
+Fetch Record Error
+獲取記錄錯誤
+Record not found
+找不到記錄
+Summary
+總結
+Display Column
+顯示列
+Sort Ascending
+升序排序
+Sort Descending
+降序排序
+Sort Multicolumn
+多列排序
+Ascending
+升序
+Descending
+降序
+Clear
+清除
+Batch Update
+批量更新
+No permission
+沒有權限
+No changes detected. Action ignore.
+未檢測到任何變化。 操作忽略。
+Primary Key Not In Import File, Cannot Import
+主鍵不在導入文件中，無法導入
+Import Error
+導入錯誤
+Update Completed: %d Added, %d Updated, %d Skipped
+更新已完成：%d添加，%d更新，%d跳過
+Commit Work Failed, please upload again
+提交工作失敗，請重新上傳
+File Not Selected
+未選擇文件
+Failed to load at row %d: %s
+無法在第%d行加載：%s
+Please choose preset item
+請選擇預設項目
+Please Select Items To Proceed
+請選擇要繼續的項目
+Record Details
+記錄詳情
+Record Sid:%d
+記錄Sid: %d
+Avg: %s
+平均: %s
+Min: %s
+最小: %s
+Max: %s
+最大: %s
+Sum: %s
+總和: %s
+Count: %d
+計數: %d
+Unique Count: %d
+唯一計數: %d
+Avg: %f
+平均: %f
+Min: %d
+最小: %d
+Max: %d
+最大: %d
+Sum: %d
+總和: %d
+No rows selected
+未選擇行
+Please choose batch update column
+請選擇批次更新列
+Update Failed
+更新失败
+Records Updated
+記錄已更新
+No changes made
+沒有做任何改變
+Batch Update Set
+批量更新集
+to
+至
+Please choose columns to display.
+請選擇要顯示的列。
+Select All / Select None
+全選/無選擇
+Merge common field
+合併公共字段
+As Import Template
+作為導入模板
+Export All Detail
+導出所有詳細信息
+Data Copied
+數據已複製
+Copy current record data to/from clipboard.
+將當前記錄數據複製到剪貼板或從剪貼板複製當前記錄數據。
+Remark: It exclude unsupported items.
+備註：不包括不支持的項目。
+Exporting...
+正在導出...
+Copying...
+正在複製...
+Processing...
+正在處理...
+Processing. Please wait...
+處理中。請稍候...
+Copy data to clipboard
+將數據複製到剪貼板
+Export data to file(json)
+導出數據到文件(json)
+Paste data from clipboard.
+從剪貼板粘貼數據。
+Import data from file(json).
+從文件(json)導入數據。
+Copy & Add
+複製並增加
+Section
+部分
+Local Section
+本地部分
+General Section
+一般部分
+All Section
+所有部分
+Include General Section
+包括一般部分
+Include blank content view
+包括空白內容視圖
+Current View
+當前視圖
+All View
+全部視圖
+Confirm export to file?
+確認導出到文件？
+The following view will be updated
+以下視圖將被更新
+View Id
+視圖ID
+View Name
+視圖名稱
+Click to show
+點擊顯示
+Display aggregate column first
+首先顯示聚合列
+Display aggregate result after regular column
+在常規列後顯示聚合結果
+Display aggregate column only
+僅顯示聚合列
+Excel Auto Filter
+Excel自動篩選
+Excel Single Sheet
+Excel單頁
+Show Query Conditions
+顯示查詢條件
+Any(Global)
+任意(全局)
+Regen Aggregate Error
+再生聚合錯誤
+Remove pivot column '%s'?
+刪除數據透視列"%s"?
+Are you sure to update the content?
+您確定要更新內容嗎？
+Pasting...
+正在貼上...
+Copy Error
+複製錯誤
+Export Error
+導出錯誤
+Current record exported to file
+當前記錄導出到文件
+Current record copied
+已複製當前記錄
+Editing in progress. Copy action abort
+編輯正在進行中。 複製操作中止
+Close button not found
+找不到關閉按鈕
+Add button not found
+找不到增加按鈕
+Invalid copied data
+複製的資料無效
+Paste fail
+貼上失敗
+Add button is invisibled or disabled
+增加按鈕不可見或被停用
+Paste completed
+貼上完成
+Clear finish
+清除完成
+Please check columns
+請檢查列
+Save finish
+保存完成
+Save preset fall
+保存預設失敗
+Invalid Input Value
+輸入值無效
+Access Denied
+拒絕訪問
+Warning
+警告
+Ignore duplicate event
+忽略重複事件
+Record Updated
+記錄已更新
+Unable to update user profile. Please try again later
+無法更新使用者個人資料。 請稍後再試
+Invalid secret key. Please try again later
+密鑰無效。 請稍後再試
+Invalid confirm code. Please try again
+確認碼無效。 請再試一次
+New password too short
+新密碼太短
+New password mismatch
+新密碼不匹配
+New password cannot contain special character
+新密碼不能包含特殊字符
+Fail to update prefered language
+無法更新首選語言
+Update password function disabled
+更新密碼功能已停用
+Must be mixture of both uppercase and lowercase letters and include at least one special character, e.g., ! @ # ?
+必須是大寫和小寫字母的混合，並且至少包含一個特殊字符，例如! @ # ?
+Invalid import file
+導入的文件無效
+Import from file finished
+從文件導入完成
+Help data not found
+找不到幫助數據
+Load all help data fail
+載入所有幫助數據失敗
+Print Packing List Error
+打印裝箱單錯誤
+Print Commerical Invoice Error
+打印商業發票錯誤
+Please Update and Save Invoice Number before Print Invoice
+請在打印發票前更新並保存發票號碼
+Print Invoice Error
+打印發票錯誤
+Please confirm before print Invoices
+打印發票前請確認
+Print D/N Error
+打印送貨單錯誤
+Only Jpeg/Png Image File Are Accepted
+僅接受Jpeg/Png圖片文件
+Please Select Items To Print
+請選擇要打印的項目
+Cannot Print more than 50 orders
+無法打印超過50個訂單
+Initialized Print Job Failed
+初始化打印作業失敗
+Fetch Record failed
+取得記錄失敗
+Print Invoice %s Failed
+打印發票%s失敗
+End Print Invoice Failed
+結束打印發票失敗
+Create Order %s Failed
+建立訂單%s失敗
+Create Order Failed
+建立訂單失敗
+Add Record Failed
+增加記錄失敗
+No Current Record
+沒有當前記錄
+Error !!! Add Record Failed
+錯誤!!! 增加記錄失敗
+Record Added
+已增加記錄
+Error !!! No Current Record
+錯誤!!! 沒有當前記錄
+Please Select Items To Purchase
+請選擇要採購的項目
+Create PO Failed : brand not exist
+創建採購單失敗: 品牌不存在
+Create PO Failed : Cannot create single PO for multiple brand
+建立採購單失敗: 無法為多個品牌建立單一採購單
+Create PO Failed : Cannot create single PO for both parts and machine
+建立採購單失敗: 無法為零件和機器建立單一採購單
+Create PO Failed : No Outstanding Item in selected list
+建立採購訂單失敗: 所選清單中沒有未完成的項目
+Please Select Items To Allocate
+請選擇要分配的項目
+Allocate Failed
+分配失敗
+Allocation Failed
+分配失敗
+Allocation Completed
+分配完成
+Success
+成功
+Please Select Items To Deliver
+請選擇要運送的物品
+Create D/N Failed : Cannot create single D/N for multiple customer
+建立送貨單失敗: 無法為多個客戶建立單一送貨單
+Create D/N Failed : Cannot create single D/N for multiple location
+建立送貨單失敗: 無法為多個位置建立單一送貨單
+Create D/N Failed : No Outstanding Item in selected list
+建立送貨單失敗: 所選清單中沒有未完成的項目
+Please Select Items To Receive
+請選擇要接收的物品
+Create GR Failed : Cannot create single GRN for multiple supplier
+建立收貨單失敗: 無法為多個供應商建立單一收貨單
+Create GR Failed : Cannot create single GRN for multiple location
+建立收貨單失敗: 無法為多個位置建立單一收貨單
+Create GRN Failed : No Outstanding Item in selected list
+建立收貨單失敗: 所選清單中沒有未完成的項目
+Preset name
+預設名稱
+Name too short
+名稱太短
+Create On
+創建日期
+Update On
+更新日期
+Calendar Date
+日曆日期
+Relative Date
+相對日期
+Week Start
+週開始
+Week End
+週末
+Year Start
+年開始
+Year End
+年末
+Print preview
+打印預覽
+Unabld to Auto Add
+無法自動新增
+Unabld to Auto Update
+無法自動更新
+Updated Automatically
+已自動更新
+New %s Added
+新增了%s
+Unabld to Auto Add or Update
+無法自動新增或更新
+Only pdf/jpg File are accepted
+僅接受pdf/jpg文件
+Error !!! Update Record Failed
+錯誤!!!  更新記錄失敗
+Retail Price & Discount
+零售價和折扣
+Purchase Order Popup
+採購單
+Delivery Order Popup
+送貨單
+and
+和
+equal
+等於
+field value = keyword
+字段值 = 關鍵字
+not equal
+不等於
+field value <> keyword
+字段值 <> 關鍵字
+greater
+大於
+field value > keyword
+字段值 > 關鍵字
+less
+小於
+field value < keyword
+字段值 < 關鍵字
+greater or equal
+大於或等於
+field value >= keyword
+字段值 >= 關鍵字
+less or equal
+小於或等於
+field value <= keyword
+字段值 <= 關鍵字
+in
+在
+field value in keyword1,keyword2,...
+字段值在關鍵字1, 關鍵字2, ...裡面
+not in
+不在
+field value not in keyword1,keyword2,...
+字段值不在關鍵字1, 關鍵字2, ...裡面
+between
+之間
+field value in between keyword1 and keyword2
+字段值在關鍵字1和關鍵字2之間
+not between
+不在之間
+field value not between keyword1 and keyword2
+字段值不在關鍵字1和關鍵字2之間
+like
+搜尋
+field value like keyword
+字段值中搜尋關鍵字
+not like
+不搜尋
+field value not like keyword
+字段值中不搜尋關鍵字
+is blank
+是空白
+field value is blank
+字段值是空白的
+is not blank
+不是空白
+field value is not blank
+字段值不是空白的
+contains
+包含
+field value contains keyword
+字段值包含關鍵字
+not contains
+不包含
+field value not contains keyword
+字段值不包含關鍵字
+Information
+資訊
+Auto confirm after import
+導入成功後自動確定
+Data updated
+數據已更新

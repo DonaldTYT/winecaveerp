@@ -1,0 +1,107 @@
+<?page title="new page title" contentType="text/html;charset=UTF-8"?>
+<zk>
+<grid style="text-align:left;" id="detail_grid">
+	<columns>
+		<column align="right" hflex="min" />
+		<column hflex="1" />
+	</columns>
+	<rows>
+		<row>
+			<label hflex="1" id="lb_svjob_rg" value="Ref. N"/>
+			<intbox id="svjob_rg"/>
+		</row>
+		<row>
+			<label hflex="1" id="lb_svjob_sertype" value="Service Type"/>
+			<radiogroup id="svjob_sertype"/>
+		</row>
+		<row>
+			<label hflex="1" id="lb_svjob_jobcode" value="Job Code"/>
+			<textbox id="svjob_jobcode"/>
+		</row>
+		<row>
+			<label hflex="1" id="lb_svloc_desp" value="Location"/>
+			<bandbox hflex="1" id="svloc_desp" use="com.uniinformation.jx.zk.ZkJxPickInput"/>
+		</row>
+		<row>
+			<label hflex="1" id="lb_svloc_addr1" value="Addr Line 1"/>
+			<textbox hflex="1" id="svloc_addr1"/>
+		</row>
+		<row>
+			<label hflex="1" id="lb_svloc_addr2" value="Addr Line 2"/>
+			<textbox hflex="1" id="svloc_addr2"/>
+		</row>
+		<row>
+			<label hflex="1" id="lb_svloc_city" value="City"/>
+			<textbox hflex="1" id="svloc_city"/>
+		</row>
+		<row>
+			<label hflex="1" id="lb_svloc_state" value="State"/>
+			<textbox hflex="1" id="svloc_state"/>
+		</row>
+		<row>
+			<label hflex="1" id="lb_svloc_contact" value="Contact"/>
+			<textbox hflex="1" id="svloc_contact"/>
+		</row>
+		<row>
+			<label hflex="1" id="lb_svloc_tel" value="Telephone"/>
+			<textbox hflex="1" id="svloc_tel"/>
+		</row>
+		<row>
+			<label hflex="1" id="lb_svloc_tel2" value="Mobile"/>
+			<textbox hflex="1" id="svloc_tel2"/>
+		</row>
+		<row>
+			<label hflex="1" id="lb_st_iname" value="Item Name"/>
+			<bandbox hflex="1" id="st_iname" use="com.uniinformation.jx.zk.ZkJxPickInput"/>
+		</row>
+		<row>
+			<label hflex="1" id="lb_st_modelno" value="Model No"/>
+			<textbox hflex="1" id="st_modelno"/>
+		</row>
+		<row>
+			<label hflex="1" id="lb_svmc_serno" value="Serial No"/>
+			<textbox hflex="1" id="svmc_serno"/>
+		</row>
+		<row>
+			<label hflex="1" id="lb_svjob_svdur" value="Duration"/>
+			<textbox id="svjob_svdur"/>
+		</row>
+		<row>
+			<label hflex="1" id="lb_svjob_faultcode" value="軟件訊息"/>
+			<textbox id="svjob_faultcode"/>
+		</row>
+		<row>
+			<label hflex="1" id="lb_svjob_status" value="Status"/>
+			<radiogroup hflex="1" id="svjob_status"/>
+		</row>
+		<row>
+			<label hflex="1" id="lb_svjob_stdate" value="Service Date"/>
+			<datebox id="svjob_stdate"/>
+		</row>
+		<row>
+			<label hflex="1" id="lb_svjob_sttime" value="Start Time"/>
+			<combobox id="svjob_sttime" use="com.uniinformation.jx.zk.ZkJxTimePicker"/>
+		</row>
+		<row>
+			<label hflex="1" id="lb_svjob_endtime" value="End Time"/>
+			<combobox id="svjob_endtime" use="com.uniinformation.jx.zk.ZkJxTimePicker"/>
+		</row>
+		<row>
+			<label hflex="1" id="lb_svjob_symtom" value="Description"/>
+			<textbox hflex="1" id="svjob_symtom" rows="3"/>
+		</row>
+		<row>
+			<label hflex="1" id="lb_svjob_service" value="Service"/>
+			<textbox hflex="1" id="svjob_service" rows="3"/>
+		</row>
+		<row>
+			<label hflex="1" id="lb_svjob_remark" value="Remark"/>
+			<textbox hflex="1" id="svjob_remark" rows="3"/>
+		</row>
+	</rows>
+</grid>
+	<toolbar id="detail_toolbar" align="end">
+		<button id="btUpload" label="Upload" visible="true"></button>
+		<button id="btView" label="View" visible="true"></button>
+	</toolbar>
+</zk>

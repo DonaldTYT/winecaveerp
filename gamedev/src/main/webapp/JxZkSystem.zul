@@ -1,0 +1,326 @@
+<?page title="test" contentType="text/html;charset=UTF-8"?>
+<zk>
+<window class="zkbi-form zkbi-main-window" id="winMain" title="" border="none" apply="com.uniinformation.jx.zk.JxZkSystem">
+<label sclass="zkbi-form-header" id="lbHeader" value="System Tools"></label>
+<vlayout sclass="zkbi-form-content">
+<tabbox width="100%" style="min-height:700px;">
+	<tabs>
+		<tab id="tabSystemInfo" label="System Info" />
+		<tab id="tabBroadcast" label="Broadcast" />
+		<tab id="tabSchema" label="ZkTemplate &amp; BiSchema" />
+		<tab id="tabCustomBiView" label="CustomBiView" />
+		<tab id="tabRestartService" label="Restart Service" />
+		<tab id="tabEmailSetup" label="Email Setup" />
+		<tab id="tabDebug" label="Debug" />
+		<tab id="tabDevice" label="Device" visible="true" />
+		<tab id="tabWinecave" label="Winecave" visible="false" />
+	</tabs>
+	<tabpanels hflex="1">
+		<tabpanel>
+			<vbox hflex="1">
+				<hbox>
+					<label style="font-weight:bold" value="System Info:" />
+					<vbox id="vboxSystemInfo"></vbox>
+					<space></space>
+					
+					<button id="btRefreshSysInfo" label="Refresh"></button>
+					<space></space>
+					<button id="btGCRefresh" label="GC &#38; Refresh"> </button>
+					<space></space>
+					<button id="btHealthCheck" label="Health Check(Experimental)"> </button>
+				</hbox>
+				<space />
+				<hbox id="hboxMaintMode" visible="false">
+					<label style="font-weight:bold" value="System Maintenance Mode:"></label>
+					<checkbox id="cbMaintMode" mold="switch" checked="false" tooltiptext="maintenance mode control. It will disable user login."></checkbox>
+				</hbox>
+				<space></space>
+				<hbox>
+					<label style="font-weight:bold" value="Active User List:" /> 
+				</hbox>
+				<listbox hflex="1" id="userList" height="500px"></listbox>
+			</vbox>
+
+		</tabpanel>
+		<tabpanel hflex="1">
+		<vbox hflex="1">
+			<hbox>
+				<label style="font-weight:bold" value="Broadcast message:">
+				</label>
+			</hbox>
+			<hbox visible="false">
+				<label value="Target:"></label>
+				<listbox id="targetList" mold="select" hflex="1">
+					<listitem label="All" value="ALL" selected="true" />
+				</listbox>
+			</hbox>
+			<hbox hflex="1">
+				<textbox id="tbBCMsg" rows="20" hflex="1" placeholder="Please type message" />
+			</hbox>
+			<button id="btSendBC" label="Send"></button>
+		</vbox>
+		</tabpanel>
+		<tabpanel>
+			<vbox hflex="1">
+				<label style="font-weight:bold" value="Zk Template Generator:" />
+				<hbox align="center">
+					<label value="View ID:"></label>
+					<textbox id="tbZkTemplateViewId" hflex="1" placeholder="Please type view id" />
+					<space></space>
+
+					<label value="MaxColIdx:"></label>
+					<intbox id="ibZkTemplateMaxColIdx" value="0"></intbox>
+					<button id="btZkTemplate" label="Generate Template"></button>
+				</hbox>
+				<hbox hflex="1">
+					<textbox id="tbZkTemplateOutput" rows="15" hflex="1" placeholder="Zk template Output" />
+				</hbox>
+				<space></space>
+				<label style="font-weight:bold" value="Export Current BiSchema:" />
+				<hbox>
+					<button id="btExportSchema" label="Export Schema (Download)"></button>
+					<button id="btExportSchemaUpdateIni" label="Export Schema (Update Current XML file)"></button>
+				</hbox>
+				<space></space>
+				<label style="font-weight:bold" value="Schema Compare Util:" />
+				<hbox>
+					<label value="Schema 1"></label>
+					<listbox id="lbSchema1Option" mold="select">
+						<listitem label="Current Schema"/> 
+						<listitem label="Upload Schema XML File"/> 
+					</listbox>
+					<textbox id="tbSchema1Status" width="300px" placeholder="Schema Status" readonly="true"></textbox>
+					<button id="btSchema1Upload" label="Upload" visible="false"></button>
+					<label id="lbSchema1Upload"/>
+				</hbox>
+				<hbox>
+					<label value="Schema 2"></label>
+					<listbox id="lbSchema2Option" mold="select">
+						<listitem label="Current Schema"/> 
+						<listitem label="Upload Schema XML File"/> 
+					</listbox>
+					<textbox id="tbSchema2Status" width="300px" placeholder="Schema Status" readonly="true"></textbox>
+					<button id="btSchema2Upload" label="Upload" visible="false"></button>
+					<label id="lbSchema2Upload"/>
+				</hbox>
+				<hbox>
+					<button id="btSchemaCompare" label="Compare Schema"></button>
+					<button id="btSchemaCompareResultDownload" label="Download Result" disabled="true"></button>
+					<button id="btSchemaCompareClear" label="Clear"></button>
+				</hbox>
+				<textbox id="tbSchemaCompareResult" rows="11" cols="100" readonly="true" placeholder="Schema Compare Result"></textbox>
+				<space></space>
+			</vbox>
+
+		</tabpanel>
+		<tabpanel>
+			<vbox hflex="1">
+				<label style="font-weight:bold" value="CustomBiView" />
+				<hbox align="center">
+					<label value="View ID:"></label>
+					<textbox id="tbCustomBiViewId" hflex="1" placeholder="View id" />
+					<space></space>
+					<button id="btCustomBiViewGetJson" label="Get Json"></button>
+				</hbox>
+				<hbox hflex="1">
+					<textbox id="tbCustomBiViewJson" rows="40" hflex="1" placeholder="Json Output" />
+				</hbox>
+				<button id="btCustomBiViewSave" disabled="true" label="Save Json"></button>
+			</vbox>
+
+		</tabpanel>
+		<tabpanel>
+			<vbox hflex="1">
+				<hbox>
+					<label style="font-weight:bold" value="Restart Service:">
+					</label>
+				</hbox>
+				<button id="btShutdown" label="System Shutdown" style="background:#f44336"> </button>
+				<space></space>
+				<hbox>
+				<button tooltiptext="seems not work. pls try restart jdbc connection" disabled="true" id="btCloseCachedJdbcPool" label="Close Cached JdbcPool" style="background:#f44336"> </button>
+				<button id="btRestartJdbcConn" label="Restart Jdbc Connection" style="background:#f44336"> </button>
+				</hbox>
+				<space></space>
+				<space></space>
+				<button id="btGC" label="System GC"> </button>
+				<space></space>
+				<hbox>
+				<button id="btReloadSchema" label="Reload BiSchema from DB and Clear Cache and Clear Excel BrCache" tooltiptext="It ignore schemaXML and try to load schema from JDBC"></button>
+				<space></space>
+				<button id="btClearSchemaCache" label="Clear BiSchema Cache" tooltiptext="It only clear global Schema Cache. It do not clear Session Schema, you need to relogin to see the update"></button>
+				<space></space>
+				<button id="btClearExcelBrCache" label="Clear Excel BrCache" tooltiptext="Clear global ExcelBrCache"></button>
+				<space></space>
+				<button id="btReloadConfig" label="Reload Erpv4Config" tooltiptext="Reload Erpv4Config"></button>
+				</hbox>
+				<space></space>
+				<button id="btClearTranslateCache" label="Clear Translate Cache"></button>
+				<space></space>
+				<button id="btClearCostCalculation" label="Clear Cost Calculation Cache"></button>
+				<space></space>
+				<button id="btClearAllLoginToken" label="Clear All LoginToken"></button>
+				<space></space>
+				<hbox>
+				<button id="btExportDDDAll" label="Export DDD All"></button>
+				</hbox>
+				<hbox>
+				<textbox id="tbImportDDDJoinDbName" placeholder="Database Name"/>
+				<button id="btImportDDDJoin" label="Import DDD Join"></button>
+				</hbox>
+				<hbox>
+				<textbox id="tbImportDDDViewDbName" placeholder="Database Name"/>
+				<textbox id="tbImportDDDViewId" placeholder="View Id"/>
+				<button id="btImportDDDView" label="Import DDD View"></button>
+				</hbox>
+			</vbox>
+		</tabpanel>
+		<tabpanel hflex="1">
+
+			<vbox hflex="1">
+				<hbox>
+					<label style="font-weight:bold" value="Email Setup:">
+					</label>
+				</hbox>
+				<hbox align="center" hflex="1">
+					<label value="SMTP Host:"></label>
+					<textbox id="tbSmtpHost" hflex="1" placeholder="smtp host (e.g. smtp.gmail.com) " />
+					<space />
+					<label value="Port:"></label>
+					<intbox id="ibSmtpPort" hflex="1" placeholder="smtp port (e.g. 465, 25, 587)" />
+					<space />
+					<label value="Security Mode:"></label>
+					<combobox value="NONE" id="cbbSecMode" width="100px" readonly="true">
+						<comboitem label="NONE" value="NONE" />
+						<comboitem label="SSL" value="SSL" />
+						<comboitem label="STARTTLS" value="STARTTLS" />
+					</combobox>
+					<space />
+					<label value="SSL Validate:"></label>
+					<combobox value="Y" id="cbbSSLValidate" width="100px" readonly="true">
+						<comboitem label="Y" value="Y" />
+						<comboitem label="N" value="N" />
+					</combobox>
+					<space hflex="1" />
+				</hbox>
+				<hbox align="center" hflex="1">
+					<label value="SMTP Login:"></label>
+					<textbox id="tbSmtpLogin" hflex="1" placeholder="Leave it blank if not required" />
+					<space />
+					<label value="SMTP Password:"></label>
+					<textbox id="tbSmtpPassword" hflex="1" placeholder="Leave it blank if not required" type="password"/>
+					<space />
+					<space hflex="3" />
+				</hbox>
+
+				<hbox align="center" hflex="1">
+					<label value="Default sender email address:"></label>
+					<textbox id="tbSmtpFrom" hflex="1" placeholder="sender email address (e.g. someone@somedomain.com) " />
+					<space hflex="3" />
+				</hbox>
+
+				<div id="divReportProblem">
+					<hbox>
+						<label style="font-weight:bold" value="Report Problem:">
+						</label>
+					</hbox>
+					<hbox align="center" hflex="1">
+						<label value="Email address:"></label>
+						<textbox id="tbReportProblemEmailTo" hflex="1" placeholder="email address (e.g. someone@somedomain.com) " />
+						<space hflex="3" />
+					</hbox>
+					<hbox align="center" hflex="1">
+						<label value="Zip password:"></label>
+						<textbox id="tbReportProblemZipPassword" hflex="1" type="password" placeholder="zip password" />
+						<space hflex="3" />
+					</hbox>
+				</div>
+
+				<button id="btSmtpSave" label="Save Email Config"></button>
+				<space />
+
+				<hbox>
+					<label style="font-weight:bold" value="Test Email:">
+					</label>
+				</hbox>
+				<hbox align="center" hflex="1">
+					<label value="To:"></label>
+					<textbox id="tbTestEmailTo" hflex="1" placeholder="Please input a recipient address" />
+					<space hflex="3" />
+				</hbox>
+				<hbox hflex="1">
+					<textbox id="tbTestEmailContent" rows="20" hflex="1" placeholder="Please type email content" />
+				</hbox>
+				<button id="btTestEmail" label="Send Email"></button>
+			</vbox>
+		</tabpanel>
+		<tabpanel hflex="1">
+			<vbox hflex="1">
+				<hbox>
+					<label style="font-weight:bold" value="Schema Debug:">
+					</label>
+					<checkbox id="cbSchemaDebug"></checkbox>
+				</hbox>
+				<hbox>
+					<label style="font-weight:bold" value="Jdbc Debug(Server Side):">
+					</label>
+					<checkbox id="cbJdbcDebug"></checkbox>
+				</hbox>
+				<hbox hflex="1">
+					<button id="btJdbcPoolStatus" label="JdbcPool Status"></button>
+				</hbox>
+				<hbox hflex="1">
+					<textbox id="tbJdbcDebugOutput" rows="15" hflex="1" placeholder="Jdbc Debug Output" />
+				</hbox>
+				<space />
+				<!-- 
+				<hbox>
+					<label style="font-weight:bold" value="Log Button (Global):">
+					</label>
+					<checkbox id="cbLogButton"></checkbox>
+				</hbox>
+				<space />
+				 -->
+				
+				<hbox align="center" hflex="1">
+					<label style="font-weight:bold"  value="Change Login ID:"></label>
+					<textbox id="tbChangeLoginId" placeholder="Login ID" /> 
+					<button id="btChangeLoginId" label="Change ID"></button>
+				</hbox>
+				<space />
+				<hbox align="center" hflex="1">
+					<label style="font-weight:bold"  value="DBLog(current session):"></label>
+					<checkbox mold="switch" label="Add" id="cbDbLogAdd"></checkbox>
+					<checkbox mold="switch" label="Update" id="cbDbLogUpdate"></checkbox>
+					<checkbox mold="switch" label="Delete" id="cbDbLogDelete"></checkbox>
+				</hbox>
+				<space />
+				
+				<hbox>
+					<label style="font-weight:bold" value="Debug Flag Control:" /> 
+					<button id="btRefreshDFList" label="Refresh"></button>
+				</hbox>
+				<listbox hflex="1" id="debugFlagList" height="300px"></listbox>
+			</vbox>
+		</tabpanel>
+		<tabpanel>
+			<vbox hflex="1">
+			</vbox>
+		</tabpanel>
+		<tabpanel>
+			<vbox hflex="1">
+				<hbox>
+				<button id="btGenWinecavePhotoSlideThumb" label="Generate Winecave thumbnail" style="background:#f44336"> </button>
+				<space></space>
+				<button id="btGenWinecavePhotoSlideThumbRewrite" label="Generate Winecave thumbnail(rewrite)" style="background:#f44336"> </button>
+				</hbox>
+			</vbox>
+		</tabpanel>
+	</tabpanels>
+</tabbox>
+
+</vlayout>
+
+
+</window>
+</zk>

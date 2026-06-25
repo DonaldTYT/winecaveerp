@@ -1,0 +1,27 @@
+<zk>
+<window sclass="zkbi-form zkbi-main-window" width="600px" apply="com.uniinformation.zkf.ZkCellActionForm">
+	<label sclass="zkbi-form-header" id="lbHeader" value="Lock Costing Entry Date"></label>
+	<vlayout sclass="zkbi-form-content">
+		<hlayout>
+			<div width="100px" align="right">
+			<label>Date </label>
+			</div>
+			<datebox id="mindate" format="yyyy/MM/dd"></datebox>
+		</hlayout>
+		<separator height="20px"></separator>
+		<div align="center">
+			<button width="100px" id="btOK" label="Update">
+				<custom-attributes actionHandler="com.uniinformation.erpv4.PerfJsonRpcCall" needResponse="Y"  actionId="erpv4LockCostDate"></custom-attributes>
+			</button>
+		</div>
+	</vlayout>
+	<div visible="false">
+		<textbox id="localccy" text="HKD"></textbox>
+		<textbox id="cocode" text="004"></textbox>
+		<!--  
+		<textbox id="module" text="AR"></textbox>
+		<textbox id="orderby" text="1"></textbox>
+		-->
+	</div>
+</window>
+</zk>

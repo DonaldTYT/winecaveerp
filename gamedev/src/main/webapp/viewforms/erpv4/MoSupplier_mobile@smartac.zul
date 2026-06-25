@@ -1,0 +1,85 @@
+<zk xmlns:n="native">
+	<toolbar id="detail_toolbar" align="end"> </toolbar>
+	<div style="background-color:white">
+			<bs-row>
+				<bs-col-311 align="center">
+					<image id="co_logo" height="100px" />
+				</bs-col-311>
+				<bs-col-311>
+				</bs-col-311>
+				<bs-col-311 align="center">
+	 				<label id="pageTitle" style="font-weight: bold;font-size:30px !important;" value="Stock In"><custom-attributes tlkey="hdr_erp_v4_MoSupplier"></custom-attributes></label>
+				</bs-col-311>
+					
+			</bs-row>
+			<bs-row>
+				<bs-col-321>
+					<zkbilistbox jxId="floc_desc" labelWidth="30%" compWidth="70%"/>
+					<zkbilistbox jxId="vd_vname" labelWidth="30%" compWidth="70%">
+					</zkbilistbox>
+					<zkbitextbox jxId="stm_ctrspec" labelWidth="30%" compWidth="70%" textboxRows="3">
+					</zkbitextbox>
+				</bs-col-321>
+				<bs-col-321>
+					<zkbidatebox jxId="stm_date" labelWidth="30%" compWidth="70%"> </zkbidatebox>
+					<zkbitextbox jxId="stm_ref1" labelWidth="30%" compWidth="70%"> </zkbitextbox>
+					<zkbitextbox jxId="stm_ref3" labelWidth="30%" compWidth="70%"> </zkbitextbox>
+					<zkbilistbox jxId="stm_cur" labelWidth="30%" compWidth="70%"> </zkbilistbox>
+					<zkbitextbox jxId="stm_tolAmt" labelWidth="30%" compWidth="70%"> </zkbitextbox>
+					<zkbilistbox jxId="stm_status" labelWidth="30%" compWidth="70%"> </zkbilistbox>
+				</bs-col-321>
+				<bs-col-321>
+				<!--
+					<zkbilabel jxId="stm_mrg" labelWidth="50%" compWidth="50%" ></zkbilabel>
+					<zkbilabel jxId="stm_cuser" labelWidth="50%" compWidth="50%" ></zkbilabel>
+					<zkbilabel jxId="stm_cdate" labelWidth="50%" compWidth="50%" ></zkbilabel>
+					-->
+				</bs-col-321>
+			</bs-row>
+			<div visible="false"> 
+				<label id="stm_mrg"/>
+				<label id="stm_cuser"/>
+				<label id="stm_cdate"/>
+				<label id="stm_ref2"/>
+			</div>
+	</div>
+<template name="template_erpv4_MoDet">
+		<div style="text-align:left">
+			<bs-row>
+			<!--
+			<vlayout>
+			-->
+					<zkbilistbox jxId="stmd_tdtype" labelWidth="30%" compWidth="60%"/>
+					<zkbipickinput jxId="st_icode" labelWidth="30%" compWidth="60%"/>
+					<zkbilabel jxId="st_iname" labelWidth="30%" compWidth="60%"/>
+					<zkbilistbox jxId="stmd_entryunit" labelWidth="30%" compWidth="60%"/>
+					<zkbidoublebox jxId="stmd_entryqty" labelWidth="30%" compWidth="60%"/>
+					<zkbidoublebox jxId="stmd_uprice" labelWidth="30%" compWidth="60%"/>
+					<zkbidoublebox jxId="stmd_exprice" labelWidth="30%" compWidth="60%"/>
+					<zkbilistbox jxId="stmd_ref4" labelWidth="30%" compWidth="60%"/>
+					<zkbidatebox jxId="stmd_exprdate" labelWidth="30%" compWidth="60%"/>
+					<zkbitextbox jxId="stmd_lotno" labelWidth="30%" compWidth="60%"/>
+			<!--
+			</vlayout>
+			-->
+			</bs-row>
+		</div>
+</template>	
+<!--
+	<template name="template_erpv4_MoDet_st_icode">
+		<vlayout>
+			<bandbox id="st_icode" use="com.uniinformation.jx.zk.ZkJxPickInput"/>
+			<label id="st_iname"></label>
+		</vlayout>
+	</template>
+	<template name="template_erpv4_MoDet_stmd_ref4" twidth="300px">
+		<vlayout>
+		<listbox id="stmd_ref4" width="100%" mold="select" height="20px"></listbox>
+		<hlayout>
+		<datebox id="stmd_exprdate"></datebox>
+		<textbox id="stmd_lotno"></textbox>
+		</hlayout>
+		</vlayout>
+	</template>
+	-->
+</zk>

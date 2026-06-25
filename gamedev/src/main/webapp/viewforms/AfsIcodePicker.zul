@@ -1,0 +1,38 @@
+<zk>
+<div width="680px">
+<vlayout>
+<!-- 
+<hlayout height="50px" valign="middle">
+<label>Brand</label>
+<combobox id="ipk_brand" width="150px"></combobox>
+<label>Part No</label>
+<textbox id="ipk_partno"></textbox>
+</hlayout>
+<hlayout height="50px" valign="center">
+<label>Item Code</label>
+<textbox id="ipk_icode"></textbox>
+</hlayout>
+<hlayout height="50px" valign="center">
+<label width="100px">Item Name</label>
+<textbox id="ipk_iname" width="300px"></textbox>
+</hlayout>
+ -->
+	<toolbar align="center">
+ 		<label>Filter:</label>
+ 		<textbox placeholder="Please input any keyword" id="ipk_filter"></textbox>
+ 		<!--  //change to single click, no longer require select button
+		<button id="btSelect" label="Select"></button>
+ 		 -->
+		<button id="btAdd" label="Add New Item"></button>
+	</toolbar>
+<listbox id="ipk_list" height="300px" width="100%">
+	<listhead>
+		<listheader width="250px" label="Item Code" />
+		<listheader label="Item Name" />
+		<listheader label="PO Number" />
+		<listheader label="Available Qty" />
+	</listhead>
+</listbox>
+</vlayout>
+</div>
+</zk>

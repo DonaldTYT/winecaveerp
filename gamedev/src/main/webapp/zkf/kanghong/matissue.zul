@@ -1,0 +1,27 @@
+<zk>
+<window apply="com.uniinformation.zkf.ZkMobileCellActionForm" hflex="1">
+<div align="center">
+<vlayout>
+<listbox >
+	<listhead>
+		<listheader label="Item Code" sort="auto" hflex="0.3"/>
+		<listheader label="Item Name" sort="auto" hflex="0.4"/>
+		<listheader label="Quantity" sort="auto"  hflex="0.3"/>
+	</listhead>
+	<listitem>
+		<listcell label="" />
+		<listcell label="" />
+		<listcell label="" />
+	</listitem>
+	<listitem>
+		<listcell label="" />
+		<listcell label="" />
+		<listcell label="" />
+	</listitem>
+</listbox>
+<textbox ></textbox>
+<button></button>
+</vlayout>
+</div>
+</window>
+</zk>

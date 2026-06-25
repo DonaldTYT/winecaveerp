@@ -1,0 +1,169 @@
+<window border="normal" width="1000px" height="600px" title="Welcome" apply="com.uniinformation.jx.zk.ZkJxComposer" id="WO2016_detail">
+<grid >
+   <columns visible="false" >
+      <column width="200px" /><!-- define 2 columns to enable auxhead/er -->
+      <column width="120px"/>
+      <column/>
+	</columns>
+    <rows>
+       <row> 
+       		Job Number/Title
+       		<intbox id="Pdg_jobnum" width="100px" disabled="true"></intbox>
+       		<textbox id="Pdg_title" width="600px"></textbox> 
+       </row>
+       <row> 
+       		Customer Code/Name
+       		<combobox id="Pdg_custcode" width="100px"></combobox> 
+       		<textbox id="Pdg_custname" width="600px" disabled="true"></textbox>
+       </row>
+    </rows>
+</grid>
+
+<tabbox id="Pc_je_detail" height="450px">
+	<tabs>
+		<tab label="Product Detail" />
+		<!-- 
+		<tab label="Pre-flight" />
+		<tab label="Packing and Delivery" />
+		 -->
+	</tabs>
+	<tabpanels>
+		<tabpanel id="Tn_pdtinfo">
+		   <grid height="400px">
+        	<columns visible="false" >
+        	    <column width="120px" /><!-- define 2 columns to enable auxhead/er -->
+        	    <column/>
+        	</columns>
+        	<rows>
+        		 <row> Category
+        		 	<hlayout>
+        		 	<combobox id="Pdg_catname" width="500px"></combobox>
+        		 	<!-- 
+        		 	<spinner id="Pdg_volcnt" constraint="no empty,min 1 max 30" ></spinner>
+        		 	 -->
+        		 	<spinner id="Pdg_volcnt" ></spinner>
+        		 	
+        		 	<checkbox id="Pdg_reprint" label="Reprint"/>
+        		 	
+        		 	</hlayout>
+        		 </row>
+        		 <row> Remark <textbox id="Pdg_remark" width="500px" /> </row>	
+        		 <row visible="false"> Size 
+        		 	<hlayout valign="middle">
+	        		 	<doublebox id="Pdg_qdepth" /> 
+	        		 	x
+	        		 	<doublebox id="Pdg_qwidth" /> 
+	        		 	<radiogroup id="Pdg_qmetric">
+	        		 		<radio label="inch"/>
+	        		 		<radio label="mm"/>
+	        		 	</radiogroup>
+	        		 	=
+	        		 	<doublebox id="Pdg_depth" disabled="true" /> 
+	        		 	x
+	        		 	<doublebox id="Pdg_width"  disabled="true"/> 
+	        		 	mm
+	        		 	<textbox id="Pdg_lp" disabled="true"></textbox>
+        		 	</hlayout>
+        		 </row>	
+        		 <row>
+        		 	Editions
+        			<spreadsheet id="editionGrid" src="/template/blank.xls" hflex="1" height="100px"/> 
+        		 </row>
+        		 <!-- 
+        		 <row> 
+        		 	Material
+	        		 	<hlayout id="Pdx_matpanel" valign="middle">
+	        		 		<div width="150px">
+		        		 	<label id="Pdx_matextname" value="XXXX"> </label>
+	        		 		</div>
+		        		 	<combobox id="Pdx_mattype" width="250px"></combobox>
+    		    		 	<combobox id="Pdx_matname" width="250px"></combobox>
+        				 	<combobox id="Pdx_matwt" width="100px"></combobox>
+        		 		</hlayout>	
+        		 </row>
+        		  -->
+        		 <row>
+        		 	Extents
+        		 	<vlayout id="Pdx_extents"> 
+						<template name="Pdx_exttemplate">
+	        		 	<hlayout id="Pdx_extpanel" valign="middle">
+	        		 		<div width="120px"> <label id="Pdx_extname"> </label> </div>
+<!-- 
+	        		 		<div width="120px">
+	        		 		<hlayout id="Pdx_pagebox" valign="middle"> 
+	        		 		Page
+				            <intbox id="Pdx_page" width="50px"/>
+	        		 		</hlayout>
+	        		 		</div>
+	        		 		Color
+				            <intbox id="Pdx_fcol" width="50px"/>
+	        				x 	
+				            <intbox id="Pdx_bcol" width="50px"/>
+ -->	        		 		
+        		 			<grid id="Pdx_optionlist" use="com.uniinformation.jx.zk.ZkJxCheckListBox" width="600px" height="100px"> 
+        		 		 		<columns visible="false" >
+      								<column width="180px"/>
+	      							<column width="180px"/>
+      								<column width="180px"/>
+								</columns>
+        		 			</grid>
+        		 		</hlayout>	
+        		 		</template>
+        		 	</vlayout>
+        		 </row>
+        		 <row visible="false">
+        		 	Materials
+        		 	<vlayout id="Pdx_materials"> 
+						<template name="Pdx_mattemplate">
+	        		 	<hlayout id="Pdx_matpanel" valign="middle">
+	        		 		<div width="80px"> <label id="Pdx_matextname"> </label> </div>
+		        		 	<combobox id="Pdx_mattype" width="200px"></combobox>
+    		    		 	<combobox id="Pdx_matname" width="400px"></combobox>
+        				 	<combobox id="Pdx_matwt" width="80px"></combobox>
+        		 		</hlayout>	
+        		 		</template>
+        		 	</vlayout>
+        		 </row>
+        		 <!-- 
+        		 <row>
+        		 	Finishing
+        		 	<listbox id="Pdx_optionlist" use="com.uniinformation.jx.zk.ZkJxCheckListBox" > </listbox>
+
+        		 </row>
+        		  -->
+        		 
+        		 <row spans="2" align="right">
+            </row>
+            </rows>
+    	</grid>	
+		</tabpanel>
+		<!-- 
+		<tabpanel></tabpanel>
+		<tabpanel id="Wo_delivery">
+			   <grid >
+        	<columns visible="false" >
+        	    <column width="120px" />
+        	    <column/>
+        	</columns>
+        	<rows>
+        		 <row> Edition
+        		 	<hlayout>
+        		 	<combobox id="xxf1" width="500px"></combobox>
+        		 	<spinner id="xxf2" ></spinner>
+        		 	</hlayout>
+        		 </row>
+        		 <row> Remark <textbox id="xxremark" hflex="1" /> </row>	
+            </rows>
+    	</grid>		
+		</tabpanel>
+		 -->
+	</tabpanels>
+</tabbox>
+                <hlayout>
+                <!--  
+                    <button id="Pb_recal" label="Re-Cal" />
+                -->
+                    <button id="btOK" label="OK" />
+                    <button id="btCancel" label="Cancel" />
+                </hlayout>
+</window>

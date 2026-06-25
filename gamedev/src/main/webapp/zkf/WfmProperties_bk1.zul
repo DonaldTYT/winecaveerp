@@ -1,0 +1,89 @@
+<zk xmlns:h="native">
+    <style>
+        .myWfmMsgHdr{
+        	font-size:10px !important;
+        }
+        .myListBox {
+            background: black;
+        }
+        .myalign_right {
+        	border-radius: 10px;
+			margin: 0 0 auto auto;
+			background: #DCF8C6;
+			padding: 10px;
+			color: black;
+        }
+        
+		.myalign_center {
+        	border-radius: 10px;
+			margin: 0 auto;
+			background: #bfc4dc;
+			padding: 10px;
+			color: black;
+		}
+
+		.myalign_left {
+        	border-radius: 10px;
+			margin: 0 0 0 0;
+			background: #fff3ce;
+			padding: 10px;
+			color: black;
+		}
+		.myVisArea {
+        	border-radius: 20px;
+			background: white;
+		}
+		
+    </style>
+
+
+<div>
+	<vlayout>
+       	<div align="middle" id="taskDetailEmptyPage" visible="false">Please Select Record</div>
+		<div id="taskDetailPage" visible="true">
+		<div align="middle">
+			<vlayout>
+    		<label id="nodeprop_id"></label>
+    		<label id="nodeprop_title"></label>
+    		<label id="nodeprop_task"></label>
+    		<label id="nodeprop_status"></label>
+			</vlayout>
+		</div>
+		<div id="visNwEventDiv" height="300px" align="middle"> 
+			<h:div style="width:95%; height:95%;" id="visNwContentDiv" class="myVisArea"></h:div>
+		</div>
+		<hlayout>
+		<div hflex="0.1">
+		<vlayout>
+   		<button id="btBackToList" visible="false">Back</button>
+   		</vlayout>
+		</div>
+		<div width="80px"> </div>
+		</hlayout>
+		<listbox id="wfmActivity" height="500px" class="myListBox"> </listbox>
+		<hlayout>
+		  		<vlayout width="100px">
+			  	<label>Start</label>
+	    		<checkbox id="nodeprop_switchstart" mold="switch"/>
+		  		</vlayout>
+		  		<vlayout width="100px">
+			  	<label>Complete</label>
+	    		<checkbox id="nodeprop_switchend" mold="switch"/>
+		  		</vlayout>
+		</hlayout>
+   		<hlayout>
+   			<radiogroup id="nodeprop_choice">
+				<radio label="Choice0"/>
+				<radio label="Choice1"/>
+				<radio label="Choice2"/>
+   			</radiogroup>
+   		</hlayout>
+		<hlayout>
+   			<textbox id="wfmMessage" multiline="true" rows="3"></textbox>
+   			<image id="wfmImage" width="48px" src="images/camera.png"></image>
+   			<button id="btSubmitChange" disabled="true">Submit</button>
+		</hlayout>
+		</div>
+	</vlayout>
+</div>
+</zk>

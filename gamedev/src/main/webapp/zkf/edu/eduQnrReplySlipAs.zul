@@ -1,0 +1,57 @@
+<zk xmlns:h='http://www.w3.org/1999/xhtml'>
+	<grid>
+		<rows>
+			<row>
+				<cell>
+					<separator/>
+					Our workshop is open for the summer, should you wish to take leave for your child please specify the dates. <separator/>
+					We shall assign your child/children to suitable classes for the forthcoming academic year according to their learning ability, progress as well as attendance.
+					<separator/>
+				</cell>
+			</row>
+			<row>
+				<div>
+					Class attendings:
+					<checkbox id="ca_001" label="Phonics"/>
+					<checkbox id="ca_002" label="Language Arts"/>
+					<checkbox id="ca_003" label="Math"/>
+					<checkbox id="ca_004" label="Alludio"/>
+					<checkbox id="ca_005" label="Chinese (Canto/PTH/Pingyin)"/>
+					<checkbox id="ca_006" label="Playgroup (Catepillar/Linguist/Eggies)"/>
+					<space/>
+				</div>
+			</row>
+			<row>
+				<div>
+					1. Do you plan to have any holidays in the summer?
+					<space/><radiogroup id="q1_001"> <radio label="Yes"/> <radio label="No"/> </radiogroup>
+				</div>
+			</row>
+			<row>
+				<div>
+					2. Do you intend to enroll your child to the courses(s) during the coming academic year?
+					<space/><radiogroup id="q2_001"> <radio label="Yes"/> <radio label="No"/> </radiogroup>
+				</div>
+			</row>
+			<row>
+				<div>
+					3. For the coming academic year:<space/><h:br></h:br>
+					<space/>School: <textbox id="q3_001" width="500px"></textbox> <h:br/>
+					<space/>Grade: <textbox id="q3_002" width="200px"></textbox><h:br/>
+					<space/>Time: <h:br/>
+					<space width="10px"/><checkbox id="q3_003" label="AM"></checkbox> <space/><textbox id="q3_003_1" placeholder="HH:MM" width="60px"/> to <textbox id="q3_003_2" placeholder="HH:MM" width="60px"/><h:br/>
+					<space width="10px"/><checkbox id="q3_004" label="PM"></checkbox> <space/><textbox id="q3_004_1" placeholder="HH:MM" width="60px"/> to <textbox id="q3_004_2" placeholder="HH:MM" width="60px"/><h:br/>
+					<space width="10px"/><checkbox id="q3_005" label="Full-Day"/>
+				</div>
+			</row>
+			<row visible="false" id="rowButtons">
+				<cell> 
+					<button id="btSubmit" label="Submit"></button>
+					<space></space>
+					<button id="btCancel" label="Cancel"></button>
+					<space></space>
+				</cell>
+			</row>
+		</rows>
+	</grid>
+</zk>

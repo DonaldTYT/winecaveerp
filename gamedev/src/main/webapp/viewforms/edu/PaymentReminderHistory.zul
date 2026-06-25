@@ -1,0 +1,130 @@
+<zk>
+<zscript>
+<![CDATA[
+	import com.uniinformation.webcore.*;
+	SessionHelper sessionHelper = SessionHelper.getSessionHelper();
+	String gridLeftWidth = sessionHelper.isMobile() ? "120px" : "300px";
+]]>
+</zscript>
+<toolbar id="detail_toolbar" align="end">
+	<button id="btPrint" label="Print"/>
+	<button id="btResend" label="Resend"/>
+</toolbar>
+<tabbox id="detail_tabbox">
+	<tabs>
+	    <tab id="tab1" label="Email Content" />
+	    <tab id="tab2" label="Data" />
+	</tabs>
+	<tabpanels>
+	    <tabpanel>
+	    	<div vflex="1" style="display:flex;display:-webkit-flex;justify-content:center;-webkit-justify-content:center;">
+	    		<div style="width:100%;max-width:900px;background:white;padding:50px 0">
+	    			<html style="display:block" id="html_email_content"/>
+	    		</div>
+	    	</div>
+	    </tabpanel>
+	    <tabpanel>
+			<grid style="text-align:left;background:#C3D3DC;" id="detail_grid" vflex="1">
+				<columns>
+					<column align="right" width="${gridLeftWidth}" />
+					<column hflex="1" />
+				</columns>
+				<rows>
+					<row>
+						<label id="lb_esprh_invoiceno" value="Invoice Number"><custom-attributes tlkey="lb_esprh_invoiceno"></custom-attributes></label>
+						<textbox id="esprh_invoiceno"/>
+					</row>
+					<row>
+						<label id="lb_eaav0_code" value="Course Code"><custom-attributes tlkey="lb_eaav0_code"></custom-attributes></label>
+						<combobox id="eaav0_code"/>
+					</row>
+					<row>
+						<label id="lb_eaav0_name" value="Course Name"><custom-attributes tlkey="lb_eaav0_name"></custom-attributes></label>
+						<textbox id="eaav0_name"/>
+					</row>
+					<row>
+						<label id="lb_estt_name" value="Tutor"><custom-attributes tlkey="lb_estt_name"></custom-attributes></label>
+						<textbox id="estt_name"/>
+					</row>
+					<row>
+						<label id="lb_eaav0_sessionday" value="Days"><custom-attributes tlkey="lb_eaav0_sessionday"></custom-attributes></label>
+						<textbox id="eaav0_sessionday"/>
+					</row>
+					<row>
+						<label id="lb_esprh_startdate" value="First Session Date"><custom-attributes tlkey="lb_esprh_startdate"></custom-attributes></label>
+						<datebox id="esprh_startdate"/>
+					</row>
+					<row>
+						<label id="lb_eaav0_sessiontime" value="Time"><custom-attributes tlkey="lb_eaav0_sessiontime"></custom-attributes></label>
+						<combobox id="eaav0_sessiontime" use="com.uniinformation.jx.zk.ZkJxTimePicker"/>
+					</row>
+					<row>
+						<label id="lb_eaav0_sessionlen" value="Duratin(Min)"><custom-attributes tlkey="lb_eaav0_sessionlen"></custom-attributes></label>
+						<intbox id="eaav0_sessionlen"/>
+					</row>
+					<row>
+						<label id="lb_essd_sdno" value="Student Code"><custom-attributes tlkey="lb_essd_sdno"></custom-attributes></label>
+						<combobox id="essd_sdno"/>
+					</row>
+					<row>
+						<label id="lb_essd_name" value="Student Name"><custom-attributes tlkey="lb_essd_name"></custom-attributes></label>
+						<textbox id="essd_name"/>
+					</row>
+					<row>
+						<label id="lb_essd_firstname" value="First Name"><custom-attributes tlkey="lb_essd_firstname"></custom-attributes></label>
+						<textbox id="essd_firstname"/>
+					</row>
+					<row>
+						<label id="lb_essd_contactby" value="Contact Person"><custom-attributes tlkey="lb_essd_contactby"></custom-attributes></label>
+						<textbox id="essd_contactby"/>
+					</row>
+					<row>
+						<label id="lb_eaav0_numsession" value="Number of Session"><custom-attributes tlkey="lb_eaav0_numsession"></custom-attributes></label>
+						<textbox id="eaav0_numsession"/>
+					</row>
+					<row>
+						<label id="lb_eaav0_coursefee" value="Fee/Sessions"><custom-attributes tlkey="lb_eaav0_coursefee"></custom-attributes></label>
+						<textbox id="eaav0_coursefee"/>
+					</row>
+					<row>
+						<label id="lb_esprh_adjust" value="Adjustment"><custom-attributes tlkey="lb_esprh_adjust"></custom-attributes></label>
+						<textbox id="esprh_adjust"/>
+					</row>
+					<row>
+						<label id="lb_esprh_remtime" value="Reminder Date"><custom-attributes tlkey="lb_esprh_remtime"></custom-attributes></label>
+						<datebox id="esprh_remtime"/>
+					</row>
+					<row>
+						<label id="lb_esprh_sremcnt" value="Sess Remain"><custom-attributes tlkey="lb_esprh_sremcnt"></custom-attributes></label>
+						<intbox id="esprh_sremcnt"/>
+					</row>
+					<row>
+						<label id="lb_esprh_finsdate" value="Fin Sess Date"><custom-attributes tlkey="lb_esprh_finsdate"></custom-attributes></label>
+						<datebox id="esprh_finsdate"/>
+					</row>
+					<row>
+						<label id="lb_esprh_toemail" value="Email Destination"><custom-attributes tlkey="lb_esprh_toemail"></custom-attributes></label>
+						<textbox id="esprh_toemail"/>
+					</row>
+					<row>
+						<label id="lb_esprh_status" value="Status"><custom-attributes tlkey="lb_esprh_status"></custom-attributes></label>
+						<textbox id="esprh_status"/>
+					</row>
+					<row>
+						<label id="lb_esprh_result" value="Result"><custom-attributes tlkey="lb_esprh_result"></custom-attributes></label>
+						<textbox id="esprh_result"/>
+					</row>
+					<row>
+						<label id="lb_esprh_remuser" value="Create User"><custom-attributes tlkey="lb_esprh_remuser"></custom-attributes></label>
+						<textbox id="esprh_remuser"/>
+					</row>
+					<row>
+						<label id="lb_esprh_attendhis" value="Student Attendance History"><custom-attributes tlkey="lb_esprh_attendhis"></custom-attributes></label>
+						<textbox id="esprh_attendhis" rows="10"/>
+					</row>
+				</rows>
+			</grid>
+	    </tabpanel>
+	</tabpanels>
+</tabbox>
+</zk>

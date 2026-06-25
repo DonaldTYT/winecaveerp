@@ -1,0 +1,57 @@
+{
+  "intro": {
+    "tag": "立即預訂你的品飲體驗",
+    "title": "預約品酒室",
+    "desc": "以私密而舒適的空間，與好友一同探索各地美酒的風土與故事。現在就安排下一次的專屬品飲時光吧。",
+    "cta": "選購美酒"
+  },
+  "s1": {
+    "tag": "從葡萄園到酒杯，每一步都講究",
+    "title": "Vineyard to Glass",
+    "paras": [
+      "我們精選來自世界各地的佳釀，從產區到釀造細節都有專人把關，確保每一口都能如實呈現風土與年份的個性。",
+      "在專業侍酒的引導下，你可以更輕鬆地理解品飲重點，找到屬於自己的味譜與偏好。",
+      "無論是初嚐葡萄酒或進階玩家，這裡都是你探索酒世界的理想起點。"
+    ],
+    "ctaGuides": "美酒指南",
+    "ctaContact": "聯絡 Wine Cave"
+  },
+  "s2": {
+    "tag": "小食佐酒，微醺剛剛好",
+    "title": "最懂你的 Happy Hour",
+    "subtitle": "．Flights．Bites．Pours．",
+    "desc": "忙碌一週後，放慢步調，好好乾一杯。每日 4–6pm Happy Hour，嚴選酒款與輕食搭配，療癒你的味蕾與心情。",
+    "cards": [
+      {
+        "title": "西切斯特 Wednesdays",
+        "text": "西切斯特在地朋友專屬：紅／白／粉紅酒 House pour 每杯 USD10，指定 Happy Hour 食物菜單全天供應。"
+      },
+      {
+        "title": "Thirsty Thursday",
+        "text": "酒款品飲組合 Flights 折 USD5、堂飲瓶裝折 USD10、啤酒折 USD1；另有完整 Happy Hour 食物菜單。"
+      },
+      {
+        "title": "9 for 5 Fridays",
+        "text": "指定酒款 9oz 以 5oz 價享用，啤酒折 USD1；搭配完整 Happy Hour 食物菜單。"
+      }
+    ]
+  },
+  "s3": {
+    "tag": "找到你心中的那一杯",
+    "title": "手工精神 × 靈感場域 × 美味佐食",
+    "hours": {
+      "label": "營業時間",
+      "monTue": "週一 – 週二：公休",
+      "wedThu": "週三 – 週四：4pm–9pm",
+      "fri": "週五：4pm–10pm",
+      "sat": "週六：12pm–10pm",
+      "sun": "週日：12pm–7pm"
+    },
+    "paras": [
+      "我們相信，好的品飲體驗來自於空間、服務與酒款的完整搭配；從溫控到餐酒建議，細節都是關鍵。",
+      "帶著你的問題或喜好來吧，讓我們一起為你找到適合當下心情的那一杯。"
+    ],
+    "ctaGuides": "美酒指南",
+    "ctaContact": "聯絡 Wine Cave"
+  }
+}

@@ -1,0 +1,63 @@
+<zk>
+<window sclass="zkbi-form zkbi-main-window" width="600px" apply="com.uniinformation.zkf.ZkCellActionForm">
+	<vlayout>
+	<div align="center">
+		<label>AXA EDI</label>
+	</div>
+	<div align="center">
+		<hlayout>
+			<button id="btUploadPHR" label="Upload Policy Holder PHR">
+				<custom-attributes actionHandler="com.uniinformation.axa.EdiAction" actionId="uploadPHR" needResponse="Y" uploadType="dat"></custom-attributes>
+			</button>
+		</hlayout>
+	</div>
+	<div align="center">
+		<hlayout>
+			<button id="btUploadPOL" label="Upload Policy Class POL">
+				<custom-attributes actionHandler="com.uniinformation.axa.EdiAction" actionId="uploadPOL" needResponse="Y" uploadType="dat"></custom-attributes>
+			</button>
+		</hlayout>
+	</div>
+	<div align="center">
+		<hlayout>
+			<button id="btUploadCVP" label="Upload Covered Persion CVP">
+				<custom-attributes actionHandler="com.uniinformation.axa.EdiAction" actionId="uploadCVP" needResponse="Y" uploadType="dat"></custom-attributes>
+			</button>
+		</hlayout>
+	</div>
+	<div align="center">
+		<hlayout>
+			<button id="btUploadSTA" label="Upload Claim Statistics STA">
+				<custom-attributes actionHandler="com.uniinformation.axa.EdiAction" actionId="uploadSTA" needResponse="Y" uploadType="dat"></custom-attributes>
+			</button>
+		</hlayout>
+	</div>
+	<div align="center">
+		<hlayout>
+			<button id="btUploadER2" label="Upload ERR file ER2">
+				<custom-attributes actionHandler="com.uniinformation.axa.EdiAction" actionId="uploadER2" needResponse="Y" uploadType="dat"></custom-attributes>
+			</button>
+			<checkbox id="errAPHR" label="APHR"/>
+			<checkbox id="errAPOL" label="APOL"/>
+			<checkbox id="errACVP" label="ACVP"/>
+			<checkbox id="errSPCN" label="SPCN"/>
+			<checkbox id="errCHGC" label="CHGC"/>
+		</hlayout>
+	</div>
+	<div align="center">
+		<hlayout>
+			<button visible="true" id="btPollEmail" label="Poll Email EDI">
+				<custom-attributes actionHandler="com.uniinformation.axa.EdiAction" actionId="pollEmailEdi" needResponse="Y"></custom-attributes>
+			</button>
+		</hlayout>
+	</div>
+	<div align="center">
+		<hlayout>
+			<button visible="true" id="btPollNotice" label="Poll Email Notice">
+				<custom-attributes actionHandler="com.uniinformation.axa.EdiAction" actionId="pollEmailNotice" needResponse="Y"></custom-attributes>
+			</button>
+		</hlayout>
+	</div>
+	</vlayout>
+</window>
+</zk>	

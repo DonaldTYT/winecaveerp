@@ -1,0 +1,39 @@
+<zk>
+<window sclass="zkbi-form zkbi-main-window" width="600px" >
+	<label sclass="zkbi-form-header" id="lbHeader" value="Student Filter"></label>
+	<vlayout sclass="zkbi-form-content">
+		<hlayout>
+			<label>Age from</label>
+			<intbox></intbox>	
+			<label>to</label>
+			<intbox></intbox>	
+		</hlayout>
+		<hlayout>
+			<label>Subject</label>
+			<combobox></combobox>	
+		</hlayout>
+		<hlayout>
+			<label>Assesed Grade From</label>
+			<intbox></intbox>	
+			<label>to</label>
+			<intbox></intbox>	
+		</hlayout>
+		<hlayout>
+			<label>Target Grade From</label>
+			<intbox></intbox>	
+			<label>to</label>
+			<intbox></intbox>	
+		</hlayout>
+		<hlayout>
+		</hlayout>
+		<separator height="20px"></separator>
+		<div align="center">
+			<button width="100px" id="btOK" label="Print">
+				<custom-attributes actionHandler="com.uniinformation.erpv4.PerfJsonRpcReport" actionId="erpv4PrintInvList" actionData="{'fileName':'ar_invoice_list.pdf'}"></custom-attributes>
+			</button>
+		</div>
+	</vlayout>
+	<div visible="false">
+	</div>
+</window>
+</zk>

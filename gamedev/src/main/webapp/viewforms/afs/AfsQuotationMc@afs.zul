@@ -1,0 +1,71 @@
+<zk>
+<style dynamic="true">
+<!-- cut/hide the vertical borders in the grid rows -->
+.myGridWithNoBorder tr.z-row td.z-row-inner { border-right: 0px #CCC; }
+.GridLayoutNoBorder tr.z-row td.z-row-inner, tr.z-row .z-cell,div.z-grid 
+{ 
+border: none; 
+overflow: hidden; 
+zoom: 1; 
+#background:#f8f8f8 !important;  <!-- remove hover -->
+background:white !important;  <!-- remove hover -->
+border-top: none; 
+border-left: none; 
+border-right: none; 
+border-bottom: none; 
+} 
+</style>
+	<toolbar id="detail_toolbar" align="end">
+		<button id="btConfirmOdr" label="Confirm" visible="true"></button>
+		<button id="btUnConfirmOdr" label="Unconfirm" visible="true"></button>
+		<button id="btVoidOdr" label="Void" visible="true" disabled="true"></button>
+		<button id="btReviseOdr" label="Revise" visible="true" disabled="true"></button>
+		<button id="btCopyOdr" label="Copy" visible="true" disabled="false"></button>
+		<button id="btPrintBody" label="Print" visible="true" disabled="true"></button>
+		<button id="btTestModel" label="TestModel" visible="false"></button>
+		<button id="btPrintQuo" label="Print Quotation" visible="true" disabled="false"></button>
+		<button id="btPrintCon" label="Print Contract" visible="true" disabled="false"></button>
+	</toolbar>
+	<listbox id="list_AfsQuoDet">
+	<listhead>
+			<listheader width="80px">
+		<box hflex="1" align="center">
+	    	<toolbarbutton id="btAddPopup" sclass="narrowtoolbarbutton" image="images/row_add20.png" onClick='puAddPopup.setAttribute("actionIdx",-1); puAddPopup.open(self)' />
+		</box>
+    	<popup id="puAddPopup">
+		<vbox>
+			<div width="120px"></div>
+   	    	<button id="btAddQuoDet_5" width="120px" label="Series" onClick="puAddPopup.close()" visible="false"/>
+		   	<!-- test add multiple begin -->
+			<menupopup id="mpAddQuoDet_1">
+				<menuitem label="Add 5 Stock Items">
+					<attribute name="onClick"><![CDATA[
+						Events.postEvent("onClick", btAddQuoDet_1, "{ 'multipleCnt':5 }");
+					]]></attribute>
+				</menuitem>
+				<menuitem label="Add 10 Stock Items">
+					<attribute name="onClick"><![CDATA[
+						Events.postEvent("onClick", btAddQuoDet_1, "{ 'multipleCnt':10 }");
+					]]></attribute>
+				</menuitem>
+			</menupopup>
+			
+			<space/>
+			<div class="btn-group">
+				<button id="btAddQuoDet_1" width="120px" class="btn" label="Stock Item" onClick="puAddPopup.close()"/>
+				<button style="min-width:0px;" class="btn dropdown-toggle" onClick='mpAddQuoDet_1.open(self.previousSibling, "after_start")'></button>
+			</div>	
+		   	<!-- test add multiple end -->
+   	    	<button id="btAddQuoDet_9" width="120px" label="Trade In Item" onClick="puAddPopup.close()" visible="false"/>
+   	    	<button id="btAddQuoDet_2" width="120px" label="Service Item" onClick="puAddPopup.close()" visible="false"/>
+   	    	<button id="btAddQuoDet_3" width="120px" label="Description" onClick="puAddPopup.close()" visible="false"/>
+   	    	<button id="btAddQuoDet_4" width="120px" label="Header" onClick="puAddPopup.close()" visible="false"/>
+   	    	<button id="btAddQuoDet_6" width="120px" label="Line Break" onClick="puAddPopup.close()" visible="false"/>
+   	    	<button id="btAddQuoDet_7" width="120px" label="Page Break" onClick="puAddPopup.close()" visible="false"/>
+   	    	<button id="btAddQuoDet_8" width="120px" label="Delivery" onClick="puAddPopup.close()" visible="false"/>
+      	</vbox>
+    	</popup>	
+		</listheader>
+	</listhead>
+	</listbox>
+</zk>

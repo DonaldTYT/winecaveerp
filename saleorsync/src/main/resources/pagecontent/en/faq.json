@@ -1,0 +1,47 @@
+{
+  "intro": {
+    "tag": "Answers to your top queries, instantly",
+    "title": "Frequently Asked Questions",
+    "desc": "Find quick, clear answers about orders, points, payments, delivery and more. If you can’t find what you need, contact our team—we’re here to help.",
+    "cta": "Contact Support"
+  },
+  "s1": {
+    "tag": "Clear answers to guide you every step",
+    "title": "All Your Questions, Answered Clearly",
+    "desc": "At Wine Cave, we provide exceptional wine & spirits consignment services tailored for traders and private clients around the globe. Our state-of-the-art HKQAA Certified facilities, combined."
+  },
+  "faqs": [
+    {
+      "question": "My order is delayed or there is an issue – what next?",
+      "answer": "Please check your order status in your account first. If the parcel has not moved for 48 hours, contact our support with your order number—we will investigate with the courier and update you."
+    },
+    {
+      "question": "My order is faulty - can I get a refund?",
+      "answer": "Yes. Keep the original packaging and take photos of the issue, then contact us within 7 days of delivery. We’ll arrange a replacement or refund according to our returns policy."
+    },
+    {
+      "question": "Can I create a list of things I've liked or things I want to try?",
+      "answer": "You can add products to Favorites from the product page. Saved items are synced to your account so you can revisit and purchase later."
+    },
+    {
+      "question": "How many Virgin points can I earn, and what are the terms?",
+      "answer": "Points are awarded on eligible items after discounts and before taxes/shipping. Promotional multipliers may apply—see the campaign page for full terms."
+    },
+    {
+      "question": "When will the points be added to my Virgin Red account?",
+      "answer": "Points usually appear within 7–14 days after your order ships. For pre-orders or backorders, they credit after the item is dispatched."
+    },
+    {
+      "question": "My points haven’t been added to my account, what can I do?",
+      "answer": "If 14 days have passed since shipment, send us your order number and the email linked to your points account and we’ll help reconcile the credit."
+    },
+    {
+      "question": "What payment methods can I use?",
+      "answer": "We accept major credit cards, selected e-wallets, and bank transfer for local orders. Availability may vary by region and currency."
+    },
+    {
+      "question": "Where do you deliver and how long will it take?",
+      "answer": "We deliver locally and to selected international locations. Local orders typically arrive in 1–3 business days; international timing depends on destination and customs."
+    }
+  ]
+}

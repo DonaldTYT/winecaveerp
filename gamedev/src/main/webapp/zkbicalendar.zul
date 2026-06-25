@@ -1,0 +1,17 @@
+<zk>
+<zscript>
+<![CDATA[
+	String composer = "ZkBiComposerBase";
+	String classPrefix = "com.uniinformation.zkbi.";
+	if (Executions.getCurrent().getParameter("composer") != null){
+		composer = Executions.getCurrent().getParameter("composer").trim();
+	}
+	if (Executions.getCurrent().getParameter("prefix") != null){
+		classPrefix = "com.uniinformation."+Executions.getCurrent().getParameter("prefix").trim()+".";
+	}
+]]></zscript>
+	<window id="zkbibrowser" apply="${classPrefix}${composer}" style="margin-top:20px; padding:1px!important" sizable="true" title="Calendar" width="1200px" border="narrow" xmlns:h="native">
+    	<h:div id="calendar001" style="margin-top:5px;"></h:div>
+    </window>
+
+</zk>

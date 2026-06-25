@@ -1,0 +1,41 @@
+<zk>
+	<div style="background:white" align="center">
+		<vlayout>
+		<div style="text-align:center;">
+			<label id="rpttitle" style="font-weight: bold;font-size:30px !important;" ></label>
+		</div>
+		<hlayout>
+			<label>From Date:</label>
+			<datebox id="fromDate"></datebox>
+			<div width="50px"/>
+			<label>To :</label>
+			<datebox id="toDate" disabled="true"></datebox>
+		</hlayout>
+		<!--
+		<hlayout>
+			<label>Pivot:</label>
+			<checkbox id="pivotOwner" label="By Owner"></checkbox>
+			<checkbox id="pivotStockAge" label="By Stock Age"></checkbox>
+		</hlayout>
+		-->
+		<!--
+		<hlayout visible="true">
+			<radiogroup id="showaggs">
+				<radio label="Show Both Invoice and Outstanding Amount"/>
+				<radio label="Show Invoice Amount Only"/>
+				<radio label="Show Outstanding Only"/>
+			</radiogroup>
+		</hlayout>
+		-->
+		</vlayout>
+	</div>
+	<hlayout>
+		<div align="center">
+		<vlayout>
+			<div height="10px"/>
+			<div height="10px"/>
+		</vlayout>
+		</div>
+		<div id="cjsdiv" width="800px" height="400px" visible="false"> </div>
+	</hlayout>
+</zk>

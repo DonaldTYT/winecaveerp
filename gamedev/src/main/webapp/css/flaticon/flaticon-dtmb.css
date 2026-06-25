@@ -1,0 +1,131 @@
+	/*
+  	Flaticon icon font: Flaticon
+  	Creation date: 22/06/2016 15:24
+  	*/
+
+@font-face {
+  font-family: "Flaticon-dtmb";
+  src: url("./Flaticon-dtmb.eot");
+  src: url("./Flaticon-dtmb.eot?#iefix") format("embedded-opentype"),
+       url("./Flaticon-dtmb.woff") format("woff"),
+       url("./Flaticon-dtmb.ttf") format("truetype"),
+       url("./Flaticon-dtmb.svg#Flaticon") format("svg");
+  font-weight: normal;
+  font-style: normal;
+}
+
+@media screen and (-webkit-min-device-pixel-ratio:0) {
+  @font-face {
+    font-family: "Flaticon-dtmb";
+    src: url("./Flaticon-dtmb.svg#Flaticon") format("svg");
+  }
+}
+
+[class^="flaticon-dtmb-"]:before, [class*=" flaticon-dtmb-"]:before,
+[class^="flaticon-dtmb-"]:after, [class*=" flaticon-dtmb-"]:after {   
+  font-family: Flaticon-dtmb;
+/*        font-size: 20px;*/
+font-style: normal;
+/*margin-left: 20px;*/
+}
+
+.flaticon-dtmb-box:before { content: "\f100"; }
+.flaticon-dtmb-box-1:before { content: "\f101"; }
+.flaticon-dtmb-box-10:before { content: "\f102"; }
+.flaticon-dtmb-box-11:before { content: "\f103"; }
+.flaticon-dtmb-box-12:before { content: "\f104"; }
+.flaticon-dtmb-box-13:before { content: "\f105"; }
+.flaticon-dtmb-box-14:before { content: "\f106"; }
+.flaticon-dtmb-box-15:before { content: "\f107"; }
+.flaticon-dtmb-box-16:before { content: "\f108"; }
+.flaticon-dtmb-box-17:before { content: "\f109"; }
+.flaticon-dtmb-box-18:before { content: "\f10a"; }
+.flaticon-dtmb-box-19:before { content: "\f10b"; }
+.flaticon-dtmb-box-2:before { content: "\f10c"; }
+.flaticon-dtmb-box-20:before { content: "\f10d"; }
+.flaticon-dtmb-box-21:before { content: "\f10e"; }
+.flaticon-dtmb-box-22:before { content: "\f10f"; }
+.flaticon-dtmb-box-23:before { content: "\f110"; }
+.flaticon-dtmb-box-24:before { content: "\f111"; }
+.flaticon-dtmb-box-25:before { content: "\f112"; }
+.flaticon-dtmb-box-26:before { content: "\f113"; }
+.flaticon-dtmb-box-27:before { content: "\f114"; }
+.flaticon-dtmb-box-28:before { content: "\f115"; }
+.flaticon-dtmb-box-29:before { content: "\f116"; }
+.flaticon-dtmb-box-3:before { content: "\f117"; }
+.flaticon-dtmb-box-30:before { content: "\f118"; }
+.flaticon-dtmb-box-31:before { content: "\f119"; }
+.flaticon-dtmb-box-32:before { content: "\f11a"; }
+.flaticon-dtmb-box-33:before { content: "\f11b"; }
+.flaticon-dtmb-box-34:before { content: "\f11c"; }
+.flaticon-dtmb-box-35:before { content: "\f11d"; }
+.flaticon-dtmb-box-36:before { content: "\f11e"; }
+.flaticon-dtmb-box-37:before { content: "\f11f"; }
+.flaticon-dtmb-box-38:before { content: "\f120"; }
+.flaticon-dtmb-box-39:before { content: "\f121"; }
+.flaticon-dtmb-box-4:before { content: "\f122"; }
+.flaticon-dtmb-box-40:before { content: "\f123"; }
+.flaticon-dtmb-box-41:before { content: "\f124"; }
+.flaticon-dtmb-box-42:before { content: "\f125"; }
+.flaticon-dtmb-box-43:before { content: "\f126"; }
+.flaticon-dtmb-box-44:before { content: "\f127"; }
+.flaticon-dtmb-box-45:before { content: "\f128"; }
+.flaticon-dtmb-box-46:before { content: "\f129"; }
+.flaticon-dtmb-box-47:before { content: "\f12a"; }
+.flaticon-dtmb-box-48:before { content: "\f12b"; }
+.flaticon-dtmb-box-5:before { content: "\f12c"; }
+.flaticon-dtmb-box-6:before { content: "\f12d"; }
+.flaticon-dtmb-box-7:before { content: "\f12e"; }
+.flaticon-dtmb-box-8:before { content: "\f12f"; }
+.flaticon-dtmb-box-9:before { content: "\f130"; }
+.flaticon-dtmb-boxes:before { content: "\f131"; }
+.flaticon-dtmb-boxes-1:before { content: "\f132"; }
+.flaticon-dtmb-car:before { content: "\f133"; }
+.flaticon-dtmb-checked:before { content: "\f134"; }
+.flaticon-dtmb-checked-1:before { content: "\f135"; }
+.flaticon-dtmb-customer-support:before { content: "\f136"; }
+.flaticon-dtmb-delivering-box:before { content: "\f137"; }
+.flaticon-dtmb-delivery:before { content: "\f138"; }
+.flaticon-dtmb-delivery-1:before { content: "\f139"; }
+.flaticon-dtmb-delivery-2:before { content: "\f13a"; }
+.flaticon-dtmb-delivery-3:before { content: "\f13b"; }
+.flaticon-dtmb-delivery-4:before { content: "\f13c"; }
+.flaticon-dtmb-delivery-5:before { content: "\f13d"; }
+.flaticon-dtmb-delivery-6:before { content: "\f13e"; }
+.flaticon-dtmb-delivery-7:before { content: "\f13f"; }
+.flaticon-dtmb-delivery-8:before { content: "\f140"; }
+.flaticon-dtmb-delivery-man:before { content: "\f141"; }
+.flaticon-dtmb-delivery-man-1:before { content: "\f142"; }
+.flaticon-dtmb-delivery-man-2:before { content: "\f143"; }
+.flaticon-dtmb-delivery-man-3:before { content: "\f144"; }
+.flaticon-dtmb-delivery-man-4:before { content: "\f145"; }
+.flaticon-dtmb-delivery-man-5:before { content: "\f146"; }
+.flaticon-dtmb-delivery-man-6:before { content: "\f147"; }
+.flaticon-dtmb-home:before { content: "\f148"; }
+.flaticon-dtmb-location:before { content: "\f149"; }
+.flaticon-dtmb-motorcycle:before { content: "\f14a"; }
+.flaticon-dtmb-scale:before { content: "\f14b"; }
+.flaticon-dtmb-scale-1:before { content: "\f14c"; }
+.flaticon-dtmb-scale-2:before { content: "\f14d"; }
+.flaticon-dtmb-store:before { content: "\f14e"; }
+.flaticon-dtmb-time:before { content: "\f14f"; }
+.flaticon-dtmb-trolley:before { content: "\f150"; }
+.flaticon-dtmb-trolley-1:before { content: "\f151"; }
+.flaticon-dtmb-trolley-2:before { content: "\f152"; }
+.flaticon-dtmb-truck:before { content: "\f153"; }
+.flaticon-dtmb-truck-1:before { content: "\f154"; }
+.flaticon-dtmb-truck-10:before { content: "\f155"; }
+.flaticon-dtmb-truck-11:before { content: "\f156"; }
+.flaticon-dtmb-truck-12:before { content: "\f157"; }
+.flaticon-dtmb-truck-13:before { content: "\f158"; }
+.flaticon-dtmb-truck-14:before { content: "\f159"; }
+.flaticon-dtmb-truck-2:before { content: "\f15a"; }
+.flaticon-dtmb-truck-3:before { content: "\f15b"; }
+.flaticon-dtmb-truck-4:before { content: "\f15c"; }
+.flaticon-dtmb-truck-5:before { content: "\f15d"; }
+.flaticon-dtmb-truck-6:before { content: "\f15e"; }
+.flaticon-dtmb-truck-7:before { content: "\f15f"; }
+.flaticon-dtmb-truck-8:before { content: "\f160"; }
+.flaticon-dtmb-truck-9:before { content: "\f161"; }
+.flaticon-dtmb-umbrella:before { content: "\f162"; }
+.flaticon-dtmb-weight:before { content: "\f163"; }

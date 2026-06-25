@@ -1,0 +1,7 @@
+<zk>
+	<toolbar id="detail_toolbar" align="end">
+		<button id="btCustom" label="Custom Report" visible="true"></button>
+	</toolbar>
+	<grid style="text-align:left;" id="detail_grid">
+	</grid>
+</zk>

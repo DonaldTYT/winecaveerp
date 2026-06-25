@@ -1,0 +1,32 @@
+{
+  "intro": {
+    "tag": "Tailored Storage for Every Need",
+    "title": "Storage Made Easy",
+    "desc": "From individual collectors to professional traders, our purpose-built facilities and attentive service keep every bottle in its best condition—simple, secure, and stress-free.",
+    "cta": "Buy Wine"
+  },
+
+  "pricing": {
+    "eyebrow": "Choose the perfect storage solution for your collection.",
+    "title": "Wine Storage Plans & Pricing",
+    "desc": "At Wine Cave, we provide exceptional wine & spirits consignment services tailored for traders and private clients around the globe. Our state-of-the-art HKQAA Certified facilities.",
+    "commonHeader": "Storage Services",
+    "priceHeader": "Monthly Rental Fee",
+    "sizeHeader": "Storage Size",
+    "roomsSectionTitle": "Private Wine Cellar Room",
+    "note": "*Example only. Replace with your real pricing/units.",
+    "commonRows": [
+      { "service": "Common Storage Facilities", "fee": "HKD 30*", "size": "750ml × 12 Bottles" },
+      { "service": "Personal Wine Cabinet", "fee": "HKD 800", "size": "Approx. 10 Cases (12 Bottles)", "badge24x7": true }
+    ],
+    "roomRows": [
+      { "room": "Room A", "fee": "HKD 2,600", "size": "Approx. 50 sq ft", "badge24x7": true },
+      { "room": "Room B", "fee": "HKD 3,000", "size": "Approx. 55 sq ft" },
+      { "room": "Room C", "fee": "HKD 3,600", "size": "Approx. 60 sq ft" },
+      { "room": "Room D", "fee": "HKD 4,100", "size": "Approx. 75 sq ft" },
+      { "room": "Room E", "fee": "HKD 4,800", "size": "Approx. 85 sq ft" },
+      { "room": "Room F", "fee": "HKD 5,400", "size": "Approx. 95 sq ft" },
+      { "room": "Room G", "fee": "HKD 6,600", "size": "Approx. 115 sq ft" }
+    ]
+  }
+}

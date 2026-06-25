@@ -1,0 +1,83 @@
+<%@ page language="java" pageEncoding="utf-8" contentType="text/html;charset=utf-8"%>
+<%@ page import="java.util.*, com.uniinformation.utils.*,com.uniinformation.webcore.* " %>
+<%
+response.setHeader("Cache-Control", "no-cache, no-store, must-revalidate"); // HTTP 1.1.
+response.setHeader("Pragma", "no-cache"); // HTTP 1.0.
+response.setHeader("Expires", "0"); // Proxies.
+
+try {	
+	//UniLog.log1("session:%s new:%s id:%s ", request.getSession(false), request.getSession(false) == null ? "na" : request.getSession().isNew(), request.getSession(false) == null ? "na" : request.getSession().getId());
+	SessionHelper sessionHelper = ZkSessionHelper.getSessionHelper(request, response);   
+	UniLog.log("logout: clearLoginToken");
+	boolean largeFlag = sessionHelper.getLargeFlag();
+	
+	
+%>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title><%=sessionHelper.getWebPageTitle()%></title>
+<style>
+@media (orientation: landscape) {
+	body{ 
+		background-image: url("<%=sessionHelper.getWallPaperPath(false)%>") !important;
+		background-repeat: no-repeat !important;
+		background-size: cover !important;
+		background-position-x: center !important;
+		background-position-y: center !important;
+		background-attachment: fixed !important;
+	}
+}
+
+@media (orientation: portrait) {
+	body{ 
+		background-image: url("<%=sessionHelper.getWallPaperPath(true)%>") !important;
+		background-repeat: no-repeat !important;
+		background-size: cover !important;
+		background-position-x: center !important;
+		background-position-y: center !important;
+		background-attachment: fixed !important;
+	}
+}
+</style>
+</head>
+	
+	
+<%
+
+	if ("N".equals(request.getParameter("selfexe"))){
+		 out.println("<div style='font-family:arial;position:absolute;left:10%; top:10%'><div style='font-size:40px;margin:10px;'>Sign out</div><div><span style='font-size:30px;margin:10px'>To finish signing out, please close this browser window.</span></div></div>");
+		 
+	}
+	else {
+		String logoutURL = sessionHelper.getLogoutURL();
+		sessionHelper.logout();  //andrew200406: make sure it free session data immedately
+		
+		//default clear logintoken
+		if (! "Y".equals(request.getParameter("keeplt"))){
+			sessionHelper.clearLoginToken(request, response);
+		}
+		
+		if (SessionHelper.logoutClearSessionFlag){
+			session.invalidate();   //andrew00617 invalidate session seems safer, but multiple window logout will cause some strange problem. known issue: zk will rewrite the login.html?agent=xxx url to login.html. 
+		}
+		
+		if(logoutURL != null) {
+			response.sendRedirect(logoutURL);
+		} else {
+		
+		//obtain agent from url instead of sessionhelper
+		if (request.getParameter("agent") != null && !request.getParameter("agent").trim().equals("")){
+			//response.sendRedirect("login.html?agent=" + request.getParameter("agent"));
+			response.sendRedirect("login.html?agent=" + request.getParameter("agent") + (largeFlag ? "&large=Y" : ""));
+		}
+		else{
+			response.sendRedirect("login.html");
+		}
+		}
+	}
+} catch(Exception ex) {
+	UniLog.log(ex);
+	throw(ex);
+}
+%>

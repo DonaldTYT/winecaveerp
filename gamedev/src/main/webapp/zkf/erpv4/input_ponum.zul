@@ -1,0 +1,16 @@
+<zk>
+<div width="500px">
+	<vlayout>
+		<hlayout>
+			<label>Input China Po Number:</label>
+			<textbox id="input_ponum"></textbox>
+		</hlayout>
+		<div align="right">
+			<hlayout>
+			<button width="100px" id="btOK" label="Proceed"></button>
+			<button width="100px" id="btCancel" label="Cancel"></button>
+			</hlayout>
+		</div>
+	</vlayout>
+</div>
+</zk>

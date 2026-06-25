@@ -1,0 +1,68 @@
+<%@ taglib prefix="c"  uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
+<%
+  // Params expected via <jsp:include>:
+  // - ids       : unique id prefix for this instance (e.g., "sync1")
+  // - actionUrl : POST target (defaults to /larva/pages/saleor-sync)
+%>
+<c:set var="ids" value="${empty param.ids ? 'sync1' : param.ids}" />
+<c:set var="actionUrl" value="${empty param.actionUrl ? pageContext.request.contextPath.concat('/larva/pages/saleor-sync') : param.actionUrl}" />
+
+<!-- Result / toast -->
+<div id="${ids}-resultArea" class="mb-3" style="display:none;"></div>
+
+<!-- Optional progress (hidden unless enabled server-side) -->
+<div id="${ids}-progressWrap" class="mb-4" style="display:none;">
+  <div class="d-flex justify-content-between mb-1">
+    <span class="small text-muted">Progress</span>
+    <span class="small text-muted" id="${ids}-progressText">0%</span>
+  </div>
+  <div class="progress">
+    <div id="${ids}-progressBar" class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" style="width:0%"></div>
+  </div>
+</div>
+
+<form id="${ids}-form" method="post" action="${actionUrl}" class="mx-auto" style="max-width:820px;">
+  <fieldset id="${ids}-fs">
+    <div class="row g-3 mb-3 align-items-start">
+      <div class="col-12 col-md-6">
+        <div class="form-check mb-2">
+          <input class="form-check-input" type="checkbox" id="${ids}-productCategory" name="productCategory" value="1">
+          <label class="form-check-label" for="${ids}-productCategory">Product Category</label>
+        </div>
+        <div class="form-check mb-2">
+          <input class="form-check-input" type="checkbox" id="${ids}-productType" name="productType" value="1">
+          <label class="form-check-label" for="${ids}-productType">Product Type</label>
+        </div>
+        <div class="form-check mb-2">
+          <input class="form-check-input" type="checkbox" id="${ids}-productDetail" name="productDetail" value="1">
+          <label class="form-check-label" for="${ids}-productDetail">Product Detail</label>
+        </div>
+        <div class="form-check mb-2">
+          <input class="form-check-input" type="checkbox" id="${ids}-productVariant" name="productVariant" value="1">
+          <label class="form-check-label" for="${ids}-productVariant">Product Variant</label>
+        </div>
+      </div>
+
+      <div class="col-12 col-md-6">
+        <div class="form-check mb-2 ms-md-4">
+          <input class="form-check-input" type="checkbox" id="${ids}-testOnly" name="testOnly" value="1">
+          <label class="form-check-label" for="${ids}-testOnly">Test Only</label>
+        </div>
+      </div>
+    </div>
+
+    <!-- Status field -->
+    <div class="row mb-3">
+      <div class="col-12">
+        <input id="${ids}-statusField" type="text" class="form-control" placeholder="Execution Status ..." readonly>
+      </div>
+    </div>
+
+    <!-- Submit centered -->
+    <button id="${ids}-submitBtn" type="submit" class="btn btn-outline-dark px-4 fw-bold d-block mx-auto mt-2">
+      <span class="btn-label">Submit</span>
+      <span class="spinner-border spinner-border-sm ms-2" style="display:none;" aria-hidden="true"></span>
+    </button>
+  </fieldset>
+</form>

@@ -1,0 +1,10 @@
+<zk>
+<window sclass="zkbi-form zkbi-main-window" width="1500px" apply="com.uniinformation.zkf.vincero.ZkCellActionTradeJournal">
+        <div id="chartContainer" style="width: 600px; height: 400px;"></div>
+        <hbox>
+        	<label>HAHA</label>
+            <button id="plotButton" label="Plot Chart"/>
+            <button id="clearButton" label="Clear Chart"/>
+        </hbox>
+</window>
+</zk>

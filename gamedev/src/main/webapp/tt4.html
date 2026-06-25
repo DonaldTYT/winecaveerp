@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Gradient + Texture + Image Blend</title>
+<style>
+  :root { --pattern-size: 220px; }
+
+  body {
+    margin: 0;
+    min-height: 100vh;
+    display: grid;
+    place-items: center;
+    color: white;
+    font: 700 3rem/1.1 system-ui, sans-serif;
+
+    /* Top -> bottom order matters */
+    background:
+      url("images/steel-metallic-texture-background.jpg") center 60% / min(800px, 70vw) no-repeat,   /* foreground image */
+      url("images/logo/g2_logo.png") 0 0 / var(--pattern-size) var(--pattern-size) repeat, /* bump map */
+      radial-gradient(120% 120% at 70% 20%, #0d2a58 0%, #0b1f3d 45%, #071937 100%); /* base gradient */
+
+    /* Blend the first two layers with what’s beneath */
+    background-blend-mode: screen, multiply, normal;
+    /* try: overlay/soft-light/lighten/multiply depending on your artwork */
+  }
+</style>
+</head>
+<body>
+  HELLO
+</body>
+</html>

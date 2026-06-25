@@ -1,0 +1,38 @@
+<zk>
+<div width="400px">
+	<vlayout>
+
+	<hlayout>
+	<div width="180px">
+	<label>No. Of Item</label>
+	</div>
+	<intbox id="dplb_itemcnt" disabled="true"></intbox>
+	</hlayout>
+
+	<hlayout>
+	 <label>Print Qty</label>
+	 <radiogroup id="dplb_qtymode"> </radiogroup>
+	 <intbox id="dplb_qtyperitem" width="50px"></intbox>
+	</hlayout>
+	
+	
+
+	<hlayout>
+	<div width="180px">
+	<label>No. Of Label</label>
+	</div>
+	<intbox id="dplb_labelcnt" disabled="true"></intbox>
+	</hlayout>
+
+	<hlayout>
+	 <label>Output To</label>
+	 <radiogroup id="dplb_output"> </radiogroup>
+	</hlayout>
+	
+	<hlayout>
+	<button id="btOK" label="OK"></button>
+	<button id="btCancel" label="Cancel"></button>
+	</hlayout>
+	</vlayout>
+</div>
+</zk>

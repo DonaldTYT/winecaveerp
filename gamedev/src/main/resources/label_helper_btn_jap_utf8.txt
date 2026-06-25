@@ -1,0 +1,24 @@
+﻿Add
+追加
+Detail
+詳細
+Export
+輸出
+Save Changes
+変更を保存
+Update
+変更
+Import
+インポート
+Password Protect?
+パスワード保護？
+Ok
+Ok
+Cancel
+キャンセル
+Save Changes
+変更内容を保存
+Save New Record
+新しいレコードを保存
+Close
+閉じる

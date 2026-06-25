@@ -1,0 +1,54 @@
+<zk>
+<separator height="5px"/>
+<div style="display:flex;background:white; padding:5px;">
+	<hlayout style="flex:auto;overflow-x:auto">
+		<div width="50px">
+		</div>
+		<label id="reportTitle" style="display:none; color:#2980b9;font-family:Comic Sans MS,cursive;" >
+			Ledger Report
+		</label>
+	<vlayout width="max-content">
+		<hlayout>
+			<div width="120px" align="right">
+				<label value="Date Range"><custom-attributes tlkey="lb_daterange"></custom-attributes></label>
+			</div>
+			<datebox id="sdate" format="yyyy/MM/dd"></datebox>
+			<label>-</label>
+			<datebox id="edate" format="yyyy/MM/dd"></datebox>
+			<!--
+			<textbox id="remark"></textbox>
+			-->
+		</hlayout>
+		<hlayout>
+			<div width="120px" align="right">
+				<label value="Mode" width="300px"><custom-attributes tlkey="lb_mode"></custom-attributes></label>
+			</div>
+			<radiogroup id="rgSummaryOrDetail">
+				<radio label="Detail"><custom-attributes tlkey="rd_summordet_detail"></custom-attributes></radio>
+				<radio label="Summary"><custom-attributes tlkey="rd_summordet_summary"></custom-attributes></radio>
+			</radiogroup>
+			<checkbox id="showNoDetail" label="Show items with no detail"><custom-attributes tlkey="cb_shownodetail"></custom-attributes></checkbox>
+			<checkbox id="showAllAccount" label="Show items with zero balance"><custom-attributes tlkey="cb_showallaccount"></custom-attributes></checkbox>
+			<checkbox id="showInvoiceOnly" label="Show Invoice Only"><custom-attributes tlkey="cb_showinvoiceonly"></custom-attributes></checkbox>
+		</hlayout>
+	</vlayout>
+		<hlayout>
+			<div width="120px" align="right">
+				<label value="Criteria" width="300px"><custom-attributes tlkey="lb_criteria"></custom-attributes></label>
+			</div>
+			<div>
+				<label id="rptCondition"></label>
+			</div>
+		</hlayout>
+	</hlayout>
+	<!-- 
+	     <html><![CDATA[
+	     <p><span style="color:#2980b9"><span style="font-family:Comic Sans MS,cursive"><em><span style="font-size:48px">Stock Aging Report</span></em></span></span></p>
+	     
+     ]]></html>
+     	<div width="500px" height="200px" style="background-color:red;border-radius: 25px;">
+     	</div>
+	 -->
+</div>
+<separator height="5px"/>
+</zk>

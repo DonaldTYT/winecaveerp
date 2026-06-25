@@ -1,0 +1,64 @@
+{
+  "intro": {
+    "tag": "Protecting your data with care",
+    "title": "Privacy Policy",
+    "desc": "At Wine Cave, your privacy is our top priority. This Privacy Policy explains how we collect, use, and protect your personal information when you visit our website, place an order, or interact with our services.",
+    "cta": "Contact Us"
+  },
+  "s1": {
+    "tag": "Committed to safeguarding your information",
+    "title": "Privacy Policy",
+    "lead": "By using our site, you agree to the practices described below. Please read carefully to understand how we handle your data.",
+    "sections": [
+      {
+        "title": "1. Information We Collect",
+        "items": [
+          "Personal Information – such as your name, email, phone number, and billing/shipping address.",
+          "Payment Information – processed securely through trusted payment providers; Wine Cave does not store full payment card details.",
+          "Order History – details of your purchases, preferences, and delivery information."
+        ]
+      },
+      {
+        "title": "2. How We Use Your Information",
+        "items": [
+          "Process and deliver your orders.",
+          "Communicate with you regarding purchases, promotions, or updates.",
+          "Improve our website, services, and customer support.",
+          "Comply with legal and regulatory requirements."
+        ]
+      },
+      {
+        "title": "3. Sharing Your Information",
+        "items": [
+          "Wine Cave does not sell or rent your personal data to third parties.",
+          "We may share limited information with trusted service providers (payment processors, courier partners, IT support) strictly for order fulfillment and service improvement.",
+          "If required by law, we may disclose information to government authorities or regulators."
+        ]
+      },
+      {
+        "title": "4. Data Security",
+        "items": [
+          "We use industry-standard encryption, firewalls, and secure servers to safeguard your data.",
+          "Only authorized personnel have access to sensitive information.",
+          "While we take all precautions, no online system is 100% secure, and we cannot guarantee absolute protection."
+        ]
+      },
+      {
+        "title": "5. Cookies & Tracking",
+        "items": [
+          "Wine Cave uses cookies to personalize your browsing experience, analyze website traffic, and improve functionality.",
+          "You can manage or disable cookies in your browser settings, though some features may not work properly."
+        ]
+      },
+      {
+        "title": "6. Your Rights",
+        "items": [
+          "Access the personal data we hold about you.",
+          "Request corrections or updates to your information.",
+          "Request deletion of your data (subject to legal requirements).",
+          "Opt out of marketing communications at any time."
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,90 @@
+<zk>
+<window width="600px" apply="com.uniinformation.zkf.ZkCellActionForm">
+<!-- 
+<window width="600px">
+ -->
+	<vlayout>
+		<div align="center">Request for Delivery</div>
+		<div height="10px"></div>
+		<hlayout>
+			<div width="100px" align="right">
+			<label>Remark</label>
+			</div>
+			<textbox id="stm_remark" width="360px">
+				<!-- 
+				<custom-attributes listView="hapyik.Customer" listColumn="vd_vcode"></custom-attributes>
+				 -->
+			</textbox>
+		</hlayout>
+		<div height="10px"></div>
+		<hlayout>
+			<div width="100px" align="right">
+			<label>Wine Code</label>
+			</div>
+			<textbox id="stmd_majorcode1">
+			</textbox>
+			<div width="126px" style="text-align:right">
+				<label>Quantity</label>
+			</div>	
+			<intbox id="stmd_qty1" width="50px"></intbox>
+		</hlayout>
+		<hlayout>
+			<div width="100px" align="right">
+			<label>Wine Code</label>
+			</div>
+			<textbox id="stmd_majorcode2">
+			</textbox>
+			<div width="126px" style="text-align:right">
+				<label>Quantity</label>
+			</div>	
+			<intbox id="stmd_qty2" width="50px"></intbox>
+		</hlayout>
+		<hlayout>
+			<div width="100px" align="right">
+			<label>Wine Code</label>
+			</div>
+			<textbox id="stmd_majorcode3">
+			</textbox>
+			<div width="126px" style="text-align:right">
+				<label>Quantity</label>
+			</div>	
+			<intbox id="stmd_qty3" width="50px"></intbox>
+		</hlayout>
+		<div height="10px"></div>
+		<hlayout>
+		<listbox id="details">
+			<listhead>
+				<listheader id="detmcode" label="Stock Code" sort="auto" />
+				<listheader id="detqty" label="Quantity" sort="auto" />
+			</listhead>
+			<listitem>
+				<listcell label="" />
+				<listcell label="" />
+				<listcell>
+					<toolbarbutton></toolbarbutton>
+				</listcell>
+			</listitem>
+			<listitem>
+				<listcell label="" />
+				<listcell label="" />
+				<listcell label="" />
+			</listitem>
+		</listbox>
+
+		</hlayout>
+		<div align="center">
+			<button width="100px" id="btOK" label="Submit">
+				<custom-attributes actionHandler="com.uniinformation.erpv4.PerfJsonRpcCall" actionId="erpv3JxfMajorDeliveryReq" confirmMsg="Confirm Delivery Request ?"></custom-attributes>
+			</button>
+		</div>
+	</vlayout>
+	<div visible="false">
+		<!-- 
+		<textbox id="localccy" text="MOP"></textbox>
+		<textbox id="cocode" text="001"></textbox>
+		<textbox id="module" text="AP"></textbox>
+		<textbox id="orderby" text="1"></textbox>
+		 -->
+	</div>
+</window>
+</zk>

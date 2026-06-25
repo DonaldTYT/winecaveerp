@@ -1,0 +1,34 @@
+<zk>
+<style>
+	.ta-main-listbox > .z-listbox-body {
+    	height: 70vh;
+    }
+	.ta-main-listbox td.z-listcell {
+		vertical-align: top;
+		cursor: default;
+	}
+}
+</style>
+<zscript>
+<![CDATA[
+	String composer = "ZkBiComposerBase";
+	String classPrefix = "com.uniinformation.zkbi.";
+	if (Executions.getCurrent().getParameter("composer") != null){
+		composer = Executions.getCurrent().getParameter("composer").trim();
+	}
+	if (Executions.getCurrent().getParameter("prefix") != null){
+		classPrefix = "com.uniinformation."+Executions.getCurrent().getParameter("prefix").trim()+".";
+	}
+]]></zscript>
+	<window id="winStockBarcodeCheck" sizable="true" title="Icode/Barcode conflict" width="100%" apply="${classPrefix}${composer}" xmlns:h="native">
+		<separator height="10px"/>
+		<button id="btRefresh" label="Refresh"/>
+		<separator height="10px"/>
+   		<listbox id="lbMain" sclass="ta-main-listbox" width="100%" nonselectableTags="*" emptyMessage="No record found">
+			<listhead sizable="true">
+				<listheader label="Barcode" hflex="1"/>
+				<listheader label="Item code" hflex="1"/>
+			</listhead>
+   		</listbox>
+   	</window>
+</zk>

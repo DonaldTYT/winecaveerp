@@ -1,0 +1,63 @@
+<zk xmlns:n="native">
+<style dynamic="true">
+div.z-grid.zkbi-detail-grid > div.z-grid-body {
+	height: auto;
+}
+div.z-grid.zkbi-detail-grid {
+   border: 1px solid transparent;
+}
+</style>
+	<div class="zkbi-detail-toolbar-container">
+		<div class="zkbi-detail-toolbar-leftarea">
+		</div>
+		<toolbar id="detail_toolbar" align="end">
+		</toolbar>
+	</div>
+	<div>
+	<bs-row style="background:white" height="75vh">
+		<div sclass="col-xl-6 col-lg-12">
+		<!-- 
+			<zkbidiv jxId="vd_vcode"></zkbidiv>
+			<zkbidiv jxId="vd_vname"></zkbidiv>
+			<zkbidiv jxId="vd_addr0"></zkbidiv>
+			<zkbidiv jxId="vd_addr1"></zkbidiv>
+			<zkbidiv jxId="vd_addr2"></zkbidiv>
+			<zkbidiv jxId="vd_addr3"></zkbidiv>
+			<zkbidiv jxId="vd_priceclass"></zkbidiv>
+			<zkbidiv jxId="vd_termtype"></zkbidiv>
+			<zkbidiv jxId="vd_remark"></zkbidiv>
+		 -->
+			<zkbifdiv jxId="vd_vcode"></zkbifdiv>
+			<zkbifdiv jxId="vd_vname"></zkbifdiv>
+			<zkbifdiv jxId="vd_chnname"></zkbifdiv>
+			<zkbifdiv jxId="vd_isagent"></zkbifdiv>
+			<zkbifdiv jxId="vd_contact"></zkbifdiv>
+			<zkbifdiv jxId="vd_contapost"></zkbifdiv>
+			<zkbifdiv jxId="vd_tel"></zkbifdiv>
+			<zkbifdiv jxId="vd_fax"></zkbifdiv>
+			<zkbifdiv jxId="vd_email"></zkbifdiv>
+			<zkbifdiv jxId="vd_wechatqq"></zkbifdiv>
+			<zkbifdiv jxId="vd_permobile"></zkbifdiv>
+			<zkbifdiv jxId="vd_contact2"></zkbifdiv>
+			<zkbifdiv jxId="vd_conta2post"></zkbifdiv>
+			<zkbifdiv jxId="vd_permobile2"></zkbifdiv>
+			<zkbifdiv jxId="vd_addr0"></zkbifdiv>
+			<zkbifdiv jxId="vd_addr1"></zkbifdiv>
+			<zkbifdiv jxId="vd_addr2"></zkbifdiv>
+			<zkbifdiv jxId="vd_addr3"></zkbifdiv>
+			<zkbifdiv jxId="stpv_name"></zkbifdiv>
+			<zkbifdiv jxId="vd_zipcode"></zkbifdiv>
+			<zkbifdiv jxId="storg_name"></zkbifdiv>
+			<zkbifdiv jxId="vd_bstype"></zkbifdiv>
+			<zkbifdiv jxId="vd_bsnature"></zkbifdiv>
+			<zkbifdiv jxId="vd_priceclass"></zkbifdiv>
+			<zkbifdiv jxId="vd_termtype"></zkbifdiv>
+			<zkbifdiv jxId="vd_remark"></zkbifdiv>
+		</div>
+		<div sclass="col-xl-4 col-lg-6">
+		</div>
+		<div sclass="col-xl-2 col-lg-6">
+		</div>
+	</bs-row>
+	</div>
+</zk>

@@ -1,0 +1,44 @@
+<zk xmlns:n="native">
+	<style dynamic="true">
+		div.z-grid.zkbi-detail-grid > div.z-grid-body {
+			height: auto;
+		}
+		div.z-grid.zkbi-detail-grid {
+		   border: 1px solid transparent;
+		}
+		div.zkbifdiv-lbdiv {
+		    min-width: 0px;
+		    width: 100px;
+		}
+		div.zkbidiv > div.z-hlayout-inner:first-child > div.z-div {
+		    width: 100px !important;
+		}	
+	</style>
+	<div class="zkbi-detail-toolbar-container">
+		<div class="zkbi-detail-toolbar-leftarea">
+		</div>
+		<toolbar id="detail_toolbar" align="end">
+		</toolbar>
+	</div>
+	<div id="zkbiListTop" sclass="zkbi-detail-grid z-grid" width="100%" height="80vh" style="overflow-y:auto">
+		<bs-row>
+			<div sclass="col-lg-3 col-sm-12">
+				<zkbidiv jxId="em_eid"/>
+				<zkbidiv jxId="em_stdate"/>
+				<zkbidiv jxId="em_enddate"/>
+			</div>
+			<div sclass="col-lg-9 col-sm-12">
+				<zkbidiv jxId="em_ename"/>
+				<zkbidiv jxId="em_chinname"/>
+			</div>
+		</bs-row>
+		<separator height="20px"/>
+		<div>
+			<listbox id="list_erpv4ext_LeaveApplicationDet"/>
+		</div>
+		<separator height="20px"/>
+		<zkbidiv jxId="emx_ralstr" labelWidth="190px !important"/>
+		<zkbidiv jxId="emx_rclstr" labelWidth="190px !important"/>
+		<zkbidiv jxId="emx_rdostr" labelWidth="190px !important"/>
+	</div>
+</zk>

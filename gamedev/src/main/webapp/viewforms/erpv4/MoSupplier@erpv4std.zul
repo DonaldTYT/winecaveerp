@@ -1,0 +1,108 @@
+<zk xmlns:n="native">
+	<toolbar id="detail_toolbar" align="end"> </toolbar>
+	<div style="background-color:white">
+			<bs-row>
+				<bs-col-311>
+					<image id="co_logo" height="100px" />
+				</bs-col-311>
+				<bs-col-311>
+				</bs-col-311>
+				<bs-col-311 align="right">
+	 				<label id="pageTitle" style="font-weight: bold;font-size:30px !important;" value="Purchase"><custom-attributes tlkey="hdr_erp_v4_MoSupplier"></custom-attributes></label>
+				</bs-col-311>
+					
+			</bs-row>
+			<bs-row>
+				<bs-col-321>
+					<zkbis2listbox jxId="vd_vcode" labelWidth="30%" compWidth="70%" fieldWidth="100%"></zkbis2listbox>
+				<!--
+					<zkbitextbox jxId="stm_ref2" labelWidth="30%" compWidth="70%" template="tstmref2">
+						<template name="tstmref2">
+							<div sclass="zkbitextbox-lb-div" hflex="1" align="right"> </div>
+							<combobox id="vd_vname" width="60%"></combobox>
+						</template>
+					</zkbitextbox>
+					-->
+					<zkbitextbox jxId="stm_ctrspec" labelWidth="30%" compWidth="70%" fieldWidth="100%" textboxRows="3">
+					</zkbitextbox>
+				</bs-col-321>
+				<bs-col-321>
+					<zkbidatebox jxId="stm_date" labelWidth="30%" compWidth="30%" fieldWidth="100%"> </zkbidatebox>
+					<zkbitextbox jxId="stm_ref1" labelWidth="30%" compWidth="30%" fieldWidth="100%"> </zkbitextbox>
+					<zkbitextbox jxId="stm_ref3" labelWidth="30%" compWidth="30%" fieldWidth="100%"> </zkbitextbox>
+					<zkbilistbox jxId="stm_cur" labelWidth="30%" compWidth="30%"> </zkbilistbox>
+					<!--
+					<zkbitextbox jxId="stm_tolAmt" labelWidth="30%" compWidth="30%"> </zkbitextbox>
+					-->
+					<zkbilistbox jxId="stm_status" labelWidth="30%" compWidth="30%"> </zkbilistbox>
+					<!--
+					<zkbilistbox jxId="stm_status" labelWidth="30%" compWidth="30%"> </zkbilistbox>
+						-->
+				</bs-col-321>
+				<bs-col-321>
+					<zkbilabel jxId="stm_mrg" labelWidth="50%" compWidth="50%" ></zkbilabel>
+					<zkbilabel jxId="stm_cuser" labelWidth="50%" compWidth="50%" ></zkbilabel>
+					<zkbilabel jxId="stm_cdate" labelWidth="50%" compWidth="50%" ></zkbilabel>
+					<zkbilabel jxId="stm_ref2" labelWidth="50%" compWidth="50%" ></zkbilabel>
+				</bs-col-321>
+			</bs-row>
+	</div>
+
+	<listbox id="list_erpv4_MoDet">
+	   <listfoot>
+        <listfooter id="footer_list_AfsGrDet" zclass="z-listbox-footer" span="2"><div style="text-align:right;padding:4px 5px;"></div></listfooter>
+        <listfooter zclass="z-listbox-footer" span="1"><div style="text-align:right;padding:4px 5px;">
+        		<vlayout>
+        		<label>Total Count</label>
+        		</vlayout>
+        	</div></listfooter>
+        <listfooter zclass="z-listbox-footer" span="1"><div style="text-align:right;padding:4px 5px;">
+        		<vlayout>
+        			<label id="stm_totalcnt"></label>
+        		</vlayout>
+        	</div></listfooter>
+        <listfooter zclass="z-listbox-footer" span="2"><div style="text-align:right;padding:4px 5px;">
+        		<vlayout>
+        		<label>Gross Total</label>
+        		<label>Less Discount </label>
+        		<listbox id="stm_salescode1" mold="select" width="120px"> </listbox>
+        		<listbox id="stm_salescode2" mold="select" width="120px"> </listbox>
+        		<label>Net Total</label>
+        		</vlayout>
+        	</div></listfooter>
+        <listfooter zclass="z-listbox-footer" span="1"><div style="text-align:right;padding:4px 5px;">
+        		<vlayout>
+        		<label id="stm_tolAmt"></label>
+        		<doublebox id="stm_discount" width="120px"></doublebox>
+        		<doublebox id="stm_fref1" width="120px"></doublebox>
+        		<doublebox id="stm_fref2" width="120px"></doublebox>
+        		<label id="stm_nettotal"></label>
+        		</vlayout>
+        	</div></listfooter>
+        <listfooter zclass="z-listbox-footer" span="1"><div style="text-align:right;padding:4px 5px;"></div></listfooter>
+        
+       </listfoot>
+	</listbox>	
+	
+	<template name="display_erpv4_MoDet_st_icode">
+		<vlayout>
+			<label id="st_icode"/>
+			<label id="st_iname"/>
+		</vlayout>
+	</template>
+	<template name="template_erpv4_MoDet_st_icode">
+		<vlayout>
+			<bandbox id="st_icode" use="com.uniinformation.jx.zk.ZkJxPickInput"/>
+			<label id="st_iname"></label>
+		</vlayout>
+	</template>
+	<template name="template_erpv4_MoDet_stmd_ref4" twidth="300px">
+		<vlayout>
+		<listbox id="stmd_ref4" width="100%" mold="select" height="20px"></listbox>
+		<hlayout>
+		<datebox id="stmd_exprdate"></datebox>
+		<textbox id="stmd_lotno"></textbox>
+		</hlayout>
+		</vlayout>
+	</template>
+</zk>

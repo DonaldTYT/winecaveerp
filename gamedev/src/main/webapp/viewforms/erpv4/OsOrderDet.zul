@@ -1,0 +1,166 @@
+<zk>
+<style dynamic="true">
+
+<!-- cut/hide the vertical borders in the grid rows -->
+.myGridWithNoBorder tr.z-row td.z-row-inner { border-right: 0px #CCC; }
+.GridLayoutNoBorder tr.z-row td.z-row-inner, tr.z-row .z-cell,div.z-grid 
+{ 
+border: none; 
+overflow: hidden; 
+zoom: 1; 
+#background:#f8f8f8 !important;  <!-- remove hover -->
+background:white !important;  <!-- remove hover -->
+border-top: none; 
+border-left: none; 
+border-right: none; 
+border-bottom: none; 
+} 
+</style>
+	<grid style="text-align:left;border: 1px solid #000;" id="detail_grid"  sclass="GridLayoutNoBorder" >
+	<columns>
+		<column width="160px"></column>
+		<column width="600px"></column>
+		<column width="160px"></column>
+		<column width="450px"></column>
+		<column></column>
+		<column width="300px"></column>
+	</columns>
+	<rows>
+		<row>
+			<cell align="right"><label value="Date"><custom-attributes tlkey="lb_inv_date"></custom-attributes></label> </cell>
+			<cell>
+				<datebox id="inv_date" format="yyyy/MM/dd"></datebox>
+			</cell>
+			<cell align="right"><label value="Order No."><custom-attributes tlkey="lb_inv_invno"></custom-attributes></label></cell>
+			<cell>
+				<hbox align="middle">
+				<div width="200px">
+				<label id="inv_invno"></label>
+				<label value="Rev"><custom-attributes tlkey="lb_inv_revisonno"></custom-attributes></label>
+				<label id="inv_revisonno"></label>
+				</div>
+				</hbox>
+			</cell>
+			<cell></cell>
+			<cell>
+				<label value="Ref No.:"><custom-attributes tlkey="lb_inv_rg"></custom-attributes></label>
+				<label id="inv_rg"></label>
+			</cell>
+		</row>
+		<row>
+			<cell align="right"><label value="Item Code"><custom-attributes tlkey="lb_st_icode"></custom-attributes></label> </cell>
+			<cell>
+				<hbox align="middle">
+				<combobox id="st_icode"></combobox> 
+				</hbox>
+			</cell>
+			<cell align="right"><label value="Status"><custom-attributes tlkey="lb_inv_quostatus"></custom-attributes></label></cell>
+			<cell>
+				<hbox align="middle">
+				<div width="200px">
+				<label id="inv_quostatus"></label>
+				</div>
+				</hbox>
+			</cell>
+			<cell></cell>
+			<cell>
+				<label value="Customer Code:"><custom-attributes tlkey="lb_inv_vcode"></custom-attributes></label>
+				<label id="inv_vcode"></label>
+			</cell>
+		</row>
+		<row>
+			<cell align="right"><label value="Item Name"><custom-attributes tlkey="lb_st_iname"></custom-attributes></label> </cell>
+			<cell>
+				<textbox id="st_iname" width="560px"></textbox>
+			</cell>
+			<cell align="right"><label value="Brand"><custom-attributes tlkey="lb_st_mbrand"></custom-attributes></label> </cell>
+			<cell>
+				<textbox id="st_mbrand"></textbox>
+			</cell>
+			<cell></cell>
+			<cell>
+				<label value="Create By:"><custom-attributes tlkey="lb_inv_cuser"></custom-attributes></label>
+				<label id="inv_cuser"></label>
+			</cell>
+		</row>
+		<row>
+			<cell align="right"><label value="Model"><custom-attributes tlkey="lb_ind_ref1"></custom-attributes></label> </cell>
+			<cell>
+				<textbox id="ind_ref1"></textbox>
+			</cell>
+			<cell align="right"><label value="Model No"><custom-attributes tlkey="lb_st_modelno"></custom-attributes></label> </cell>
+			<cell>
+				<textbox id="st_modelno"></textbox>
+			</cell>
+			<cell></cell>
+			<cell>
+				<label value="Create On:"><custom-attributes tlkey="lb_inv_cdate"></custom-attributes></label>
+				<label id="inv_cdate"></label>
+			</cell>
+		</row>
+		<row>
+			<cell align="right"><label value="Figure Index"><custom-attributes tlkey="lb_ind_ref2"></custom-attributes></label> </cell>
+			<cell>
+				<textbox id="ind_ref2"></textbox>
+			</cell>
+			<cell align="right"><label value="Part No"><custom-attributes tlkey="lb_st_oicode"></custom-attributes></label> </cell>
+			<cell>
+				<textbox id="st_oicode"></textbox>
+			</cell>
+			<cell></cell>
+			<cell>
+				<label value="Update By:"><custom-attributes tlkey="lb_inv_uuser"></custom-attributes></label>
+				<label id="inv_uuser"></label>
+			</cell>
+		</row>
+		<row>
+			<cell align="right"><label value="Quantites"><custom-attributes tlkey="lb_quantites"/></label> </cell>
+			<cell colspan="4">
+				<hlayout>
+				<vlayout width="180px">
+					<label value="Confirmed Qty"><custom-attributes tlkey="lb_qdst_quoqty"></custom-attributes></label>
+					<intbox id="qdst_quoqty"></intbox>
+				</vlayout>
+				<vlayout width="180px">
+					<label value="Free Stock"><custom-attributes tlkey="lb_stg_freestock"></custom-attributes></label>
+					<intbox id="stg_freestock"></intbox>
+				</vlayout>
+				<vlayout width="180px">
+					<label value="Pending for Purchase"><custom-attributes tlkey="lb_qdst_ostqty"></custom-attributes></label>
+					<intbox id="qdst_ostqty"></intbox>
+				</vlayout>
+				<vlayout width="180px">
+					<label value="Pending for Receive"><custom-attributes tlkey="lb_qdst_alcqty"></custom-attributes></label>
+					<intbox id="qdst_alcqty"></intbox>
+				</vlayout>
+				<vlayout width="180px">
+					<label value="Pending for Deliver"><custom-attributes tlkey="lb_qdst_delqty"></custom-attributes></label>
+					<intbox id="qdst_delqty"></intbox>
+				</vlayout>
+				<vlayout width="180px">
+					<label value="Delivered"><custom-attributes tlkey="lb_qdst_actdelqty"></custom-attributes></label>
+					<intbox id="qdst_actdelqty"></intbox>
+				</vlayout>
+				</hlayout>
+			</cell>
+			<cell>
+				<label value="Update On:"><custom-attributes tlkey="lb_inv_udate"></custom-attributes></label>
+				<label id="inv_udate"></label>
+			</cell>
+		</row>
+		<row>
+			<cell colspan="2">
+			<label value="Allocation and Reserve :-"><custom-attributes tlkey="lb_alcandres"/></label>
+			</cell>
+		</row>
+		<row>
+			<cell colspan="6">
+			<listbox id="list_erpv4_OsDet">
+			</listbox>
+			</cell>
+		</row>
+	</rows>
+	</grid>
+	<toolbar id="detail_toolbar" align="end">
+	</toolbar>
+</zk>

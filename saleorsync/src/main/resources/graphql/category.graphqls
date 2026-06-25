@@ -1,0 +1,12 @@
+type Category {
+  id: ID!
+  name: String!
+  slug: String!
+  description: String
+  parentId: ID
+}
+
+extend type Query {
+  categories: [Category!]!
+  categoryBySlug(slug: String!): Category
+}

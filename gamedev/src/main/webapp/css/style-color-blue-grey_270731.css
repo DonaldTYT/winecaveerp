@@ -1,0 +1,1200 @@
+/*
+#E2DDDB - middle grey - disabled field
+#F2F2F2 - light grey - form background
+#779CB1 - dark blue - list header
+#87A8BA - light blue - list header border
+#B5C9D4 - light blue - listbox odd row, listbody
+#C3D3DC - dark blue - listbox even row
+#CAE8F8 - light blue - selected row
+*/
+
+body {
+    background: #F2F2F2;
+}
+
+/* window */
+.z-window {
+    background: #779CB1 !important;
+}
+.z-window-content{
+	background: #F2F2F2 !important;
+}
+.z-window-header{
+    color: #FFF !important;
+}
+
+/* list */
+.z-listheader{
+    background: #779CB1 !important;
+    border: 1px solid #87A8BA !important;
+}
+.z-listheader-content:active{
+    background: #779CB1 !important;
+}
+.z-listheader-button{
+    background: #9EBED0 !important;
+	color:#FFF !important;
+}
+.z-listbox-header{
+    background: #779CB1 !important;
+}
+.z-listbox-header-border {
+    border-bottom: 1px solid #87A8BA !important;
+}
+.z-listhead-bar {
+	border-left: 1px solid #87A8BA !important;
+	border-bottom: 1px solid #87A8BA !important;
+	background: #779cb1 !important;
+}
+.z-listheader-button {
+	-webkit-box-shadow: inset 1px 0 #87A8BA !important;
+	-moz-box-shadow: inset 1px 0 #87A8BA !important;
+	-o-box-shadow: inset 1px 0 #87A8BA !important;
+	-ms-box-shadow: inset 1px 0 #87A8BA !important;
+	box-shadow: inset 1px 0 #87A8BA !important;
+}
+
+/* list odd event row color, exclude linkcomp */
+:not(.zkbi-linkcomp-listbox):not(.jxselopt) > .z-listbox-body .z-listbox-odd .z-listcell {
+    background: #B5C9D4 !important;
+}
+:not(.zkbi-linkcomp-listbox):not(.jxselopt) > .z-listbox-body .z-listcell {
+    background: #C3D3DC !important;
+}
+:not(.zkbi-linkcomp-listbox):not(.jxselopt) > .z-listbox-body .z-listitem-selected .z-listcell {
+	background: #CAE8F8 !important;
+}
+:not(.zkbi-linkcomp-listbox):not(.jxselopt) > .z-listbox-body, 
+:not(.zkbi-linkcomp-listbox):not(.jxselopt) > .z-listbox-body .z-listbox-emptybody-content {
+    background: #B5C9D4 !important;
+}
+/* linkcomp with light odd even row color  */
+.zkbi-linkcomp-listbox > .z-listbox-body .z-listbox-odd .z-listcell {
+    background: #F7F7F7 !important;
+}
+.zkbi-linkcomp-listbox > .z-listbox-body .z-listcell {
+    background: #FFF !important;
+}
+
+/*240223 formula cell */
+:not(.zkbi-linkcomp-listbox):not(.jxselopt) > .z-listbox-body .z-listbox-odd .z-listcell.zkbi-formula {
+    background: #c5cfd4 !important;
+}
+:not(.zkbi-linkcomp-listbox):not(.jxselopt) > .z-listbox-body .z-listcell.zkbi-formula {
+    background: #d4d9dc !important;
+}
+
+
+
+/* 240220 queryinput with light odd even row color */
+.z-listbox.zkbi-queryinput-listbox > .z-listbox-body .z-listcell {
+    background: #FFF !important;
+}
+.z-listbox.zkbi-queryinput-listbox > .z-listbox-body .z-listbox-odd .z-listcell {
+    background: #F7F7F7 !important;
+}
+
+.z-button{
+	background: #568BA9 !important;
+}
+.z-button:disabled{
+	/*background: #E2DDDB !important;*/
+	background: #CDCDCD !important;
+}
+.z-button:focus{
+	outline: none;
+	border: solid 2px #189CF8 !important;
+}
+.zkbi-deletebutton.z-button{
+	background: #DB6868 !important;
+}
+.zkbi-deletebutton.z-button:disabled{
+	background: #E2DDDB !important;
+}
+.zkbi-applybutton.z-button{
+	background: #6CDB68 !important;
+}
+.zkbi-applybutton.z-button:disabled{
+	background: #E2DDDB !important;
+}
+
+button.z-button {
+	border-radius: 3px !important;
+	box-shadow: none;
+}
+button.z-button:hover:not(:disabled) {
+	border: solid 2px #7AB6E0 !important;
+}
+
+
+/* grid */
+.z-grid .z-auxheader{
+	background: #779CB1 !important;
+	border-left: 1px solid #87A8BA;
+}
+.z-grid .z-auxhead-bar{
+	border-left: 1px solid #87A8BA;	
+}
+
+.z-grid-header-border {
+	border-bottom: 1px solid #87A8BA !important;
+}
+.z-grid .z-row-inner {
+    background: #C3D3DC !important;
+}
+.z-grid .z-grid-odd .z-row-inner{
+    background: #B5C9D4 !important;
+}
+
+.z-grid.zkbi-zebrabg .z-row > .z-row-inner {
+    background: #C3D3DC !important;
+}
+.z-grid.zkbi-zebrabg .z-row.z-grid-odd > .z-row-inner{
+    background: #B5C9D4 !important;
+}
+.z-grid.zkbi-whitebg .z-row > .z-row-inner {
+    background: #FFF !important;
+}
+.z-grid.zkbi-whitebg .z-row.z-grid-odd > .z-row-inner{
+    background: #FFF !important;
+}
+
+/*
+.zkbi-nostriping.z-grid .z-row-inner {
+    background: #FFF !important;
+}
+.zkbi-nostriping.z-grid .z-grid-odd .z-row-inner{
+    background: #FFF !important;
+}
+*/
+/* for data analysis */
+.zkbi-da.z-grid .z-cell {
+    background: #C3D3DC !important;
+    border: 1px solid #d6d6d6 !important;
+}
+.zkbi-da.z-grid .z-grid-odd .z-cell{
+    background: #B5C9D4 !important;
+}
+.zkbi-da.z-grid .z-column {
+	background: #779CB1 !important;
+	border: 1px solid #87A8BA !important;
+}
+.zkbi-da.z-grid .z-grid-header {
+	background: #779CB1 !important;
+}
+.zkbi-da.z-grid .z-auxheader {
+	border: 1px solid #87A8BA !important;
+}
+.zkbi-da.z-grid .z-grid-footer .z-footer {
+	 border-right: 1px solid #d6d6d6;
+}
+.zkbi-da.z-grid .z-footer-content{
+	color: #000 !important;
+}
+
+/*for adv search g2 */
+.zkbi-advsearch-g2 .z-grid .z-column, .zkbi-advsearch-g2 .z-grid .z-columns-bar
+{
+	background: #779CB1 !important;
+	border: 1px solid #87A8BA !important;
+}
+
+.z-grid .z-row .z-row-inner {
+    border-top: none;
+}
+
+/*for calendar grid */
+.zkbi-calendar .z-grid-header table th{  
+	background: #779CB1 !important;
+	border-right: 1px solid #87A8BA !important;
+	text-align: center !important;
+}
+
+
+/* tree */
+.z-toolbar{
+	background: #F2F2F2 !important;
+}
+.z-tree-header-border {
+	border-bottom: 1px solid #87A8BA !important;
+}
+.z-treecols-bar {
+	border-left: 1px solid #87A8BA !important;
+	border-bottom: 1px solid #87A8BA !important;
+}
+.z-treecol {
+	background: #779CB1 !important;
+	border-left: 1px solid #87A8BA !important;
+	border-bottom: 1px solid #87A8BA !important;
+}
+.z-tree-body{
+    background: #B5C9D4 !important;
+}
+.z-toolbarbutton-content{
+	color: #131516 !important;
+}
+
+/* tabbox */
+.z-tabbox {
+	background: #F2F2F2 !important;
+}
+.z-tabs, .z-tab {
+	background: #F2F2F2 !important;
+}
+.z-tab-selected {
+	background: #FFF !important;
+	border-bottom-color: #779CB1 !important;
+}
+.z-tab-selected .z-tab-text{
+	color: #779CB1 !important;
+} 
+.z-panel-body{
+	background: #F2F2F2 !important;
+}
+
+/* input */
+input[type="radio"]:checked {
+	border-color: #779CB1 !important;	
+}
+input[type="radio"]:checked:before {
+	background-color: #779CB1 !important;	
+}
+span.z-radio > label.z-radio-content {
+   margin-bottom: initial;
+}
+input[type="checkbox"]:checked{
+	background-color: #779CB1 !important;	
+}
+input[type="checkbox"]:disabled {
+  background: #E2DDDB !important;
+}
+span.z-checkbox > label.z-checkbox-content {
+	margin-bottom: initial;
+}
+/* 210713 disabled input with stronger contrast */
+input.z-textbox[disabled], input.z-decimalbox[disabled], input.z-intbox[disabled], input.z-longbox[disabled], input.z-doublebox[disabled] {
+	background: #e8e8e8 !important;
+	border: 1px solid #bcbcbc;
+}
+
+/*borderlayout*/
+.z-north, .z-south, .z-west, .z-center, .z-east {
+	background: #F2F2F2 !important;
+}
+.z-north-header, .z-south-header, .z-west-header, .z-center-header, .z-east-header {
+	background: #F2F2F2 !important;
+}
+.z-north-splitter, .z-south-splitter, .z-west-splitter, .z-center-splitter, .z-east-splitter {
+	background: #F2F2F2 !important;
+}
+
+
+/*custom sclass*/
+.zkbi-whitebg-listbox > .z-listbox-body .z-listbox-odd .z-listcell,
+.zkbi-whitebg-listbox > .z-listbox-body .z-listcell,
+.zkbi-whitebg-listbox > .z-listbox-body .z-listitem-selected .z-listcell,
+.zkbi-whitebg-listbox > .z-listbox-body, 
+.zkbi-whitebg-listbox > .z-listbox-body .z-listbox-emptybody-content {
+	background:#FFF !important;  <!-- remove hover and background -->
+}
+.zkbi-whitebg-listbox:not(.zkbi-linkcomp-listbox):not(.jxselopt) > .z-listbox-body .z-listbox-odd .z-listcell,
+.zkbi-whitebg-listbox:not(.zkbi-linkcomp-listbox):not(.jxselopt) > .z-listbox-body .z-listcell,
+.zkbi-whitebg-listbox:not(.zkbi-linkcomp-listbox):not(.jxselopt) > .z-listbox-body .z-listitem-selected .z-listcell,
+.zkbi-whitebg-listbox:not(.zkbi-linkcomp-listbox):not(.jxselopt) > .z-listbox-body, 
+.zkbi-whitebg-listbox:not(.zkbi-linkcomp-listbox):not(.jxselopt) > .z-listbox-body .z-listbox-emptybody-content {
+    background:#FFF !important;
+}
+.zkbi-inheritbg-listbox > .z-listbox-body .z-listbox-odd .z-listcell,
+.zkbi-inheritbg-listbox > .z-listbox-body .z-listcell,
+.zkbi-inheritbg-listbox > .z-listbox-body .z-listitem-selected .z-listcell,
+.zkbi-inheritbg-listbox > .z-listbox-body, 
+.zkbi-inheritbg-listbox > .z-listbox-body .z-listbox-emptybody-content {
+	background:inherit !important;  <!-- remove hover and background -->
+}
+
+/* fix borderlayout expand bug zk8/9 begin */
+.z-north-collapsed,
+.z-south-collapsed,
+.z-east-collapsed,
+.z-west-collapsed,
+.z-center-collapsed {
+	pointer-events: none;
+}
+.z-north-collapsed > .z-borderlayout-icon,
+.z-south-collapsed > .z-borderlayout-icon,
+.z-east-collapsed > .z-borderlayout-icon,
+.z-west-collapsed > .z-borderlayout-icon,
+.z-center-collapsed > .z-borderlayout-icon {
+	pointer-events: auto;
+}
+/* fix borderlayout expand bug end */
+
+.z-notification-open {
+	opacity:0.90;
+}
+
+
+/*advanced search*/
+/*
+.zkbi-advs-condition {
+	background: red !important;
+	color: red !important;
+	font-size:99px !important;
+}
+*/
+.zkbi-advs-condition .z-groupbox-3d .z-groupbox-header .z-caption
+{
+	padding: 0px 2px;
+	margin-top: 5px !important;
+}
+.zkbi-advs-condition .z-groupbox-3d>.z-groupbox-header .z-caption-content
+{
+	line-height:14px;
+	padding: 1px 4px;
+	/*
+	*/
+}
+.zkbi-advs-condition div.z-caption-content{
+	width:100%;
+}
+.zkbi-advs-condition .z-caption-content {
+	line-height:14px;
+}
+.zkbi-advs-condition .z-windoow .z-caption-content,
+.zkbi-advs-condition .z-window .z-window-header
+{
+	font-size:12px !important;
+	/*line-height:14px;*/
+	line-height: 18px;
+}
+.zkbi-advs-condition .z-window-header
+{
+	padding: 1px;
+}
+.zkbi-advs-condition .z-window
+{
+	padding: 2px;
+}
+.zkbi-advs-condition .z-tab{
+	font-size: 12px !important;
+	padding: 3px 3px;
+}
+
+
+/* general report */
+.zbki-gr-column.z-grid .z-row-content {
+	line-height: 22px !important;
+    padding: 0px 5px !important;
+}
+
+
+/*alert*/
+.swal2-label, .swal2-input{
+	color:#545454;
+}
+.swal2-input:disabled{
+	color:#dddddd;
+	background:#f3f3f3;
+}
+
+/* remove border radius and adjust padding */
+.z-window {
+	border-radius:0 !important;
+	padding:2px !important;
+}
+.z-window-header {
+    padding-left:5px !important;
+	
+}
+.z-button, .z-tabbox,
+.z-combobox-input, .z-bandbox-input, .z-datebox-input, .z-timebox-input, .z-spinner-input, .z-doublespinner-input,
+.z-combobox-button, .z-bandbox-button, .z-datebox-button, .z-timebox-button, .z-spinner-button, .z-doublespinner-button,
+.z-textbox, .z-decimalbox, .z-intbox, .z-longbox, .z-doublebox,
+.z-checkbox>input,
+.input-group-addon, .form-control,
+.sidr i.fa1, .grid-stack i.icon.fa,
+.narrowtoolbarbutton, .z-toolbarbutton-content
+{
+	border-radius:0 !important;
+}
+.z-window-icon{
+	margin: 4px 5px !important;
+}
+
+
+/*change input focus/hover color*/
+.z-textbox:focus, .z-decimalbox:focus, .z-intbox:focus, .z-longbox:focus, .z-doublebox:focus,
+.z-combobox-input:focus, .z-bandbox-input:focus, .z-datebox-input:focus, .z-timebox-input:focus, .z-spinner-input:focus, .z-doublespinner-input:focus,
+.z-checkbox>input:focus,
+.form-control.z-select:focus{
+	border-color:#189CF8 !important;
+}
+.z-combobox-input:focus+*, .z-bandbox-input:focus+*, .z-datebox-input:focus+*, .z-timebox-input:focus+*, .z-spinner-input:focus+*, .z-doublespinner-input:focus+* {
+	border-left:solid 1px #189CF8 !important;
+}
+.z-bandbox-button:hover, .z-checkbox>input:hover{
+	border-color:#189CF8 !important;
+}
+
+/* adjust busy message indicator */
+.z-apply-loading-indicator {
+	font-size: 14px !important;
+	color: rgba(0,0,0,0.9) !important;
+	border-radius:0px !important;
+	border: solid 1px #87A8BA !important;
+	padding: 10px 10px 10px 40px !important;
+}
+.z-apply-loading-icon {
+	left: 10px !important;
+}
+
+
+/*common placeholder*/
+.zkbi-placeholder{
+  color: #bababa;
+  font-style: italic;
+}
+.zkbi-placeholder-dark{
+  color: #5d5d5d;
+  font-style: italic;
+}
+.zkbi-ce-placeholder[contentEditable="true"]:empty:not(:focus):before {
+  content: attr(data-placeholder);
+  color: #bababa;
+  font-style: italic;
+}
+.zkbi-ce-placeholder[contentEditable="true"]:empty:before {
+  content: attr(data-placeholder);
+  color: #bababa;
+  font-style: italic;
+}
+
+.zkbi-form-content {
+	padding-top: 20px;
+	padding-bottom: 20px;
+	padding-left:5px;
+	padding-right:5px;
+	background: #F2F2F2;
+}
+.zkbi-form.zkbi-main-window.z-window{
+	max-width:none; /* override mobile width 100% */
+}
+span.zkbi-form-header {
+	display:inline-block;
+	margin-bottom:6px;
+}
+.zkbi-form-header, .zkbi-form-header .z-toolbarbutton-content{
+	font-size: 15px !important;
+	color: #FFF !important;
+	text-shadow: 1px 1px 1px #000, 0px 0px 1px #000, 1px 1px 1px #000, 0px 0px 1px #000;
+}
+.zkbi-header-icon {
+	font-size: 22px;
+}
+
+/*fix zk950 begin*/
+.form-control.z-select{
+	height: 28px;
+}
+.z-toolbarbutton-content>i{
+	font-size: 16px;
+}
+.z-window-icon{
+	width: 18px !important;
+    height: 14px !important;
+    line-height: 14px !important;
+}
+.z-grid .z-auxheader{
+	border-bottom: 1px solid #87A8BA !important;
+}
+.narrowtoolbarbutton.z-toolbarbutton{
+	padding: 0px 0px !important;
+}
+/*fix zk950 end*/
+
+.zkbitextbox-lb-div{
+	vertical-align: middle;
+}
+
+
+/*fix zk950 popup not close bug*/
+/*211022 remove it to fix firefox wrong popup position bug*/
+/*
+.z-popup{
+	display:none;
+}
+.z-popup.z-popup-open{
+	display:block;
+}
+*/
+
+
+.zkbi-main-shortcutbar {
+	float:right;
+}
+
+/*
+.zkbi-main-shortcutbar {
+	background:red !important;
+}
+.zkbi-main-querybar {
+	background:orange !important;
+}
+.zkbi-main-headerlabeldiv{
+	background:green !important;
+}
+.zkbi-main-headerbox{
+	background:grey !important;
+}
+*/
+
+/* icon main color */
+.cyan { color: #00FFFF; }
+.darkcyan { color: #008B8B; }
+.seagreen { color: #2E8B57; }
+.royalblue { color: #4169E1; }
+.cadetblue { color: #5F9EA0; }
+.slateblue { color: #6A5ACD; }
+.slategray { color: #708090; }
+.skyblue { color: #87CEEB; }
+.peru { color: #CD853F; }
+.tan { color: #D2B48C; }
+.orchid { color: #DA70D6; }
+.crimson { color: #DC143C; }
+.plum { color: #DDA0DD; }
+.salmon { color: #FA8072; }
+.pink { color: #FFC0CB; }
+.gold { color: #FFD700; }
+
+/* icon background color */
+.bg-cyan { background-color: #00FFFF; }
+.bg-darkcyan { background-color: #008B8B; }
+.bg-seagreen { background-color: #2E8B57; }
+.bg-royalblue { background-color: #4169E1; }
+.bg-cadetblue { background-color: #5F9EA0; }
+.bg-slateblue { background-color: #6A5ACD; }
+.bg-slategray { background-color: #708090; }
+.bg-skyblue { background-color: #87CEEB; }
+.bg-peru { background-color: #CD853F; }
+.bg-tan { background-color: #D2B48C; }
+.bg-orchid { background-color: #DA70D6; }
+.bg-crimson { background-color: #DC143C; }
+.bg-plum { background-color: #DDA0DD; }
+.bg-salmon { background-color: #FA8072; }
+.bg-pink { background-color: #FFC0CB; }
+.bg-gold { background-color: #FFD700; }
+
+/* icon border color */
+.bb-navy { border-bottom: solid 3px #001F3F; }
+.bb-blue { border-bottom: solid 3px #0074D9; }
+.bb-aqua { border-bottom: solid 3px #7FDBFF; }
+.bb-teal { border-bottom: solid 3px #39CCCC; }
+.bb-olive { border-bottom: solid 3px #3D9970; }
+.bb-green { border-bottom: solid 3px #2ECC40; }
+.bb-lime { border-bottom: solid 3px #01FF70; }
+.bb-yellow { border-bottom: solid 3px #FFDC00; }
+.bb-orange { border-bottom: solid 3px #FF851B; }
+.bb-red { border-bottom: solid 3px #FF4136; }
+.bb-fuchsia { border-bottom: solid 3px #F012BE; }
+.bb-purple { border-bottom: solid 3px #B10DC9; }
+.bb-maroon { border-bottom: solid 3px #85144B; }
+.bb-white { border-bottom: solid 3px #FFFFFF; }
+.bb-silver { border-bottom: solid 3px #DDDDDD; }
+.bb-gray { border-bottom: solid 3px #AAAAAA; }
+.bb-black { border-bottom: solid 3px #111111; }
+
+.bb-cyan { border-bottom: solid 3px #00FFFF; }
+.bb-darkcyan { border-bottom: solid 3px #008B8B; }
+.bb-seagreen { border-bottom: solid 3px #2E8B57; }
+.bb-royalblue { border-bottom: solid 3px #4169E1; }
+.bb-cadetblue { border-bottom: solid 3px #5F9EA0; }
+.bb-slateblue { border-bottom: solid 3px #6A5ACD; }
+.bb-slategray { border-bottom: solid 3px #708090; }
+.bb-skyblue { border-bottom: solid 3px #87CEEB; }
+.bb-peru { border-bottom: solid 3px #CD853F; }
+.bb-tan { border-bottom: solid 3px #D2B48C; }
+.bb-orchid { border-bottom: solid 3px #DA70D6; }
+.bb-crimson { border-bottom: solid 3px #DC143C; }
+.bb-plum { border-bottom: solid 3px #DDA0DD; }
+.bb-salmon { border-bottom: solid 3px #FA8072; }
+.bb-pink { border-bottom: solid 3px #FFC0CB; }
+.bb-gold { border-bottom: solid 3px #FFD700; }
+
+/* listbox select2 */
+.select2-container .select2-results > .select2-results__options {
+	font-size: 14px;
+}
+.select2-container .select2-selection--single {
+	border-radius: 0px !important;
+}
+.select2-container .select2-selection--single .select2-selection__rendered {
+	font-size: 14px;
+}
+.select2-container .select2-selection--single .select2-selection__rendered {
+	padding-left: 5px !important;
+	line-height:24px !important;
+}
+.select2-container .select2-selection--single {
+	height: 24px !important;
+}
+.select2-container *:focus {
+	border-color:#189CF8 !important;
+}
+.select2-container .select2-results > .select2-results__options{
+	line-height: 16px;
+}
+.select2-selection__placeholder{
+	font-style: italic;
+}
+.select2-container .select2-selection--single:not(:focus){
+	border:1px solid #d9d9d9 !important;
+}
+.select2-container.select2-container--open .select2-selection--single:not(:focus){
+	border:1px solid #189cf8 !important;
+}
+.select2-container .select2-selection--multiple {
+	border-radius: 0px !important;
+	line-height: 1px !important;
+	min-height: 24px !important;
+}
+.select2-container .select2-selection--multiple .select2-selection__rendered {
+	font-size: 14px;
+	padding-left: 5px !important;
+	line-height: 20px !important;
+}
+.select2-container .select2-selection--multiple .select2-selection__rendered .select2-selection__choice {
+	margin-top: 0;
+}
+.select2-container .select2-selection--multiple .select2-selection__rendered .select2-search--inline .select2-search__field {
+	margin-top: 0;
+}
+.select2-container .select2-selection--multiple .select2-selection__rendered .select2-selection__clear {
+	margin-top: 0;
+}
+.select2-container .select2-selection--multiple:not(:focus){
+	border:1px solid #d9d9d9 !important;
+}
+.select2-container.select2-container--open .select2-selection--multiple:not(:focus){
+	border:1px solid #189cf8 !important;
+}
+.select2-container.select2-container--open .select2-dropdown.select2-dropdown--below {
+	border-left:1px solid #189cf8 !important;
+	border-right:1px solid #189cf8 !important;
+	border-bottom:1px solid #189cf8 !important;
+}
+.select2-container.select2-container--open .select2-dropdown.select2-dropdown--above {
+	border-top:1px solid #189cf8 !important;
+	border-left:1px solid #189cf8 !important;
+	border-right:1px solid #189cf8 !important;
+}
+.select2-container.select2-container--open .select2-dropdown .select2-search.select2-search--dropdown {
+	padding:2px !important;
+}
+.select2-container.select2-container--open .select2-dropdown .select2-search.select2-search--dropdown .select2-search__field {
+	padding:2px !important;
+}
+.select2-container.select2-container--open .select2-dropdown .select2-search.select2-search--dropdown .select2-search__field:focus {
+	border-color: #6699cc !important;
+}
+select.z-select {
+	height: 24px;
+}
+select.z-select:focus {
+	border-color:#189CF8 !important;
+}
+
+/* 210303 fix ios wallpaper scrolling bug            */
+/* overflow:scroll will always display a scroll bar  */
+/* overflow:hidden prevent mobile bouncing effect    */
+html{
+	overflow: hidden;
+}
+body{
+	/* position: fixed; */ /*210329 fix wrong popup position*/
+	overflow: auto; 
+	width: 100%;
+}
+.z-listheader-button {
+	width:25px !important;
+}
+
+/* set main listbox height. for replace zkbiloader.css */
+.zkbi-main-listbox .z-listbox-body {
+    min-height: 200px;
+    /*height: 80vh;*/
+    /*210601 change height from 80vh default to 75vh*/
+    height: 75vh;
+}
+.zkbi-main-listbox.zkbi-100pct-height  .z-listbox-body {
+    min-height: 200px;
+    height: 100vh;
+}
+.zkbi-main-listbox.zkbi-95pct-height  .z-listbox-body {
+    min-height: 200px;
+    height: 95vh;
+}
+.zkbi-main-listbox.zkbi-90pct-height  .z-listbox-body {
+    min-height: 200px;
+    height: 90vh;
+}
+.zkbi-main-listbox.zkbi-85pct-height  .z-listbox-body {
+    min-height: 200px;
+    height: 85vh;
+}
+.zkbi-main-listbox.zkbi-80pct-height  .z-listbox-body {
+    min-height: 200px;
+    height: 80vh;
+}
+.zkbi-main-listbox.zkbi-75pct-height  .z-listbox-body {
+    min-height: 200px;
+    height: 75vh;
+}
+.zkbi-main-listbox.zkbi-70pct-height  .z-listbox-body {
+    min-height: 200px;
+    height: 70vh;
+}
+.zkbi-main-listbox.zkbi-65pct-height  .z-listbox-body {
+    min-height: 200px;
+    height: 65vh;
+}
+.zkbi-main-listbox.zkbi-60pct-height  .z-listbox-body {
+    min-height: 200px;
+    height: 60vh;
+}
+.zkbi-main-listbox.zkbi-55pct-height  .z-listbox-body {
+    min-height: 200px;
+    height: 55vh;
+}
+.zkbi-main-listbox.zkbi-50pct-height  .z-listbox-body {
+    min-height: 200px;
+    height: 50vh;
+}
+.zkbi-main-listbox.zkbi-45pct-height  .z-listbox-body {
+    min-height: 200px;
+    height: 45vh;
+}
+.zkbi-main-listbox.zkbi-40pct-height  .z-listbox-body {
+    min-height: 200px;
+    height: 40vh;
+}
+.zkbi-main-listbox.zkbi-widget-height  .z-listbox-body {
+    min-height: 0px;
+    height: initial;
+}
+:not(.zkbi-main-listbox).zkbi-100pct-height {
+    min-height: 200px;
+    height: 100vh;
+}
+:not(.zkbi-main-listbox).zkbi-95pct-height {
+    min-height: 200px;
+    height: 95vh;
+}
+:not(.zkbi-main-listbox).zkbi-90pct-height {
+    min-height: 200px;
+    height: 90vh;
+}
+:not(.zkbi-main-listbox).zkbi-85pct-height {
+    min-height: 200px;
+    height: 85vh;
+}
+:not(.zkbi-main-listbox).zkbi-80pct-height {
+    min-height: 200px;
+    height: 80vh;
+}
+:not(.zkbi-main-listbox).zkbi-75pct-height {
+    min-height: 200px;
+    height: 75vh;
+}
+:not(.zkbi-main-listbox).zkbi-70pct-height {
+    min-height: 200px;
+    height: 70vh;
+}
+:not(.zkbi-main-listbox).zkbi-65pct-height {
+    min-height: 200px;
+    height: 65vh;
+}
+:not(.zkbi-main-listbox).zkbi-60pct-height {
+    min-height: 200px;
+    height: 60vh;
+}
+:not(.zkbi-main-listbox).zkbi-55pct-height {
+    min-height: 200px;
+    height: 55vh;
+}
+:not(.zkbi-main-listbox).zkbi-50pct-height {
+    min-height: 200px;
+    height: 50vh;
+}
+
+/* 210611 fix select2 option place under popup window */
+span.select2-dropdown {
+	z-index:2051; 
+}
+
+.zkbi-disable-radiogroup {
+	pointer-events: none; 
+	background: #e8e8e8;
+	padding: 2px 0px;
+}
+
+
+/* ui-tooltip style */
+.ui-tooltip, .ui-tooltip > .ttarrow:after {
+    border: 2px solid white;
+    background: #FFF !important;
+}
+.ui-tooltip {
+    padding: 5px 5px;
+    background: #FFF !important;
+    border-radius: 8px !important;
+    box-shadow:none !important;
+    font-size: 10px !important;
+}
+.ui-tooltip > .ttarrow {
+    width: 70px;
+    height: 16px;
+    overflow: hidden;
+    position: absolute;
+    right: 50%;
+    margin-right: -35px;
+    bottom: -16px;
+    box-shadow:none !important;
+}
+.ui-tooltip > .ttarrow.top {
+    top: -16px;
+    bottom: auto;
+}
+.ui-tooltip > .ttarrow.right {
+    right: 20%;
+}
+.ui-tooltip > .ttarrow:after {
+    content: "";
+    position: absolute;
+    right: 20px;
+    top: -20px;
+    width: 25px;
+    height: 25px;
+    box-shadow: 0px 0px 2px black;
+    -webkit-transform: rotate(45deg);
+    -moz-transform: rotate(45deg);
+    -ms-transform: rotate(45deg);
+    -o-transform: rotate(45deg);
+    tranform: rotate(45deg);
+}
+.ui-tooltip > .ttarrow.top:after {
+    bottom: -20px;
+    top: auto;
+}
+.ui-tooltip {
+	color: #696969 !important;
+    white-space: pre-line;
+}
+.ui-tooltip::first-line {
+	color: black !important;
+}
+
+/* 211217 fix busy message out of screen bug */
+.z-apply-loading {
+	top: 40% !important;
+}
+
+.z-window .tui-image-editor-wrap{
+	background: #f2f2f2;
+}
+
+.z-grid .z-columns-bar {
+	background: #779CB1 !important;
+	border-bottom: 1px solid #87A8BA !important;
+}
+
+/*  220307 narrow cell style */
+.z-listheader-content, .z-listcell-content, .z-listgroup-content, .z-listgroupfoot-content, .z-listfooter-content {
+	padding: 2px 2px !important;
+}
+.z-column-content, .z-row-content, .z-group-content, .z-groupfoot-content, .z-footer-content {
+	padding: 2px 2px !important;	
+}
+
+.zkbi-pivot-header > .z-listheader-content {
+	background: #327aa4 !important;
+}
+.zkbi-pivot-header.zkbi-blank > .z-listheader-content {
+	background: #15618d !important;
+}
+
+.zkbi-aggregate-header > .z-listheader-content {
+	background: #15618d !important;
+}
+
+
+/* 220617 add delete icon on pivot header */
+/*
+.zkbi-pivot-header > .z-listheader-content > span.z-label:hover:after {
+   content: '\f057';
+   font-family: FontAwesome;
+   font-weight: normal;
+   font-style: normal;
+   margin:0px 0px 0px 5px;
+   text-decoration:none;
+} 
+*/
+.zkbi-pivot-header:not(.zkbi-blank,.zkbi-no-delete) > .z-listheader-content:hover:after {
+   content: '\f057';
+   font-family: FontAwesome;
+   font-weight: normal;
+   font-style: normal;
+   margin:0px 0px 0px 5px;
+   text-decoration:none;
+} 
+
+.zkbi-pivot-header:not(.zkbi-blank,.zkbi-no-delete) > .z-listheader-content:hover
+{
+   background: #ff3333 !important;
+} 
+
+.zkbi-pivot-header > .z-listheader-content{
+	cursor: pointer;
+	white-space: pre;
+}
+
+/* 220628 adjust actionbar button spacing */
+div.zkbi-actionbar > div.z-hlayout-inner{
+	padding-right: 2px !important;
+}
+
+div.zkbi-detail-actionbar  > div.z-toolbar-content > button{
+	margin-left:0px !important;
+	margin-right:2px !important;
+	margin-top:2px !important;
+	margin-bottom:2px !important;
+}
+
+/* remove inline block white spaec */
+div.zkbi-detail-actionbar.z-toolbar  > div.z-toolbar-content {
+	font-size: 0px;
+}
+div.zkbi-detail-actionbar.z-toolbar  > div.z-toolbar-content > * {
+	font-size: 14px;
+}
+
+
+/* 220629 add hover effect on main listbox */
+/* hover effect on row */
+div.zkbi-main-listbox > div.z-listbox-body > table > tbody > tr.zkbi-hover-row > td > div.z-listcell-content {
+	background: rgba(194, 230, 112, 0.20);
+}
+
+/* hover effect on column */
+div.zkbi-main-listbox > div.z-listbox-body > table > tbody > tr:not(.zkbi-hover-row) > td.zkbi-hover-col.z-listcell > div.z-listcell-content,
+div.zkbi-main-listbox > div.z-listbox-footer > table > tbody > tr.z-listfoot > td.zkbi-hover-col > div { 
+	background: rgba(183, 244, 216, 0.20);
+}
+
+/* hover effect on row/column intersection */
+div.zkbi-main-listbox > div.z-listbox-body > table > tbody > tr.zkbi-hover-row > td.zkbi-hover-col.z-listcell > div.z-listcell-content{
+	background: rgba(127, 230, 112, 0.25);
+	
+}
+
+/* insert space(zero width) to empty cell for hover effect */
+div.zkbi-main-listbox > div.z-listbox-body > table > tbody > tr.z-listitem.zkbi-hover-row > td span.z-label:empty:before,
+div.zkbi-main-listbox > div.z-listbox-body > table > tbody > tr.z-listitem > td.zkbi-hover-col span.z-label:empty:before {
+  content: "\200b";
+}
+
+/* insert space to empty aggregate footer */
+div.zkbi-main-listbox > div.z-listbox-footer > table > tbody > tr.z-listfoot td.zkbi-aggregate-footer > div.z-listheader-content:empty:before {
+  content: "\200b";
+}
+
+
+/* 220629 add detail grid default no border style*/
+div.z-grid.zkbi-detail-grid
+{ 
+	text-align: left;
+	border: 1px solid #d6d6d6;
+} 
+div.z-grid.zkbi-detail-grid > div.z-grid-body {
+	height: 80vh;
+	background: #fdfdfd !important;
+}
+div.z-grid.zkbi-detail-grid > div.z-grid-body > table > tbody tr.z-row td.z-row-inner {
+	background: #fdfdfd !important;
+}
+div.z-grid.zkbi-detail-grid > div.z-grid-body > table > tbody tr.z-row.z-row.z-grid-odd td.z-row-inner {
+	background: #fdfdfd !important;
+}
+
+/* 220630 adjust icon color of quick filter */
+span.zkbi-im-search.z-bandbox i.z-bandbox-icon.z-icon-filter {
+	color: #7b7b7b;
+}
+
+
+div.zkbi-detail-toolbar-container {
+	display: flex;
+	display: -webkit-flex;
+	align-items: center;
+	-webkit-align-items: center;
+	flex-flow: row wrap;
+	-webkit-flex-flow: row wrap;
+	background: #f2f2f2;
+}
+div.zkbi-detail-toolbar-leftarea {
+	display: inline-flex;
+	display: -webkit-inline-flex;
+	align-items: center;
+	-webkit-align-items: center;
+	flex: auto;
+	-webkit-flex: auto;
+}
+
+/*221130 add button spacing */
+div.zkbi-detail-toolbar-leftarea > button{
+	margin-left: 2px;
+}
+
+/* 220712 g2 tabbox detail layout */
+div.z-tabbox.zkbi-detail-tabbox > div.z-tabpanels {
+	overflow: auto;
+	background:#fdfdfd;
+}
+
+div.zkbidiv {
+	padding:2px;
+}
+
+div.z-vlayout.nopadding  > div.z-vlayout-inner {
+	padding-bottom:0px !important;
+}
+
+div.zkbi-widget-window.z-window{
+	border-radius:3px !important;
+}
+
+/* avoid radio button,label wrapped */
+span.z-radio {
+	white-space: nowrap;	
+}
+
+
+/* 220815 add zkbi-summary-header */
+.zkbi-summary-header.z-listbox > .z-listbox-header .z-listbox-header{
+    background: #f2f2f2 !important;
+}
+.zkbi-summary-header.z-listbox  > .z-listbox-header .z-auxhead-bar {
+	border-left: 1px solid #f2f2f2;
+    border-bottom: 1px solid #d9d9d9;
+}
+.zkbi-summary-header.z-listbox  > .z-listbox-header .z-auxheader {
+    background: #f2f2f2 !important;
+    border-bottom: 1px solid #87a8ba;
+    border-left: 1px solid #f2f2f2;
+}
+.zkbi-summary-header.z-listbox  > .z-listbox-header .z-auxheader-content {
+	color: #000;
+}
+
+/* 220816 add zkbi-summary-footer */
+.zkbi-summary-footer.z-listbox  > .z-listbox-footer .z-listfooter-content {
+	color: #000;
+}
+
+.zkbi-presetbox-select2 .select2-container {
+	flex: 1;
+	-webkit-flex: 1;
+	height: 28px !important;
+}
+.zkbi-presetbox-select2 .select2-container .select2-selection--single {
+	height: 28px !important;
+}
+.zkbi-presetbox-select2 .select2-container .select2-selection--single:not(:focus) {
+	border:1px solid #d9d9d9 !important;
+}
+.zkbi-presetbox-select2 .select2-container .select2-selection--single:focus {
+	border:1px solid #189cf8 !important;
+}
+.zkbi-presetbox-select2 .select2-container.select2-container--open .select2-selection--single:not(:focus){
+	border:1px solid #189cf8 !important;
+}
+.zkbi-presetbox-select2 .select2-container .select2-selection--single .select2-selection__rendered {
+	line-height:28px !important;
+}
+
+.zkbi-advsearch-select2 {
+	display: flex;
+	display: -webkit-flex;
+}
+.zkbi-advsearch-select2 .select2-container {
+	flex: auto;
+	-webkit-flex: auto;
+}
+.zkbi-advsearch-select2 .select2-container .select2-selection--single:not(:focus) {
+	border:1px solid #d9d9d9 !important;
+}
+.zkbi-advsearch-select2 .select2-container .select2-selection--single:focus {
+	border:1px solid #d9d9d9 !important;
+}
+.zkbi-advsearch-select2 .select2-container.select2-container--open .select2-selection--single:not(:focus){
+	border:1px solid #189cf8 !important;
+}
+.zkbi-advsearch-select2 .select2-container--default .select2-selection--single .select2-selection__arrow {
+    height: 24px;
+}
+
+div.zkbifdiv {
+	display: flex;
+	flex-wrap: wrap;
+	/*border: 1px solid pink;*/
+	padding: 2px;
+}
+div.zkbifdiv-lbdiv {
+	text-align: right;
+	min-width: 100px;
+	max-width: 150px;
+}
+div.zkbifdiv-compdiv {
+	padding-left: 6px;
+	flex: 1;
+}
+
+/*221122 change sitemap icon color and vertical position */
+div.zkbi-sitemap-folder {
+	color: #f8d775;
+	line-height: 1.15;
+}
+div.zkbi-sitemap-item  {
+	color: #687e97;
+	line-height: 1.15;
+}
+
+div.zkbi-sitemap-folder span{
+	color: #FFF !important;
+    text-shadow: 1px 1px 1px #000, 0px 0px 1px #000, 0px 0px 1px #000, 0px 0px 1px #000;
+}
+div.zkbi-sitemap-item span{
+	color: #FFF !important;
+    text-shadow: 1px 1px 1px #000, 0px 0px 1px #000, 0px 0px 1px #000, 0px 0px 1px #000;
+}
+div.zkbi-sitemap-root span{
+	color: #FFF !important;
+    text-shadow: 1px 1px 1px #000, 0px 0px 1px #000, 0px 0px 1px #000, 0px 0px 1px #000;
+}
+span.zkbi-sitemap-title {
+	color: #FFF !important;
+    text-shadow: 1px 1px 1px #000, 0px 0px 1px #000, 0px 0px 1px #000, 0px 0px 1px #000;
+    font-size: 25px;
+}
+div.zkbi-sitemap-folder i.fa,i[class^='flaticon-'] {
+    text-shadow: 1px 1px 1px #8f8f8f;
+}
+div.zkbi-sitemap-item i.fa,i[class^='flaticon-'] {
+    text-shadow: 1px 1px 1px #8f8f8f;
+}
+
+/* 230519 allow copy value to clipboard */
+.select2-container .select2-selection--single {
+	-webkit-user-select: all;
+	-moz-user-select: all;
+	-ms-user-select: all;
+}

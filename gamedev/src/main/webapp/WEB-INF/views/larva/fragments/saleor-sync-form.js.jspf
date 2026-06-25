@@ -1,0 +1,107 @@
+<%@ taglib prefix="c"  uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
+<%
+  // Params expected via <jsp:include>:
+  // - ids       : unique id prefix (must match the form include)
+  // - statusUrl : polling URL (defaults to /larva/pages/saleor-sync-status)
+%>
+<c:set var="ids" value="${empty param.ids ? 'sync1' : param.ids}" />
+<c:set var="statusUrl" value="${empty param.statusUrl ? pageContext.request.contextPath.concat('/larva/pages/saleor-sync-status') : param.statusUrl}" />
+
+<script>
+(() => {
+  const ids   = "<c:out value='${ids}'/>";
+  const form  = document.getElementById(ids + "-form");
+  if (!form) return;
+
+  const fs     = document.getElementById(ids + "-fs");
+  const btn    = document.getElementById(ids + "-submitBtn");
+  const spin   = btn.querySelector('.spinner-border');
+  const label  = btn.querySelector('.btn-label');
+  const result = document.getElementById(ids + "-resultArea");
+  const pWrap  = document.getElementById(ids + "-progressWrap");
+  const pBar   = document.getElementById(ids + "-progressBar");
+  const pText  = document.getElementById(ids + "-progressText");
+  const statusInput = document.getElementById(ids + "-statusField");
+  const statusUrl = "<c:out value='${statusUrl}'/>";
+
+  let pollTimer = null;
+
+  function showAlert(type, msg) {
+    result.style.display = 'block';
+    result.className = '';
+    result.classList.add('alert', `alert-${type}`);
+    result.textContent = msg;
+    setStatus(msg);
+  }
+  function setBusy(b) {
+    if (fs) fs.disabled = b;               // disables inputs/buttons in fieldset
+    btn.disabled = b;
+    spin.style.display = b ? 'inline-block' : 'none';
+    label.textContent = b ? 'Working…' : 'Submit';
+  }
+  function setStatus(text){ if (statusInput) statusInput.value = text || ''; }
+  function showProgress(percent) {
+    pWrap.style.display = 'block';
+    const pct = Math.max(0, Math.min(100, percent|0));
+    pBar.style.width = pct + '%';
+    pText.textContent = pct + '%';
+    setStatus('Progress ' + pct + '%');
+  }
+  function hideProgress() {
+    pWrap.style.display = 'none';
+    pBar.style.width = '0%';
+    pText.textContent = '0%';
+  }
+  async function poll(jobId) {
+    try {
+      const r = await fetch(statusUrl + '?jobId=' + encodeURIComponent(jobId), { headers: { 'Accept': 'application/json' }});
+      const s = await r.json(); // {ok, done, percent, message}
+      if (typeof s.percent === 'number') showProgress(s.percent);
+      if (s.done) {
+        clearInterval(pollTimer); pollTimer = null;
+        setBusy(false); hideProgress();
+        showAlert(s.ok ? 'success' : 'danger', s.message || (s.ok ? 'Completed.' : 'Failed.'));
+      }
+    } catch (e) {
+      clearInterval(pollTimer); pollTimer = null;
+      setBusy(false); hideProgress();
+      showAlert('danger', 'Status error: ' + e.message);
+    }
+  }
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    result.style.display = 'none';
+    hideProgress();
+    setStatus('Starting…');
+
+    // IMPORTANT: capture values BEFORE disabling (so checkboxes are included)
+    const fd = new FormData(form);
+
+    setBusy(true);
+
+    try {
+      const r = await fetch(form.action, {
+        method: 'POST',
+        headers: { 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'application/json' },
+        body: fd
+      });
+      const payload = await r.json();
+      if (!r.ok || payload.ok === false) {
+        setBusy(false); showAlert('danger', payload.message || 'Failed.'); return;
+      }
+      if (payload.progress && payload.progress.enabled && payload.jobId) {
+        showProgress(0);
+        pollTimer = setInterval(() => poll(payload.jobId), 700);
+      } else {
+        setBusy(false);
+        showAlert('success', payload.message || 'Completed.');
+      }
+    } catch (err) {
+      setBusy(false);
+      showAlert('danger', 'Network error: ' + err.message);
+    }
+  });
+})();
+</script>

@@ -1,0 +1,54 @@
+<zk>
+<separator height="5px"/>
+<div style="background:white" height="60px">
+	<hlayout>
+		<div width="50px">
+		</div>
+		<label id="reportTitle" style="display:none;color:#2980b9;font-family:Comic Sans MS,cursive;" >
+			Ledger Report
+		</label>
+	<vlayout>
+		<hlayout>
+			<div width="80px" align="right">
+				<label>Date Range</label>
+			</div>
+			<datebox id="sdate" format="yyyy/MM/dd"></datebox>
+			<label>-</label>
+			<datebox id="edate" format="yyyy/MM/dd"></datebox>
+			<!--
+			<textbox id="remark"></textbox>
+			-->
+		</hlayout>
+		<hlayout>
+			<div width="80px" align="right">
+				<label value="Mode" width="300px"></label>
+			</div>
+			<radiogroup id="rgSummaryOrDetail">
+				<radio label="Detail"/>
+				<radio label="Summary"/>
+			</radiogroup>
+			<checkbox id="showNoDetail" label="Show items with no detail"></checkbox>
+			<checkbox id="showAllAccount" label="Show items with zero balance"></checkbox>
+			<checkbox id="notCarryPandLaccount" label="Do not b/f Last P/L"></checkbox>
+		</hlayout>
+	</vlayout>
+		<hlayout>
+			<div width="80px" align="right">
+				<label value="Criteria" width="300px"></label>
+			</div>
+			<div>
+				<label id="rptCondition"></label>
+			</div>
+		</hlayout>
+	</hlayout>
+	<!-- 
+	     <html><![CDATA[
+	     <p><span style="color:#2980b9"><span style="font-family:Comic Sans MS,cursive"><em><span style="font-size:48px">Stock Aging Report</span></em></span></span></p>
+	     
+     ]]></html>
+     	<div width="500px" height="200px" style="background-color:red;border-radius: 25px;">
+     	</div>
+	 -->
+</div>
+<separator height="5px"/>
+</zk>

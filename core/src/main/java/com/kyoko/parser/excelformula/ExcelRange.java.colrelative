@@ -1,0 +1,49 @@
+package com.kyoko.parser.excelformula;
+import org.apache.commons.lang3.tuple.Pair;
+import com.kyoko.parser.*;
+
+public class ExcelRange {
+	String sheetName = null;
+	String cellRange;
+	boolean colAbsolute0 = false;
+	boolean rowAbsolute0 = false;
+	boolean colAbsolute1 = false;
+	boolean rowAbsolute1 = false;
+	int rowIdx0;
+	int colIdx0;
+	int rowIdx1;
+	int colIdx1;
+	CellPositionInterface cellPositionInterface;
+	public ExcelRange (String p_cellRange, VariableInterface p_interface,CellPositionInterface p_cellPositionInterface) throws Exception {
+		cellRange = p_cellRange;
+		cellPositionInterface = p_cellPositionInterface;
+		Pair<String,String> p0 = ExcelCellRef.splitStringTo2(p_cellRange,'!');
+		sheetName = p0.getLeft();
+
+		Pair<String,String> r0 = ExcelCellRef.splitStringTo2(p0.getRight(),':');
+	
+		Pair<Boolean,Integer>[] p1 = ExcelCellRef.decodeExcelRC(r0.getLeft());
+		colAbsolute0 = p1[0].getLeft(); 
+		colIdx0 = p1[0].getRight(); 
+		if(colAbsolute0) colIdx0 -= cellPositionInterface.getColIdx(); 
+		rowAbsolute0 = p1[1].getLeft(); 
+		rowIdx0 = p1[1].getRight(); 
+		if(rowAbsolute0) rowIdx0 -= cellPositionInterface.getRowIdx();
+
+		p1 = ExcelCellRef.decodeExcelRC(r0.getRight());
+		colAbsolute1 = p1[0].getLeft(); 
+		colIdx1 = p1[0].getRight(); 
+		if(colAbsolute1) colIdx1 -= cellPositionInterface.getColIdx(); 
+		rowAbsolute1 = p1[1].getLeft(); 
+		rowIdx1 = p1[1].getRight(); 
+		if(rowAbsolute1) rowIdx1 -= cellPositionInterface.getRowIdx();
+	}
+	
+	public String toString() {
+		return(cellRange);
+	}
+	
+	static public Dataset excelRangeToDataset() {
+		return(null);
+	}
+}

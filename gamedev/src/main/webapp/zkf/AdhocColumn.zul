@@ -1,0 +1,37 @@
+<zk>
+	<vlayout sclass="zkbi-form-content">
+		<label sclass="zkbi-form-header" id="lbHeader" value="Ad Hoc Columns"></label>
+		<hlayout>
+		<div width="100px">
+		<label>Column Name</label>
+		</div>
+		<combobox id="adhocColName" hflex="1"></combobox>
+		</hlayout>
+		<hlayout>
+		<div width="100px">
+		<label>Column Header</label>
+		</div>
+		<textbox id="adhocColHdr" width="300px"></textbox>
+		<label>Type</label>
+		<combobox id="adhocColType" width="100px"></combobox>
+		<label>Aggregate</label>
+		<combobox id="adhocColAgg" width="100px"></combobox>
+		<label>Format</label>
+		<textbox id="adhocColFormat" hflex="1"></textbox>
+		</hlayout>
+		<hlayout>
+		<div width="100px">
+		<label>Formula</label>
+		</div>
+		<textbox id="adhocColFormula" hflex="1" rows="3"></textbox>
+		</hlayout>
+		<div align="center">
+			<button width="100px" id="btAdd" label="Add"> </button>
+			<button width="100px" id="btUpd" label="Update"> </button>
+			<button width="100px" id="btDel" label="Delete"> </button>
+			<button width="100px" id="btCancel" label="Cancel"> </button>
+		</div>
+	</vlayout>
+	<div visible="false">
+	</div>
+</zk>

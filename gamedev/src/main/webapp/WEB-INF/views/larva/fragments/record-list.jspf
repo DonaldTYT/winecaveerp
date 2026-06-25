@@ -1,0 +1,51 @@
+<%@ taglib prefix="c"  uri="http://java.sun.com/jsp/jstl/core" %>
+<%
+  // Params via <jsp:include>:
+  // - ids       : unique id prefix (e.g., "rl1")
+  // - dataUrl   : JSON endpoint (defaults to /larva/pages/records)
+%>
+<c:set var="ids" value="${empty param.ids ? 'rl1' : param.ids}" />
+<c:set var="dataUrl" value="${empty param.dataUrl ? pageContext.request.contextPath.concat('/larva/pages/records') : param.dataUrl}" />
+
+<!-- Toolbar -->
+<div class="d-flex align-items-center justify-content-between mb-3">
+  <div class="d-flex align-items-center gap-2">
+    <label for="${ids}-pageSize" class="form-label m-0">Page size</label>
+    <select id="${ids}-pageSize" class="form-select form-select-sm" style="width:auto;">
+      <option value="10">10</option>
+      <option value="20" selected>20</option>
+      <option value="50">50</option>
+      <option value="100">100</option>
+    </select>
+  </div>
+  <div class="text-muted small">
+    <span id="${ids}-countText">0–0 / 0</span>
+  </div>
+</div>
+
+<!-- List container -->
+<div id="${ids}-list" class="list-group mb-3" style="max-height: 520px; overflow:auto;">
+  <!-- rows injected here -->
+</div>
+
+<!-- Pager -->
+<div class="d-flex align-items-center justify-content-between">
+  <button id="${ids}-prev" class="btn btn-outline-secondary btn-sm" type="button">
+    <i class="ti ti-chevron-left"></i> Previous
+  </button>
+  <div class="small text-muted">
+    Page <span id="${ids}-pageText">1</span> / <span id="${ids}-totalPagesText">1</span>
+  </div>
+  <button id="${ids}-next" class="btn btn-outline-secondary btn-sm" type="button">
+    Next <i class="ti ti-chevron-right"></i>
+  </button>
+</div>
+
+<!-- Busy indicator -->
+<div id="${ids}-busy" class="text-center my-3" style="display:none;">
+  <div class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></div>
+  <span class="ms-2 small">Loading…</span>
+</div>
+
+<!-- expose dataUrl for JS -->
+<input type="hidden" id="${ids}-dataUrl" value="${dataUrl}" />

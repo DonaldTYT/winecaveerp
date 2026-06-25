@@ -1,0 +1,183 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<zk>
+        <vlayout width="100%">
+            
+            <!-- Title -->
+            <label value="Vincero Advanced Fundamental Analysis Calculator" 
+                   style="font-size:20px; font-weight:bold; color:#2a3f5f;"/>
+
+            <!-- Market Sentiment Section -->
+            <hlayout width="100%" spacing="10px">
+                <label value="Market Sentiment" style="font-weight:bold; font-size:16px; color:#2a3f5f;"/>
+                <combobox width="120px">
+                    <comboitem label="Risk On"/>
+                    <comboitem label="Risk Off"/>
+                </combobox>
+                <label value="(select)" style="color:red;"/>
+            </hlayout>
+
+            <separator/>
+
+            <!-- Currency Data Table -->
+            <grid width="100%">
+                <columns>
+                    <column label="Category" width="250px"/>
+                    <column label="USD" width="100px"/>
+                    <column label="EUR" width="100px"/>
+                    <column label="JPY" width="100px"/>
+                    <column label="GBP" width="100px"/>
+                    <column label="CHF" width="100px"/>
+                    <column label="CAD" width="100px"/>
+                    <column label="AUD" width="100px"/>
+                    <column label="NZD" width="100px"/>
+                </columns>
+                <rows style="background-color: #FDFDFD !important;">
+                    <!-- Economic Indicators -->
+                    <row>
+                        <label value="Economic Growth"/>
+                        <textbox value="Very Good"/>
+                        <textbox value="Good"/>
+                        <textbox value="Neutral"/>
+                        <textbox value="Bad"/>
+                        <textbox value="Very Good"/>
+                        <textbox value="Bad"/>
+                        <textbox value=""/>
+                        <textbox value=""/>
+                    </row>
+                    <row>
+                        <label value="Inflation"/>
+                        <textbox value="Very Good"/>
+                        <textbox value="Good"/>
+                        <textbox value="Neutral"/>
+                        <textbox value="Bad"/>
+                        <textbox value="Very Good"/>
+                        <textbox value="Bad"/>
+                        <textbox value=""/>
+                        <textbox value=""/>
+                    </row>
+                    <row>
+                        <label value="Employment"/>
+                        <textbox value="Very Good"/>
+                        <textbox value="Good"/>
+                        <textbox value="Neutral"/>
+                        <textbox value="Bad"/>
+                        <textbox value="Very Good"/>
+                        <textbox value="Bad"/>
+                        <textbox value=""/>
+                        <textbox value=""/>
+                    </row>
+                    <row>
+                        <label value="Balance of Trade"/>
+                        <textbox value="Very Good"/>
+                        <textbox value="Good"/>
+                        <textbox value="Neutral"/>
+                        <textbox value="Bad"/>
+                        <textbox value="Very Good"/>
+                        <textbox value="Bad"/>
+                        <textbox value=""/>
+                        <textbox value=""/>
+                    </row>
+                    <row>
+                        <label value="Geopolitical Event"/>
+                        <textbox value="Very Good"/>
+                        <textbox value="Good"/>
+                        <textbox value="Neutral"/>
+                        <textbox value="Bad"/>
+                        <textbox value="Very Good"/>
+                        <textbox value="Bad"/>
+                        <textbox value=""/>
+                        <textbox value=""/>
+                    </row>
+
+                    <!-- Central Bank Stance -->
+                    <row>
+                        <label value="Central Bank Stance?" style="font-weight:bold;"/>
+                        <textbox value="Hawkish"/>
+                        <textbox value="Neutral Hawkish"/>
+                        <textbox value="Neutral"/>
+                        <textbox value="Neutral Dovish"/>
+                        <textbox value="Hawkish"/>
+                        <textbox value="Neutral Dovish"/>
+                        <textbox value=""/>
+                        <textbox value=""/>
+                    </row>
+
+                    <!-- Currency Risk On/Off -->
+                    <row>
+                        <label value="Is the currency Risk On or Risk Off?" style="font-weight:bold;"/>
+                        <textbox value="Risk On"/>
+                        <textbox value="Risk On"/>
+                        <textbox value="Neutral"/>
+                        <textbox value="Risk Off"/>
+                        <textbox value="Risk On"/>
+                        <textbox value="Risk Off"/>
+                        <textbox value=""/>
+                        <textbox value=""/>
+                    </row>
+                </rows>
+            </grid>
+
+            <separator/>
+
+            <!-- FTR & F10X Strategy Section -->
+            <grid width="100%">
+                <columns>
+                    <column label="Strategy" width="250px"/>
+                    <column label="USD"/>
+                    <column label="EUR"/>
+                    <column label="JPY"/>
+                    <column label="GBP"/>
+                    <column label="CHF"/>
+                    <column label="CAD"/>
+                    <column label="AUD"/>
+                    <column label="NZD"/>
+                </columns>
+                <rows>
+                    <row>
+                        <label value="FTR Fundamental Direction" style="font-weight:bold;"/>
+                        <label value="Bullish" style="color:green;"/>
+                        <label value="Bullish" style="color:green;"/>
+                        <label value="Neutral"/>
+                        <label value="Bearish" style="color:red;"/>
+                        <label value="Bullish" style="color:green;"/>
+                        <label value="Bearish" style="color:red;"/>
+                        <label/>
+                        <label/>
+                    </row>
+                    <row>
+                        <label value="F10X Fundamental Direction" style="font-weight:bold;"/>
+                        <label value="Bullish" style="color:green;"/>
+                        <label value="Neutral Bullish" style="color:green;"/>
+                        <label value="Neutral"/>
+                        <label value="Neutral Bearish" style="color:red;"/>
+                        <label value="Neutral Bullish" style="color:green;"/>
+                        <label value="Neutral Bearish" style="color:red;"/>
+                        <label/>
+                        <label/>
+                    </row>
+                </rows>
+            </grid>
+
+            <separator/>
+
+            <!-- Personal View Section -->
+            <hlayout width="100%" spacing="10px">
+                <label value="What is your Personal View on the strength of the Currency?" 
+                    style="font-weight:bold; color:#2a3f5f;"/>
+                <textbox width="80%" multiline="true" rows="2"/>
+            </hlayout>
+
+            <separator/>
+
+            <!-- Fundamental Bias Section -->
+            <hlayout width="100%" spacing="10px">
+                <label value="Your Fundamental Bias" style="font-weight:bold; font-size:16px; color:#2a3f5f;"/>
+                <combobox width="120px">
+                    <comboitem label="Bullish"/>
+                    <comboitem label="Neutral"/>
+                    <comboitem label="Bearish"/>
+                </combobox>
+                <label value="(Select)" style="color:red;"/>
+            </hlayout>
+        </vlayout>
+</zk>

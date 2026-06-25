@@ -1,0 +1,174 @@
+<zk>
+<style dynamic="true">
+<!-- cut/hide the vertical borders in the grid rows -->
+.myGridWithNoBorder tr.z-row td.z-row-inner { 
+	border-right: 0px #CCC; 
+}
+.gridLayoutNoBorder tr.z-row td.z-row-inner, tr.z-row .z-cell,div.z-grid { 
+	border: none; 
+	<!--   overflow: hidden;  -->
+	<!--   zoom: 1;  --> <!-- andrew remark: do not use zoom -->
+	<!--   background:#f8f8f8 !important;  --> <!-- remove hover -->
+	background:white !important;  <!-- remove hover -->
+	border-top: none; 
+	border-left: none; 
+	border-right: none; 
+	border-bottom: none; 
+} 
+.listboxNoSeparator .z-listitem > .z-listcell {
+	border-top: none; 
+	vertical-align: top;
+}
+.listboxNoSeparator > .z-listbox-body {
+	overflow-y: hidden !important;	
+}
+</style>
+	<toolbar id="detail_toolbar" align="end">
+	</toolbar>
+	<grid style="text-align:left;border: 1px solid #ececec; border-bottom: none;" id="detail_grid" sclass="gridLayoutNoBorder">
+		<columns>
+			<column hflex="min"></column>
+			<column hflex="min"></column>
+			<column hflex="min"></column>
+			<column hflex="min"></column>
+			<column hflex="min"></column>
+		</columns>
+		<rows>
+			<row>
+				<cell width="25px"/>
+				<cell colspan="1" width="600px">
+					<image id="co_logo" height="100px" />
+				</cell>
+				<cell colspan="1"> </cell>
+				<cell style="text-align:right">
+	 				<label id="pageTitle" style="font-weight: bold;font-size:30px !important;" value="Sales"><custom-attributes tlkey="lb_stmMOC_header"></custom-attributes></label>
+	 				<!--
+	 				<vlayout>
+	 				</vlayout>
+	 				-->
+				</cell>
+				<cell width="25px"/>
+			</row>
+			<row>
+				<cell colspan="5">
+				<hlayout>
+				<div width="25px"></div>
+
+				<div width="600px">
+				<grid>
+				<columns>
+					<column hflex="min"></column>
+					<column hflex="min"></column>
+				</columns>
+				<rows>
+					<row>
+						<label hflex="1" id="lb_vd_vname" value="Customer Name"><custom-attributes tlkey="lb_vd_vname"></custom-attributes></label>
+						<hlayout>
+						<!--
+						<textbox id="stm_ref2"/>
+						-->
+						<combobox id="vd_vname" width="320px"/>
+						</hlayout>
+					</row>
+					<row>
+						<label hflex="1" id="lb_stm_ctrspec" value="Remark"><custom-attributes tlkey="lb_stm_ctrspec"></custom-attributes></label>
+						<textbox id="stm_ctrspec" multiline="true" width="450px" height="50px"/>
+					</row>
+				</rows>
+				</grid>
+				</div>
+				
+				<!--
+				<div width="20"> </div>
+				-->
+				
+				<div width="300px">
+				<grid>
+				<columns>
+					<column hflex="min"></column>
+					<column hflex="min"></column>
+				</columns>
+				<rows>
+					<row>
+						<label hflex="1" id="lb_stm_date" value="Date"><custom-attributes tlkey="lb_stm_date"></custom-attributes></label>
+						<datebox id="stm_date"/>
+					</row>
+					<row>
+						<label hflex="1" id="lb_stm_ref1" value="Voucher No."><custom-attributes tlkey="lb_stm_ref1"></custom-attributes></label>
+						<textbox id="stm_ref1"/>
+					</row>
+					<row>
+						<label hflex="1" id="lb_stm_ref3" value="P.O."><custom-attributes tlkey="lb_stm_ref3"></custom-attributes></label>
+						<textbox id="stm_ref3"/>
+					</row>
+					<row>
+						<label hflex="1" id="lb_stm_cur" value="CCY"><custom-attributes tlkey="lb_stm_cur"></custom-attributes></label>
+						<combobox id="stm_cur"/>
+					</row>
+					<row>
+						<label hflex="1" id="lb_stm_tolAmt" value="Amount"><custom-attributes tlkey="lb_stm_tolAmt"></custom-attributes></label>
+						<textbox id="stm_tolAmt"/>
+					</row>
+					<row>
+						<label hflex="1" id="lb_stm_status" value="Status"><custom-attributes tlkey="lb_stm_status"></custom-attributes></label>
+						<combobox id="stm_status"/>
+					</row>
+				</rows>
+				</grid>
+				</div>
+				
+				<div hflex="1" style="text-align:right">
+					<vlayout>
+		<hlayout>
+			<label width="120px" id="lb_stm_mrg" value="Ref No"><custom-attributes tlkey="lb_stm_mrg"></custom-attributes></label>
+			<label width="120px" id="stm_mrg"/>
+		</hlayout>
+		<hlayout>
+			<label width="120px" id="lb_stm_cuser" value="Create By"><custom-attributes tlkey="lb_stm_cuser"></custom-attributes></label>
+			<label width="120px" id="stm_cuser"/>
+		</hlayout>
+		<hlayout>
+			<label width="120px" id="lb_stm_cdate" value="Create On"><custom-attributes tlkey="lb_stm_cdate"></custom-attributes></label>
+			<label width="120px" id="stm_cdate"/>
+		</hlayout>
+		<hlayout>
+			<label width="120px" id="lb_stm_ref2" value="Customer Code"><custom-attributes tlkey="lb_stm_ref2"></custom-attributes></label>
+			<label width="120px" id="stm_ref2"/>
+		</hlayout>
+		<hlayout>
+		<!--
+			<label width="120px" id="lb_stm_ref2" value="Customer Code"><custom-attributes tlkey="lb_stm_ref2"></custom-attributes></label>
+			<label width="120px" id="stm_ref2"/>
+			-->
+		</hlayout>
+					</vlayout>
+				</div>
+				
+				<div width="10px"></div>
+				</hlayout>
+				</cell>
+			</row>
+			<row>
+				<cell colspan="6">
+	<tabbox id="zkbiListTop" width="100%">
+		<tabs width="100%">
+			<tab id="tabDetail">Detail</tab>
+		</tabs>
+	<tabpanels>
+	<tabpanel id="panelDetail" > 
+					<listbox id="list_erpv4_MoDet" sclass="listboxNoSeparator" height="720px">
+					</listbox>
+						<div align="right">
+					<vlayout>
+					</vlayout>
+						</div>
+	</tabpanel>
+	</tabpanels>
+	</tabbox>
+				</cell>
+			</row>
+		</rows>
+	</grid>
+	<div height = "100px">
+	</div>
+</zk>

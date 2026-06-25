@@ -1,0 +1,49 @@
+<zk>
+<script>
+<![CDATA[
+var EmailContentUI = {
+	initContent: function(srcDoc) {
+		var $ifrmContent = jq('$ifrmEcContent');
+		var doc = $ifrmContent.prop('contentWindow').document;
+		$ifrmContent.load(function(){
+			EmailContentUI.resizeContent();
+		});
+		doc.open('text/html', 'replace');
+		doc.write(srcDoc);
+		doc.close();
+		$(doc).find('a').attr('target', '_blank');
+	},
+	resizeContent: function() {
+		var $ifrmContent = jq('$ifrmEcContent');
+		var doc = $ifrmContent.prop('contentWindow').document;
+		var oldScrollTop = $(window).scrollTop();
+		$ifrmContent.height(50);
+		$ifrmContent.height($(doc).height());
+		$(window).scrollTop(oldScrollTop);
+	}
+};
+$(window).resize(function(){
+	EmailContentUI.resizeContent();	
+});
+]]>
+</script>
+	<grid style="text-align:left;" id="detail_grid">
+	</grid>
+	<div id="emailcontent_div" visible="false" style="border:1px solid #d9d9d9;border-top:0">
+	    <div id="divEcHeader" style="background-color:#f5f7fa;padding:10px;">
+			<custom-attributes org.zkoss.zk.ui.updateByClient="true"/>
+	    </div>
+		<separator spacing="10px" />
+	    <iframe id="ifrmEcContent" width="100%" height="50px" scrolling="no">
+			<custom-attributes org.zkoss.zk.ui.updateByClient="true"/>
+		</iframe>
+		<separator spacing="10px" />
+	    <vlayout id="vlEcAttachments" style="background-color:#f5f7fa;padding:10px;">
+			<custom-attributes org.zkoss.zk.ui.updateByClient="true"/>
+	    </vlayout>
+	</div>
+	<toolbar id="detail_toolbar" align="end">
+		<button id="btForward" label="Forward" disabled="true"></button>
+		<button id="btReply" label="Reply" disabled="true"></button>
+	</toolbar>
+</zk>

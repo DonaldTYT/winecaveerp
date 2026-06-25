@@ -1,0 +1,222 @@
+<?page title="test" contentType="text/html;charset=UTF-8"?>
+<zk xmlns:h="native">
+<style>
+
+:not(.zkbi-linkcomp-listbox):not(.jxselopt) > .z-listbox-body, :not(.zkbi-linkcomp-listbox):not(.jxselopt) > .z-listbox-body .z-listbox-emptybody-content {
+    background: initial !important;
+}
+
+:not(.zkbi-linkcomp-listbox):not(.jxselopt) > .z-listbox-body .z-listcell {
+    background: initial !important;
+}
+
+:not(.zkbi-linkcomp-listbox):not(.jxselopt) > .z-listbox-body .z-listbox-odd .z-listcell {
+    background: initial !important;
+}
+
+:not(.zkbi-linkcomp-listbox):not(.jxselopt) > .z-listbox-body .z-listitem-selected .z-listcell {
+    background: #CAE8F8 !important;
+}
+
+.z-tree .z-tree-body {
+    background: initial !important;
+}
+.z-hlayout-inner div.view {
+	background:white;
+	padding:5px;
+	max-height:calc(90vh - 175px);
+}
+.z-hlayout-inner div.view.normal {
+	border:1px solid #d9d9d9;
+}
+.z-hlayout-inner div.view.active {
+	border:1px solid lightgreen;
+}
+
+.view_title {
+	display: inline-block;
+	width: 100%;
+	font-size:16px !important;
+	white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.view_title.new {
+	color: green;
+}
+.view_title.readydel {
+	color: red;
+}
+
+.column_label {
+	display: inline-block;
+	width: 100%;
+	white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    line-height: 22px !important;
+}
+
+:not(.zkbi-linkcomp-listbox):not(.jxselopt) > .z-listbox-body .column_bg .z-listcell {
+    background: initial !important;
+}
+:not(.zkbi-linkcomp-listbox):not(.jxselopt) > .z-listbox-body .column_bg .z-listcell .z-listcell-content {
+    min-height: 22px;
+    padding: 0px 2px !important;
+}
+:not(.zkbi-linkcomp-listbox):not(.jxselopt) > .z-listbox-body .column_bg.new .z-listcell {
+    background: lightgreen !important;
+}
+:not(.zkbi-linkcomp-listbox):not(.jxselopt) > .z-listbox-body .column_bg.readydel .z-listcell {
+    background: lightcoral !important;
+}
+:not(.zkbi-linkcomp-listbox):not(.jxselopt) > .z-listbox-body .column_bg.z-listitem-selected .z-listcell {
+    background: #CAE8F8 !important;
+}
+:not(.zkbi-linkcomp-listbox):not(.jxselopt) > .z-listbox-body .column_bg.new.z-listitem-selected .z-listcell {
+    background: palegreen !important;
+}
+:not(.zkbi-linkcomp-listbox):not(.jxselopt) > .z-listbox-body .column_bg.readydel.z-listitem-selected .z-listcell {
+    background: lightpink !important;
+}
+
+.flex_block {
+	display: flex;
+}
+.flex_block .select2 {
+	flex: 1;
+}
+
+</style>
+<window class="zkbi-form zkbi-main-window" id="winMain" title="" border="none" height="90vh" apply="com.uniinformation.jx.zk.JxZkDataModelBuilder">
+	<label sclass="zkbi-form-header" id="lbHeader" value="Data Model Builder"></label>
+	<vlayout sclass="zkbi-form-content" vflex="1">
+		<hlayout>
+			<hlayout style="min-width:200px">
+				<button id="btDataModelMt" label="Data Model Maintenance" visible="true"/>
+				<button id="btUploadExcel" label="Upload Excel" visible="false"/>
+				<button id="btAddView" label="Add View" visible="false" disabled="true"/>
+				<button id="btAddLink" label="Add Link" visible="false" disabled="true"/>
+				<button id="btDeleteLink" label="Delete Link" visible="false" disabled="true"/>
+			</hlayout>
+			<button id="btApply" sclass="zkbi-applybutton" label="Apply" visible="false" disabled="true"/>
+			<button id="btClose" label="Close" visible="false"/>
+		</hlayout>
+		<tabbox vflex="1" id="tabbox" visible="false">
+			<tabs>	
+				<tab id="tabView" label="View List" />
+				<tab id="tabJoins" label="Joins (ERD)" />
+			</tabs>
+			<tabpanels>
+				<tabpanel>
+					<hlayout id="hlViewContainer" vflex="1">
+						<div hflex="1" vflex="1" style="background-color:white;overflow-x:auto">
+							<hlayout id="hlView" vflex="1" style="overflow-x:auto"/>
+						</div>
+						<vlayout width="250px" vflex="1" style="background-color:white">
+							<label value="Properties" style="font-size:18px !important;padding:5px"/>
+							<vlayout vflex="1" style="overflow-y:auto">
+								<vlayout id="vlNameProp" hflex="1" style="margin:5px 5px 0 5px" visible="false">
+									<label value="Name"/>
+									<textbox id="tbNameProp" hflex="1"/>
+								</vlayout>
+								<vlayout id="vlViewIdProp" hflex="1" style="margin:5px 5px 0 5px" visible="false">
+									<label value="View Id"/>
+									<textbox id="tbViewIdProp" hflex="1" disabled="true"/>
+								</vlayout>
+
+								<vlayout id="vlOrderbyListProp" hflex="1" style="margin:5px 5px 0 5px" visible="false">
+									<label value="Order by"/>
+									<vlayout id="vlOrderbyList"/>
+									<toolbarbutton id="btAddOrderby" iconSclass="z-icon-plus" />
+								</vlayout>
+								<vlayout id="vlAccessRightProp" hflex="1" style="margin:5px 5px 0 5px" visible="false">
+									<label value="Access Right"/>
+									<textbox id="tbAccessRightProp" hflex="1"/>
+								</vlayout>
+
+								<vlayout id="vlDataTypeProp" hflex="1" style="margin:5px 5px 0 5px" visible="false">
+									<label value="Data Type"/>
+									<combobox id="cbDataTypeProp" hflex="1" readonly="true"/>
+								</vlayout>
+								<vlayout id="vlIsInListProp" hflex="1" style="margin:5px 5px 0 5px" visible="false">
+									<label value="In List"/>
+									<checkbox id="cbIsInListProp" mold="switch"/>
+								</vlayout>
+								<vlayout id="vlIsInvisibleProp" hflex="1" style="margin:5px 5px 0 5px" visible="false">
+									<label value="Invisible"/>
+									<checkbox id="cbIsInvisibleProp" mold="switch"/>
+								</vlayout>
+								<vlayout id="vlSeqProp" hflex="1" style="margin:5px 5px 0 5px" visible="false">
+									<label value="Sequance"/>
+									<intbox id="ibSeqProp" disabled="true"/>
+								</vlayout>
+								<vlayout id="vlFormulaProp" hflex="1" style="margin:5px 5px 0 5px" visible="false">
+									<label value="Formula"/>
+									<textbox id="tbFormulaProp" hflex="1" multiline="true" rows="5"/>
+								</vlayout>
+								<vlayout id="vlNumFormatProp" hflex="1" style="margin:5px 5px 0 5px" visible="false">
+									<label value="Number Formatting"/>
+									<textbox id="tbNumFormatProp" hflex="1"/>
+								</vlayout>
+								<vlayout id="vlLengthProp" hflex="1" style="margin:5px 5px 0 5px" visible="false">
+									<label value="Length"/>
+									<intbox id="ibLenProp" />
+								</vlayout>
+								<label id="lbDebugProp" hflex="1" multiline="true"/>
+							</vlayout>
+						</vlayout>
+						<vlayout width="200px" vflex="1" style="background-color:white" visible="false">
+							<label value="Columns Tree" style="font-size:18px !important;padding:5px"/>
+							<tree id="treeCols" vflex="1">
+								<treecols>
+									<treecol/>
+								</treecols>
+								<treechildren id="treechildrenCols"/>
+							</tree>
+						</vlayout>
+					</hlayout>
+				</tabpanel>
+				<tabpanel>
+					<hlayout id="divJoinsContainer" vflex="1">
+						<div id="divJoins" hflex="1" vflex="1" style="background-color:white">
+							<h:div id="divJoinsContent" style="width:100%;height:100%"/>
+						</div>
+						<vlayout width="300px" vflex="1" style="background-color:white">
+							<label value="Properties" style="font-size:18px !important;padding:5px"/>
+							<vlayout id="vlJoinsProp" vflex="1" style="overflow-y:auto" visible="false">
+								<vlayout id="vlTableFromToProp" hflex="1" style="margin:5px 5px 0 5px">
+									<hlayout>
+										<label id="lbFromTable" value="From Table" hflex="1"/>
+										<label id="lbToTable" value="To Table" hflex="1"/>
+									</hlayout>
+									<hlayout>
+										<textbox id="tbFromTable" hflex="1" disabled="true"/>
+										<div hflex="1">
+											<div id="divS2ToTable" class="flex_block" width="100%" visible="false">
+												<s2listbox id="s2ToTable" />
+											</div>
+										</div>
+									</hlayout>
+								</vlayout>
+								<vlayout id="vlFieldsListProp" hflex="1" style="margin:5px 5px 0 5px">
+									<label value="Fields List"/>
+									<vlayout id="vlFieldsFromTo"/>
+									<toolbarbutton id="btAddFieldFromTo" iconSclass="z-icon-plus" />
+								</vlayout>
+								<vlayout id="vlJoinsOptionProp" hflex="1" style="margin:5px 5px 0 5px">
+									<label value="Option"/>
+									<hlayout>
+										<checkbox id="cbOneToOne" label="One to One" hflex="1"/>
+										<checkbox id="cbOptional" label="Optional" hflex="1"/>
+									</hlayout>
+								</vlayout>
+							</vlayout>
+						</vlayout>
+					</hlayout>
+				</tabpanel>
+			</tabpanels>
+		</tabbox>
+	</vlayout>
+</window>
+</zk>

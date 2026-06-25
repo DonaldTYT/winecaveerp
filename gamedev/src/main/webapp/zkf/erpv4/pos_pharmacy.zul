@@ -1,0 +1,42 @@
+<zk>
+<window width="1000px" apply="com.uniinformation.zkf.erpv4.ZkPosPharmacy">
+	<vlayout>
+		<div align="center">Pharmacy POS</div>
+		<div width="1000px">
+			<hlayout>
+				<div width="450px">
+					<vlayout>
+					<label>Scan Barcode or Search Items</label>
+					<textbox width="400px"></textbox>
+					</vlayout>
+				</div>
+				<div width="450px">
+					<vlayout>
+					<label>Customer or Insurance Agent</label>
+					<textbox width="400px"></textbox>
+					</vlayout>
+				</div>
+		<!-- 
+		<vlayout width="400px">
+			<div hflex="1">
+			<label>Scan Barcode or Search Items</label>
+			</div>
+			<textbox></textbox>
+		</vlayout>
+		<vlayout width="400px">
+			<div hflex="1">
+			<label>Client</label>
+			</div>
+			<textbox></textbox>
+		</vlayout>
+		 -->
+			</hlayout>
+		</div>
+		<div align="center">
+			<button id="bt_save">Save</button>
+		</div>
+	</vlayout>
+	<div visible="false">
+	</div>
+</window>
+</zk>

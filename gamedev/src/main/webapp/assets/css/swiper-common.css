@@ -1,0 +1,60 @@
+/* remove bullet and space from the list */
+ul.swiper-wrapper {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+}
+
+/* Swiper container */
+.swiper-container {
+  max-width: 100%;
+  width:600px;
+  height:360px;
+  /*background:red;*/
+}
+
+/* swiper responive image */
+.swiper-container img {
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  max-width: 100%;
+  max-height: 100%;
+  margin: auto;
+}
+
+.swiper-slide {
+/* Remove this if you want 1 slide perview - than change slidesPerView js-option to 1 -or- 2+ instead of 'auto' */
+  width: 80%;
+}
+
+/* Swiper custom pagination */
+.swiper-pagination-bullet {
+  width: 34px;
+  height: 34px;
+  text-align: center;
+  line-height: 34px;
+  font-size: 14px;
+  color: #000;
+  opacity: 1;
+  background: rgba(0, 0, 0, 0.3);
+}
+/* Swiper custom pagination active state */
+.swiper-pagination-bullet-active {
+  color: #fff;
+  background: black;
+}
+.swiper-button-prev, 
+.swiper-container-rtl .swiper-button-next {
+  background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20viewBox%3D'0%200%2027%2044'%3E%3Cpath%20d%3D'M0%2C22L22%2C0l2.1%2C2.1L4.2%2C22l19.9%2C19.9L22%2C44L0%2C22L0%2C22L0%2C22z'%20fill%3D'%23007a9a'%2F%3E%3C%2Fsvg%3E");
+}
+.swiper-button-next, 
+.swiper-container-rtl .swiper-button-prev {
+  background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20viewBox%3D'0%200%2027%2044'%3E%3Cpath%20d%3D'M27%2C22L27%2C22L5%2C44l-2.1-2.1L22.8%2C22L2.9%2C2.1L5%2C0L27%2C22L27%2C22z'%20fill%3D'%23007a9a'%2F%3E%3C%2Fsvg%3E");
+}
+.swiper-pagination-bullet-active {
+  color: #fff;
+  background: #4c7a9a;
+}

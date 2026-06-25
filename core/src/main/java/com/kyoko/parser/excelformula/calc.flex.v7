@@ -1,0 +1,109 @@
+package com.kyoko.parser.excelformula;
+import java.io.*;
+import com.uniinformation.utils.*;
+
+%%
+
+%byaccj
+%unicode
+
+%{
+  StringBuffer sb = new StringBuffer();
+  private Parser yyparser;
+
+  public Yylex(java.io.Reader r, Parser yyparser) {
+    this(r);
+    this.yyparser = yyparser;
+  }
+	public int getCurrentPos() {
+  		return(yy_currentPos);
+	}
+%}
+
+
+/* RANGE = [A-Za-z]+[A-Za-z0-9_]*!\$?[A-Za-z]+[0-9]+:\$?[A-Za-z]+[0-9]+ | \'[A-Za-z]+[A-za-z0-9_ ]*\'!\$?[A-Za-z]+[0-9]+:\$?[A-Za-z]+[0-9]+ | \$?[A-Za-z]+[0-9]+:\$?[A-Za-z]+[0-9]+ | [A-Za-z]+[A-za-z0-9_]*![0-9]+:[0-9] | \'[A-Za-z]+[A-za-z0-9_ ]*\'![0-9]+:[0-9] | [0-9]+:[0-9] */
+/* RANGE = \$?[A-Za-z]+[0-9]+:\$?[A-Za-z]+[0-9]+ | [A-Za-z][A-Za-z0-9_]*!\$?[A-Za-z]+[0-9]+:\$?[A-Za-z]+[0-9]+*/
+/* RANGE = \$?[A-Za-z]+[0-9]+:\$?[A-Za-z]+[0-9]+ | [A-Za-z][A-Za-z0-9_]*!\$?[A-Za-z]+[0-9]+:\$?[A-Za-z]+[0-9]+*/
+/* RANGE = \$?[A-Za-z]+[0-9]+:\$?[A-Za-z]+[0-9]+ | def!\$?[A-Za-z]+[0-9]+:\$?[A-Za-z]+[0-9]+ */
+RANGE = ([a-zA-Z][a-zA-Z0-9_]*\!)?\$?[A-Za-z]+[0-9]+:\$?[A-Za-z]+[0-9]+ | \'[a-zA-Z][a-zA-Z0-9_ ]*\'!\$?[A-Za-z]+[0-9]+:\$?[A-Za-z]+[0-9]+
+/* CELL  = [A-Za-z]+[A-Za-z0-9_]*!\$?[A-Za-z]+[0-9]+ | \'[A-Za-z]+[A-Za-z0-9_ ]*\'!\$?[A-Za-z]+[0-9]+ | \$?[A-Za-z]+[0-9]+ */
+CELL  = \$?[A-Za-z]+[0-9]+ 
+INT = [0-9]+
+NUM = (\.[0-9]+|[0-9]+\.[0-9]*)
+NL  = \n | \r | \r\n
+/* IDENT = [!\$_a-zA-Z][!\$a-zA-Z_0-9\.]* */
+FUNC = [a-zA-Z]+
+AND = "&&" | "and" | "AND"
+OR = "||" | "or" | "OR"
+TRUE = "true"
+FALSE = "false"
+GT = ">"
+GE = ">="
+LT = "<"
+LE = "<="
+EQ = "==" | "="
+NE = "!=" | "<>"
+NOT = "!" 
+
+%state STRINGLITERAL
+
+%%
+
+<YYINITIAL> {
+/* operators */
+"," | "+" | "-" | "*" | "/" | "^" | "(" | ")" | "[" | "]" { return (int) yycharat(0); }
+
+/* newline */
+{NL}   { }
+
+{TRUE}   { return Parser.TRUE; }
+{FALSE}   { return Parser.FALSE; }
+{GT}   { return Parser.GT; }
+{GE}   { return Parser.GE; }
+{LT}   { return Parser.LT; }
+{LE}   { return Parser.LE; }
+{EQ}   { return Parser.EQ; }
+{NE}   { return Parser.NE; }
+{AND}  { return Parser.AND; }
+{OR}   { return Parser.OR; }
+{NOT}  { return Parser.NOT; }
+
+/* float */
+{NUM}  { yyparser.yylval = new ParserVal(Double.parseDouble(yytext()));
+         return Parser.NUM; }
+
+{INT}  { yyparser.yylval = new ParserVal(Integer.parseInt(yytext()));
+         return Parser.INT; }
+
+
+{FUNC}  { 
+         yyparser.yylval = new ParserVal(new LexIdent(yytext()));
+         return Parser.FUNC; }
+
+{CELL}  { 
+         yyparser.yylval = new ParserVal(new LexIdent(yytext()));
+         return Parser.CELL; }
+
+{RANGE}  { 
+         yyparser.yylval = new ParserVal(new LexIdent(yytext()));
+         return Parser.RANGE; }
+
+
+/* whitespace */
+[ \t]+ { }
+
+\b     { System.err.println("Sorry, backspace doesn't work"); }
+
+\"     { sb.setLength(0); yybegin(STRINGLITERAL); }
+}
+
+<STRINGLITERAL> {
+   [\\][\\] { sb.append("\\"); }
+   [\\][\"] { sb.append("\""); }
+   \"   { yybegin(YYINITIAL); 
+          yyparser.yylval = new ParserVal(sb.toString());
+          return Parser.STRING;
+	     }
+   [^\"\\]+ { sb.append(yytext()); UniLog.log("xxx"); }
+}
+

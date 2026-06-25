@@ -1,0 +1,26 @@
+<?page title="JSON Editor" contentType="text/html;charset=UTF-8"?>
+<zk xmlns:n="native">
+    <window
+        width="100%"
+        border="normal"
+        title="JSON Editor (ZK 9.5.x)"
+        apply="com.uniinformation.zkf.JsonEditorComposer">
+
+        <vlayout width="100%" sclass="p-3">
+            <hlayout>
+                <button id="btnSave" label="Save" mold="default" />
+                <button id="btExpand" label="Expand all" mold="default" />
+                <button id="btCollapse" label="Collapse all" mold="default" />
+                <label id="msg" sclass="ml-2" />
+            </hlayout>
+
+            <label
+                value="Objects and arrays are shown as a tree. All leaf values are editable strings."
+                style="font-size:12px;color:#666;margin:6px 0;" />
+
+            <!-- Dynamic tree host -->
+            <div id="formHost" width="100%" />
+
+        </vlayout>
+    </window>
+</zk>

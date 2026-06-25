@@ -1,0 +1,10 @@
+<zk>
+  <window title="Listbox" border="normal">
+                             <listbox rows="1" mold="select">
+                                                          <listitem label="Valid1"/>
+                                                          <listitem label="Invalid. Should be red both in dropdown and when selected" style="color:red"/>
+                                                          <listitem label="Valid2"/>
+                             </listbox>
+</window>
+
+</zk>

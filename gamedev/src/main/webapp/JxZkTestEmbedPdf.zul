@@ -1,0 +1,47 @@
+<zk xmlns:w="http://www.zkoss.org/2005/zk/client">
+<script type="text/javascript" src="js/pdfobject-2.0.min.js" />
+<script>
+<![CDATA[
+function zkDisplayPdf(p_link, p_container, p_downloadBtId) {
+	if (! jq('$' + p_container).length){
+		console.log("not exist:" + p_container);
+		return;
+	}
+	var $pdf = $('#' + jq('$' + p_container).attr('id')); //TODO: this statement very strange, rewrite it later!
+	var options = {
+		pdfOpenParams: {
+    		pageMode: 'none',
+    		scaleValue: 'page-fit',
+    		disableFullscreen: true,
+			disableOpenFile: true,
+			disableViewBookmark: true,
+		    disableDownload: true,
+		    disablePrinting: true,
+			downloadFun: 'zkDownloadPdf("'+ p_downloadBtId+'")'
+		},
+		forcePDFJS: true,
+		PDFJS_URL: "js/pdfjs/web/viewer.html",
+		fallbackLink: '<p>This browser does not support inline PDFs, please click this <a href="' + p_link + '">link</a> to download</p>'
+	};
+	PDFObject.embed(p_link, $pdf, options);
+}
+function zkDownloadPdf(p_btId) {
+	//var zkComp = zk.Widget.$('$btDownloadPdf');
+	var zkComp = zk.Widget.$('$' + p_btId);
+	if (zkComp !== null && zAu !== null && zk !== null)
+		zAu.send(new zk.Event(zkComp, "onClick", null, {toServer:true}));
+	else
+		console.log("comp or zAu is null, skip register event");
+}
+]]>
+</script>
+<window class="zk-container" width="95%" border="none" title="" id="JxZkTestEmbedPdf" apply="com.uniinformation.jx.zk.ZkJxComposer" style="padding: 0px !important;" >
+	<div width="100%" sclass="zkpdf" id="pdf001"></div>
+	<separator spacing="5px" />	
+	<hbox id="zkPdfActionBar" pack="center" width="100%">
+		<button visible="true" style="" id="btDownloadPdf" label="Download"/>
+		<button visible="true" style="" id="btPrintPdf" label="Print"/>
+		<button visible="true" style="" id="btClose" label="Close"/>
+	</hbox>
+</window>
+</zk>

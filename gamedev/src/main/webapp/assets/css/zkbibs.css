@@ -1,0 +1,54 @@
+/*
+@import "../css/bootstrap-4.0.0.min.css";
+*/
+	
+/* col - extra small (portrait phones, under 576px) */
+.bs-row.row {
+	/*background:pink;*/
+	white-space: nowrap;
+	margin: 0 auto;
+}
+.bs-row.row .zkbitextbox-lb-div {
+}
+
+.bs-row .zkbitextbox-lb-div {
+	display:inline-block;
+}
+	
+	
+/* col-sm - small devices (landscape phones, 576px and up) IGNORE */
+/* @media (min-width: 576px) { } */
+
+
+/* col-md - medium devices (tablets, 768px and up) */
+@media (min-width: 768px) { 
+	.bs-row.row{
+		/*background:orange;*/
+		margin: 0 auto;
+	}
+	.bs-row.row .zkbitextbox-lb-div {
+	}
+}
+
+
+/* col-lg - ignore large devices (desktops, 992px and up) */
+@media (min-width: 992px) { 
+	.bs-row.row{
+		/*background:yellow;*/
+		margin: 0 auto;
+	}
+}
+
+
+/* col-xl - extra large devices (large desktops, 1200px and up) */
+@media (min-width: 1200px) { 
+	.bs-row.row{
+		/*margin:0 100px; */ /*add extra margin for xl screen*/
+		margin:0 auto;
+		/*background:lightgreen;*/
+	}
+}
+
+.z-grid .bs-row.row, .z-listbox .bs-row.row{
+	margin:0;
+}

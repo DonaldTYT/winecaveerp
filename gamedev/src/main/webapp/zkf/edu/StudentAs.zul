@@ -1,0 +1,246 @@
+<?taglib uri="http://www.zkoss.org/dsp/web/core" prefix="c"?>
+<zk>
+<style dynamic="true">
+.asstabbox .z-tabpanels .z-tabpanel {
+	padding: 0;
+}
+.asstabbox .z-tabpanels .z-tabpanel .z-grid {
+	border: 0;
+	background: #B5C9D4 !important;
+}
+.asstabbox .z-tabpanels .z-tabpanel .btnclear {
+	float: right;
+}
+.asstabbox .z-tabpanels .z-tabpanel .cboptdiv {
+	display: flex;
+	display: -webkit-flex;
+	flex-wrap: wrap;
+	-webkit-flex-wrap: wrap;
+	max-width: 460px;
+}
+</style>
+<zscript>
+import org.zkoss.xel.fn.CommonFns;
+class AssOption {
+	private String label;
+	private String[] options;
+	public AssOption(String label, String[] options) {
+		this.label = label;
+		this.options = options;
+	}
+	public AssOption(String label) {
+		this.label = label;
+	}
+	public String getLabel() {
+		return label;
+	}
+	public String[] getOptions() {
+		return options;
+	}
+}
+
+String[] tabNames = new String[] {
+	"PN-K", "K(Phonics)", "P1", "P2", "P3", "P4", "P5 &amp; P6"
+};
+String[] idPrefixs = new String[] {
+	"pk", "kp", "p1", "p2", "p3", "p4", "p5"
+};
+String[] pk008Opts = new String[] {
+	//"A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"
+	"&#160;A&#160;&#160;&#160;", "&#160;B&#160;&#160;&#160;", "&#160;C&#160;&#160;&#160;", "&#160;D&#160;&#160;&#160; ", "&#160;E&#160;&#160;&#160;", "&#160;F&#160;&#160;&#160;", "&#160;G&#160;&#160;&#160;", "&#160;H&#160;&#160;&#160;", "&#160;I&#160;&#160;&#160;", "&#160;J&#160;&#160;&#160;", "&#160;K&#160;&#160;&#160;", "&#160;L&#160;&#160;&#160;", "&#160;M&#160;&#160;&#160;", "&#160;N&#160;&#160;&#160;", "&#160;O&#160;&#160;&#160;", "&#160;P&#160;&#160;&#160;", "&#160;Q&#160;&#160;&#160;", "&#160;R&#160;&#160;&#160;", "&#160;S&#160;&#160;&#160;", "&#160;T&#160;&#160;&#160;", "&#160;U&#160;&#160;&#160;", "&#160;V&#160;&#160;&#160;", "&#160;W&#160;&#160;&#160;", "&#160;X&#160;&#160;&#160;", "&#160;Y&#160;&#160;&#160;", "&#160;Z&#160;&#160;&#160;"
+};
+String[] pk024Opts = new String[] {
+	"Circle", "Square", "Triangle", "Rectangle", "Oval", "Rhombus", "Heart", "Star"
+};
+String[] pk025Opts = new String[] {
+   	"Red", "Orange", "Yellow", "Green", "Blue", "Purple", "Pink", "Brown", "Black", "White"
+};
+String[] pk026Opts = new String[] {
+	//"1", "2", "3", "4", "5", "6", "7", "8", "9", "10"
+	"&#160;1&#160;&#160;&#160;", "&#160;2&#160;&#160;&#160;", "&#160;3&#160;&#160;&#160;", "&#160;4&#160;&#160;&#160;", "&#160;5&#160;&#160;&#160;", "&#160;6&#160;&#160;&#160;", "&#160;7&#160;&#160;&#160;", "&#160;8&#160;&#160;&#160;", "&#160;9&#160;&#160;&#160;", "&#160;10&#160;&#160;&#160;"
+};
+
+ListModelList lmPk = new ListModelList();
+lmPk.add(new AssOption("Knowledge of alphabets - identifies only upper case"));
+lmPk.add(new AssOption("Knowledge of alphabets - identifies both upper and lower case"));
+lmPk.add(new AssOption("Knowledge of alphabets - knowledge of writing upper case"));
+lmPk.add(new AssOption("Knowledge of alphabets - knowledge of writing lower case"));
+lmPk.add(new AssOption("Knowledge of alphabets - cannot write but can mimic"));
+lmPk.add(new AssOption("Knowledge of alphabets - cannot write but can trace"));
+lmPk.add(new AssOption("Knowledge of alphabets - mirror images: (please specify)"));
+lmPk.add(new AssOption("Letter sounds recognition:", pk008Opts));
+lmPk.add(new AssOption("Idea of writing - Capable to draw: straight lines"));
+lmPk.add(new AssOption("Idea of writing - Capable to draw: zigzag lines"));
+lmPk.add(new AssOption("Idea of writing - Capable to draw: crisscross lines i.e. \"X\""));
+lmPk.add(new AssOption("Idea of writing - Capable to draw: circles"));
+lmPk.add(new AssOption("Idea of writing - Capable to draw: squares"));
+lmPk.add(new AssOption("Idea of writing - Capable to draw: triangles"));
+lmPk.add(new AssOption("Name writing - writes name correctly"));
+lmPk.add(new AssOption("Name writing - writes name using all uppercase"));
+lmPk.add(new AssOption("Name writing - writes some letters of name"));
+lmPk.add(new AssOption("Name writing - writes using letter-like symbols"));
+lmPk.add(new AssOption("Name writing - scribbles or repetitive"));
+lmPk.add(new AssOption("Motor skills - Holds pencil/marker correctly"));
+lmPk.add(new AssOption("Motor skills - Fits small items together"));
+lmPk.add(new AssOption("Patterns - identifies same and different"));
+lmPk.add(new AssOption("Patterns - identifies patterns"));
+lmPk.add(new AssOption("Patterns - identifies shapes:", pk024Opts));
+lmPk.add(new AssOption("Colour identification:", pk025Opts));
+lmPk.add(new AssOption("Recognition of numerals:", pk026Opts));
+ListModelList lmKp = new ListModelList();
+lmKp.add(new AssOption("Able to recognize all capital letters"));
+lmKp.add(new AssOption("Able to recognize all small letters"));
+lmKp.add(new AssOption("Able to write all letters"));
+lmKp.add(new AssOption("Mirror image"));
+lmKp.add(new AssOption("Able to recognize beginning consonants"));
+lmKp.add(new AssOption("Able to recognize ending sounds"));
+lmKp.add(new AssOption("Able to read CVC words"));
+lmKp.add(new AssOption("Able to spell CVC words"));
+lmKp.add(new AssOption("Able to read words with digraphs."));
+lmKp.add(new AssOption("Able to spell words with digraphs."));
+lmKp.add(new AssOption("Able to read words with long vowels"));
+lmKp.add(new AssOption("Able to spell words with long vowels"));
+lmKp.add(new AssOption("Able to read words with naughty y"));
+lmKp.add(new AssOption("Able to spell words with naughty y"));
+lmKp.add(new AssOption("Able to read words with magic e"));
+lmKp.add(new AssOption("Able to spell words with magic e"));
+lmKp.add(new AssOption("Able to read words with silent sounds"));
+lmKp.add(new AssOption("Able to spell words with silent sounds"));
+lmKp.add(new AssOption("Able to read a short passage"));
+lmKp.add(new AssOption("Able to write short sentences"));
+lmKp.add(new AssOption("Able to write a short passage"));
+ListModelList lmP1 = new ListModelList();
+lmP1.add(new AssOption("Able to comprehend a short passage"));
+lmP1.add(new AssOption("Able to write a short passage"));
+lmP1.add(new AssOption("Able to apply present tense"));
+lmP1.add(new AssOption("Able to apply the usage of verb to \"be\""));
+lmP1.add(new AssOption("Able to apply the usage of verb to \"have\""));
+lmP1.add(new AssOption("Able to understand plural and singular nouns"));
+lmP1.add(new AssOption("Able to apply present continuous tense"));
+lmP1.add(new AssOption("Able to apply future tense"));
+lmP1.add(new AssOption("Able to apply past tense"));
+ListModelList lmP2 = new ListModelList();
+lmP2.add(new AssOption("Able to comprehend fiction"));
+lmP2.add(new AssOption("Able to comprehend non-fiction"));
+lmP2.add(new AssOption("Able to write a piece of story (around 100 words)"));
+lmP2.add(new AssOption("Able to apply present tense"));
+lmP2.add(new AssOption("Able to apply the usage of verb to \"be\""));
+lmP2.add(new AssOption("Able to apply the usage of verb to \"have\""));
+lmP2.add(new AssOption("Able to understand plural and singular nouns"));
+lmP2.add(new AssOption("Able to apply present continuous tense"));
+lmP2.add(new AssOption("Able to apply future tense"));
+lmP2.add(new AssOption("Able to apply past tense"));
+lmP2.add(new AssOption("Able to apply past continuous tense"));
+lmP2.add(new AssOption("Able to relate cause and effect"));
+lmP2.add(new AssOption("Able to do inference in reading"));
+ListModelList lmP3 = new ListModelList();
+lmP3.add(new AssOption("Able to comprehend fiction"));
+lmP3.add(new AssOption("Able to comprehend non-fiction"));
+lmP3.add(new AssOption("Able to write a piece of story (around 200 words)"));
+lmP3.add(new AssOption("Able to apply present tense"));
+lmP3.add(new AssOption("Able to understand plural and singular nouns"));
+lmP3.add(new AssOption("Able to apply present continuous tense"));
+lmP3.add(new AssOption("Able to apply future tense"));
+lmP3.add(new AssOption("Able to apply past tense"));
+lmP3.add(new AssOption("Able to apply past continuous tense"));
+lmP3.add(new AssOption("Able to relate cause and effect"));
+lmP3.add(new AssOption("Able to do inference in reading"));
+lmP3.add(new AssOption("Able to do compare and contrast"));
+ListModelList lmP4 = new ListModelList();
+lmP4.add(new AssOption("Able to comprehend fiction"));
+lmP4.add(new AssOption("Able to comprehend non-fiction"));
+lmP4.add(new AssOption("Able to write a piece of persuasive writing (around 300 words)"));
+lmP4.add(new AssOption("Able to apply present tense"));
+lmP4.add(new AssOption("Able to apply conjunctions"));
+lmP4.add(new AssOption("Able to apply present continuous tense"));
+lmP4.add(new AssOption("Able to apply future tense"));
+lmP4.add(new AssOption("Able to apply past tense"));
+lmP4.add(new AssOption("Able to apply past continuous tense"));
+lmP4.add(new AssOption("Able to apply present perfect tense"));
+lmP4.add(new AssOption("Able to apply past perfect tense"));
+lmP4.add(new AssOption("Able to relate cause and effect"));
+lmP4.add(new AssOption("Able to do inference in reading"));
+lmP4.add(new AssOption("Able to do compare and contrast"));
+lmP4.add(new AssOption("Able to identify different genres"));
+lmP4.add(new AssOption("Able to comprehend poems"));
+ListModelList lmP5 = new ListModelList();
+lmP5.add(new AssOption("Able to comprehend fiction"));
+lmP5.add(new AssOption("Able to comprehend non-fiction"));
+lmP5.add(new AssOption("Able to write a piece of persuasive writing (around 300 words)"));
+lmP5.add(new AssOption("Able to summarize a text"));
+lmP5.add(new AssOption("Able to apply present tense"));
+lmP5.add(new AssOption("Able to apply conjunctions"));
+lmP5.add(new AssOption("Able to apply present continuous tense"));
+lmP5.add(new AssOption("Able to apply future tense"));
+lmP5.add(new AssOption("Able to apply past tense"));
+lmP5.add(new AssOption("Able to apply past continuous tense"));
+lmP5.add(new AssOption("Able to apply present perfect tense"));
+lmP5.add(new AssOption("Able to apply conditional sentences"));
+lmP5.add(new AssOption("Able to apply question tags"));
+lmP5.add(new AssOption("Able to apply past perfect tense"));
+lmP5.add(new AssOption("Able to relate cause and effect"));
+lmP5.add(new AssOption("Able to do inference in reading"));
+lmP5.add(new AssOption("Able to do compare and contrast"));
+lmP5.add(new AssOption("Able to identify different genres"));
+lmP5.add(new AssOption("Able to comprehend poems"));
+
+ListModelList[] lms = new ListModelList[] {
+	lmPk, lmKp, lmP1, lmP2, lmP3, lmP4, lmP5
+};
+
+</zscript>
+<tabbox id="tbxAss" class="asstabbox" vflex="1">
+	<tabs>	
+		<tab forEach="${tabNames}" label="${each}" />
+	</tabs>
+	<tabpanels>
+		<tabpanel forEach="${lms}">
+			<grid sclass="zkbi-zebrabg" vflex="1">
+				<zscript>
+					String idPrefix = idPrefixs[forEachStatus.index];
+				</zscript>
+				<columns>
+					<column width="30px" />
+					<column hflex="1" />
+					<column width="122px"/>
+				</columns>
+				<rows>
+   					<row forEach="${each}" valign="top">
+   						<zscript>
+   							if (each.options != null)
+   								self.spans = "1,2";
+   							int index = forEachStatus.index;
+   							String vid = idPrefix + CommonFns.formatNumber(index + 1, "#000");
+  							String seq = CommonFns.formatNumber(index + 1, "#00");
+   						</zscript>
+						<label value="${seq}." style="overflow-wrap:break-word"/>
+   						<zk choose="">
+   							<zk when="${each.options != null}">
+   								<vlayout>
+									<label value="${each.label}" style="overflow-wrap:break-word"/>
+									<div hflex="1" class="cboptdiv">
+										<checkbox forEach="${each.options}" label="${each}" id="${vid}_${forEachStatus.index + 1}" 
+												style="display:inline-block;min-width:90px"/>
+										<checkbox label="All" class="cballopt" style="display:inline-block;min-width:90px" />
+									</div>
+   								</vlayout>
+   							</zk>
+   							<zk>
+								<label value="${each.label}" style="overflow-wrap:break-word"/>
+   								<radiogroup id="${vid}">
+									<radio label="NA"/>
+									<radio label="Y"/>
+									<radio label="N"/>
+								</radiogroup>
+   							</zk>
+   						</zk>
+   					</row>
+   					<row spans="3">
+   						<button label="Clear Assessment" class="btnclear"/>
+   					</row>
+				</rows>
+			</grid>
+		</tabpanel>
+	</tabpanels>
+</tabbox>
+</zk>

@@ -1,0 +1,42 @@
+<zk>
+<div align="middle">
+	<vlayout width="650px">
+		<div height="30px"/>
+		<div align="center">存貨分類賬報表</div>
+		<div height="30px"/>
+		<hlayout valign="middle" id="cond_icode" use="com.uniinformation.zkbi.QueryConditionRow">
+				<custom-attributes fdname="st_icode"></custom-attributes>
+				<custom-attributes label="產品編號"></custom-attributes>
+		</hlayout>
+		<!--
+		<hlayout valign="middle" id="rpt_date" use="com.uniinformation.zkbi.QueryConditionRow">
+				<custom-attributes fdname="stm_date"></custom-attributes>
+		</hlayout>
+		-->
+		<hlayout valign="middle" id="cond_date" use="com.uniinformation.zkbi.QueryConditionRow">
+				<custom-attributes fdname="rpt_date"></custom-attributes>
+				<custom-attributes fdtype="date"></custom-attributes>
+				<custom-attributes label="日期範圍"></custom-attributes>
+		</hlayout>
+		<div height="30px"/>
+		<hlayout valign="middle">
+				<checkbox id="rpt_showdetail" label="顯示細節"/>
+		</hlayout>
+		<div height="30px"/>
+		<button width="100px" id="btPrint" label="列印">
+			<!-- 
+				<custom-attributes actionHandler="com.uniinformation.erpv4.PerfJsonRpcCall" actionId="erpv4TestJsonRpc"></custom-attributes>
+			 -->
+			<!-- 
+				<custom-attributes actionHandler="com.uniinformation.erpv4.PerfJsonRpcReportA4L" actionId="erpv4PrintAgingRpt" actionData="{'fileName':'ar_aging_report.pdf'}"></custom-attributes>
+				<custom-attributes tlkey="bt_print"></custom-attributes>
+			 -->
+		</button>
+	</vlayout>
+</div>
+<!--
+	<div visible="false">
+		<textbox id="cocode" text="001"></textbox>
+	</div>
+-->
+</zk>

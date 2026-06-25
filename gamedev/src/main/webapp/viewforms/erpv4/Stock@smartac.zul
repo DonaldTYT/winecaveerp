@@ -1,0 +1,24 @@
+<zk xmlns:n="native">
+	<toolbar id="detail_toolbar" align="end"> </toolbar>
+	<div style="background-color:white">
+			<bs-row>
+				<bs-col-311>
+					<image id="co_logo" height="100px" />
+				</bs-col-311>
+				<bs-col-311>
+				</bs-col-311>
+				<bs-col-311 align="right">
+	 				<label id="pageTitle" style="font-weight: bold;font-size:30px !important;" value="Stock Record"><custom-attributes tlkey="hdr_erpv4_Stock"></custom-attributes></label>
+				</bs-col-311>
+					
+			</bs-row>
+			<bs-row>
+				<bs-col-321>
+				</bs-col-321>
+				<bs-col-321>
+				</bs-col-321>
+				<bs-col-321>
+				</bs-col-321>
+			</bs-row>
+	</div>
+</zk>

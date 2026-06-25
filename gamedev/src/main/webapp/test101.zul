@@ -1,0 +1,79 @@
+<zk>
+<script><![CDATA[
+zk.afterLoad('zul.inp', function() {
+	var xBandbox = {};
+	zk.override(zul.inp.Bandbox.prototype, xBandbox ,{
+		_checkPopupSpaceAndPosition : function(pp, inp) {
+			console.log("in override bandbox checkposition");
+			var $pp = zk(pp);
+			var ppHeight = $pp.dimension().height;
+			var ppWidth = $pp.dimension().width;
+			var inpDim = (inp.nodeType ? zk(inp) : inp).dimension(true);
+			var inpTop = inpDim.top;
+			var inpHeight = inpDim.height;
+			var screenY = jq.innerY();
+			var screenHeight = jq.innerHeight();
+			
+			var inpLeft = inpDim.left;
+//			var inpLeft = 0;
+			var inpWidth = inpDim.width;
+			var screenX = jq.innerX();
+			var screenWidth = jq.innerWidth();
+			
+			var hPosition;
+			
+			console.log("in override bandbox dim screenX " + screenX + " screenWidth " + screenWidth + " inpLeft " + inpLeft + " inpWidth " + inpWidth + " ppWidth " + ppWidth);
+			if (screenX + screenWidth - inpLeft - inpWidth > ppWidth) {	
+				console.log("use a");
+				hPosition = 'start';
+			} else if (inpLeft - screenX > ppWidth) {
+				console.log("use b");
+				hPosition = 'end';
+			} else {
+				console.log("use c");
+				hPosition = 'start';
+			}
+
+			console.log("in override bandbox checkposition hPosition = " + hPosition);
+			
+			if (screenY + screenHeight - inpTop - inpHeight > ppHeight) {
+				$pp.position(inp, 'after_'+ hPosition);
+			} else if (inpTop - screenY > ppHeight) {
+				$pp.position(inp, 'before_'+ hPosition);
+			} else {
+				$pp.position(inp, 'after_'+hPosition, {overflow: true});
+			}
+		}
+	});//zk.override
+});//zk.afterLoad
+]]></script>
+
+	<hlayout hflex='1' vflex='1'>
+		<vbox hflex="1" vflex="1">
+			<bandbox value="Ok, left below" width="100px">
+				<bandpopup width="300px" height="200px" />
+			</bandbox>
+			<separator vflex="1" />
+			<bandbox value="Not Ok, at default position" width="100px">
+				<bandpopup width="300px" height="200px" />
+			</bandbox>
+			<separator vflex="1" />
+			<bandbox value="Ok, left above" width="100px">
+				<bandpopup width="300px" height="200px" />
+			</bandbox>
+		</vbox>
+		<vbox hflex="1" vflex="1" align="end">
+			<bandbox value="Ok, left below" width="100px">
+				<bandpopup width="300px" height="200px" />
+			</bandbox>
+			<separator vflex="1" />
+			<bandbox value="Not Ok, at default position" width="100px">
+				<bandpopup width="300px" height="200px" />
+			</bandbox>
+			<separator vflex="1" />
+			<bandbox value="Ok, left above" width="100px">
+				<bandpopup width="300px" height="200px" />
+			</bandbox>
+		</vbox>
+	</hlayout>
+</zk>

@@ -1,0 +1,61 @@
+<zk>
+<div width="300px">
+	<vlayout>
+	<div height="10px"/>
+	<div align="center">
+		<label style="font-weight: bold !important;">
+		Consignment Setup
+		</label>
+	</div>
+	<div height="10px"/>
+	<hlayout>
+		<div width="80px"><label>Name</label></div>
+		<label id="stlqty_iname" multiline="true" style="word-wrap:word-break !important;"></label>
+	</hlayout>
+	<hlayout>
+		<div width="80px"><label>Bot/Case</label></div>
+		<intbox id="stlqty_botpercase" width="100px"></intbox>
+	</hlayout>
+	<hlayout>
+		<div width="80px"><label>Total</label></div>
+		<intbox id="stlqty_total" width="100px"></intbox>
+		<label>Bot</label>
+	</hlayout>
+	<hlayout>
+		<div width="80px"><label>Storage</label></div>
+		<intbox id="stlqty_storage" width="100px"></intbox>
+		<label>Bot</label>
+	</hlayout>
+	<hlayout>
+		<div width="80px"><label>For Sale</label></div>
+		<intbox id="stlqty_forsale" width="100px"></intbox>
+		<radiogroup id="stlqty_uom"></radiogroup>
+	</hlayout>
+	<hlayout>
+		<div width="80px"><label>Price</label></div>
+		<doublebox id="stlqty_price" width="100px"></doublebox>
+		<label id="stlqty_punit"></label>
+	</hlayout>
+	<hlayout>
+		<div width="80px"><label>Net Price</label></div>
+		<doublebox id="stlqty_cost" width="100px"></doublebox>
+		<label id="stlqty_nunit"></label>
+	</hlayout>
+	<div height="30px"/>
+	<div align="center">
+	<hlayout>
+	<button id="btOK" label="OK"></button>
+	<button id="btCancel" label="Cancel"></button>
+	</hlayout>
+	</div>
+	<div visible="false">
+		<intbox id="stlqty_sold"></intbox>
+		<intbox id="stlqty_irg"></intbox>
+		<intbox id="stlqty_org"></intbox>
+		<textbox id="stlqty_vcode"></textbox>
+		<intbox id="stlqty_consignment"></intbox>
+		<checkbox id="stlqty_salebybtl"></checkbox>
+	</div>
+	</vlayout>
+</div>
+</zk>

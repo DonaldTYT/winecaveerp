@@ -1,0 +1,42 @@
+﻿custm_custname
+Company Name
+custm_cardcode
+Card Number
+custm_cardstatus
+Card Status
+custm_ccy
+Currency Code
+custd_image
+Image
+custd_lettercat
+Letter Classification
+custd_desc
+Description
+custd_custom1
+Custom Column 1
+custd_custom2
+Custom Column 2
+custd_custom3
+Custom Column 3
+custd_addr1
+Address Line 1
+custd_addr2
+Address Line 2
+custd_addr3
+Address Line 3
+custd_addr4
+Address Line 4
+custd_phone1
+Phone Number 1
+custd_phone2
+Phone Number 2
+custd_phone3
+Phone Number 3
+custd_fax
+Fax Number
+custd_email
+Email
+custd_website
+Website
+custd_contact
+Contact Person

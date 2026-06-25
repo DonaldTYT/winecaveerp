@@ -1,0 +1,97 @@
+<zk>
+<style>
+div.z-grid.option-detail-grid
+{ 
+	text-align: left;
+	border: 1px solid #d6d6d6;
+} 
+div.z-grid.option-detail-grid > div.z-grid-body {
+	background: #fdfdfd !important;
+}
+div.z-grid.option-detail-grid > div.z-grid-body > table > tbody tr.z-row td.z-row-inner {
+	background: #fdfdfd !important;
+}
+div.z-grid.option-detail-grid > div.z-grid-body > table > tbody tr.z-row.z-row.z-grid-odd td.z-row-inner {
+	background: #fdfdfd !important;
+}
+</style>
+<div>
+		<vlayout>
+		<hlayout valign="top">
+			<div width="150px">Printing Machine :-</div>
+			<vlayout>
+			<combobox width="300px" id="hwopt_mc"></combobox>
+        	<grid id="hw_mhcoptionlist" use="com.uniinformation.jx.zk.ZkJxCheckListBox" sclass="option-detail-grid"> </grid>
+			</vlayout>
+		</hlayout>
+		<hlayout valign="top">
+			<div width="150px">Printing Material :-</div>
+			<vlayout>
+			<combobox width="300px" id="hwopt_mt"></combobox>
+        	<grid id="hw_matoptionlist" use="com.uniinformation.jx.zk.ZkJxCheckListBox" sclass="option-detail-grid"> </grid>
+			</vlayout>
+		</hlayout>
+		<hlayout valign="top">
+			<div width="150px" height="30px">Job Options :-</div>
+			<vlayout>
+        	<grid id="hw_optionlist" use="com.uniinformation.jx.zk.ZkJxCheckListBox" sclass="option-detail-grid"> </grid>
+			</vlayout>
+		</hlayout>
+		<!-- 
+		<hlayout valign="middle">
+			<div width="150px">
+			<checkbox label="前打燈布"></checkbox>
+			</div>
+		</hlayout>
+		<hlayout valign="middle">
+			<div width="150px">
+			<checkbox label="後打燈布"></checkbox>
+			</div>
+			<radiogroup><radio label="SS"/><radio label="DS"/></radiogroup>
+			<label>Brand</label>
+			<combobox></combobox>
+		</hlayout>
+		<hlayout valign="middle">
+			<div width="150px">
+			<checkbox label="網布"></checkbox>
+			</div>
+			<radiogroup><radio label="BH"/><radio label="SH"/></radiogroup>
+			<label>Brand</label>
+			<combobox></combobox>
+		</hlayout>
+		<hlayout valign="middle">
+			<div width="150px">
+			<checkbox label="相紙"></checkbox>
+			</div>
+		</hlayout>
+		<hlayout valign="middle">
+			<div width="150px">
+			<checkbox label="燈片"></checkbox>
+			</div>
+		</hlayout>
+		<hlayout valign="middle">
+			<div width="150px">
+			<checkbox label="不干膠"></checkbox>
+			</div>
+		</hlayout>
+		<hlayout valign="middle">
+			<div width="150px">
+			<checkbox label="透明不干膠"></checkbox>
+			</div>
+		</hlayout>
+        <grid id="hw_optionlist" use="com.uniinformation.jx.zk.ZkJxCheckListBox"> </grid>
+		 -->
+		</vlayout>
+		<hlayout valign="middle">
+			<div width="150px" height="30px"></div>
+		</hlayout>
+		<hlayout valign="top">
+			<div width="150px">Remark :-</div>
+			<textbox id="hwopt_remark" hflex="1" multiline="true" height="50px"></textbox>
+		</hlayout>
+		<hlayout valign="middle">
+			<button id="itemOptionAccept">Accept</button>
+			<button id="itemOptionClear">Clear</button>
+		</hlayout>
+</div>
+</zk>

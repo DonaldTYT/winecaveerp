@@ -1,0 +1,13 @@
+<zk xmlns:n="native">
+	<n:div style="width:100%">
+		<div id="lbDiv" sclass="zkbitextbox-lb-div" width="20%">
+			<label id="lb" style="float:right;" use="com.uniinformation.zkcomp.ZkBiHeaderLabel"></label>
+		</div>
+		<div id="compDiv" sclass="zkbitextbox-lb-div" width="80%">
+		<!--
+		<datebox id="comp" format="yyyy/MM/dd"></datebox>
+		-->
+		<datebox id="comp"></datebox>
+		</div>
+	</n:div>
+</zk>

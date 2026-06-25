@@ -1,0 +1,31 @@
+<zk xmlns:n="native">
+<style dynamic="true">
+div.z-grid.zkbi-detail-grid > div.z-grid-body {
+	height: auto;
+}
+div.z-grid.zkbi-detail-grid {
+   border: 1px solid transparent;
+}
+</style>
+	<div class="zkbi-detail-toolbar-container">
+		<div class="zkbi-detail-toolbar-leftarea">
+		</div>
+		<toolbar id="detail_toolbar" align="end">
+		</toolbar>
+	</div>
+	<grid style="text-align:left;border: 1px solid #ececec; border-bottom: none;" id="detail_grid" sclass="gridLayoutNoBorder">
+	</grid>
+	<listbox id="list_AfsServiceItem" sclass="listboxNoSeparator">
+	</listbox>
+			<div>
+			Bundles
+			<listbox id="bundlelist">
+        		<listhead sizable="true">
+		            <listheader label="Item Description" sort="auto" />
+    		        <listheader label="Quantiy" sort="auto" />
+    		        <listheader label="Unit" sort="auto" />
+    		        <listheader label="Remark" sort="auto" />
+        		</listhead>
+			</listbox>
+			</div>
+</zk>

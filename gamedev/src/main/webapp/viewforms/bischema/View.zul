@@ -1,0 +1,9 @@
+<zk>
+	<toolbar id="detail_toolbar" align="end">
+		<button id="btAddAllField" label="Add All Fields" visible="true"></button>
+	</toolbar>
+	<grid style="text-align:left;" id="detail_grid">
+	</grid>
+	<div height="100px">
+	</div>
+</zk>

@@ -1,0 +1,48 @@
+<zk xmlns:n="native">
+<style dynamic="true">
+</style>
+<script>
+<![CDATA[
+	getEffectiveZIndex = (element) => {
+	    if (!element) return 0;
+	    const zIndex = window.getComputedStyle(element).zIndex;
+	    if (zIndex === 'auto')
+	        return getEffectiveZIndex(element.parentElement);
+	    return parseInt(zIndex, 10) || 0;
+	}
+]]>
+</script>
+<div class="zkbi-detail-toolbar-container">
+	<div class="zkbi-detail-toolbar-leftarea">
+	</div>
+	<toolbar id="detail_toolbar" align="end">
+		<button id="btSignin" label="簽到輸入" />
+	</toolbar>
+</div>
+<template name="inputTemplate">
+	<grid hflex="1">
+		<columns>
+        	<column hflex="min" align="end"/>
+        	<column hflex="1"/>
+    	</columns>
+    	<rows>
+        	<row>
+            	<label>編碼：</label>
+            	<textbox id="tbBarcode" width="80px"/>
+        	</row>
+        	<row>
+            	<label>物業單位：</label>
+            	<label id="lbUnit"/>
+        	</row>
+        	<row>
+            	<label>簽到狀態：</label>
+            	<label id="lbSigninStatus"/>
+        	</row>
+        	<row>
+            	<label>簽到時間：</label>
+            	<label id="lbSigninTime"/>
+        	</row>
+    	</rows>
+	</grid>
+</template>
+</zk>

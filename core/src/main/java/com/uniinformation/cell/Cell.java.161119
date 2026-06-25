@@ -1,0 +1,1127 @@
+package com.uniinformation.cell;
+import java.io.*;
+import java.util.*;
+import java.text.*;
+import com.uniinformation.utils.*;
+public class Cell implements Serializable
+{  
+	private class CellDetail implements Serializable {
+	   static final long serialVersionUID = 7779990684696159528L;
+		private boolean dummy = false;
+		private Hashtable actionList;
+		private Hashtable triggerList;
+		private String hintContent = null;
+		private CellValidation validation;
+		private CellFormula formula;
+		private Vector itemList=null;
+		private DecimalFormat format =null;
+		private String setStr;
+		private boolean setBool;
+		private double setDb;
+		private int setInt;
+		transient private CellValueMapper valueMapper;
+		transient private boolean evaluatingChild = false;
+		private Hashtable attributes = null;
+		private CellValueAction modeChangeAction;
+		private java.util.Date setDate;
+
+		/*
+   	private void readObject(ObjectInputStream p_stream) throws
+	                IOException, ClassNotFoundException, CellException{
+	   	p_stream.defaultReadObject();
+			evaluatingChild = false;
+		}
+		*/
+	}
+	static final long serialVersionUID = 3388772845523613363L;
+	public  static final int VTYPE_INT			= 0;
+	public  static final int VTYPE_STRING		= 1;
+	public  static final int VTYPE_DOUBLE		= 2;
+	public  static final int VTYPE_DATE 		= 3;
+	public  static final int VTYPE_BOOLEAN		= 4;
+	public  static final int VTYPE_CHOICE		= 5;
+	public  static final int VTYPE_SET			= 6;
+	public  static final int VTYPE_BYTEARRAY  = 7;
+	public  static final int VMODE_NORMAL	= 1;
+	public  static final int VMODE_DISPONLY = 2;
+	public  static final int VMODE_PROTECTED= 3;
+	public  static final int VMODE_OVERRIDED= 4;
+	public  static final int VMODE_HIDDEN = 5;
+	public  static final DecimalFormat defaultDoubleFormat = new DecimalFormat("###########0.00");
+
+	private int	jxValueMode = 0; 
+	private int jxValueType = -1;
+
+	private Object valObj;
+	/*
+	private Object setObj;
+	private int getIntVal();
+	private double getDbVal();
+	private boolean getBoolVal();
+	private String getStrVal();
+	private byte[] getBaVal();
+	private java.util.Date getDateVal();
+	*/
+
+	/*
+	*/
+
+	private CellDetail cd;
+
+	/*
+	private boolean evaluatingChild = false;
+	private Hashtable actionList;
+	private Hashtable triggerList;
+	private String hintContent = null;
+	private CellValidation validation;
+	private CellFormula formula;
+	private Vector itemList=null;
+	private DecimalFormat format =null;
+	private byte[] getBaVal();
+	private java.util.Date getDateVal();
+	*/
+
+	//transient private Parser parser;
+	public Cell(String strval)
+	{
+		xJxValue(strval,VMODE_NORMAL);
+	}
+	public Cell(int intval)
+	{
+		xJxValue(intval,VMODE_NORMAL);
+	}
+	public Cell(double dbval)
+	{
+		xJxValue(dbval,VMODE_NORMAL);
+	}
+	public Cell(boolean boolval)
+	{
+		xJxValue(boolval,VMODE_NORMAL);
+	}
+	public Cell(byte[] baval)
+	{
+		xJxValue(baval,VMODE_NORMAL);
+	}
+	public Cell(java.util.Date dateval)
+	{
+		xJxValue(dateval,VMODE_NORMAL);
+	}
+	public void setItemList(Vector p_list)
+	{
+		initcd();
+		cd.itemList = p_list;
+		if(cd.valueMapper != null) {
+			cd.valueMapper.cellMap_listchange();
+		}
+	}
+	public Cell(String strval,int p_mode, Vector p_itemlist)
+	{
+		initcd();
+		xJxValue(strval,p_mode);
+		cd.itemList = p_itemlist;
+	}
+	public Cell(String strval,int p_mode, Vector p_itemlist, CellValidation p_validation)
+	{
+		initcd();
+		xJxValue(strval,p_mode);
+		cd.itemList = p_itemlist;
+		cd.validation = p_validation;
+	}
+	public Cell(String strval,int p_mode)
+	{
+		xJxValue(strval,p_mode);
+	}
+	public Cell(int intval,int p_mode)
+	{
+		xJxValue(intval,p_mode);
+	}
+	public Cell(int intval,int p_mode,CellValidation p_validation)
+	{
+		initcd();
+		xJxValue(intval,p_mode);
+		cd.validation = p_validation;
+	}
+	public Cell(double dbval,int p_mode)
+	{
+		xJxValue(dbval,p_mode);
+	}
+	public Cell(double dbval,int p_mode, CellValidation p_validation)
+	{
+		initcd();
+		xJxValue(dbval,p_mode);
+		cd.validation = p_validation;
+	}
+	public CellFormula getFormula()
+	{
+		if(cd == null) return(null);
+		return(cd.formula);
+	}
+	public void setFormula(CellFormula p_formula) throws CellException
+	{
+		initcd();
+		if(cd.formula != null) cd.formula.unsetTrigger(this);
+		cd.formula = p_formula;
+		if(p_formula != null) {
+			cd.formula.setTrigger(this);
+			eval();
+		}
+	}
+	public Cell(boolean boolval,int p_mode)
+	{
+		xJxValue(boolval,p_mode);
+	}
+	/* private use */
+	private void xJxValue(String strval,int p_mode)
+	{
+		jxValueType = VTYPE_STRING;
+		jxValueMode = p_mode;
+		setStrVal(strval);
+	}
+	private void xJxValue(int intval,int p_mode)
+	{
+		jxValueType = VTYPE_INT;
+		jxValueMode = p_mode;
+		setIntVal(intval);
+	}
+	private void xJxValue(double dbval,int p_mode)
+	{
+		jxValueType = VTYPE_DOUBLE;
+		jxValueMode = p_mode;
+		setDbVal(dbval);
+	}
+	private void xJxValue(boolean boolval,int p_mode)
+	{
+		jxValueType = VTYPE_BOOLEAN;
+		jxValueMode = p_mode;
+		setBoolVal(boolval);
+	}
+	private void xJxValue(byte[] baval,int p_mode)
+	{
+		jxValueType = VTYPE_BYTEARRAY;
+		jxValueMode = p_mode;
+		setBaVal(baval);
+	}
+	private void xJxValue(java.util.Date dateval,int p_mode)
+	{
+		jxValueType = VTYPE_DATE;
+		jxValueMode = p_mode;
+		setDateVal(dateval);
+	}
+	public Vector getItemList()
+	{
+		initcd();
+		return(cd.itemList);
+	}
+	public void map(CellValueMapper p_mapper) /* throws CellException */
+	{
+		initcd();
+		if(cd.valueMapper != null) {
+			cd.valueMapper.cellMap_bind(null);
+		}
+		if(p_mapper != null) {
+			p_mapper.cellMap_bind(this);
+		}
+		cd.valueMapper = p_mapper;
+	}
+	public void eval() throws CellException
+	{
+		switch(jxValueType) {
+		case VTYPE_INT:
+		case VTYPE_DOUBLE :
+					if(cd.formula != null) {
+//						UniLog.log("Before Cell eval " + cd.formula.toString());
+						Object o = cd.formula.eval();
+//						UniLog.log("After Cell eval " + cd.formula.toString());
+						if(o != null) {
+							/*
+							&& o instanceof Double) setDb = o.doubleValue();
+							*/
+							Object oo = valObj;
+							try {
+								set(o);
+								oo = null;
+							} catch (CellException ex) {
+								set(oo);
+								throw ex;
+							}
+
+							if(jxValueMode != VMODE_OVERRIDED) {
+								switch(jxValueType) {
+								case VTYPE_INT:
+								if(cd != null && cd.setInt != getIntVal()) {
+									setIntVal(cd.setInt);
+									checkActionAndTrigger();
+									if(cd.valueMapper != null) {
+										cd.valueMapper.cellMap_valchange();
+									}
+								}
+								break;
+								case VTYPE_DOUBLE :
+								if(cd.setDb != getDbVal()) {
+									setDbVal(cd.setDb);
+									checkActionAndTrigger();
+									if(cd.valueMapper != null) {
+										cd.valueMapper.cellMap_valchange();
+									}
+								}
+								break;
+								}
+							
+							}
+						}
+					}
+					break;
+		}
+	}
+	private void checkActionAndTrigger() throws CellException
+	{
+			if(cd == null) return;
+			if(cd.actionList != null) {
+				CellValueAction action;
+				Enumeration e = cd.actionList.elements();
+				while(e.hasMoreElements()) {
+					/*
+					if(cd.evaluatingChild) 
+						throw new CellException("Recursive Evaluation Inhibited")+getIntVal() + getDbVal() + getBoolVal() + getStrVal());
+					*/
+					if(cd.evaluatingChild) {
+						CellException ex = new CellException("Recursive Evaluation Inhibited");
+						UniLog.log(ex);
+						throw ex;
+					}
+					cd.evaluatingChild = true;
+					action = (CellValueAction) e.nextElement();
+					try {
+//						UniLog.log("Before cellAction_onchange " + action);
+						action.cellAction_onchange(this);
+//						UniLog.log("After cellAction_onchange " + action);
+					} catch (CellException ex) {
+						cd.evaluatingChild = false;
+						throw ex;
+						/*
+						UniLog.log(ex);
+						throw new CellException(ex.toString());
+						*/
+					}
+					cd.evaluatingChild = false;
+				}
+			}
+			if(cd.triggerList != null) {
+				Cell c;
+				Enumeration e = cd.triggerList.elements();
+				while(e.hasMoreElements()) {
+					/*
+					if(cd.evaluatingChild) throw new CellException("Recursive Evaluation Inhibited"+
+										getIntVal() + getDbVal() + getBoolVal() + getStrVal());
+					*/
+					if(cd.evaluatingChild) {
+						CellException ex = new CellException("Recursive Evaluation Inhibited");
+						UniLog.log(ex);
+						throw ex;
+					}
+					cd.evaluatingChild = true;
+					c = (Cell) e.nextElement();
+					try {
+//						UniLog.log("Before eval " + getString());
+						c.eval();
+//						UniLog.log("After eval " + getString());
+					} catch (CellException ex) {
+						cd.evaluatingChild = false;
+						throw ex;
+						/*
+						UniLog.log(ex);
+						throw new CellException(ex.toString());
+						*/
+					}
+					cd.evaluatingChild = false;
+				}
+			}
+	}
+	public void set(Object o) throws CellException
+	{
+		if(o instanceof Double) {
+			set(((Double) o).doubleValue());
+		} else {
+			if( o instanceof String ) {
+				set((String) o);
+			} else {
+				if( o instanceof Integer ) {
+					set(((Integer) o).intValue());
+				}  else {
+						if( o instanceof java.util.Date) {
+							set((java.util.Date) o);
+						}
+					}
+			}
+		}
+	}
+	public void set(String strval) throws CellException
+	{
+		if(jxValueType == VTYPE_BOOLEAN) {
+			if(strval.equals("Y")) set(true); else set(false);
+			return;
+		}
+		if(jxValueType != VTYPE_STRING) return;
+		if(cd == null) {setStrVal(strval);return;} else cd.setStr = strval;
+		if(jxValueMode != VMODE_OVERRIDED) {
+			if((strval == null && getStrVal() != null) 
+		  	  || !strval.equals(getStrVal())) {
+				setStrVal(strval);
+				checkActionAndTrigger();
+				if(cd.valueMapper != null) {
+					cd.valueMapper.cellMap_valchange();
+				}
+			} 
+		}
+	}
+
+	public boolean update(Object p_value) throws NumberFormatException, CellException
+	{
+		initcd();
+		UniLog.log("HAHA XXXX 1" + jxValueType);
+		if(cd.validation != null && !cd.validation.validate(this,p_value)) {
+			throw new NumberFormatException(cd.validation.getErrMsg());
+		}
+		if(jxValueType == VTYPE_STRING) {
+			if(cd.itemList != null) {
+				if(! cd.itemList.contains(p_value))
+					throw new NumberFormatException("Invalid Choice ["+p_value.toString()+"]");
+			}
+		}
+		switch(jxValueType) {
+		case VTYPE_INT :	int iv = getIntVal();
+								try {
+									sync(((Integer) p_value).intValue());
+								} catch (CellException ex) {
+									UniLog.log("CellException Catched restore iv "+iv);
+									if(jxValueMode == VMODE_OVERRIDED) sync(iv); else set(iv);
+									return(false);
+								}
+								break;
+		case VTYPE_DOUBLE:
+								double dv = getDbVal();
+								try {
+									sync(((Double) p_value).doubleValue());
+								} catch (CellException ex) {
+									UniLog.log("CellException Catched restore dv " + dv);
+									if(jxValueMode == VMODE_OVERRIDED) sync(dv); else set(dv);
+									return(false);
+								}
+								break;
+		case VTYPE_STRING :
+								sync((String) p_value);
+								break;
+		case VTYPE_DATE   :
+								if(p_value instanceof java.util.Date) {
+									sync(p_value);
+								} else {
+									java.util.Date jd = DateUtil.getDate((String) p_value);
+									sync(jd);
+								}
+								break;
+		default : throw new NumberFormatException("Unsupported Data Format");
+		}
+		return(true);
+	}
+	public void sync(String strval) throws CellException
+	{
+		if((strval == null && getStrVal() != null) 
+		    || !strval.equals(getStrVal())) {
+			setStrVal(strval);
+			if(jxValueMode == VMODE_PROTECTED) {
+				setMode(VMODE_OVERRIDED);
+				try {
+					checkActionAndTrigger();
+				} catch (CellException ex) {
+					UniLog.log("cell sync string newoverride exception captured");
+					setMode(VMODE_PROTECTED);
+					throw(ex);
+				}
+			} else {
+				checkActionAndTrigger();
+			}
+			if(cd.valueMapper != null) {
+				cd.valueMapper.cellMap_valchange();
+			}
+			if(jxValueMode == VMODE_PROTECTED) setMode(VMODE_OVERRIDED);
+		} 
+	}
+	public void set(int intval) throws CellException
+	{
+		if(jxValueType == VTYPE_INT) {
+			if(cd == null) {setIntVal(intval);return;} else cd.setInt = intval;
+			if(jxValueMode != VMODE_OVERRIDED) {
+				if(intval != getIntVal()) {
+					setIntVal(intval);
+					checkActionAndTrigger();
+					if(cd.valueMapper != null) {
+						cd.valueMapper.cellMap_valchange();
+					}
+				}
+			}
+		}  else {
+			if(jxValueType == VTYPE_BOOLEAN) {
+				if(intval == 0) set(false); else set(true);
+			}
+		}
+	}
+	public void sync(int intval) throws NumberFormatException ,CellException
+	{
+		if(intval != getIntVal()) {
+			UniLog.log("syncMode override " + cd.setInt);
+			setIntVal(intval);
+			if(jxValueMode == VMODE_PROTECTED) {
+				setMode(VMODE_OVERRIDED);
+				try {
+					checkActionAndTrigger();
+				} catch (CellException ex) {
+					UniLog.log("cell sync int newoverride exception captured");
+					setMode(VMODE_PROTECTED);
+					throw(ex);
+				}
+			} else {
+				checkActionAndTrigger();
+			}
+			if(jxValueMode == VMODE_PROTECTED) setMode(VMODE_OVERRIDED);
+			if(cd != null && cd.valueMapper != null) {
+				cd.valueMapper.cellMap_valchange();
+			}
+		}
+	}
+	public void set(java.util.Date d) throws CellException
+	{
+		if(jxValueType == VTYPE_DATE) {
+			if(cd == null) {setDateVal(d);return;} else cd.setDate = d;
+			if(jxValueMode != VMODE_OVERRIDED) {
+				if(d != getDateVal()) {
+					setDateVal(d);
+					checkActionAndTrigger();
+					if(cd.valueMapper != null) {
+						cd.valueMapper.cellMap_valchange();
+					}
+				}
+			}
+		}
+	}
+	public void sync(java.util.Date d) throws CellException
+	{
+		if(d != getDateVal()) {
+			UniLog.log("syncMode override " + cd.setInt);
+			setDateVal(d);
+			if(jxValueMode == VMODE_PROTECTED) {
+				setMode(VMODE_OVERRIDED);
+				try {
+					checkActionAndTrigger();
+				} catch (CellException ex) {
+					UniLog.log("cell sync int newoverride exception captured");
+					setMode(VMODE_PROTECTED);
+					throw(ex);
+				}
+			} else {
+				checkActionAndTrigger();
+			}
+			if(jxValueMode == VMODE_PROTECTED) setMode(VMODE_OVERRIDED);
+			if(cd != null && cd.valueMapper != null) {
+				cd.valueMapper.cellMap_valchange();
+			}
+		}
+	}
+	public void sync(Object o) throws CellException
+	{
+		boolean forceOverride = false;
+		if(cd == null) {
+			if(jxValueMode != 0) {
+				initcd();
+				UniLog.log("sync object called to cell with no celldetail call initcd");
+				forceOverride = true;
+			} else {
+				UniLog.log("sync object called to cell with no celldetail, use setvalue");
+				set(o);
+				return;
+			}
+		}
+		if(cd.validation != null && !cd.validation.validate(this,o)) {
+			throw new CellException(cd.validation.getErrMsg());
+		}
+		switch(jxValueType) {
+		case VTYPE_BOOLEAN: {
+					boolean b = false;
+					if(o instanceof Double) {
+						int i = (int) (((Double) o).doubleValue());
+						if(i != 0) b = true; else b = false;
+					} else {
+						if( o instanceof String ) {
+							String s = (String) o;
+							if(o.equals("Y")) b = true; else b = false;
+							sync((String) o);
+						} else {
+							if( o instanceof Integer ) {
+								int i = ((Integer) o).intValue();
+								if(i != 0) b = true; else b = false;
+							} else {
+								if( o instanceof Boolean ) {
+									b = ((Boolean) o).booleanValue();
+								}
+							}
+						}
+					}
+					sync(b);
+				}
+				break;
+		case VTYPE_INT: {
+					int n = 0;
+					if(o instanceof Double) {
+						n = (int) (((Double) o).doubleValue());
+					} else {
+						if( o instanceof String ) {
+							n = Integer.parseInt((String) o);
+						} else {
+							if( o instanceof Integer ) {
+								n = ((Integer) o).intValue();
+							} else {
+								if( o instanceof Boolean ) {
+									boolean b;
+									b = ((Boolean) o).booleanValue();
+									if(b) n = 1; else n = 0;
+								}
+							}
+						}
+					}
+					sync(n);
+				}
+				break;
+		case VTYPE_STRING: {
+					sync(o.toString());
+				}
+				break;
+		case VTYPE_DOUBLE: {
+					double d = 0.0;
+					if(o instanceof Double) {
+						d = ((Double) o).doubleValue();
+					} else {
+						if( o instanceof String ) {
+							d = Double.parseDouble((String) o);
+						} else {
+							if( o instanceof Integer ) {
+								d = (double) (((Integer) o).intValue());
+							} else {
+								if( o instanceof Boolean ) {
+									boolean b;
+									b = ((Boolean) o).booleanValue();
+									if(b) d = 1.0; else d = 0.0;
+								}
+							}
+						}
+					}
+					sync(d);
+				}
+				break;
+		case VTYPE_DATE :
+					sync((java.util.Date) o);
+				break;
+		default:
+			UniLog.log("Unsupported Sync Object Ignored " + o);
+		}
+		if(forceOverride) {
+			if(jxValueMode == VMODE_PROTECTED) {
+				jxValueMode = VMODE_OVERRIDED;
+			}
+		}
+	}
+	public void set(double dbval) throws CellException
+	{
+		if(jxValueType == VTYPE_DOUBLE) {
+			if(cd == null) {setDbVal(dbval);return;} else cd.setDb = dbval;
+			if(jxValueMode != VMODE_OVERRIDED) {
+				if(dbval != getDbVal()) {
+					setDbVal(dbval);
+					checkActionAndTrigger();
+					if(cd.valueMapper != null) {
+						cd.valueMapper.cellMap_valchange();
+					}
+				}
+			}
+		}
+		if(jxValueType == VTYPE_INT) {
+			if(cd == null) {setIntVal((int) dbval);return;} else cd.setInt = (int) dbval;
+			if(jxValueMode != VMODE_OVERRIDED) {
+				if(cd.setInt != getIntVal()) {
+					setIntVal(cd.setInt);
+					checkActionAndTrigger();
+					if(cd.valueMapper != null) {
+						cd.valueMapper.cellMap_valchange();
+					}
+				}
+			}
+		}
+	}
+	public void sync(double dbval) throws CellException
+	{
+		if(dbval != getDbVal()) {
+			setDbVal(dbval);
+			if(jxValueMode == VMODE_PROTECTED) {
+				setMode(VMODE_OVERRIDED);
+				try {
+					checkActionAndTrigger();
+				} catch (CellException ex) {
+					UniLog.log("cell sync double newoverride exception captured");
+					setMode(VMODE_PROTECTED);
+					throw(ex);
+				}
+			} else {
+				checkActionAndTrigger();
+			}
+			if(cd.valueMapper != null) {
+				cd.valueMapper.cellMap_valchange();
+			}
+		}
+	}
+	public void set(boolean boolval) throws CellException
+	{
+		if(jxValueType != VTYPE_BOOLEAN) return;
+		if(cd == null) {setBoolVal(boolval);return;} else cd.setBool = boolval;
+		if(jxValueMode != VMODE_OVERRIDED) {
+			if(boolval != getBoolVal()) {
+				setBoolVal(boolval);
+				checkActionAndTrigger();
+				if(cd.valueMapper != null) {
+					cd.valueMapper.cellMap_valchange();
+				}
+			}
+		}
+	}
+	public void sync(boolean boolval) throws CellException
+	{
+		if(boolval != getBoolVal()) {
+			setBoolVal(boolval);
+			if(jxValueMode == VMODE_PROTECTED) {
+				setMode(VMODE_OVERRIDED);
+				try {
+					checkActionAndTrigger();
+				} catch (CellException ex) {
+					UniLog.log("cell sync boolean newoverride exception captured");
+					setMode(VMODE_PROTECTED);
+					throw(ex);
+				}
+			} else {
+				checkActionAndTrigger();
+			}
+			if(jxValueMode == VMODE_PROTECTED) setMode(VMODE_OVERRIDED);
+			if(cd.valueMapper != null) {
+				cd.valueMapper.cellMap_valchange();
+			}
+		}
+	}
+
+	public int getType()
+	{
+		return(jxValueType);
+	}
+	public Object getObject() {
+		switch(jxValueType) {
+		case VTYPE_STRING : return(getString());
+		case VTYPE_DOUBLE : return(new Double(getDouble()));
+		case VTYPE_INT		: return(new Integer(getInt()));
+		case VTYPE_BOOLEAN: return(new Boolean(getBoolean()));
+		case VTYPE_BYTEARRAY: return(getByteArray());
+		case VTYPE_DATE   : return(getDate());
+		default 			   : return("Unknown Value");
+		}
+	}
+	public String getString()
+	{
+		switch(jxValueType) {
+		case VTYPE_STRING : return(getStrVal());
+		/*
+		case VTYPE_DOUBLE : return(Double.toString(getDbVal()));
+		*/
+		case VTYPE_DOUBLE : if(cd != null && cd.format != null)
+										return(cd.format.format(getDbVal()));
+								  else
+										return(defaultDoubleFormat.format(getDbVal()));
+		case VTYPE_INT		: if(cd != null && cd.format != null)
+										return(cd.format.format(getIntVal()));
+								  else
+										return(Integer.toString(getIntVal()));
+		case VTYPE_BOOLEAN: if(getBoolVal()) return("Y");else return("N");
+		case VTYPE_BYTEARRAY: if(getBaVal() != null) return("[ByteArray]");else return("");
+		case VTYPE_DATE   : if (getDateVal() != null) 
+	                          return(DateUtil.toDateString(getDateVal(), "yyyy/mm/dd"));
+		                    else
+		                       return("");
+		default 			   : return("Unknown Value");
+		}
+	}
+	public int getInt()
+	{
+		if(jxValueType == VTYPE_INT) return(getIntVal());
+		if(jxValueType == VTYPE_DOUBLE) return((int) getDbVal());
+		return(0);
+	}
+
+	public double getDouble()
+	{
+		switch(jxValueType) {
+		case VTYPE_DOUBLE : return(getDbVal());
+		case VTYPE_INT		: return((double) getIntVal());
+		case VTYPE_BOOLEAN: if(getBoolVal()) return(1.0) ; else return(0.0);
+		default : return(0.0);
+		}
+	}
+
+	public boolean getBoolean()
+	{
+		switch(jxValueType) {
+		case VTYPE_BOOLEAN : return(getBoolVal());
+		case VTYPE_INT     : return((getIntVal() != 0));
+		default	: return(false);
+		}
+	}
+	public byte[] getByteArray()
+	{
+		if(jxValueType != VTYPE_BYTEARRAY) return(null);
+		return(getBaVal());
+	}
+	public java.util.Date getDate()
+	{
+		if(jxValueType != VTYPE_DATE) return(null);
+		return(getDateVal());
+	}
+	public void setHint(String p_hint)
+	{
+		initcd();
+		cd.hintContent = p_hint;
+		if(cd.valueMapper != null) {
+			cd.valueMapper.cellMap_hintchange();
+		}
+	}
+	public String getHint()
+	{
+		initcd();
+		return(cd.hintContent);
+	}
+	public void syncHint(String p_hint)
+	{
+		initcd();
+		cd.hintContent = p_hint;
+	}
+	public void setMode(int p_mode) throws CellException
+	{
+		int orgmode = jxValueMode;
+		jxValueMode = p_mode;
+		if(cd != null && cd.valueMapper != null) {
+			cd.valueMapper.cellMap_modechange();
+			if(orgmode != p_mode && cd.modeChangeAction != null) 
+						cd.modeChangeAction.cellAction_onchange(this);
+		}
+	}
+	public void syncMode(int p_mode) throws CellException
+	{
+		int orgMode;
+		orgMode = jxValueMode;
+		if(jxValueMode != p_mode){
+			jxValueMode = p_mode;
+			if(orgMode == VMODE_OVERRIDED) {
+				switch(jxValueType) {
+				case VTYPE_INT : 
+							UniLog.log("syncMode restore " + cd.setInt);
+							set(cd.setInt); 
+							break;
+				case VTYPE_STRING : set(cd.setStr); break;
+				case VTYPE_DOUBLE: set(cd.setDb); break;
+				case VTYPE_BOOLEAN: set(cd.setBool); break;
+				}
+			}
+			if(cd != null && cd.modeChangeAction != null) 
+						cd.modeChangeAction.cellAction_onchange(this);
+		}
+	}
+	public int getMode()
+	{
+		return(jxValueMode);
+	}
+	public void addAction(CellValueAction p_action)
+	{	
+		initcd();
+		if(cd.actionList == null) {
+			cd.actionList = new Hashtable();
+		}
+		cd.actionList.put(p_action,p_action);
+	}
+	public void delAction(CellValueAction p_action)
+	{
+		initcd();
+		if(cd.actionList == null) return;
+		cd.actionList.remove(p_action);
+	}
+	public void clearAction()
+	{
+		initcd();
+		cd.actionList = null;
+	}
+	public void addTrigger(Cell p_val)
+	{	
+		initcd();
+		if(cd.triggerList == null) {
+			cd.triggerList = new Hashtable();
+		}
+		cd.triggerList.put(p_val,p_val);
+	}
+	public void delTrigger(Cell p_val)
+	{
+		initcd();
+		if(cd.triggerList == null) return;
+		cd.triggerList.remove(p_val);
+	}
+	public void setValidation(CellValidation p_validation)
+	{
+		initcd();
+		cd.validation = p_validation;
+	}
+	public CellValidation getValidation()
+	{
+		initcd();
+		return(cd.validation);
+	}
+	public void setFormat(DecimalFormat p_format)
+	{
+		initcd();
+		cd.format = p_format;		
+		if(cd.valueMapper != null) {
+			cd.valueMapper.cellMap_formatchange(cd.format.toPattern());
+		}
+	}
+	public Object clone() {
+	   switch (getType()) {
+         case VTYPE_INT:
+	         return(new Cell(getInt()));
+         case VTYPE_STRING:
+	         return(new Cell(getString()));
+         case VTYPE_DOUBLE:
+	         return(new Cell(getDouble()));
+         case VTYPE_DATE :
+	         return(new Cell(getDate()));
+         case VTYPE_BOOLEAN:
+	         return(new Cell(getBoolean()));
+         case VTYPE_CHOICE:
+			   return(null);
+         case VTYPE_SET:
+	         return(null);
+         case VTYPE_BYTEARRAY:
+	         return(new Cell(getByteArray()));
+		}
+		return(null);
+	}
+	public String getTypeInXmlAndAttribute(String p_cname) {
+	   String t = getTypeInXml();
+		if (t.equals("I") && p_cname.endsWith("time")) {
+         if (getAttribute("ts") == null) {
+	         long t0 = getInt();
+			   t0 = t0 * 1000;
+			   return(t+"\" ts=\""+DateUtil.toTimeString(new java.util.Date(t0), "yyyy/mm/dd HH:MM:SS")); 
+		   }
+		}
+		return(t);
+	}
+	public String getTypeInXml() {
+	   switch (getType()) {
+         case VTYPE_INT:
+		      return("I");
+         case VTYPE_STRING:
+	         return("S");
+         case VTYPE_DOUBLE:
+	         return("DB");
+         case VTYPE_DATE :
+	         return("DT");
+         case VTYPE_BOOLEAN:
+	         return("B");
+         case VTYPE_CHOICE:
+	         return("CH");
+         case VTYPE_SET:
+	         return("ST"); 
+			case VTYPE_BYTEARRAY:
+	         return("BA"); 
+		}
+		return(null);
+	}
+	private void initcd()
+	{
+		if(cd == null) {
+			cd = new CellDetail();
+			switch(jxValueType) {
+			case  VTYPE_INT  : cd.setInt = ((Integer) valObj).intValue();
+										break;
+			case  VTYPE_DOUBLE: cd.setDb = ((Double) valObj).doubleValue();
+										break;
+			case  VTYPE_BOOLEAN: cd.setBool = ((Boolean) valObj).booleanValue();
+										break;
+			case  VTYPE_STRING: cd.setStr = (String) valObj;
+										break;
+			case  VTYPE_DATE: cd.setDate = (java.util.Date) valObj;
+										break;
+			}
+		}
+	}
+	private int getIntVal()
+	{
+		return(((Integer) valObj).intValue());
+	}
+	private double getDbVal() 
+	{
+		return(((Double) valObj).doubleValue());
+	}
+	private boolean getBoolVal()
+	{
+		return(((Boolean) valObj).booleanValue());
+	}
+	private String getStrVal()
+	{
+		return((String) valObj);
+	}
+	private byte[] getBaVal()
+	{
+		return((byte[]) valObj);
+	}
+	private java.util.Date getDateVal()
+	{
+		return((java.util.Date) valObj);
+	}
+
+	private void setIntVal(int p_int)
+	{
+		valObj = new Integer(p_int);
+	}
+	private void setDbVal(double p_db) 
+	{
+		valObj = new Double(p_db);
+	}
+	private void setBoolVal(boolean p_bol)
+	{
+		valObj = new Boolean(p_bol);
+	}
+	private void setStrVal(String s)
+	{
+		valObj = (Object) s;
+	}
+	private void setBaVal(byte[] p_ba)
+	{
+		valObj = (Object) p_ba;
+	}
+	private void setDateVal(java.util.Date p_date)
+	{
+		valObj = (Object) p_date;
+	}
+	public static Cell newCell(Object p_object) throws Exception {
+		if (p_object == null)
+		   throw(new Exception("p_object is null"));
+	   if (p_object instanceof String)
+		   return(new Cell((String) p_object));
+	   else if (p_object instanceof Integer)
+		   return(new Cell(((Integer) p_object).intValue()));
+	   else if (p_object instanceof Double)
+		   return(new Cell(((Double) p_object).doubleValue()));
+	   else if (p_object instanceof Boolean)
+		   return(new Cell(((Boolean) p_object).booleanValue()));
+	   else if (p_object instanceof byte[])
+		   return(new Cell((byte[]) p_object));
+	   else if (p_object instanceof Date)
+		   return(new Cell((Date) p_object));
+	   else
+		   throw(new Exception("Type not supported "+p_object.getClass().getName()));
+	}
+	public boolean equals(Object o) {
+		switch(jxValueType) {
+		   case VTYPE_STRING : 
+					if(! (o instanceof String) ) return(false);
+					return(getString().equals((String) o));
+		   case VTYPE_DOUBLE : 
+					if(! (o instanceof Double) ) return(false);
+					return(getDouble() == ((Double) o).doubleValue());
+		   case VTYPE_INT		: 
+					if(! (o instanceof Integer) ) return(false);
+					return(getInt() == ((Integer) o).intValue());
+		   case VTYPE_BOOLEAN: 
+					if(! (o instanceof Boolean) ) return(false);
+					return(getBoolean() == ((Boolean) o).booleanValue());
+		   case VTYPE_BYTEARRAY: 
+					if(! (o instanceof byte[]) ) return(false);
+					return(getByteArray().equals((byte[]) o));
+		   case VTYPE_DATE   : 
+					if(! (o instanceof java.util.Date) ) return(false);
+					return(getDate().equals((java.util.Date) o));
+		   default 			   : 
+					return(false);
+		}
+	}
+	public boolean equals(Cell p_cell) {
+		if (jxValueType != p_cell.jxValueType)
+		   return(false);
+		switch(jxValueType) {
+		   case VTYPE_STRING : return(getString().equals(p_cell.getString()));
+		   case VTYPE_DOUBLE : return(getDouble() == p_cell.getDouble());
+		   case VTYPE_INT		: return(getInt() == p_cell.getInt());
+		   case VTYPE_BOOLEAN: return(getBoolean() == p_cell.getBoolean());
+		   case VTYPE_BYTEARRAY: return(getByteArray().equals(p_cell.getByteArray()));
+		   case VTYPE_DATE   : return(getDate().equals(p_cell.getDate()));
+		   default 			   : 
+			   Object xx = null;
+				xx.hashCode();  // make it null pointer exception
+				return(false);
+		}
+	}
+	public static Cell[] toCellArray(Vector p_v) throws Exception {
+	   Cell[] cells = new Cell[p_v.size()];
+		for (int i=0; i<p_v.size(); i++) {
+	      cells[i] = newCell(p_v.elementAt(i));
+		}
+		return(cells);
+	}
+   public Cell setAttribute(String p_attrName, Object p_attrValue) {
+	   initcd();
+		if (cd.attributes == null)
+		   cd.attributes = new Hashtable();
+		cd.attributes.put(p_attrName, p_attrValue);
+		return(this);
+	}
+   public Object getAttribute(String p_attrName) {
+	   if (cd == null)
+		   return(null);
+	   if (cd.attributes == null)
+		   return(null);
+	   return(cd.attributes.get(p_attrName));
+	}
+   public Hashtable getAttributes() {
+	   if (cd == null)
+		   return(null);
+	   return(cd.attributes);
+	}
+	public void setupTsAttribute() {
+	   long t0 = getInt();
+		t0 = t0 * 1000;
+      setAttribute("ts", DateUtil.toTimeString(new java.util.Date(t0), "yyyy/mm/dd HH:MM:SS"));
+	}
+	public void dump()
+	{
+		UniLog.log("Dump Cell addr " + this);
+		UniLog.log("Dump Cell mode " + jxValueMode);
+		UniLog.log("Dump Cell Value" + getString());
+	}
+
+	public double getSetDb()
+	{
+		if(cd != null) return(cd.setDb); else return(0.0);
+	}
+
+	public CellValueAction setModeChangeAction (CellValueAction p_action)
+	{
+		initcd();
+		CellValueAction oAction = cd.modeChangeAction;
+		cd.modeChangeAction = p_action;
+		return(oAction);
+	}
+	public DecimalFormat getFormat()
+	{
+		if(cd == null) return(null);
+		return(cd.format);
+	}
+}

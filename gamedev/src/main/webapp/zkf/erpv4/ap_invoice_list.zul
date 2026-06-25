@@ -1,0 +1,42 @@
+<zk>
+<window sclass="zkbi-form zkbi-main-window" width="700px" apply="com.uniinformation.zkf.erpv4.ZkComposerCustomerStatement">
+	<label sclass="zkbi-form-header" id="lbHeader" value="AP Invoice List"></label>
+	<vlayout sclass="zkbi-form-content">
+		<hlayout>
+			<div width="100px" align="right">
+			<label>Customer </label>
+			</div>
+			<bandbox id="cust1" use="com.uniinformation.jx.zk.ZkJxPickInput">
+				<custom-attributes listView="erpv4.Customer" listColumn="vd_vcode"></custom-attributes>
+			</bandbox>
+			<label>-</label>
+			<bandbox id="cust2" use="com.uniinformation.jx.zk.ZkJxPickInput">
+				<custom-attributes listView="erpv4.Customer" listColumn="vd_vcode"></custom-attributes>
+			</bandbox>
+		</hlayout>
+		<hlayout>
+			<div width="100px" align="right">
+			<label>Date </label>
+			</div>
+			<datebox id="date1"></datebox>
+			<label>-</label>
+			<datebox id="date2"></datebox>
+		</hlayout>
+		<separator height="20px"></separator>
+		<div align="center">
+			<button width="100px" id="btOK" label="Print">
+			<!-- 
+				<custom-attributes actionHandler="com.uniinformation.erpv4.PerfJsonRpcCall" actionId="erpv4TestJsonRpc"></custom-attributes>
+			 -->
+				<custom-attributes actionHandler="com.uniinformation.erpv4.PerfJsonRpcReport" actionId="erpv4PrintInvList" actionData="{'fileName':'ap_invoice_list.pdf'}"></custom-attributes>
+			</button>
+		</div>
+	</vlayout>
+	<div visible="false">
+		<textbox id="localccy" text="MOP"></textbox>
+		<textbox id="cocode" text="AFS"></textbox>
+		<textbox id="module" text="AP"></textbox>
+		<textbox id="orderby" text="1"></textbox>
+	</div>
+</window>
+</zk>

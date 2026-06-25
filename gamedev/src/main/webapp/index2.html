@@ -1,0 +1,49 @@
+<%@ page language="java" pageEncoding="utf-8" contentType="text/html;charset=utf-8"%>
+<%@ page import="java.util.*, com.uniinformation.utils.*,com.uniinformation.webcore.* " %>
+<%
+response.setHeader("Cache-Control", "no-cache, no-store, must-revalidate"); // HTTP 1.1.
+response.setHeader("Pragma", "no-cache"); // HTTP 1.0.
+response.setHeader("Expires", "0"); // Proxies.
+
+try {	
+	//TODO 200623 should not obtain sessionHelper in this state. This sessionHelper will destory at login.html
+	SessionHelper sessionHelper = ZkSessionHelper.getSessionHelper(request, response);   
+%>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title><%=sessionHelper.getWebPageTitle()%></title>
+</head>
+	<%
+		String homePage = sessionHelper.getWebPageHome();
+		UniLog.log("SessionHelper:homepage = " + homePage);
+		out.println("<script>");
+		if(homePage != null && !homePage.equals("") && !sessionHelper.isLogin()) {
+			if(homePage.contains("?")){
+				out.println("window.location.replace('"+homePage+"' + document.location.search.replace('?','&'));");
+			}
+			else{
+				out.println("window.location.replace('"+homePage+"' + document.location.search);");
+			}
+		} else {
+			String loginPage = sessionHelper.getWebPageLogin() == null || sessionHelper.getWebPageLogin().equals("") ? "login.html" : sessionHelper.getWebPageLogin().trim();
+			if(loginPage.contains("?")){
+				out.println("window.location.replace('"+loginPage+"' + document.location.search.replace('?','&'));");
+			}
+			else{
+				out.println("window.location.replace('"+loginPage+"' + document.location.search);");
+			}
+		}
+		out.println("</script>");
+	%>
+<body>
+</body>
+</html>
+
+<%
+} catch(Exception ex) {
+	UniLog.log(ex);
+	throw(ex);
+}
+%>

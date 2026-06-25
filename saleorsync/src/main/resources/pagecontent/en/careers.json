@@ -1,0 +1,20 @@
+{
+  "tag": "Join the Wine Cave Team",
+  "title": "Careers at Wine Cave",
+  "intro": "Lorem ipsum dolor sit amet, ut essent ornatus antiopam eum, ex oblique mnesarchum reprimique has. No vel prima offendit.",
+  "applyNow": "Apply Now",
+  "jobs": {
+    "lineCook": {
+      "title": "Part-Time Line Cook",
+      "summary": "We are looking for a Line Cook to play a key role in preparing and executing dishes to order in our fast-paced kitchen. We are looking for someone to work 20 - 32 hours a week."
+    },
+    "wineBarServer": {
+      "title": "Wine Bar Server (Flex-Time)",
+      "summary": "We are looking for talented hospitality professionals to join our team as part-time Wine Bar Servers. This role is perfect for those with flexibility to pick up shifts as needed ranging from 10–15 hours a week."
+    },
+    "cookServer": {
+      "title": "Cook / Server (Flex-Time)",
+      "summary": "We are seeking a dynamic and adaptable individual to join our team in a unique Flextime Front-of-House/Back-of-House Role. \nThis flexible position offers the opportunity to contribute to our vibrant wine bar in various capacities, primarily supporting our events as a server and filling in as a line cook when needed."
+    }
+  }
+}

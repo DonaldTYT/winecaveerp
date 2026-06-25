@@ -1,0 +1,27 @@
+{
+  "intro": {
+    "tag": "Sustainable practices for future",
+    "title": "Our Sustainable Journey",
+    "desc": "Lorem ipsum dolor sit amet, ut essent ornatus antiopam eum, ex oblique mnesarchum reprimique has. No vel prima offendit.",
+    "cta": "Buy Wine"
+  },
+  "s1": {
+    "tag": "Best Quality",
+    "title": "What makes a wine<br />sustainable?",
+    "paras": [
+      "Lorem ipsum dolor sit amet, ut essent ornatus antiopam eum, ex oblique mnesarchum reprimique has. No vel prima offendit, est ne tation lobortis senserit. Wisi libris moderatius vis eu, no eam ridens mollis.",
+      "Lorem ipsum dolor sit amet, ut essent ornatus antiopam eum, ex oblique mnesarchum reprimique has. No vel prima offendit, est ne tation lobortis senserit.",
+      "Lorem ipsum dolor sit amet, ut essent ornatus antiopam eum, ex oblique mnesarchum reprimique has. No vel prima offendit, est ne tation lobortis senserit, wisi libris moderatius."
+    ],
+    "ctaGuides": "Wine Guides",
+    "ctaContact": "Contact Wine Cave"
+  },
+  "s2": {
+    "tag": "Crafted Strategies for Timeless Tastes",
+    "title": "It begins with the healthy soil",
+    "paras": [
+      "When talking about sustainability and vines, it is important to remember that vines live for a long time. It is one reason why there are so many family companies in the wine business – this is a long-term venture. And, while vines do not require lots of nutrients, vineyards have a long potential life span (some vines in Australia are over 125 years old). If the soil starts to decline, the vines can’t simply be uprooted, so ensuring the long-term health of the soil is vital for the future of the vineyard.",
+      "Furthermore, healthy soil tends to have a far better physical structure – it is less susceptible to erosion, which can cause huge damage in local watercourses. Finally, healthy soil tends to have greater biodiversity. Indeed, some researchers argue that it is the microbes in the soil that have a defining effect on the taste of a wine."
+    ]
+  }
+}

@@ -1,0 +1,103 @@
+<zk xmlns:n="native">
+	<style dynamic="true">
+		div.z-grid.zkbi-detail-grid > div.z-grid-body {
+			height: auto;
+		}
+		div.z-grid.zkbi-detail-grid {
+		   border: 1px solid transparent;
+		}
+		div.zkbifdiv-lbdiv {
+		    min-width: 0px;
+		    width: 100px;
+		}
+		div.zkbidiv > div.z-hlayout-inner:first-child > div.z-div {
+		    width: 100px !important;
+		}	
+		div.row {
+		    margin-left: 0px;
+		    margin-right: 0px;
+		}
+		div.row > div.col-12 {
+			padding-left: 0;
+		}
+		div.z-hlayout.hlcol > div.z-hlayout-inner:not(:first-child) {
+			padding-top: 2px;
+		}
+		@media (min-width: 992px) {
+			div.row > div.seccol div.zkbidiv > div.z-hlayout-inner:first-child > div.z-div {
+				width: 50px !important;
+			}
+		}
+		@media (max-width: 991px) {
+			div.row > div.seccol div.zkbidiv > div.z-hlayout-inner:first-child > div.z-div {
+				width: 100px !important;
+			}
+		}
+	</style>
+	<div class="zkbi-detail-toolbar-container">
+		<div class="zkbi-detail-toolbar-leftarea">
+		</div>
+		<toolbar id="detail_toolbar" align="end">
+		</toolbar>
+	</div>
+	<div id="zkbiListTop" sclass="zkbi-detail-grid z-grid" width="100%" height="80vh" style="overflow-y:auto">
+		<bs-row>
+			<div sclass="col-lg-4 col-sm-12">
+				<div class="row">
+					<div sclass="col-lg-6 col-12 col-sm-12">
+						<zkbidiv jxId="pm_date"/>
+					</div>
+					<div sclass="col-lg-6 col-12 col-sm-12 seccol">
+						<zkbidiv jxId="pm_edate"/>
+					</div>
+				</div>
+				<div class="row">
+					<div sclass="col-lg-6 col-12 col-sm-12">
+						<zkbidiv jxId="pm_paydate"/>
+					</div>
+					<div sclass="col-lg-6 col-12 col-sm-12 seccol">
+						<zkbidiv jxId="pm_confirmstatus"/>
+					</div>
+				</div>
+				<hlayout sclass="hlcol">
+					<zkbidiv jxId="emg_wage"/><textbox width="30px" id="emg_wgtype"/>
+				</hlayout>
+				<zkbidiv jxId="pm_method"/>
+			</div>
+			<div sclass="col-lg-5 col-sm-12">
+				<zkbidiv jxId="pm_eid"/>
+				<zkbifdiv jxId="em_ename"/>
+				<zkbifdiv jxId="em_chinname"/>
+				<zkbifdiv jxId="dpmt_name"/>
+			</div>
+			<div sclass="col-lg-3 col-sm-12">
+				<zkbidiv jxId="em_stdate"/>
+				<zkbidiv jxId="em_enddate"/>
+				<zkbidiv jxId="em_birth"/>
+			</div>
+		</bs-row>
+		<separator height="20px"/>
+		<div>
+			<listbox id="list_erpv4ext_PaymentItem"/>
+		</div>
+		<separator height="20px"/>
+		<bs-row>
+			<div sclass="col-lg-3 col-sm-12">
+				<zkbidiv jxId="pm_taxible"/>
+				<zkbidiv jxId="pm_eoawages"/>
+			</div>
+			<div sclass="col-lg-3 col-sm-12">
+				<zkbidiv jxId="pm_rincome"/>
+				<zkbidiv jxId="pm_oincome"/>
+			</div>
+			<div sclass="col-lg-3 col-sm-12">
+				<zkbidiv jxId="pm_epension"/>
+				<zkbidiv jxId="pm_rpension"/>
+			</div>
+			<div sclass="col-lg-3 col-sm-12">
+				<zkbidiv jxId="pm_xnets"/>
+				<zkbidiv jxId="pm_xnet"/>
+			</div>
+		</bs-row>
+	</div>
+</zk>

@@ -1,0 +1,128 @@
+<%@ page language="java" pageEncoding="utf-8" contentType="text/html;charset=utf-8"%>
+<%@ page import="java.util.*, com.uniinformation.utils.*,com.uniinformation.webcore.* " %>
+<%
+response.setHeader("Cache-Control", "no-cache, no-store, must-revalidate"); // HTTP 1.1.
+response.setHeader("Pragma", "no-cache"); // HTTP 1.0.
+response.setHeader("Expires", "0"); // Proxies.
+
+try {	
+	/*
+	//200623 avoid kickout old brwoser tab. 
+	//200623 may cause security issue. It's rely on JSESSIONID (session scope) clean by browser. It will auto login if browser reuse JESSIONID, until server side session timeout (1hr)a
+	if (SessionHelper.isLogin(request)){  
+		response.sendRedirect(ZkSessionHelper.getSessionHelper(request, response).getLandingPage());
+		return;
+	}
+	*/
+	if (SessionHelper.isLogin(request)){  
+		SessionHelper curSH = ZkSessionHelper.getSessionHelper(request, response);
+		//230106 add twofactor check
+   		if (curSH.twoFactorIsPass()) {
+			response.sendRedirect(curSH.getLandingPage());
+			return;
+		}
+	}
+	
+	SessionHelper sessionHelper = ZkSessionHelper.getSessionHelper(request, response, true);   //remark: entry point of obtain a new sessionHelper
+	
+%>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<jsp:include page="commonInit.jsp" flush="true"/>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title><%=sessionHelper.getWebPageTitle()%></title>
+
+<style>
+.wndcontainer {
+    float:right;
+    position:relative;
+    left:-50%;
+    text-align:left;
+}
+
+.wndblk {
+    list-style:none;
+    position:relative;
+    padding-top:50px;
+    width:auto;
+    left:50%;
+}
+.zklogin .z-window-content {
+	padding:0px !important;
+}
+.zklogin.z-window{
+	box-shadow: 0px 5px 20px -10px black;
+}
+input.z-textbox, .z-decimalbox, .z-intbox, .z-longbox, .z-doublebox,
+.z-datebox-input, .z-datebox-button, .z-combobox-input, .z-combobox-button, .z-bandbox-input, .z-bandbox-button
+dd
+{
+	border-top: none !important;
+	border-left: none !important;
+	border-right: none !important;
+}
+
+<%
+	if (sessionHelper.getAllowWallpaper()){
+	
+%>
+.logolsstyle1, .logolsstyle2{
+	background: #e8e8e84f;
+}
+@media (orientation: landscape) {
+	body{ 
+		background-image: url("<%=sessionHelper.getWallPaperPath(false)%>") !important;
+		background-repeat: no-repeat !important;
+		background-size: cover !important;
+		background-position-x: center !important;
+		background-position-y: center !important;
+		background-attachment: fixed !important;
+	}
+}
+
+@media (orientation: portrait) {
+	body{ 
+		background-image: url("<%=sessionHelper.getWallPaperPath(true)%>") !important;
+		background-repeat: no-repeat !important;
+		background-size: cover !important;
+		background-position-x: center !important;
+		background-position-y: center !important;
+		background-attachment: fixed !important;
+	}
+}
+<%
+	}	
+%>
+</style>
+</head>
+<body>
+<!--
+	<div id="logols">
+		<div class="logolsstyle1"><span id="spanWebPageCoName"></span></div>
+		<div class = "nav"></div>	
+		<div class="logolsstyle2"><span id="spanWebPageName"></span></div>
+	</div>
+  -->
+	<div>
+		HAHA
+	</div>
+   <div id="mainwnd" class = "wndcontainer" >
+		<div class = "wndblk">
+		<jsp:include page='slogin.zul' flush="true" />
+		</div>
+	</div>
+	<div class = "nav"></div>	
+   <div id="bottombar" class = "wndcontainer" >
+	</div>
+	<div class = "nav"></div>		
+	</div>
+</body>
+</html>
+<%
+} catch(Exception ex) {
+	UniLog.log(ex);
+	out.println("<br/><span class='red'>System Error. Please try again later.</span>");
+	//throw(ex);
+}
+%>

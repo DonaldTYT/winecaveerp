@@ -1,0 +1,8 @@
+<zk xmlns:n="native">
+ 	<div sclass="zkbifdiv">
+		<div sclass="zkbifdiv-lbdiv" id="lbDiv">
+			<label id="lb" sclass="zkbi-col-label" use="com.uniinformation.zkcomp.ZkBiHeaderLabel"></label>
+		</div>
+		<div sclass="zkbifdiv-compdiv" id="compDiv"></div>
+ 	</div>
+</zk>

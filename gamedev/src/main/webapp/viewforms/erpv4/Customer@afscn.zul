@@ -1,0 +1,164 @@
+<zk xmlns:n="native">
+	<toolbar id="detail_toolbar" align="end"> </toolbar>
+			<bs-row>
+				<bs-col-321>
+					<zkbitextbox jxId="vd_vcode" labelWidth="30%" compWidth="70%" template="tvdvcode">
+						<template name="tvdvcode">
+							<div sclass="zkbitextbox-lb-div" hflex="1" align="right">
+							<label id="lb_vd_agentcode" use="com.uniinformation.zkcomp.ZkBiHeaderLabel">
+								<custom-attributes tlkey="vd_agentcode"></custom-attributes>
+							</label>
+							</div>
+							<textbox id="vd_agentcode" width="45%"></textbox>
+						</template>
+					</zkbitextbox>
+					<zkbitextbox jxId="vd_vname" labelWidth="30%" compWidth="70%" ></zkbitextbox>
+					<zkbitextbox jxId="vd_chnname" labelWidth="30%" compWidth="70%" ></zkbitextbox>
+					<zkbitextbox jxId="vd_tel" labelWidth="30%" compWidth="70%" textboxWidth="45%" template="tvdtel">
+						<template name="tvdtel">
+							<div sclass="zkbitextbox-lb-div" hflex="1" align="right">
+							<label id="lb_vd_fax" use="com.uniinformation.zkcomp.ZkBiHeaderLabel">
+								<custom-attributes tlkey="vd_fax"></custom-attributes>
+							</label>
+							</div>
+							<textbox id="vd_fax" width="45%"></textbox>
+						</template>
+					</zkbitextbox>
+						<!--
+							<div width="10%">Fax</div>
+					<zkbitextbox jxId="vd_fax" labelWidth="30%" compWidth="70%" ></zkbitextbox>
+						-->
+					<zkbitextbox jxId="vd_email" labelWidth="30%" compWidth="70%" ></zkbitextbox>
+					<div height="5px"/>
+					<zkbitextbox jxId="vd_contact" labelWidth="30%" compWidth="70%"  textboxWidth="45%" template="tvdtitle">
+						<template name="tvdtitle">
+							<div sclass="zkbitextbox-lb-div" hflex="1" align="right">
+							<label id="lb_vd_title" use="com.uniinformation.zkcomp.ZkBiHeaderLabel">
+								<custom-attributes tlkey="vd_title"></custom-attributes>
+							</label>
+							</div>
+							<textbox id="vd_title" width="45%"></textbox>
+						</template>
+					</zkbitextbox>
+					<zkbitextbox jxId="vd_permobile" labelWidth="30%" compWidth="70%" textboxWidth="45%" template="tvdpermobile">
+						<template name="tvdpermobile">
+							<div sclass="zkbitextbox-lb-div" hflex="1" align="right">
+							<label id="lb_vd_permobile2" use="com.uniinformation.zkcomp.ZkBiHeaderLabel">
+								<custom-attributes tlkey="vd_permobile2"></custom-attributes>
+							</label>
+							</div>
+							<textbox id="vd_permobile2" width="45%"></textbox>
+						</template>
+					</zkbitextbox>
+				</bs-col-321>
+				<bs-col-321>
+					<zkbitextbox jxId="vd_addr0" labelWidth="30%" compWidth="70%" ></zkbitextbox>
+					<zkbitextbox jxId="vd_addr1" labelWidth="30%" compWidth="70%" ></zkbitextbox>
+					<zkbitextbox jxId="vd_addr2" labelWidth="30%" compWidth="70%" ></zkbitextbox>
+					<zkbitextbox jxId="vd_addr3" labelWidth="30%" compWidth="70%" textboxWidth="45%" template="tvddistrict">
+						<template name="tvddistrict">
+							<div sclass="zkbitextbox-lb-div" hflex="1" align="right">
+							<label id="lb_vd_district" use="com.uniinformation.zkcomp.ZkBiHeaderLabel">
+								<custom-attributes tlkey="vd_district"></custom-attributes>
+							</label>
+							</div>
+							<textbox id="vd_district" width="45%"></textbox>
+						</template>
+					</zkbitextbox>
+					<zkbitextbox jxId="vd_country" labelWidth="30%" compWidth="70%" ></zkbitextbox>
+					<zkbitextbox jxId="vd_zipcode" labelWidth="30%" compWidth="70%" ></zkbitextbox>
+					<div height="5px"/>
+					<zkbitextbox jxId="vd_caddr0" labelWidth="30%" compWidth="70%" ></zkbitextbox>
+				</bs-col-321>
+				<bs-col-321>
+					<zkbilabel jxId="vd_cdate" labelWidth="50%" compWidth="50%" ></zkbilabel>
+					<zkbilabel jxId="vd_cuser" labelWidth="50%" compWidth="50%" ></zkbilabel>
+					<zkbilabel jxId="vd_udate" labelWidth="50%" compWidth="50%" ></zkbilabel>
+					<zkbilabel jxId="vd_uuser" labelWidth="50%" compWidth="50%" ></zkbilabel>
+				</bs-col-321>
+			</bs-row>
+			<bs-row>
+				<bs-col-321>
+					<zkbilistbox jxId="vd_priceclass" labelWidth="30%" compWidth="70%" ></zkbilistbox>
+					<zkbitextbox jxId="vd_term" labelWidth="30%" compWidth="70%" ></zkbitextbox>
+					<zkbiradiogroup jxId="vd_termtype" labelWidth="30%" compWidth="70%" template="ttermtype">
+					<template name="ttermtype">
+						<div sclass="zkbitextbox-lb-div" hflex="1" align="right">
+							<label id="lb_vd_dueday" use="com.uniinformation.zkcomp.ZkBiHeaderLabel">
+								<custom-attributes tlkey="vd_dueday"></custom-attributes>
+							</label>
+						</div>
+						<textbox id="vd_dueday"/>
+					</template>
+					</zkbiradiogroup>
+					<!--
+					<zkbiintbox jxId="vd_dueday" labelWidth="30%" compWidth="70%"></zkbiintbox>
+					-->
+					<!--
+					<zkbitextbox jxId="vd_agentcode" labelWidth="30%" compWidth="70%" ></zkbitextbox>
+					-->
+					<zkbidoublebox jxId="vd_losbal" labelWidth="30%" compWidth="70%" template="tvdlosbal">
+					<template name="tvdlosbal">
+						<div sclass="zkbitextbox-lb-div" hflex="1" align="right">
+							<label id="lb_vd_fneedstmt" use="com.uniinformation.zkcomp.ZkBiHeaderLabel">
+								<custom-attributes tlkey="vd_fneedstmt"></custom-attributes>
+							</label>
+						</div>
+						<checkbox id="vd_fneedstmt"/>
+					</template>
+						
+					</zkbidoublebox>
+					<!--
+					<zkbicheckbox jxId="vd_fneedstmt" labelWidth="30%" compWidth="70%"></zkbicheckbox>
+					-->
+					<!--
+					<zkbipickinput jxId="vd_picklist" labelWidth="30%" compWidth="70%"></zkbipickinput>
+					<zkbidatebox jxId="vd_opendate" labelWidth="30%" compWidth="70%"></zkbidatebox>
+					<zkbitimebox jxId="vd_time" labelWidth="30%" compWidth="70%"></zkbitimebox>
+					<zkbidatebox jxId="vd_datetime" labelWidth="30%" compWidth="70%" dateFormat="yyyy/MM/dd hh:mm"></zkbidatebox>
+					-->
+				</bs-col-321>
+				<bs-col-321> </bs-col-321>
+				<bs-col-321> </bs-col-321>
+			</bs-row>
+	<template name="template_AfsCustLoc">
+			<bs-row>
+				<bs-col-321>
+					<zkbicheckbox jxId="svloc_sameasmain" labelWidth="20%" compWidth="80%" ></zkbicheckbox>
+					<zkbitextbox jxId="svloc_desp" labelWidth="20%" compWidth="80%" ></zkbitextbox>
+					<zkbitextbox jxId="svloc_chndesp" labelWidth="20%" compWidth="80%" ></zkbitextbox>
+					<zkbitextbox jxId="svloc_tel" labelWidth="20%" compWidth="80%" textboxWidth="45%"></zkbitextbox>
+				</bs-col-321>
+				<bs-col-321>
+					<zkbitextbox jxId="svloc_contact" labelWidth="20%" compWidth="80%" ></zkbitextbox>
+					<zkbitextbox jxId="svloc_tel2" labelWidth="20%" compWidth="80%" textboxWidth="45%" template="tsvloctitle" >
+						<template name="tsvloctitle">
+							<div sclass="zkbitextbox-lb-div" hflex="1" align="right">
+							<label id="lb_svloc_title" use="com.uniinformation.zkcomp.ZkBiHeaderLabel">
+								<custom-attributes tlkey="svloc_title"></custom-attributes>
+							</label>
+							</div>
+							<textbox id="svloc_title" width="45%"></textbox>
+						</template>
+					</zkbitextbox>
+				</bs-col-321>
+				<bs-col-321>
+					<zkbitextbox jxId="svloc_addr1" labelWidth="20%" compWidth="80%" ></zkbitextbox>
+					<zkbitextbox jxId="svloc_addr2" labelWidth="20%" compWidth="80%" ></zkbitextbox>
+					<zkbitextbox jxId="svloc_city" labelWidth="20%" compWidth="80%" ></zkbitextbox>
+					<zkbitextbox jxId="svloc_state" labelWidth="20%" compWidth="80%" template="tsvlocdistrict">
+						<template name="tsvlocdistrict">
+							<div sclass="zkbitextbox-lb-div" hflex="1" align="right">
+							<label id="lb_svloc_district" use="com.uniinformation.zkcomp.ZkBiHeaderLabel">
+								<custom-attributes tlkey="svloc_district"></custom-attributes>
+							</label>
+							</div>
+							<textbox id="svloc_district" width="45%"></textbox>
+						</template>
+					</zkbitextbox>
+					<zkbitextbox jxId="svloc_country" labelWidth="20%" compWidth="80%" ></zkbitextbox>
+					<zkbitextbox jxId="svloc_zipcode" labelWidth="20%" compWidth="80%" ></zkbitextbox>
+				</bs-col-321>
+			</bs-row>
+	</template>	
+</zk>

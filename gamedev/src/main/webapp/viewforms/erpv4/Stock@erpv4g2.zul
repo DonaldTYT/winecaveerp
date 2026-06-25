@@ -1,0 +1,119 @@
+<zk xmlns:n="native">
+<style dynamic="true">
+div.z-grid.zkbi-detail-grid > div.z-grid-body {
+	height: auto;
+}
+div.z-grid.zkbi-detail-grid {
+   border: 1px solid transparent;
+}
+</style>
+	<div class="zkbi-detail-toolbar-container">
+		<div class="zkbi-detail-toolbar-leftarea">
+		<button id="btUpload" label="Upload" visible="true"><custom-attributes tlkey="bt_Upload"></custom-attributes></button>
+		<!--
+			<zkbidiv jxId="vd_vcode"></zkbidiv>
+			<zkbidiv jxId="vd_vname"></zkbidiv>
+		  -->
+		</div>
+		<toolbar id="detail_toolbar" align="end">
+		</toolbar>
+	</div>
+	<!-- 
+	<div>
+		<zkbidiv jxId="vd_vcode"></zkbidiv>
+		<zkbidiv jxId="vd_vname"></zkbidiv>
+	</div>
+	 -->
+	<tabbox id="zkbiListTop" width="100%" sclass="zkbi-detail-tabbox" height="80vh">
+		<tabs width="100%">
+			<tab><custom-attributes tlkey="tp_stock_detail"></custom-attributes>Stock Detail</tab>
+			<tab><custom-attributes tlkey="tp_stock_ledger"></custom-attributes>Stock Ledger</tab>
+		</tabs>
+		<tabpanels>
+			<tabpanel>
+						<bs-row>
+							<div sclass="col-xl-6 col-lg-12">
+							<zkbidiv jxId="sttp_name"></zkbidiv>
+							<zkbidiv jxId="mt_tpname"></zkbidiv>
+							<!-- 
+							<hlayout>
+							<toolbarbutton image="/images/UpdateGreen24.png"></toolbarbutton>
+							</hlayout>
+							 -->
+							<zkbidiv jxId="mt_tpcname"></zkbidiv>
+							<zkbidiv jxId="st_icode"></zkbidiv>
+							<zkbidiv jxId="st_iname"></zkbidiv>
+							<zkbidiv jxId="st_einame"></zkbidiv>
+							<zkbidiv jxId="st_mszrange"></zkbidiv>
+							<zkbidiv jxId="stbd_name"></zkbidiv>
+							<zkbidiv jxId="st_origin"></zkbidiv>
+							<zkbidiv jxId="st_modelno"></zkbidiv>
+							<zkbidiv jxId="st_oicode"></zkbidiv>
+							<zkbidiv jxId="st_barcode"></zkbidiv>
+							<zkbidiv jxId="stu_desc"></zkbidiv>
+							<zkbidiv jxId="stu_punit"></zkbidiv>
+							<hlayout>
+							<zkbidiv jxId="st_msize1"></zkbidiv>
+							<zkbidiv jxId="st_dunit1" labelWidth="100px"></zkbidiv>
+							</hlayout>
+							<hlayout>
+							<zkbidiv jxId="st_msize2"></zkbidiv>
+							<zkbidiv jxId="st_dunit2" labelWidth="100px"></zkbidiv>
+							</hlayout>
+							<hlayout>
+							<zkbidiv jxId="st_msize3"></zkbidiv>
+							<zkbidiv jxId="st_dunit3" labelWidth="100px"></zkbidiv>
+							</hlayout>
+							
+							<zkbidiv jxId="st_netweight"></zkbidiv>
+							<zkbidiv jxId="st_remark"></zkbidiv>
+							</div>
+							<div sclass="col-xl-4 col-lg-6">
+							<zkbidiv jxId="st_obsolete"></zkbidiv>
+							<zkbidiv jxId="st_issalable"></zkbidiv>
+							<hlayout>
+							<zkbidiv jxId="st_lowmark"></zkbidiv>
+							<zkbidiv jxId="st_highmark" labelWidth="100px"></zkbidiv>
+							</hlayout>
+							<hlayout>
+							<zkbidiv jxId="st_standardcost"></zkbidiv>
+							<zkbidiv jxId="st_standardcostcur" labelWidth="100px"></zkbidiv>
+							</hlayout>
+							<hlayout>
+							<zkbidiv jxId="st_standardprice"></zkbidiv>
+							<zkbidiv jxId="st_standardcur" labelWidth="100px"></zkbidiv>
+							</hlayout>
+							<hlayout>
+							<zkbidiv jxId="st_price1"></zkbidiv>
+							<zkbidiv jxId="st_disc1" labelWidth="100px"></zkbidiv>
+							</hlayout>
+							<hlayout>
+							<zkbidiv jxId="st_price2"></zkbidiv>
+							<zkbidiv jxId="st_disc2" labelWidth="100px"></zkbidiv>
+							</hlayout>
+							<hlayout>
+							<zkbidiv jxId="st_price3"></zkbidiv>
+							<zkbidiv jxId="st_disc3" labelWidth="100px"></zkbidiv>
+							</hlayout>
+							<image src="/images/sample/add_img.jpg" height="300px"></image>
+							</div>
+							<div sclass="col-xl-2 col-lg-6">
+							<zkbidiv jxId="st_irg"></zkbidiv>
+							<zkbidiv jxId="st_lastsprice"></zkbidiv>
+							<zkbidiv jxId="st_lastpcost"></zkbidiv>
+							<zkbidiv jxId="stg_freestock"></zkbidiv>
+							<zkbidiv jxId="stg_rdytodeli"></zkbidiv>
+							<zkbidiv jxId="stl1_stockqty"></zkbidiv>
+							<zkbidiv jxId="stl2_stockqty"></zkbidiv>
+							<zkbidiv jxId="stlo_stockqty"></zkbidiv>
+							<zkbidiv jxId="stg_costvalid"></zkbidiv>
+							</div>
+						</bs-row>
+				<grid id="detail_grid"  sclass="zkbi-detail-grid"></grid>
+			</tabpanel>
+			<tabpanel> 
+				<listbox id="list_erpv4_StockMove" vflex="1"></listbox>
+			</tabpanel>
+		</tabpanels>	
+	</tabbox>
+</zk>

@@ -1,0 +1,23 @@
+package com.uniinformation.rpccall;
+
+import com.uniinformation.rpccall.*;
+import com.uniinformation.utils.UniLog;
+
+class RpcConnServlet
+{
+  private RpcServlet r;
+  private boolean needReturn ;
+  public RpcConnServlet(RpcServlet serv,boolean  b)
+  {
+    r = serv;
+    needReturn = b;
+  }
+  public boolean returnToProvider()
+  {
+    return needReturn;
+  }
+  public RpcServlet getServlet()
+  {
+    return r;
+  }
+}

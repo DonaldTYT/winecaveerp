@@ -1,0 +1,16 @@
+<?taglib uri="http://www.zkoss.org/dsp/web/core" prefix="c"?>
+<window border="normal" width="800px" title="Welcome" apply="com.uniinformation.jx.zk.ZkJxComposer" id="Timeline">
+    <grid hflex="1"> <!-- hflex="1" - available width inside parent (window) -->
+        <columns visible="false" >
+        	<column/><!-- define 2 columns to enable auxhead/er -->
+        	<column/>
+        </columns>
+        <rows>
+        	<row>
+        	   <timeline id="dummytl" height="500px">                                  
+        	   </timeline>
+        	</row>
+        </rows>
+    </grid>
+    <timer id="timer" delay="1000" repeats="true"> </timer>
+</window>

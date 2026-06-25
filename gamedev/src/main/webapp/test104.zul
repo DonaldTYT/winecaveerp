@@ -1,0 +1,33 @@
+<zk>
+
+<!-- 
+
+  <window border="normal" title="hello"
+  contentStyle="background-image:url('http://www.freeimageslive.com/galleries/space/earth/pics/a08_h_15_2561.gif');background-repeat: no-repeat;-webkit-background-size: cover;
+  -moz-background-size: cover; -o-background-size: cover; background-size: cover;"  hflex="1" vflex="1">
+  	
+  	<div>Welcome to ZK Fiddle , run it right now!</div>
+  	
+	<button id="btn" label="Click Me To Evalute Event Binding With Composer" />
+  </window>
+  <vlayout>
+  <hlayout width="300px">
+  	<div hflex="50%">
+  	<label>HAHA1</label>
+  	</div>
+  	<div hflex="50%">
+  	<label>HAHA2</label>
+  	</div>
+  </hlayout>
+ -->
+  
+  <hbox height="100px" width="500px" style="border: 1px solid red">
+    <textbox hflex="50%" value="1" />
+    <textbox hflex="50%" value="1" />
+  <!-- 
+    <textbox hflex="0.5" value="1" />
+   -->
+  </hbox>
+  <radiogroup><radio label="AA"/><radio label="BB" disabled="true"/></radiogroup>
+  </vlayout>
+</zk>

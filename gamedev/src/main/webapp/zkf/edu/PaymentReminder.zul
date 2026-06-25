@@ -1,0 +1,81 @@
+<zk>
+	<style>
+	.maingrid {
+		max-width: 100%;
+		background: transparent;
+		border: 0;
+	}
+	.maingrid .z-row-inner {
+		background: transparent !important;
+	}
+	.maingrid .button-div {
+		display: flex;
+		display: -webkit-flex;
+		flex-wrap: wrap;
+		-webkit-flex-wrap: wrap;
+	}	
+	</style>
+	<grid class="maingrid" width="580px" oddRowSclass="none">
+		<columns>
+			<column width="250px" align="end"/>
+			<column />
+		</columns>
+		<rows>
+			<row>
+				<label value="Course"/>
+				<s2listbox id="s2Course" width="100%"/>
+			</row>
+			<row>
+				<label value="Course End"/>
+				<s2listbox id="s2CourseEnd" width="100%"/>
+			</row>
+			<row>
+				<label value="Course Type"/>
+				<s2listbox id="s2CourseType" width="100%"/>
+			</row>
+			<row>
+				<label value="Tutor"/>
+				<s2listbox id="s2Tutor" width="100%" />
+			</row>
+			<row>
+				<label value="Student"/>
+				<s2listbox id="s2Student" width="100%" />
+			</row>
+			<row>
+				<label value="Session Remain (By Subscription End)"/>
+				<s2listbox id="s2RemainingSession" width="100%" />
+			</row>
+			<row>
+				<label value="Session Remain (By Session No)"/>
+				<s2listbox id="s2RemainingSessionBySessNo" width="100%" />
+			</row>
+			<row>
+				<label value="Allow Payment Reminder" tooltiptext="Course detail&#62;Student list"/>
+				<s2listbox id="s2AllowPaymentReminder" width="100%" />
+			</row>
+			<row>
+				<label value="Last Reminder Date"/>
+				<s2listbox id="s2LastReminderDate" width="100%"/>
+			</row>
+			<row>
+				<label value="Session Overdue" tooltiptext="Attend session after subscription end&#10;Session overdue is 0 when no subscription end"/>
+				<s2listbox id="s2SessionOverdue" width="100%"/>
+			</row>
+			<row>
+				<label value="Tentative Remaining Balance" tooltiptext="Token Balance - Tentative Balance of subscribed course(s)"/>
+				<s2listbox id="s2TenRemainBal" width="100%"/>
+			</row>
+			<row>
+				<space/>
+				<checkbox id="cbAdjustValid" label="Adjustment Validation" mold="switch" tooltiptext="Enable/Disable Adjustment Validation&#13;(Default Enable)"/>
+			</row>
+			<row spans="2">
+				<div>
+					<button id="btRecordQuery" label="1.Record Query" tooltiptext="Query student token balance record"/>
+					<button id="btClear" label="Clear" tooltiptext="Clear record"/>
+					<button id="btPaymentReminder" label="2.Send Reminder" tooltiptext="Send payment reminder email"/>
+				</div>
+			</row>
+		</rows>
+	</grid>
+</zk>

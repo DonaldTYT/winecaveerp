@@ -1,0 +1,67 @@
+# Track only the selected Maven projects in this workspace.
+*
+
+!/.gitignore
+!/README.md
+
+!/bi/
+!/bi/**
+!/core/
+!/core/**
+!/erp/
+!/erp/**
+!/gamedev/
+!/gamedev/**
+!/jspwrapper/
+!/jspwrapper/**
+!/saleorsync/
+!/saleorsync/**
+!/scorpion/
+!/scorpion/**
+!/springwrapper/
+!/springwrapper/**
+!/zkapp/
+!/zkapp/**
+!/zkui/
+!/zkui/**
+
+# Build output
+**/target/
+**/build/
+**/out/
+
+# IDE and local workspace metadata
+**/.settings/
+**/.classpath
+**/.project
+**/.factorypath
+**/.metadata/
+**/.vscode/
+**/.continue/
+**/.claude/
+**/.codex/
+**/.codex_tmp/
+
+# Logs, temp files, and generated archives
+**/*.log
+**/*.tmp
+**/*.bak
+**/*~
+**/*.un~
+**/*.swp
+**/Thumbs.db
+**/*.war
+**/*.ear
+**/*.jar
+**/*.zip
+**/*.tar
+**/*.tgz
+**/*.gz
+
+# Legacy libraries that are part of the saleorsync source tree.
+!/saleorsync/src/main/webapp/WEB-INF/lib/jai-core-1.1.3-alpha.jar
+!/saleorsync/src/main/webapp/WEB-INF/lib/sun-jai_codec.jar
+
+# Local environment files
+**/.env
+**/.env.*

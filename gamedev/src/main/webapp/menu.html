@@ -1,0 +1,97 @@
+<%@ page language="java" pageEncoding="utf-8" contentType="text/html;charset=utf-8"%>
+<%@ page import="java.util.*, com.uniinformation.utils.*,com.uniinformation.webcore.* " %>
+<%@ taglib uri="http://www.zkoss.org/jsp/zul" prefix="z" %>
+<%
+response.setHeader("Cache-Control", "no-cache, no-store, must-revalidate"); // HTTP 1.1.
+response.setHeader("Pragma", "no-cache"); // HTTP 1.0.
+response.setHeader("Expires", "0"); // Proxies.
+try {	
+	SessionHelper sessionHelper = ZkSessionHelper.getSessionHelper(request, response);   
+	sessionHelper.validateLogin(request, response);
+%>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<jsp:include page="commonInit.jsp" flush="true"/>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title><%=sessionHelper.getWebPageTitle()%></title>
+<script src="js/zkpages.js"></script>
+
+<style>
+.wndcontainer {
+    float:right;
+    position:relative;
+    left:-50%;
+    text-align:left;
+    width:100%;
+    padding-top:50px;
+}
+.menublk {
+    list-style:none;
+    position:relative;
+    width:auto;
+    left:50%;
+}
+.menublk li {
+	padding: 0 30px 0 30px;
+	float:left;
+	position: relative;
+}/* ie needs position:relative here*/
+
+.wndblk {
+    list-style:none;
+    position:relative;
+    width:auto;
+    left:50%;
+}
+.menuli {
+	padding: 0 30px 0 30px;
+	float:left;
+	position: relative;
+}/* ie needs position:relative here*/
+
+@media (orientation: landscape) {
+	body{ 
+		background-image: url("<%=sessionHelper.getWallPaperPath_gen(false,"sitemap")%>") !important;
+		background-repeat: no-repeat !important;
+		background-size: cover !important;
+		background-position-x: center !important;
+		background-position-y: center !important;
+		background-attachment: fixed !important;
+	}
+}
+
+@media (orientation: portrait) {
+	body{ 
+		background-image: url("<%=sessionHelper.getWallPaperPath(true)%>") !important;
+		background-repeat: no-repeat !important;
+		background-size: cover !important;
+		background-position-x: center !important;
+		background-position-y: center !important;
+		background-attachment: fixed !important;
+	}
+}
+.sidemenu-container { 
+	background: none !important;
+    border-bottom: none !important;
+}
+
+
+
+</style>
+</head>
+
+<body>
+	<jsp:include page="sideMenu.jsp" flush="true"/>
+   	<div id="mainwnd" class="wndcontainer" >
+		<jsp:include page='sitemap.zul' flush="true" />
+	</div>
+</body>
+</html>
+<%
+} catch(Exception ex) {
+	UniLog.log(ex);
+	throw(ex);
+} finally {
+}
+%>

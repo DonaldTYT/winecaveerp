@@ -1,0 +1,15 @@
+<zk>
+<div align="center">
+	<vlayout>
+	<hlayout>
+	<label>Convert From</label>
+	<textbox id="fdConvertFrom"></textbox>
+	<label>To</label>
+	<textbox id="fdConvertTo"></textbox>
+	</hlayout>
+	<div height="30px"/>
+	<button id="btOK" label="OK"></button>
+	<button id="btCancel" label="Cancel"></button>
+	</vlayout>
+</div>
+</zk>

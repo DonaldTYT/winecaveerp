@@ -1,0 +1,562 @@
+<zk>
+<zscript>
+<![CDATA[
+	import com.uniinformation.webcore.*;
+	SessionHelper sessionHelper = SessionHelper.getSessionHelper();
+	boolean isMobile = sessionHelper.isMobile();
+	String gridLeftWidth = isMobile ? "120px" : "170px";
+]]>
+</zscript>
+<vlayout vflex="1">
+	<tabbox vflex="1">
+		<tabs>	
+			<tab label="Student Information" />
+			<tab label="Course" />
+			<tab label="Session" />
+			<tab label="Available Timeslot" visible="false" disabled="true" tooltiptext="dev in progress"/>
+		</tabs>
+		<tabpanels>
+			<tabpanel>
+				<grid vflex="1">
+					<columns>
+						<column align="right" width="${gridLeftWidth}" />
+						<column hflex="1" />
+					</columns>
+					<rows>
+						<zk choose="">
+							<zk when="${isMobile}">
+								<row>
+									<label value="Student Code"/>
+									<textbox id="essd_sdno"/>
+								</row>
+								<row>
+									<label value="Student Card No"/>
+									<textbox id="essd_cardno" width="120px"/>
+								</row>
+							</zk>
+							<zk>
+								<row>
+									<label value="Student Code"/>
+									<hlayout>
+										<textbox id="essd_sdno"/>
+										<space></space>
+										<label value="Student Card No"/>
+										<textbox id="essd_cardno" width="120px"/>
+									</hlayout>
+								</row>
+							</zk>
+						</zk>
+
+						<zk choose="">
+							<zk when="${isMobile}">
+								<row>
+									<label value="Surname"/>
+									<textbox id="essd_surname"/>
+								</row>
+								<row>
+									<label value="First Name(s)"/>
+									<textbox id="essd_firstname"/>
+								</row>
+								<row>
+									<label value="Name"/>
+									<textbox id="essd_name"/>
+								</row>
+							</zk>
+							<zk>
+								<row>
+									<label value="Surname"/>
+									<hlayout>
+										<textbox id="essd_surname"/>
+										<space></space>
+										<label value="First Name(s)"/>
+										<textbox id="essd_firstname"/>
+										<space></space>
+										<label value="Name"/>
+										<textbox id="essd_name"/>
+									</hlayout>
+								</row>
+							</zk>
+						</zk>
+
+						<row>
+							<label value="Chinese Name"/>
+							<textbox id="essd_chnname"/>
+						</row>
+						<row>
+							<label value="Status"/>
+							<radiogroup id="essd_status">
+								<radio label="N/A"/>
+							</radiogroup>
+						</row>
+						<row>
+							<label value="Contact Person"/>
+							<textbox id="essd_contactby"/>
+						</row>
+						<row>
+							<label value="Last Contact Time"/>
+							<hlayout>
+								<datebox id="essd_lastcontime_from"/>
+								<label value="to"/>
+								<datebox id="essd_lastcontime_to"/>
+							</hlayout>
+						</row>
+						<row>
+							<label value="Registration Date"/>
+							<hlayout>
+								<datebox id="essd_regdate_from"/>
+								<label value="to"/>
+								<datebox id="essd_regdate_to"/>
+							</hlayout>
+						</row>
+						<row>
+							<label value="Sex"/>
+							<radiogroup id="essd_sex">
+								<radio label="N/A"/>
+							</radiogroup>
+						</row>
+			
+						<zk choose="">
+							<zk when="${isMobile}">
+								<row>
+									<label value="Birth Date"/>
+									<hlayout>
+										<datebox id="essd_birthdate_from"/>
+										<label value="to"/>
+										<datebox id="essd_birthdate_to"/>
+									</hlayout>
+								</row>
+								<row>
+									<label value="Age"/>
+									<hlayout>
+										<textbox id="essd_age_from"/>
+										<label value="to"/>
+										<textbox id="essd_age_to"/>
+									</hlayout>
+								</row>
+							</zk>
+							<zk>
+								<row>
+									<label value="Birth Date"/>
+									<hlayout>
+										<hlayout>
+											<datebox id="essd_birthdate_from"/>
+											<label value="to"/>
+											<datebox id="essd_birthdate_to"/>
+										</hlayout>
+										<space></space>
+										<label value="Age"/>
+										<hlayout>
+											<textbox id="essd_age_from"/>
+											<label value="to"/>
+											<textbox id="essd_age_to"/>
+										</hlayout>
+									</hlayout>
+								</row>
+							</zk>
+						</zk>
+
+						<zk choose="">
+							<zk when="${isMobile}">
+								<row>
+									<label value="Mother tongue"/>
+									<vlayout>
+										<radiogroup id="essd_motongue">
+											<radio label="N/A"/>
+										</radiogroup>
+										<textbox id="essd_omotongue" />
+									</vlayout>
+								</row>
+							</zk>
+							<zk>
+								<row>
+									<label value="Mother tongue"/>
+									<hlayout style="white-space:normal">
+										<radiogroup id="essd_motongue">
+											<radio label="N/A"/>
+										</radiogroup>
+										<textbox id="essd_omotongue" />
+									</hlayout>
+								</row>
+							</zk>
+						</zk>
+			
+						<row>
+							<label value="Email"/>
+							<textbox id="essd_sdemail"/>
+						</row>
+
+						<zk choose="">
+							<zk when="${isMobile}">
+								<row>
+									<label value="Mobile #1"/>
+									<textbox id="essd_sdtel"/>
+								</row>
+								<row>
+									<label value="Mobile #2"/>
+									<textbox id="essd_sdtel2"/>
+								</row>
+							</zk>
+							<zk>
+								<row>
+									<label value="Mobile #1"/>
+									<hlayout>
+										<textbox id="essd_sdtel"/>
+										<space></space>
+										<label value="Mobile #2"/>
+										<textbox id="essd_sdtel2"/>
+									</hlayout>
+								</row>
+							</zk>
+						</zk>
+			
+						<zk choose="">
+							<zk when="${isMobile}">
+								<row>
+									<label value="Tel(Home)"/>
+									<textbox id="essd_hometel"/>
+								</row>
+								<row>
+									<label value="Tel(Office)"/>
+									<textbox id="essd_officetel"/>
+								</row>
+							</zk>
+							<zk>
+								<row>
+									<label value="Tel(Home)"/>
+									<hlayout>
+									<textbox id="essd_hometel"/>
+									<space></space>
+									<label value="Tel(Office)"/>
+									<textbox id="essd_officetel"/>
+									</hlayout>
+								</row>
+							</zk>
+						</zk>
+
+						<zk choose="">
+							<zk when="${isMobile}">
+								<row>
+									<label value="Fax(Home)"/>
+									<textbox id="essd_homefax"/>
+								</row>
+								<row>
+									<label value="Fax(Office)"/>
+									<textbox id="essd_officefax"/>
+								</row>
+							</zk>
+							<zk>
+								<row>
+									<label value="Fax(Home)"/>
+									<hlayout>
+									<textbox id="essd_homefax"/>
+									<space></space>
+									<label value="Fax(Office)"/>
+									<textbox id="essd_officefax"/>
+									</hlayout>
+								</row>
+							</zk>
+						</zk>
+			
+						<row>
+							<label value="Referral"/>
+							<textbox id="essd_regreferral"/>
+						</row>
+						
+						<row>
+							<label value="Name of school attending"/>
+							<textbox id="essd_schatname"/>
+						</row>
+
+						<zk choose="">
+							<zk when="${isMobile}">
+								<row>
+									<label value="Grade"/>
+									<textbox id="essd_grade"/>
+								</row>
+								<row>
+									<label value="No. of Years"/>
+									<hlayout>
+										<textbox id="essd_noofyears_from"/>
+										<label value="to"/>
+										<textbox id="essd_noofyears_to"/>
+									</hlayout>
+								</row>
+							</zk>
+							<zk>
+								<row>
+									<label value="Grade"/>
+									<hlayout>
+										<textbox id="essd_grade"/>
+										<space></space>
+										<label value="No. of Years"/>
+										<hlayout>
+											<textbox id="essd_noofyears_from"/>
+											<label value="to"/>
+											<textbox id="essd_noofyears_to"/>
+										</hlayout>
+									</hlayout>
+								</row>
+							</zk>
+						</zk>
+						
+						<row>
+							<label value="Highest Education"/>
+							<textbox id="essd_education"/>
+						</row>
+						<row>
+							<label value="Apply for PTH"/>
+							<radiogroup id="essd_clum0">
+								<radio label="NA"/>	
+								<radio label="Y"/>	
+								<radio label="N"/>	
+							</radiogroup>
+						</row>
+						<row>
+							<label value="Apply for Cantonese"/>
+							<radiogroup id="essd_clum3">
+								<radio label="NA"/>	
+								<radio label="Y"/>	
+								<radio label="N"/>	
+							</radiogroup>
+						</row>
+						<row>
+							<label value="Apply for Alludio"/>
+							<radiogroup id="essd_clum4">
+								<radio label="NA"/>	
+								<radio label="Y"/>	
+								<radio label="N"/>	
+							</radiogroup>
+						</row>
+						<row>
+							<label value="Apply for English"/>
+							<radiogroup id="essd_clum1">
+								<radio label="NA"/>	
+								<radio label="Y"/>	
+								<radio label="N"/>	
+							</radiogroup>
+						</row>
+						<row>
+							<label value="Apply for Mathematics"/>
+							<radiogroup id="essd_clum2">
+								<radio label="NA"/>	
+								<radio label="Y"/>	
+								<radio label="N"/>	
+							</radiogroup>
+						</row>
+						<row>
+							<label value="Comments and Remarks"/>
+							<textbox rows="6" id="essd_comments"/>
+						</row>
+			
+						<zk choose="">
+							<zk when="${isMobile}">
+								<row spans="2">
+									<vlayout style="text-align:left">
+										<label value="Assessment"/>
+										<div id="essd_asdiv" style="max-width:800px">
+											<include src="zkf/edu/StudentAs.zul" />
+										</div>
+									</vlayout>
+								</row>
+							</zk>
+							<zk>
+								<row>
+									<label value="Assessment"/>
+									<div id="essd_asdiv" style="max-width:800px">
+										<include src="zkf/edu/StudentAs.zul" />
+									</div>
+								</row>
+			   				</zk>
+						</zk>
+					</rows>
+				</grid>
+			</tabpanel>
+			<tabpanel vflex="1">
+				<grid vflex="1">
+					<columns>
+						<column align="right" width="${gridLeftWidth}" />
+						<column hflex="1" />
+					</columns>
+					<rows>
+						<row>
+							<label value="Course Code"/>
+							<textbox id="eaav0_code"/>
+						</row>
+						<row>
+							<label value="Course Name"/>
+							<textbox id="eaav0_name"/>
+						</row>
+						<row>
+							<label value="Course Status"/>
+							<radiogroup id="eaav0_status">
+								<radio label="N/A"/>
+							</radiogroup>
+						</row>
+						<row>
+							<label value="Start Date"/>
+							<hlayout>
+								<datebox id="eaav0_startdate_from"/>
+								<label value="to"/>
+								<datebox id="eaav0_startdate_to"/>
+							</hlayout>
+						</row>
+						<row>
+							<label value="Number of Session"/>
+							<hlayout>
+								<textbox id="eaav0_numsession_from"/>
+								<label value="to"/>
+								<textbox id="eaav0_numsession_to"/>
+							</hlayout>
+						</row>
+						<row>
+							<label value="Days"/>
+							<div>
+								<textbox id="eaav0_sessionday" visible="false"/>
+								<hlayout id="eaav0_sessionday_cbc" style="white-space:normal">
+									<checkbox label="Mon"/>
+									<checkbox label="Tue"/>
+									<checkbox label="Wed"/>
+									<checkbox label="Thu"/>
+									<checkbox label="Fri"/>
+									<checkbox label="Sat"/>
+									<checkbox label="Sun"/>
+								</hlayout>
+							</div>
+						</row>
+						<row>
+							<label value="Time"/>
+							<hlayout>
+								<combobox id="eaav0_sessiontime_from" use="com.uniinformation.jx.zk.ZkJxTimePicker"/>
+								<label value="to"/>
+								<combobox id="eaav0_sessiontime_to" use="com.uniinformation.jx.zk.ZkJxTimePicker"/>
+							</hlayout>
+						</row>
+						<row>
+							<label value="Subscribe Status"/>
+							<radiogroup id="essbsd_status">
+								<radio label="N/A"/>
+							</radiogroup>
+						</row>
+					</rows>
+				</grid>
+			</tabpanel>
+			<tabpanel vflex="1">
+				<grid vflex="1">
+					<columns>
+						<column align="right" width="${gridLeftWidth}" />
+						<column hflex="1" />
+					</columns>
+					<rows>
+						<row>
+							<label value="Session Code"/>
+							<textbox id="essn_code"/>
+						</row>
+						<row>
+							<label value="Session Name"/>
+							<textbox id="essn_name"/>
+						</row>
+						<row>
+							<label value="Schedule Status"/>
+							<radiogroup id="essn_status">
+								<radio label="N/A"/>
+							</radiogroup>
+						</row>
+						<row>
+							<label value="Schedule Date"/>
+							<hlayout>
+								<datebox id="essn_date_from"/>
+								<label value="to"/>
+								<datebox id="essn_date_to"/>
+							</hlayout>
+						</row>
+						<row>
+							<label value="Start Time"/>
+							<hlayout>
+								<combobox id="essn_sttime_from" use="com.uniinformation.jx.zk.ZkJxTimePicker"/>
+								<label value="to"/>
+								<combobox id="essn_sttime_to" use="com.uniinformation.jx.zk.ZkJxTimePicker"/>
+							</hlayout>
+						</row>
+						<row>
+							<label value="End Time"/>
+							<hlayout>
+								<combobox id="essn_endtime_from" use="com.uniinformation.jx.zk.ZkJxTimePicker"/>
+								<label value="to"/>
+								<combobox id="essn_endtime_to" use="com.uniinformation.jx.zk.ZkJxTimePicker"/>
+							</hlayout>
+						</row>
+						<row>
+							<label value="Actual Status"/>
+							<radiogroup id="esatsd_status">
+								<radio label="N/A"/>
+							</radiogroup>
+						</row>
+						<row>
+							<label value="Actual Start"/>
+							<hlayout>
+								<datebox id="esatsd_sttime_from"/>
+								<label value="to"/>
+								<datebox id="esatsd_sttime_to"/>
+							</hlayout>
+						</row>
+						<row>
+							<label value="Actual End"/>
+							<hlayout>
+								<datebox id="esatsd_endtime_from"/>
+								<label value="to"/>
+								<datebox id="esatsd_endtime_to"/>
+							</hlayout>
+						</row>
+					</rows>
+				</grid>
+			</tabpanel>
+			<tabpanel>
+				<grid vflex="1">
+					<columns>
+						<column align="right" width="${gridLeftWidth}" />
+						<column hflex="1" />
+					</columns>
+					<rows>
+						<row>
+							<label value="Date"/>
+							<hlayout>
+								<datebox id="avts_date_from"/>
+								<label value="to"/>
+								<datebox id="avts_date_to"/>
+							</hlayout>
+						</row>
+						<row>
+							<label value="Days"/>
+							<div>
+								<textbox id="avts_day" visible="false"/>
+								<hlayout id="avts_day_cbc" style="white-space:normal">
+									<checkbox label="Mon"/>
+									<checkbox label="Tue"/>
+									<checkbox label="Wed"/>
+									<checkbox label="Thu"/>
+									<checkbox label="Fri"/>
+									<checkbox label="Sat"/>
+									<checkbox label="Sun"/>
+								</hlayout>
+							</div>
+						</row>
+						<row>
+							<label value="Time"/>
+							<hlayout>
+								<combobox id="avts_time_from" use="com.uniinformation.jx.zk.ZkJxTimePicker"/>
+								<label value="to"/>
+								<combobox id="avts_time_to" use="com.uniinformation.jx.zk.ZkJxTimePicker"/>
+							</hlayout>
+						</row>
+					</rows>
+				</grid>
+			</tabpanel>
+		</tabpanels>
+	</tabbox>
+	<hbox hflex="1" pack="center">
+		<button id="btSearch" label="Search"></button>
+		<button id="btClear" label="Clear"></button>
+		<button id="btClose" label="Close"></button>
+	</hbox>
+</vlayout>
+</zk>

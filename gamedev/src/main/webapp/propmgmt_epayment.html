@@ -1,0 +1,163 @@
+<%@ page language="java" pageEncoding="utf-8" contentType="text/html;charset=utf-8"%>
+<%@ page import="java.util.*, com.uniinformation.utils.*,com.uniinformation.webcore.* " %>
+<%
+response.setHeader("Cache-Control", "no-cache, no-store, must-revalidate"); // HTTP 1.1.
+response.setHeader("Pragma", "no-cache"); // HTTP 1.0.
+response.setHeader("Expires", "0"); // Proxies.
+
+try {	
+	SessionHelper.setSessionTimeout(request, -1);
+	SessionHelper sessionHelper = ZkSessionHelper.getSessionHelper(request, response);   
+%>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<!-- 
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no"/>
+ -->
+<title><%=sessionHelper.getWebPageTitle()%></title>
+<script src="https://unpkg.com/html5-qrcode@2.3.7/html5-qrcode.min.js"></script>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      background: #000;
+      color: #fff;
+      font-family: Arial, sans-serif;
+      text-align: center;
+    }
+    #scanner-container {
+      margin-top: 30px;
+      justify-content: center;
+      align-items: center;
+      display:none
+    }
+    #reader {
+      width: 300px;
+      height: 300px;
+      border: 2px solid #0f0;
+      box-sizing: border-box;
+    }
+    #result {
+      margin-top: 20px;
+      font-size: 1.5em;
+      color: #0f0;
+      display:none
+    }
+  </style>
+<style>
+    .bottom-div {
+       position: fixed;
+       bottom: 0;
+       left: 0;
+       width: 100%;
+       background-color: #333;
+       color: white;
+       text-align: center;
+       padding: 10px;
+    }
+</style>
+</head>
+<body style="padding: 0px; background-color: #bcd6ed;">
+
+<% if(sessionHelper.isLogin()) { %>
+<div id="scanner-container">
+  <div id="reader"></div>
+</div>
+
+<div id="result">Scanned Code: <span id="barcode-data">None</span></div>
+<script>
+  const html5QrCode = new Html5Qrcode("reader");
+//  alert("continuebarcode start here :"+html5QrCode);
+//  alert("continuebarcode start here ");
+  function startScanner() {
+//	alert("real_startCanner()");
+	  html5QrCode.start(
+	    { facingMode: "environment" },
+	    {
+	      fps: 10,
+	      qrbox: function(viewfinderWidth, viewfinderHeight) {
+	        let minEdge = Math.min(viewfinderWidth, viewfinderHeight);
+	        return { width: minEdge * 0.8, height: minEdge * 0.8 };
+	      }
+	    },
+	    async (decodedText, decodedResult) => {
+	      onScanSuccess(decodedText, decodedResult);
+	    },
+	    onScanFailure
+	  ).then(() => {
+	    // After scanner starts, wait for video to be ready
+	    const checkVideo = setInterval(() => {
+	      const video = document.querySelector("#reader video");
+	      if (video && video.videoWidth > 0 && video.videoHeight > 0) {
+	        clearInterval(checkVideo);
+	        
+	        const aspectRatio = video.videoWidth / video.videoHeight;
+	        const reader = document.getElementById('reader');
+
+	        // Set height based on width and actual aspect ratio
+	        const width = reader.clientWidth;
+	        reader.style.height = `${width / aspectRatio}px`;
+	      }
+	    }, 100);
+	  }).catch(err => {
+	    console.error("Failed to start scanning:", err);
+	  });
+	}
+ 
+  function onScanSuccess(decodedText, decodedResult) {
+    console.log(`Code matched = ${decodedText}`, decodedResult);
+    document.getElementById('barcode-data').textContent = decodedText;
+    postQrCodeData(decodedText);
+    // Pause scanning after successful scan
+    // html5QrCode.stop();
+    /*
+    html5QrCode.stop().then(() => {
+      console.log("Scanner stopped after scan. Will restart in 3 seconds...");
+
+      // After 3 seconds, restart scanner
+      setTimeout(() => {
+        document.getElementById('barcode-data').textContent = "None";
+        startScanner();
+      }, 3000);
+
+    }).catch((err) => {
+      console.error("Failed to stop scanner: ", err);
+    });
+    */
+  }
+
+  function onScanFailure(error) {
+    // You can log errors if needed
+    // console.warn(`Scan error: ${error}`);
+  }
+  
+  function startWebcamScanner(){
+//	  	alert("in startWebcamScanner "+p_postcompid+":"+p_posteventname);
+		document.getElementById("scanner-container").style.display = "flex";
+  		startScanner();
+  }
+  function stopWebcamScanner(){
+//	  	alert("in stopWebcamScanner "+p_postcompid+":"+p_posteventname);
+		document.getElementById("scanner-container").style.display = "none";
+	    html5QrCode.stop();
+  }
+ // startScanner();
+  
+  // Start the scanner initially
+  // startScanner();
+</script>
+	<jsp:include page='zkf/propertymgmt/Epayment.zul' flush="true" />
+<% } else { %>	
+	<jsp:include page='zkf/propertymgmt/DeviceLogin.zul' flush="true" />
+<% } %>	
+</body>
+</html>
+<%
+} catch(Exception ex) {
+	UniLog.log(ex);
+	out.println("<br/><span class='red'>System Error. Please try again later.</span>");
+	//throw(ex);
+}
+%>

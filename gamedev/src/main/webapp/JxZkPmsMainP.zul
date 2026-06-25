@@ -1,0 +1,196 @@
+<?component name="keypad" macroURI="/zkcomp/keypad.zul" class="com.uniinformation.zkcomp.Keypad"?>
+<zk xmlns:w="http://www.zkoss.org/2005/zk/client">
+    <script><![CDATA[
+        function processUrlEncodedJsonForPhotoCapture(p_json){
+        	var zkComp = zk.Widget.$('$JxZkPmsMain' );
+			if (zkComp !== null && zAu !== null && zk !== null)
+				zAu.send(new zk.Event(zkComp, "onAddPhoto", decodeURIComponent(p_json), {toServer:true}));
+			else
+				console.log("comp or zAu is null, skip register event");
+        }
+        function launchScanner(){
+                if (typeof android !== "undefined"){
+                        android.launchScanner();
+                }
+                else{
+                	alert("Function not supported");
+                }
+        }
+        function launchPhotoCapture(){
+                if (typeof android !== "undefined"){
+                        android.launchPhotoCapture();
+                }
+                else{
+                	alert("Function not supported");
+                }
+        }
+    ]]>
+</script>
+	<window sclass="grid-no-border" style="padding:0px !important; border:0px;" border="none" vflex="1" hflex="1" title="" id="JxZkPmsMain" apply="com.uniinformation.jx.zk.ZkJxComposer">
+    	<timer id="timerKeepAliveSession" repeats="true" delay="600000" onTimer=""/>
+    	<vbox style="padding:0px !important; border:0px !important;" width="100%" height="100%" spacing="0px">
+    	<window closable="true" onClose="self.visible = false; event.stopPropagation();" height="50%" width="70%" id="JxZkPmsMainStart" title="Confirmation Box" visible="false"> 
+    		<separator height="5px"/>
+    		<div><label id="lbStartMsg"></label></div>
+    		<separator height="30%"/>
+			<div style="text-align:center;">
+    			<button sclass="z-messagebox-button" id="btStartOk">OK</button>
+    			<button sclass="z-messagebox-button" id="btStartCancel">Cancel</button>
+    		</div>
+    	</window>
+    	<window closable="true" onClose="self.visible = false; event.stopPropagation();" height="50%" width="70%" id="JxZkPmsMainEnd" title="Confirmation Box" visible="false"> 
+    		<separator height="5px"/>
+    		<div>
+    			<separator/>
+    			<vlayout>
+    				<hlayout>
+						<label id="lbEndMsg">lbEndMsg</label>
+						<intbox id="txEndQty" value="0"></intbox>
+    				</hlayout>
+    				<hlayout>
+						<label id="lbResMsg">lbResMsg</label>
+						<intbox id="txResQty" value="0"></intbox>
+    				</hlayout>
+    			</vlayout>
+    		</div>
+    		<!-- 
+			<div viewModel="@id('vm') @init('com.uniinformation.zkcomp.KeypadVM')">
+    			<separator/>
+				<label id="lbEndMsg">xxx</label>
+   				<intbox id="txEndQty" onFocus="@command('focusInput')" value="0" readonly="true"/>
+				<keypad charSeq="@load(vm.charSeq)" inp="@load(vm.inp)" open="@bind(vm.open)" />
+			</div>
+    		 -->
+    		<separator height="30%"/>
+			<div style="text-align:center;">
+    			<button sclass="z-messagebox-button" id="btEndOk">OK</button>
+    			<button sclass="z-messagebox-button" id="btEndCancel">Cancel</button>
+    		</div>
+    	</window>
+    	<window closable="true" onClose="self.visible = false; event.stopPropagation();" height="100%" width="70%" id="JxZkPmsMainDetail" title="Record Detail" visible="false"> 
+    		<separator height="10px"/>
+			<div style="text-align:center;">
+    			<separator/>
+    			<image id="imgDetailImage" style=""></image>
+    		</div>
+    		<separator height="10px"/>
+			<div style="text-align:center;">
+    			<button sclass="z-messagebox-button" id="btDetailPhoto" w:onClick="launchPhotoCapture()" >Photo</button>
+    			<button sclass="z-messagebox-button" id="btDetailOk">Ok</button>
+    			<button sclass="z-messagebox-button" id="btDetailCancel" onClick="JxZkPmsMainDetail.setVisible(false);" >Cancel</button>
+    		</div>
+    		<separator height="10px"/>
+    	</window>
+    	<div vflex="2" hflex="max" style="background: #666666; color: #FFFFFF; border:0px !important;">
+			<vlayout>
+				<hlayout>
+					<div hflex="4" align="left" style="border:0px; padding-top:0px; padding-bottom:0px;">
+					 	<image id="image" src="images/logo_gbp.jpg" width="450px"/>
+					 </div>
+				</hlayout>
+				<hlayout>
+					<div style="background:#666666; border:0px; padding-top:0px; padding-bottom:0px;; height:1px" hflex="4">
+						<separator style="background:white; color:white; height:1px"/>	
+					</div>
+				</hlayout>
+				<hlayout>
+					<div hflex="1" align="left" style="border:0px">
+					     <space/>部門:<space/><label id="lbDept" value=""/>
+					</div>
+					<div hflex="1" align="left" style="border:0px">
+					</div>
+					<div hflex="1" align="left" style="border:0px">
+					</div>
+					<div hflex="1" align="right" style="border:0px">
+					      <space/><label id="lbNowDate"/><space></space><label id="lbNowTime"/>
+					      <space width="20px"/>
+					</div>
+				
+				</hlayout>
+			</vlayout>
+    	</div>
+		<div vflex="8" hflex="max" style="background:#666666;">
+			<div id="divDept" vflex="1" hflex="1">
+			<hlayout vflex="1" hflex="1">
+				<div vflex="1" hflex="1"></div>
+				<div vflex="1" hflex="100">
+					<listbox span="true" vflex="1" hflex="1" id="listboxDept" mold="paging" autopaging="true" style="background:#FFFFFF;" visible="false">
+						<listhead>
+			            	<listheader label="#"/>
+			            	<listheader label="Department"/>
+						</listhead>
+						<listitem>
+							<listcell> </listcell>
+							<listcell> </listcell>
+						</listitem>
+					</listbox>
+				</div>
+				<div vflex="1" hflex="1" style="background:#666666;"></div>
+			</hlayout>
+			</div>
+			<div id="divTask" vflex="1" hflex="1" visible="false" style="background:#666666; color:#FFFFFF">
+				<hlayout vflex="1" hflex="1">
+					<div style="width:5px; height:5px;"></div>
+					<vlayout vflex="1" hflex="1">
+						<div style="width:2px; height:2px;"></div>
+						<div>生產中:</div>
+						<listbox span="true" vflex="1" hflex="1" id="listboxTaskProgress" style="background:#FFFFFF;"></listbox>
+						<div style="width:2px; height:2px;"></div>
+						<div>已完成項目:</div>
+						<listbox span="true" vflex="1" hflex="1" id="listboxTaskComplete" style="background:#FFFFFF;"></listbox>
+					</vlayout>
+					<vlayout vflex="1" hflex="1">
+						<div style="width:2px; height:2px;"></div>
+						<div>今日工作清單:</div>
+						<listbox span="true" vflex="1" hflex="1" id="listboxTaskToday" style="background:#FFFFFF;"></listbox>
+					</vlayout>
+					<vlayout vflex="1" hflex="1">
+						<div style="width:2px; height:2px;"></div>
+						<div>即將到來清單:</div>
+						<listbox span="true" vflex="1" hflex="1" id="listboxTaskFuture" style="background:#FFFFFF;"></listbox>
+						<div style="width:2px; height:2px;"></div>
+					    <tabbox vflex="1" hflex="1">
+					        <tabs>
+					            <tab label="通知" />
+					            <tab label="警告" />
+					        </tabs>
+					        <tabpanels>
+					            <tabpanel style="background:#FFFFFF">
+					            	<textbox id="txNotify" style="background:#FFFFFF; font-size:50%; color:#000000 !important; opacity:1" vflex="1" hflex="1" multiline="true" disabled="true"></textbox>
+					            </tabpanel>
+					            <tabpanel style="background:#FFFFFF">
+					            	<textbox id="txWarning" style="background:#FFFFFF; font-size:50%; color:#000000 !important; opacity:1" vflex="1" hflex="1" multiline="true" disabled="true"></textbox>
+					            </tabpanel>
+					        </tabpanels>
+					    </tabbox>
+					</vlayout>
+					<div style="width:5px; height:5px;"></div>
+				</hlayout>
+			</div>
+		</div>
+    	<grid sclass="grid-max-height" vflex="1" hflex="max" span="true" oddRowSclass="none" style="overflow:none; background:#666666; border:0px; padding:0px !important">
+			<columns sizable="false">
+				<column label="" />
+				<column label="" />
+				<column label="" />
+				<column label="" />
+				<column label="" />
+			</columns>
+			<rows>
+				<row>
+					<cell style="background:#666666; border:0px; height:1px; padding:0px !important" colspan="5">
+						<separator style="background:#666666; color:#666666; height:1px"/>	
+					</cell>
+				</row>
+				<row>
+					<cell style="border:0px;background:#666666;padding:2px !important;"> <button id="btStart" sclass="pmain-button" hflex="1" vflex="1" label="Start" /> </cell>
+					<cell style="border:0px;background:#666666;padding:2px !important;"> <button id="btEnd" sclass="pmain-button" hflex="1" vflex="1" label="End" /> </cell>
+					<cell style="border:0px;background:#666666;padding:2px !important;"> <button id="btDetail" sclass="pmain-button" hflex="1" vflex="1" label="Detail"/> </cell>
+					<cell style="border:0px;background:#666666;padding:2px !important;"> <button id="btRefresh" sclass="pmain-button" hflex="1" vflex="1" label="Refresh"> </button></cell>
+					<cell style="border:0px;background:#666666;padding:2px !important;"> <button id="btExit" sclass="pmain-button" hflex="1" vflex="1" label="Exit"> </button></cell>
+				</row>
+			</rows>
+		</grid>	
+		</vbox>
+	</window>
+</zk>

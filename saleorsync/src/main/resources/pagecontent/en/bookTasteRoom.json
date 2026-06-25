@@ -1,0 +1,57 @@
+{
+  "intro": {
+    "tag": "Reserve your tasting experience today",
+    "title": "Booking a Tasting Room",
+    "desc": "Lorem ipsum dolor sit amet, ut essent ornatus antiopam eum, ex oblique mnesarchum reprimique has. No vel prima offendit.",
+    "cta": "Buy Wine"
+  },
+  "s1": {
+    "tag": "Savor wines from vine to pour",
+    "title": "Vineyard to Glass",
+    "paras": [
+      "Lorem ipsum dolor sit amet, ut essent ornatus antiopam eum, ex oblique mnesarchum reprimique has. No vel prima offendit, est ne tation lobortis senserit. Wisi libris moderatius vis eu, no eam ridens mollis,",
+      "Lorem ipsum dolor sit amet, ut essent ornatus antiopam eum, ex oblique mnesarchum reprimique has. No vel prima offendit, est ne tation lobortis senserit. Wisi libris moderatius vis eu, no eam ridens mollis,",
+      "Lorem ipsum dolor sit amet, ut essent ornatus antiopam eum, ex oblique mnesarchum reprimique has. No vel prima offendit, est ne tation lobortis senserit. Wisi libris moderatius vis eu, no eam ridens mollis,"
+    ],
+    "ctaGuides": "Wine Guides",
+    "ctaContact": "Contact Wine Cave"
+  },
+  "s2": {
+    "tag": "Delicious bites, delightful sips, every time",
+    "title": "Happy Hour Done Right",
+    "subtitle": ".Flights. Bites. Pours.",
+    "desc": "You work hard during the week—now it’s time to sip back and relax. Join us for Happy Hour from 4–6pm with great wine, bites, and end-of-day vibes.",
+    "cards": [
+      {
+        "title": "West Chester Wednesdays",
+        "text": "$10 house pours of red, white, or rosé—plus Happy Hour Food Menu all day—exclusively for those who live or work in West Chester."
+      },
+      {
+        "title": "Thirsty Thursday",
+        "text": "$5 off wine flights, $10 off bottles (on-prem), and $1 off beer—plus our full Happy Hour food menu."
+      },
+      {
+        "title": "9 for 5 Fridays",
+        "text": "Get select 9oz pours for the price of a 5oz glass, $1 off beer—plus our full Happy Hour food menu."
+      }
+    ]
+  },
+  "s3": {
+    "tag": "Discover your perfect pour",
+    "title": "Handcrafted Wines. Inspired Place. Culinary Experience.",
+    "hours": {
+      "label": "Hours of Operation",
+      "monTue": "Mon – Tue: Closed",
+      "wedThu": "Wed – Thu: 4pm–9pm",
+      "fri": "Fri: 4pm–10pm",
+      "sat": "Sat: 12pm–10pm",
+      "sun": "Sun: 12pm–7pm"
+    },
+    "paras": [
+      "Lorem ipsum dolor sit amet, ut essent ornatus antiopam eum, ex oblique mnesarchum reprimique has. No vel prima offendit, est ne tation lobortis senserit. Wisi libris moderatius vis eu, no eam ridens mollis,",
+      "Lorem ipsum dolor sit amet, ut essent ornatus antiopam eum, ex oblique mnesarchum reprimique has. No vel prima offendit, est ne tation lobortis senserit. Wisi libris moderatius vis eu, no eam ridens mollis,"
+    ],
+    "ctaGuides": "Wine Guides",
+    "ctaContact": "Contact Wine Cave"
+  }
+}

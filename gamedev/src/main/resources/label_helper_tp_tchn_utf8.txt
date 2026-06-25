@@ -1,0 +1,86 @@
+﻿Edit menu item
+編輯選單項目
+Sort menu item
+排序選單項目
+Add all menu item
+添加所有選單項目
+Remove all menu item
+刪除所有選單項目
+Save menu item
+保存選單項目
+Cancel changes
+取消更改
+Record Detail
+記錄詳情
+Import Preset
+導入預設
+Export Preset
+導出預設
+Print records
+打印記錄
+View/Edit record
+查看/編輯記錄
+Data Analysis
+數據分析
+Import data
+導入數據
+Import data G2
+導入數據G2
+Export data
+導出數據
+Help
+幫助
+Tour
+旅遊
+Delete
+刪除
+Width by data
+數據寬度
+To filter type and hit enter
+過濾類型並按 Enter鍵
+Update Custom BiView
+更新自定義 BiView
+%d Records Loaded at %s
+%d條記錄已在%s加載
+Enter Maintenance Mode
+進入維護模式
+Exit Maintenance Mode
+退出維護模式
+Cell merge common master record field
+單元格合併公共主記錄字段
+Used as input template. e.g. dropdown list for option field, Greyed out for readonly column,..
+用作輸入模板。 例如選項字段的下拉列表，只讀列變灰，..
+Include detail record data fields
+包括詳細記錄數據字段
+Please enter search condition and hit enter
+請輸入搜索條件並按回車鍵
+Visit view
+訪問視圖
+Copy to clipboard
+複製到剪貼板
+Cleanup current page
+清理當前頁面
+Add Item
+增加項目
+Insert Item
+插入項目
+Delete Item
+刪除項目
+Edit Item
+編輯項目
+Save New Record
+保存新記錄
+Upload Attachement
+上傳檔案
+Aggregate Column
+聚合列
+Pivot Column
+數據透視列
+Sum of %s Subtotal
+%s 小計總和
+Sum of %s
+%s 總和
+Readonly. You can click Clear Button to remove it
+只讀。 您可以點擊“清除”按鈕將其刪除
+Clear Input and Remeber Me
+清除輸入並記住我

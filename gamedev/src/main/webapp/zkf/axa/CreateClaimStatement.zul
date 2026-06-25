@@ -1,0 +1,21 @@
+<zk>
+<div width="600px" align="center">
+	<vlayout>
+		<hlayout>
+			<label>From : </label>
+			<datebox id="fromdate"> </datebox>
+			<label>To : </label>
+			<datebox id="todate"> </datebox>
+		</hlayout>
+		<hlayout>
+			<label>Email Address: </label>
+			<textbox id="emailAddrs" width="400px"> </textbox>
+		</hlayout>
+		<hlayout>
+			<button id="btDownload" label="Download"></button>
+			<button id="btSendMail" label="Send Email"></button>
+			<button id="btCancel" label="Cancel"></button>
+		</hlayout>
+	</vlayout>
+</div>
+</zk>

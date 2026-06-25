@@ -1,0 +1,49 @@
+<zk xmlns:n="native">
+	<toolbar id="detail_toolbar" align="end">
+		<button id="btReceiveCtr" label="Receive From Central" visible="true"></button>
+	 </toolbar>
+			<bs-row style="padding-right:10px">
+			<!--
+				<zkbitextbox jxId="stm_ref1" labelWidth="30%" compWidth="70%" template="tstmref1" >
+						<template name="tstmref1">
+							<div sclass="zkbitextbox-lb-div" hflex="1" align="right">
+					 		<image id="bc_status" src="images/001-barcode.png" height="30px"/>
+							</div>
+						</template>	
+				</zkbitextbox>
+				-->
+				<zkbitextbox jxId="stm_ref1" labelWidth="30%" compWidth="70%" > </zkbitextbox>
+				<zkbilistbox jxId="tloc_desc" labelWidth="30%" compWidth="70%"></zkbilistbox>
+				<zkbitextbox jxId="stm_ctrspec" labelWidth="30%" compWidth="70%" textboxRows="2"></zkbitextbox>
+				<zkbidatebox jxId="stm_date" labelWidth="30%" compWidth="70%" ></zkbidatebox>
+				<zkbidatebox jxId="stm_nref1" labelWidth="30%" compWidth="70%" ></zkbidatebox>
+				<zkbilistbox jxId="stm_status" labelWidth="30%" compWidth="70%"></zkbilistbox>
+			</bs-row>
+	<template name="template_erpv4_MoDetPosTfr_st_icode">
+		<vlayout>
+		<bandbox id="st_icode" use="com.uniinformation.jx.zk.ZkJxPickInput"/>
+		<label id="st_iname"></label>
+		</vlayout>
+	</template>
+	<template name="template_erpv4_MoDetPosTfr_stmd_ref4" twidth="300px">
+		<vlayout>
+		<listbox id="stmd_ref4" width="100%" mold="select" height="20px"></listbox>
+		<hlayout>
+		<datebox id="stmd_exprdate"></datebox>
+		<textbox id="stmd_lotno"></textbox>
+		</hlayout>
+		</vlayout>
+	</template>
+	<template name="template_erpv4_MoDetPosTfr_stmd_entryqty" twidth="120px">
+		<vlayout>
+			<doublebox id="stmd_entryqty" width="100%"></doublebox>
+			<listbox id="stmd_entryunit" width="100%" mold="select"></listbox>
+			<!--
+			<hlayout>
+				<div width="10%"><label>@</label></div>
+				<doublebox id="stmd_uprice" width="90%"></doublebox>
+			</hlayout>
+			-->
+		</vlayout>
+	</template>
+</zk>

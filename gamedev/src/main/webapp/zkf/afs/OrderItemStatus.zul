@@ -1,0 +1,13 @@
+<zk>
+	<div style="background:white" align="center">
+		<vlayout>
+		<div style="text-align:center;">
+			<label id="rpttitle" style="font-weight: bold;font-size:30px !important;" ></label>
+		</div>
+		</vlayout>
+	</div>
+	<hlayout>
+		<div align="center">
+		</div>
+	</hlayout>
+</zk>

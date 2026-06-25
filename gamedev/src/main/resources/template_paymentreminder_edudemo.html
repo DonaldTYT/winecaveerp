@@ -1,0 +1,145 @@
+<html>
+<head>
+<meta charset="UTF-8">
+<style>
+    @media only screen and (max-width:699px) {
+		p.pr-title, p.pr-subtitle {
+			font-size: 18px !important;
+		}
+    	div.hd-right {
+    		display: none !important;
+    	}
+    	div.hd-bottom {
+    		display: block !important;
+    	}
+	}
+    @media only screen and (min-width:700px) {
+	}
+    @media only print {
+    	.links-for-email {
+    		display: none !important;
+    	}
+    	.links-for-print {
+    		display: table !important;
+    	}
+    	.mailto-for-email {
+    		display: none !important;
+    	}
+    	.mailto-for-print {
+    		display: inline !important;
+    	}
+    	.div-main {
+    		width: 210mm !important;
+    		padding: 50px 50px 0 50px;
+    	}
+    }
+}
+</style>
+</head>
+<body style='font-family:Tahoma,Geneva,sans-serif'>
+	<div class="div-main" style='display:table;width:100%;max-width:800px;margin:auto;font-size:14px;color:black'>
+		<div style='display:table;width:100%'>
+			<div style='display:table-cell'>
+				<div style='display:table'>
+					<div style='display:table-cell;height:100px;width:100px;line-height:100px;border:1px solid white;text-align:center;background:lightgrey'>IMAGE</div>
+					<div style='display:table-cell;width:0'></div>
+					<div style='display:table-cell;height:100px;width:100px;line-height:100px;border:1px solid white;text-align:center;background:lightgrey'>IMAGE</div>
+				</div>
+				<p class='pr-subtitle' style='font-size:20px;margin-block-start:1em;margin-block-end:1em'>DEMO EDU CENTRE</p>
+			</div>
+			<div class='hd-right' style='display:table-cell;width:250px'>
+				School Registration Number : 123456A<br/><br/>
+				Date : ${date}
+			</div>
+		</div>
+		<div class='hd-bottom' style='display:none'>
+			School Registration Number : 123456A<br/><br/>
+			Date : ${date}
+		</div>
+		<div style='display:table;width:100%'>
+			<p class='pr-title' style='font-size:24px;text-decoration:underline;text-align:center;margin-block-start:1em;margin-block-end:1em'>INVOICE</p>
+			<div style='display:${invoice_number_display}'>Invoice Number : ${invoice_number}</div>
+			<div>Name of Student : ${name_of_student}</div>
+			<div>Course Name : ${course_name}</div>
+			<div style='display:${first_session_date_display}'>First Session Date : ${first_session_date}</div>
+			<div>Time : ${days} ${time}</div>
+			<div>Course Fee : ${subscription_fee}</div>
+			<div style='display:${adjustment_display}'>Adjustment : ${adjustment}</div>
+			<div style='display:${adjusted_fee_display}'>Adjusted Course Fee : ${adjusted_fee}</div>
+		</div>
+		<br/>
+		<br/>
+		<div style='background-color:lightgray;height:1px'></div>
+		<br/>
+		<div>
+			<p>Payment Methods:</p>
+			<ol>
+				<li>Cheque made payable to "Demo Edu Centre"<br/>
+					Address: RM 1001, 1/F, DEMO BUILDING, HONG KONG
+					
+  				</li>
+  				<br/>
+				<li>Direct deposit:<br/>
+					Bank name: <b>Demo Edu Bank Limited</b><br/>
+					Account name: <b>"Demo Edu Centre"</b><br/>
+					Bank code: <b>123</b><br/>
+					Account No.: <b>1234-5678-9</b><br/>
+					(Kindly send us a copy of the deposit slip for our record purpose)<br/>
+					(Please input the <b>NAME OF THE STUDENT</b> as reference)
+  				</li>
+  				<br/>
+			</ol>
+		</div>
+		<br/>
+		<div style='display:${attendance_history_display}'>
+			<span style='text-decoration:underline'>Student Attendance History</span>
+			<div style='height:5px'></div>
+			<div style='display:table'>
+				<!-- 
+				<div style='display:table-row'>
+					<div style='display:table-cell'>Date</div>
+					<div style='display:table-cell;padding-left:10px'>Session No</div>
+					<div style='display:table-cell;padding-left:10px'>Status</div>
+				</div>
+				 -->
+				${attendance_history_header}
+				<div style='display:table-row;height:5px'></div>
+				${attendance_history_rows}
+				<!-- 
+				<div style='display:${attendance_history_row0_display}'>
+					<div style='display:table-cell'>${attendance_history_date0}</div>
+					<div style='display:table-cell;padding-left:10px'>${attendance_history_sessionno0}</div>
+					<div style='display:table-cell;padding-left:10px'>${attendance_history_status0}</div>
+				</div>
+				 -->
+			</div>
+		</div>
+		<br/>
+		<br/>
+		<div>Yours faithfully,</div>
+		<div style='height:100px;width:100px;line-height:100px;border:1px solid white;text-align:center;background:lightgrey'>IMAGE</div>
+		<div>Demo Edu Centre</div>
+		<div>Tel: 1234 5678</div>
+		<div>Address: RM 1001, 1/F, DEMO BUILDING, HONG KONG</div>
+		<div>email: 
+			<a class='mailto-for-email' href='mailto:info@decoders-ls.com'>edudemo@erpv4.com</a>
+			<span class='mailto-for-print' style='display:none;color:#007bff'>edudemo@erpv4.com</span>
+		</div>
+		<br/>
+		<div class='links-for-email' style='display:table'>
+			<img style='display:table-cell;height:50px' src=${link_logo2}>
+			<div style='display:table-cell;width:5px'></div>
+			<img style='display:table-cell;height:50px' src=${link_logo3}>
+			<div style='display:table-cell;width:5px'></div>
+			<img style='display:table-cell;height:50px' src=${link_logo4}>
+		</div>
+		<div class='links-for-print' style='display:none'>
+			<img style='display:table-cell;height:50px' src=${link_logo2}>
+			<div style='display:table-cell;width:5px'></div>
+			<img style='display:table-cell;height:50px' src=${link_logo3}>
+			<div style='display:table-cell;width:5px'></div>
+			<img style='display:table-cell;height:50px' src=${link_logo4}>
+		</div>
+	</div>
+</body>
+</html>

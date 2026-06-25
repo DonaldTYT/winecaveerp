@@ -1,0 +1,9 @@
+<zk>
+<div align="center">
+	<vlayout>
+	<label style="font-size:200% !important;">Please Scan the barcode on the product packing</label>
+	<div height="30px"/>
+	<button id="btCancel" label="Cancel"></button>
+	</vlayout>
+</div>
+</zk>

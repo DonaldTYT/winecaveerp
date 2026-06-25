@@ -1,0 +1,88 @@
+<zk>
+<style>
+<!-- 210602 obsoleted replaced by zkbi-whitebg
+.grid_nohover_noselect tr.z-row td.z-row-inner, tr.z-row .z-cell,div.z-grid { 
+	background:white !important; 
+	-webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+div.grid_nohover_noselect div.z-grid-body {
+    height: auto !important;
+}
+ -->
+.z-grid div.z-grid-body {
+    height: auto !important;
+}
+
+</style>
+
+<separator spacing="20px" />
+<window sclass="zklogin" border="none" width="400px" title="" apply="com.uniinformation.jx.zk.DeviceLogin" id="winMain" style="padding:0px !important">
+    <grid sclass="zkbi-whitebg" hflex="1">
+        <columns>
+            <column hflex="1"/>
+        </columns>
+        <auxhead id="auxhead" visible="false">
+            <auxheader>
+            	<hbox align="center" hflex="1">
+	            	<vbox hflex="1">
+	            		<hbox hflex="1">
+	            			<image style="margin:3px; height:16px;" src="images/icons/zkweb/085-lock-20x20.png"></image>
+	        				<label id="lbSystemLogin" style="font-weight: bold;" value="System Login"></label>
+	            		</hbox>
+	            	</vbox>
+            	</hbox>
+            </auxheader>
+        </auxhead>
+        <rows>
+        	<row hflex="1">
+        		<vbox align="center">
+        		<image id="co_logo" style="padding-top:20px" width="80%" visible="false"></image>
+        		</vbox>
+        	</row>
+            <row hflex="1">
+            	<vbox hflex="1">
+            		<space height="10px"></space>
+            		<vbox hflex="1">
+            			<hbox style="margin-top:10px;" hflex="1">
+            				<space width="40px"/>
+                			<textbox id="txLoginId" hflex="1"></textbox>
+            				<space width="40px"/>
+            			</hbox>
+            		</vbox>
+            		<space height="5px"></space>
+            		
+            		<vbox hflex="1">
+            			<hbox style="margin-top:10px;" hflex="1">
+            				<space width="40px"/>
+		                	<textbox id="txPassword" hflex="1" type="password"/>
+            				<space width="40px"/>
+            			</hbox>
+            		</vbox>
+            		
+	            	<space height="30px"></space>
+	                <hbox hflex="1" pack="end">
+	              		<checkbox sclass="zkbi-col-label" id="cbKeepMeSignedIn" label="Keep me signed in" checked="true" />
+	       				<space width="10px"/>
+	                    <zkbibutton id="btSubmit" label="Submit" disabled="true"/>
+	                    <zkbibutton style="display:none" id="btReset" label="Reset" />
+	       				<space width="40px"/>
+	                </hbox>
+	                
+       		        <space height="25px"/>
+            	
+            	</vbox>
+            </row>
+        </rows>
+    </grid>
+    <span style="position:fixed; top:5px; right:5px;">
+		<s2listbox id="s2Agents" width="150px"></s2listbox>
+    </span>
+    <html id="htmlSysEnv" sclass="htmlsysenv" style="position:fixed;bottom:2px;right:5px;white-space:pre; color:grey; font-size:10px !important; line-height:initial !important;"></html>
+    
+</window>
+</zk>

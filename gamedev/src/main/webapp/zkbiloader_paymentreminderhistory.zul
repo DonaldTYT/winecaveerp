@@ -1,0 +1,20 @@
+<zk>
+<zscript>
+<![CDATA[
+	String composer = "ZkBiComposerBase";
+	String classPrefix = "com.uniinformation.zkbi.";
+	if (Executions.getCurrent().getParameter("composer") != null){
+		composer = Executions.getCurrent().getParameter("composer").trim();
+	}
+	if (Executions.getCurrent().getParameter("prefix") != null){
+		classPrefix = "com.uniinformation."+Executions.getCurrent().getParameter("prefix").trim()+".";
+	}
+]]></zscript>
+<window id="zkbibrowser" apply="${classPrefix}${composer}" border="none"
+>
+	<custom-attributes listboxHeight="css"/>
+	<listbox id="browser_listbox">
+		<custom-attributes composite="map" tttMap="estt_name='Tutor Name', eaav0_sessionday='Course Days', eaav0_sessiontime='Course Time', eaav0_sessionlen='Course Duratin(Min)', esprh_sremcnt='Session remain', esprh_finsdate='Final Subscription Date', esprh_remtime='Payment Reminder Generation Date', essd_sdno='Student Code', essd_name='Student Name', esprh_toemail='Student Email Address', esprh_status='Payment Reminder Status \nOK/FAIL', esprh_result='Payment Reminder Result Detail', esprh_remuser='Payment Reminder Create User', eaav0_code='Course Code', eaav0_name='Course Name',esprh_rg='Internal Reference Number' " ></custom-attributes>
+	</listbox>
+</window>
+</zk>

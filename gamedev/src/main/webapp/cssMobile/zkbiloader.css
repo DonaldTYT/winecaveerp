@@ -1,0 +1,14 @@
+[class*="z-window"]:not([class*="z-window-icon"]) {
+	max-width: 100%;
+}
+.z-page{
+	padding-left: 1px;
+	padding-right: 1px;
+}
+.zkbi-main-window{
+  padding: 0px! important;
+  margin: 0 auto;  
+}
+.zkbi-main-listbox .z-listcell-content {
+	padding: 3px 6px !important;
+}

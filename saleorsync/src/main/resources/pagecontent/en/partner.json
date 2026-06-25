@@ -1,0 +1,56 @@
+{
+  "intro": {
+    "tag": "Uncorking Stories, Flavors, and Experiences",
+    "title": "Partner with Us for Success",
+    "desc": "At Wine Cave, we believe the best partnerships are built on trust, transparency, and shared passion. Collaborate with us to unlock growth opportunities and deliver unforgettable wine experiences.",
+    "cta": "Become a partner"
+  },
+  "s1": {
+    "tag": "Unlock opportunities, maximize growth, and achieve success together.",
+    "title": "Why Partner With Us?",
+    "desc": "At Wine Cave, we provide exceptional wine & spirits consignment services tailored for traders and private clients around the globe. Our state-of-the-art HKQAA Certified facilities, combined.",
+    "cards": [
+      {
+        "img": "/Welcoming.png",
+        "titleLeft": "Welcoming.",
+        "subtitle": "Anyone Who Loves Wine.",
+        "body": "We welcome passionate partners—from creators to curators—who want to bring great bottles and stories to more people."
+      },
+      {
+        "img": "/empowering.png",
+        "titleLeft": "Empowering.",
+        "subtitle": "A Community.",
+        "body": "Together we build a supportive ecosystem with resources, marketing exposure, and operational backing."
+      },
+      {
+        "img": "/elevating.png",
+        "titleLeft": "Elevating.",
+        "subtitle": "Your Craftsmanship.",
+        "body": "Showcase your work through curated activations, storytelling, and experiences that elevate your brand."
+      }
+    ]
+  },
+  "s2": {
+    "tag": "Join Our Journey Today for Success",
+    "title": "Our Partner Experience, Beyond Expectations",
+    "desc": "From promotion to operations, we collaborate closely to design programs that drive visibility, conversion, and long-term value.",
+    "cta": "Become a partner",
+    "services": [
+      {
+        "img": "/Resale.png",
+        "title": "Resale",
+        "text": "Professional resale programs with trusted logistics, storage, and compliant operations."
+      },
+      {
+        "img": "/Storytelling.png",
+        "title": "Storytelling",
+        "text": "Editorial, social, and event narratives that highlight your craft and connect with audiences."
+      },
+      {
+        "img": "/event.png",
+        "title": "Events",
+        "text": "Tastings and bespoke experiences designed to engage guests and strengthen your brand."
+      }
+    ]
+  }
+}

@@ -1,0 +1,68 @@
+<zk xmlns:n="native">
+	<style dynamic="true">
+		div.z-grid.zkbi-detail-grid > div.z-grid-body {
+			height: auto;
+		}
+		div.z-grid.zkbi-detail-grid {
+		   border: 1px solid transparent;
+		}
+		div.zkbifdiv-lbdiv {
+		    min-width: 0px;
+		    width: 100px;
+		}
+		div.zkbidiv > div.z-hlayout-inner:first-child > div.z-div {
+		    width: 100px !important;
+		}	
+		button.z-button.hasrecord {
+			background: MediumSeaGreen !important;
+		}
+	</style>
+	<div class="zkbi-detail-toolbar-container">
+		<div class="zkbi-detail-toolbar-leftarea">
+		</div>
+		<toolbar id="detail_toolbar" align="end">
+			<button id="btChangePeriod" label="Change Period"><custom-attributes tlkey="bt_chg_period"></custom-attributes></button>
+		</toolbar>
+	</div>
+	<div id="zkbiListTop" sclass="zkbi-detail-grid z-grid" width="100%" height="80vh">
+		<div>
+			<bs-row>
+				<div sclass="col-lg-3 col-sm-12">
+					<zkbidiv jxId="em_eid"/>
+					<zkbidiv jxId="em_stdate"/>
+					<zkbidiv jxId="em_enddate"/>
+				</div>
+				<div sclass="col-lg-9 col-sm-12">
+					<zkbidiv jxId="em_ename"/>
+					<zkbidiv jxId="em_chinname"/>
+					<hlayout>
+						<zkbidiv jxId="em_xperiodstdate"/>
+						<zkbidiv jxId="em_xperiodenddate" labelWidth="100% !important"/>
+					</hlayout>
+				</div>
+			</bs-row>
+		</div>
+		<separator height="20px"/>
+		<div vflex="1">
+			<listbox id="list_erpv4ext_Attendance" vflex="1"/>
+		</div>
+	</div>
+	<template name="template_Attendance_In0">
+		<vlayout id="at_xattin0"/>
+	</template>
+	<template name="template_Attendance_Out0">
+		<vlayout id="at_xattout0"/>
+	</template>
+	<template name="template_Attendance_In1">
+		<vlayout id="at_xattin1"/>
+	</template>
+	<template name="template_Attendance_Out1">
+		<vlayout id="at_xattout1"/>
+	</template>
+	<template name="template_Attendance_In2">
+		<vlayout id="at_xattin2"/>
+	</template>
+	<template name="template_Attendance_Out2">
+		<vlayout id="at_xattout2"/>
+	</template>
+</zk>

@@ -1,0 +1,64 @@
+{
+  "hero.tag": "更輕鬆、友善的在線寄賣平台",
+  "hero.h1": "如何透過我們的系統出售你的葡萄酒",
+  "hero.p": "Wine Cave 讓寄賣流程更簡單透明，從估價到結算一站式完成。",
+  "hero.button": "開始寄賣",
+
+  "flow.tagline": "更輕鬆、友善的在線寄賣平台",
+  "flow.h1": "如何透過我們的系統出售你的葡萄酒",
+  "flow.steps": [
+    {
+      "title": "提交酒單",
+      "content": "請將寄賣清單電郵至 sales@winecavehk.com，我們會儘快與你聯絡，並就酒款、售價建議及來源證明作出確認。"
+    },
+    {
+      "title": "估價核對",
+      "content": "專員會檢視品況與市場價格，並與你確認上架細節。"
+    },
+    {
+      "title": "上架銷售",
+      "content": "你的酒款將同步上架至我們的線上目錄與線下銷售渠道。"
+    },
+    {
+      "title": "售出結算",
+      "content": "酒款售出後，會依雙方約定條款安排款項結算。"
+    }
+  ],
+
+  "promo.tag": "為經典風味量身打造的推廣策略",
+  "promo.h2": "用 Wine Cave 放大你的酒款曝光",
+  "promo.p": "我們為全球貿易商與私人客戶提供專業的葡萄酒與烈酒寄賣服務。配備 HKQAA 認證設施，結合完善的線上銷售與線下渠道，確保你的珍藏獲得妥善管理與最大化價值。",
+  "promo.fallbackDesc": "我們提供專業且完善的寄賣服務，協助你的酒款更快找到買家。",
+  "promo.cards": [
+    { "title": "Wine-Searcher 曝光", "icon": "/WineSearcher.png" },
+    { "title": "社群媒體推廣", "icon": "/SocialMedia.png", "highlight": true, "desc": "以投放與貼文擴大觸及，帶動詢單。" },
+    { "title": "友善的線上寄賣平台", "icon": "/24Call.png" },
+    { "title": "低傭金、無最低訂單金額", "icon": "/LowCommission.png" },
+    { "title": "合規的葡萄酒與烈酒進出口牌照", "icon": "/LicensedImporting.png" },
+    { "title": "尊享客戶服務", "icon": "/PremiumCustomer.png" },
+    { "title": "全球配送", "icon": "/GlobalDelivery.png" },
+    { "title": "港交所上市公司監管", "icon": "/HKEXListed.png" }
+  ],
+
+  "announce.h3": "我們全新的「線上買賣與寄賣平台」正式上線！",
+
+  "contact.tag": "歡迎與我們聯絡。",
+  "contact.h3": "需要協助？",
+  "contact.p": "若你有任何疑問或需要協助，請留下訊息，我們將盡快回覆。",
+
+  "charges": {
+    "title": "寄賣收費",
+    "columns": {
+      "left": "單瓶售價",
+      "right": "佣金"
+    },
+    "rows": [
+      { "left": "HKD 800 或以下", "right": "HKD 60 / 瓶" },
+      { "left": "HKD 1,500 或以下", "right": "售價的 10%" },
+      { "left": "HKD 3,500 或以下", "right": "售價的 8%" },
+      { "left": "HKD 5,000 或以下", "right": "售價的 6%" },
+      { "left": "高於 HKD 5,000", "right": "售價的 5%" }
+    ],
+    "note": ""
+  }
+}

@@ -1,0 +1,18 @@
+<?page title="new page title" contentType="text/html;charset=UTF-8"?>
+<zk>
+	<toolbar id="detail_toolbar" align="end">
+		<button id="btUpload" label="Upload" visible="true"></button>
+		<button id="btView" label="View" visible="true"></button>
+	</toolbar>
+	<div id="pdfview" visible="false">
+	<div width="100%" sclass="zkpdf" id="pdfcontent"></div>
+	<separator spacing="5px" />	
+	<hbox id="zkPdfActionBar" pack="center" width="100%">
+	<!-- 
+		<button visible="true" style="" id="btDownloadPdf" label="Download"/>
+		<button visible="true" style="" id="btPrintPdf" label="Print"/>
+	 -->
+		<button visible="true" style="" id="btClosePdf" label="Close Viewer"/>
+	</hbox>
+	</div>
+</zk>

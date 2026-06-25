@@ -1,0 +1,125 @@
+<zk xmlns:n="native">
+	<zkbi-form id="winMain" apply="com.uniinformation.zkbi.test.ZkBiComposerTestBS">
+		<zkbi-form-header value="Test BS"></zkbi-form-header>
+		<zkbi-form-content>
+			<bs-row><label value="321:"></label></bs-row>
+			<bs-row>
+				<bs-col-321>
+					<zkbitextbox jxId="tf1" labelWidth="50%" textboxWidth="50%" label="haha label1" textbox="haha value1"></zkbitextbox>
+					<zkbitextbox label="haha label2" textbox="haha value2"></zkbitextbox>
+					<zkbitextbox label="haha label3" textbox="haha value3"></zkbitextbox>
+				</bs-col-321>
+				<bs-col-321>
+					<zkbitextbox label="haha label4" textbox="haha value4"></zkbitextbox>
+					<zkbitextbox label="haha label5(longer)" textbox="haha value5"></zkbitextbox>
+					<zkbitextbox label="haha label6" textbox="haha value6"></zkbitextbox>
+				</bs-col-321>
+				<bs-col-321>
+					<zkbitextbox label="haha label7" textbox="haha value7"></zkbitextbox>
+					<zkbitextbox label="haha label8" textbox="haha value8"></zkbitextbox>
+				</bs-col-321>
+			</bs-row>
+			<bs-row><label value="311:"></label></bs-row>
+			<bs-row>
+				<bs-col-311>
+					<zkbitextbox label="haha label1" textbox="haha value1"></zkbitextbox>
+					<zkbitextbox label="haha label2" textbox="haha value2"></zkbitextbox>
+					<zkbitextbox label="haha label3" textbox="haha value3"></zkbitextbox>
+				</bs-col-311>
+				<bs-col-311>
+					<zkbitextbox label="haha label4" textbox="haha value4"></zkbitextbox>
+					<zkbitextbox label="haha label5(longer)" textbox="haha value5"></zkbitextbox>
+					<zkbitextbox label="haha label6" textbox="haha value6"></zkbitextbox>
+				</bs-col-311>
+				<bs-col-311>
+					<zkbitextbox label="haha label7" textbox="haha value7"></zkbitextbox>
+					<zkbitextbox label="haha label8" textbox="haha value8"></zkbitextbox>
+				</bs-col-311>
+			</bs-row>
+
+			<bs-row> <label value="211:"></label> </bs-row>
+			<bs-row>
+				<bs-col-211>
+					<zkbitextbox label="haha label1" textbox="haha value1"></zkbitextbox>
+					<zkbitextbox label="haha label2" textbox="haha value2"></zkbitextbox>
+					<zkbitextbox label="haha label3" textbox="haha value3"></zkbitextbox>
+				</bs-col-211>
+				<bs-col-211>
+					<zkbitextbox label="haha label4" textbox="haha value4"></zkbitextbox>
+					<zkbitextbox label="haha label5(longer)"
+						textbox="haha value5"></zkbitextbox>
+					<zkbitextbox label="haha label6" textbox="haha value6"></zkbitextbox>
+				</bs-col-211>
+			</bs-row>
+
+			<bs-row> <label value="221:"></label> </bs-row>
+			<bs-row>
+				<bs-col-221>
+					<zkbitextbox label="haha label1" textbox="haha value1"></zkbitextbox>
+					<zkbitextbox label="haha label2" textbox="haha value2"></zkbitextbox>
+					<zkbitextbox label="haha label3" textbox="haha value3"></zkbitextbox>
+				</bs-col-221>
+				<bs-col-221>
+					<zkbitextbox label="haha label4" textbox="haha value4"></zkbitextbox>
+					<zkbitextbox label="haha label5(longer)" textbox="haha value5"></zkbitextbox>
+					<zkbitextbox label="haha label6" textbox="haha value6"></zkbitextbox>
+				</bs-col-221>
+			</bs-row>
+			<bs-row>
+				<grid width="100%;">
+					<columns>
+						<column width="200px" label="col1" />
+						<column label="col2" />
+						<column width="500px" label="col" />
+						<column width="500px" label="col" />
+						<column width="500px" label="col" />
+					</columns>
+					<rows>
+						<row>
+							<cell> <label value="Item 1.1" /> </cell>
+							<cell> <label value="Item 1.2" /> </cell>
+							<cell> <label value="Item" /> </cell>
+							<cell> <label value="Item" /> </cell>
+							<cell> <label value="Item" /> </cell>
+						</row>
+						<row>
+							<cell> <label value="Item 2.1" /> </cell>
+							<cell> <label value="Item 2.2" /> </cell>
+							<cell> <label value="Item" /> </cell>
+							<cell> <label value="Item" /> </cell>
+							<cell> <label value="Item" /> </cell>
+						</row>
+					</rows>
+				</grid>
+			</bs-row>
+			<bs-row>
+				<grid width="100%;">
+					<columns>
+						<column width="200px" label="col1" />
+						<column label="col2" />
+						<column width="500px" label="col" />
+						<column width="500px" label="col" />
+						<column width="500px" label="col" />
+					</columns>
+					<rows>
+						<row>
+							<cell> <label value="Item 1.1" /> </cell>
+							<cell> <label value="Item 1.2" /> </cell>
+							<cell> <label value="Item" /> </cell>
+							<cell> <label value="Item" /> </cell>
+							<cell> <label value="Item" /> </cell>
+						</row>
+						<row>
+							<cell> <label value="Item 2.1" /> </cell>
+							<cell> <label value="Item 2.2" /> </cell>
+							<cell> <label value="Item" /> </cell>
+							<cell> <label value="Item" /> </cell>
+							<cell> <label value="Item" /> </cell>
+						</row>
+					</rows>
+				</grid>
+			</bs-row>
+
+		</zkbi-form-content>
+	</zkbi-form>
+</zk>

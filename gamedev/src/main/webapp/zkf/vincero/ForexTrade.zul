@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<zk>
+    <style>
+        #WhiteListcell {
+            background-color:white !important;
+        }
+
+        .z-listcell {
+            background-color: white !important;
+        }
+
+        #yP0Qh {
+            background-color: white !important;
+        }
+    </style>
+        <vlayout>
+            <!-- Title -->
+            <label value="Forex Trade Calculator" 
+                style="font-size:20px; font-weight:bold; color:white; background-color:navy; padding:10px; display:block; text-align:center;" 
+                width="100%"/>
+            
+            <hlayout width="100%" spacing="10px">
+                <!-- BUY Section -->
+                <vlayout hflex="1" style="border:1px solid green; padding:10px; width:50%;">
+
+                    <label value="BUY" 
+                        style="background-color:green; color:white; font-weight:bold; text-align:center; display:block; padding:5px;"/>
+                    
+                    <listbox width="100%">
+                        <listhead>
+                            <listheader label="Field" width="50%"/>
+                            <listheader label="Value" width="50%"/>
+                        </listhead>
+                        <listitem>
+                            <listcell label="Currency Pair:"/>
+                            <listcell><textbox id="fxtrd_bccypair" style="background:yellow; width: 100%;"/></listcell>
+                        </listitem>
+                        <listitem>
+                            <listcell style="background-color: #FDFDFD !important;" label="Entry:"/>
+                            <listcell style="background-color: #FDFDFD !important;"><doublebox id="fxtrd_bentry" value="0.0000" style="background:yellow; width: 100%;"/></listcell>
+                        </listitem>
+                        <listitem>
+                            <listcell label="SL (Stop Loss):"/>
+                            <listcell><doublebox id="fxtrd_bsl" value="0.0000" style="background:yellow; width: 100%;"/></listcell>
+                        </listitem>
+                        <listitem>
+                            <listcell style="background-color: #FDFDFD !important;" label="TP1 (Take Profit 1):"/>
+                            <listcell style="background-color: #FDFDFD !important;"><doublebox id="fxtrd_btp1" value="0.0000" style="background:yellow; width: 100%;"/></listcell>
+                        </listitem>
+                        <listitem>
+                            <listcell label="TP2 (Take Profit 2):"/>
+                            <listcell><doublebox id="fxtrd_btp2" value="0.0000" style="background:yellow; width: 100%;"/></listcell>
+                        </listitem>
+                    </listbox>
+
+                    <separator/>
+
+                    <!-- BUY Calculations -->
+                    <listbox width="100%">
+                        <listhead>
+                            <listheader label="Metric" width="50%"/>
+                            <listheader label="Value" width="50%"/>
+                        </listhead>
+                        <listitem>
+                            <listcell label="SL Distance:"/>
+                            <listcell><doublebox width="100%" id="fxtrd_bsldist" readonly="true"/></listcell>
+                        </listitem>
+                        <listitem>
+                            <listcell style="background-color: #FDFDFD !important;" label="TP1 Distance:"/>
+                            <listcell style="background-color: #FDFDFD !important;"><doublebox width="100%" id="fxtrd_btp1dist" readonly="true"/></listcell>
+                        </listitem>
+                        <listitem>
+                            <listcell label="TP2 Distance:"/>
+                            <listcell><doublebox width="100%" id="fxtrd_btp2dist" readonly="true"/></listcell>
+                        </listitem>
+                        <listitem>
+                            <listcell style="background-color: #FDFDFD !important;" label="Reward:Risk of TP1:"/>
+                            <listcell style="background-color: #FDFDFD !important;"><doublebox id="fxtrd_btp1risk" width="100%" readonly="true"/></listcell>
+                        </listitem>
+                        <listitem>
+                            <listcell label="Reward:Risk of TP2:"/>
+                            <listcell><doublebox id="fxtrd_btp2risk" width="100%" readonly="true"/></listcell>
+                        </listitem>
+                    </listbox>
+                </vlayout>
+
+                <!-- SELL Section -->
+                <vlayout hflex="1" style="border:1px solid red; padding:10px; width:50%; margin-right: 1px;">
+                    <label value="SELL" 
+                        style="background-color:red; color:white; font-weight:bold; text-align:center; display:block; padding:5px;"/>
+                    
+                    <listbox width="100%">
+                        <listhead>
+                            <listheader label="Field" width="50%"/>
+                            <listheader label="Value" width="50%"/>
+                        </listhead>
+                        <listitem>
+                            <listcell label="Currency Pair:"/>
+                            <listcell><textbox id="fxtrd_sccypair" style="background:yellow; width: 100%;"/></listcell>
+                        </listitem>
+                        <listitem>
+                            <listcell style="background-color: #FDFDFD !important;" label="Entry:"/>
+                            <listcell style="background-color: #FDFDFD !important;"><doublebox id="fxtrd_sentry" value="0.0000" style="background:yellow; width: 100%;"/></listcell>
+                        </listitem>
+                        <listitem>
+                            <listcell label="SL (Stop Loss):"/>
+                            <listcell><doublebox id="fxtrd_ssl" value="0.0000" style="background:yellow; width: 100%;"/></listcell>
+                        </listitem>
+                        <listitem>
+                            <listcell style="background-color: #FDFDFD !important;" label="TP1 (Take Profit 1):"/>
+                            <listcell style="background-color: #FDFDFD !important;"><doublebox id="fxtrd_stp1" value="0.0000" style="background:yellow; width: 100%;"/></listcell>
+                        </listitem>
+                        <listitem>
+                            <listcell label="TP2 (Take Profit 2):"/>
+                            <listcell><doublebox id="fxtrd_stp2" value="0.0000" style="background:yellow; width: 100%;"/></listcell>
+                        </listitem>
+                    </listbox>
+
+                    <separator/>
+
+                    <!-- SELL Calculations -->
+                    <listbox width="100%">
+                        <listhead>
+                            <listheader label="Metric" width="50%"/>
+                            <listheader label="Value" width="50%"/>
+                        </listhead>
+                        <listitem>
+                            <listcell label="SL Distance:"/>
+                            <listcell><doublebox width="100%" id="fxtrd_ssldist" readonly="true"/></listcell>
+                        </listitem>
+                        <listitem>
+                            <listcell style="background-color: #FDFDFD !important;" label="TP1 Distance:"/>
+                            <listcell style="background-color: #FDFDFD !important;"><doublebox id="fxtrd_stp1dist" width="100%" readonly="true"/></listcell>
+                        </listitem>
+                        <listitem>
+                            <listcell label="TP2 Distance:"/>
+                            <listcell><doublebox id="fxtrd_stp2dist" width="100%" readonly="true"/></listcell>
+                        </listitem>
+                        <listitem>
+                            <listcell style="background-color: #FDFDFD !important;" label="Reward:Risk of TP1:"/>
+                            <listcell style="background-color: #FDFDFD !important;"><doublebox id="fxtrd_stp1risk" width="100%" readonly="true"/></listcell>
+                        </listitem>
+                        <listitem>
+                            <listcell label="Reward:Risk of TP2:"/>
+                            <listcell><doublebox id="fxtrd_stp2risk" width="100%" readonly="true"/></listcell>
+                        </listitem>
+                    </listbox>
+                </vlayout>
+            </hlayout>
+			<div height="50px"> </div>
+			<div align="center">
+				<button width="200px" id="btSaveWorkSheet" label="Save Work Sheet"></button>
+				<button width="200px" id="btLoadWorkSheet" label="Load Work Sheet"></button>
+			</div>
+			<div height="50px"> </div>
+        </vlayout>
+</zk>

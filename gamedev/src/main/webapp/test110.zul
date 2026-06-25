@@ -1,0 +1,16 @@
+<zk>
+<div width="300px">
+<vlayout>
+<hlayout>
+<label style="font-size:8px">Name</label>
+<div hflex="min"></div>
+<label>Time</label>
+</hlayout>
+<label hflex="min" multiline="true">
+  <attribute name="value">line 1
+line 2</attribute>
+</label>
+      <rangeslider step="20" min="0" max="120" startValue="20" endValue="60"/>
+</vlayout>
+</div>
+</zk>

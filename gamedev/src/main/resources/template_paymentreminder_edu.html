@@ -1,0 +1,254 @@
+<html>
+<head>
+<meta charset="UTF-8">
+<style>
+    @media only screen and (max-width:699px) {
+		p.pr-title, p.pr-subtitle {
+			font-size: 18px !important;
+		}
+    	div.hd-right {
+    		display: none !important;
+    	}
+    	div.hd-bottom {
+    		display: block !important;
+    	}
+	}
+    @media only screen and (min-width:700px) {
+	}
+    @media only print {
+    	.links-for-email {
+    		display: none !important;
+    	}
+    	.links-for-print {
+    		display: table !important;
+    	}
+    	.mailto-for-email {
+    		display: none !important;
+    	}
+    	.mailto-for-print {
+    		display: inline !important;
+    	}
+    	.div-main {
+    		width: 210mm !important;
+    		padding: 50px 50px 0 50px;
+    	}
+    }
+}
+</style>
+</head>
+<body style='font-family:Tahoma,Geneva,sans-serif'>
+	<div class="div-main" style='display:table;width:100%;max-width:800px;margin:auto;font-size:14px;color:black'>
+		<div style='display:table;width:100%'>
+			<div style='display:table-cell'>
+				<div style='display:table'>
+					<img style='display:table-cell;height:100px' src=${logo1}>
+					<div style='display:table-cell;width:0'></div>
+					<img style='display:table-cell;height:100px' src=${logo2}>
+				</div>
+				<p class='pr-subtitle' style='font-size:20px;margin-block-start:1em;margin-block-end:1em'>LITTLE SCHOLARS EDUCATION CENTRE</p>
+			</div>
+			<div class='hd-right' style='display:table-cell;width:240px'>
+				School Registration Number : ${school_registration_number}<br/><br/>
+				Date : ${date}
+			</div>
+		</div>
+		<div class='hd-bottom' style='display:none'>
+			School Registration Number : ${school_registration_number}<br/><br/>
+			Date : ${date}
+		</div>
+		<div style='display:table;width:100%'>
+			<p class='pr-title' style='font-size:24px;text-decoration:underline;text-align:center;margin-block-start:1em;margin-block-end:1em'>INVOICE</p>
+			<div style='display:${invoice_number_display}'>Invoice Number : ${invoice_number}</div>
+			<div>Name of Student : ${name_of_student}</div>
+			<div>Course Name : ${course_name}</div>
+			<div style='display:${first_session_date_display}'>First Session Date : ${first_session_date}</div>
+			<div>Time : ${days} ${time}</div>
+			<div>Course Fee : ${subscription_fee}</div>
+			<div style='display:${adjustment_display}'>Adjustment : ${adjustment}</div>
+			<div style='display:${adjusted_fee_display}'>Adjusted Course Fee : ${adjusted_fee}</div>
+		</div>
+		<br/>
+		<br/>
+		<div style='background-color:lightgray;height:1px'></div>
+		<br/>
+		<div>
+			<p>Payment Methods:</p>
+			<ol>
+				<li>Cheque made payable to "Little Scholars Creative Workshop"<br/>
+					Address: 1/F, HOLLYWOOD CENTRE, 233 HOLLYWOOD ROAD, SHEUNG WAN, HONG KONG
+  				</li>
+  				<br/>
+				<li>Direct deposit:<br/>
+					Bank name: <b>Chong Hing Bank Limited</b><br/>
+					Account name: <b>"Little Scholars Creative Workshop"</b><br/>
+					Bank code: <b>041</b><br/>
+					Account No.: <b>256-20-369786-0</b><br/>
+					(Kindly send us a copy of the deposit slip for our record purpose)<br/>
+					(Please input the <b>NAME OF THE STUDENT</b> as reference)
+  				</li>
+  				<br/>
+				<li>FPS, ID: 
+					<a class='mailto-for-email' href='mailto:info@decoders-ls.com'>info@decoders-ls.com</a>
+					<span class='mailto-for-print' style='display:none;color:#007bff'>info@decoders-ls.com</span>
+					<br/>
+				    (Kindly send us a copy of the deposit slip for our record purpose)<br/>
+					(Please input the <b>NAME OF THE STUDENT</b> as reference)
+  				</li>
+			</ol>
+		</div>
+		<!-- 
+		<div class='content1' style='display:table'>
+			<div style='display:table-row'>
+				<div class='label'>School Registration Number</div>
+				<div class='colon'>:</div>
+				<div class='value'>${school_registration_number}</div>
+			</div>
+			<div style='display:table-row'>
+				<div class='label'>Registered Address</div>
+				<div class='colon'>:</div>
+				<div class='value'>${registered_address}</div>
+			</div>
+			<div style='display:table-row'>
+				<div class='label'>Telephone Number</div>
+				<div class='colon'>:</div>
+				<div class='value'>${telephone_number}</div>
+			</div>
+			<div style='display:table-row'>
+				<div class='label'>Date</div>
+				<div class='colon'>:</div>
+				<div class='value'>${date}</div>
+			</div>
+			<div style='display:table-row;height:18px'>
+			</div>
+			<div style='display:table-row'>
+				<div class='label'>Course Name</div>
+				<div class='colon'>:</div>
+				<div class='value'>${course_name}</div>
+			</div>
+			<div style='display:table-row'>
+				<div class='label'>Days</div>
+				<div class='colon'>:</div>
+				<div class='value'>${days}</div>
+			</div>
+			<div style='display:table-row'>
+				<div class='label'>Time</div>
+				<div class='colon'>:</div>
+				<div class='value'>${time}</div>
+			</div>
+			<div style='display:table-row'>
+				<div class='label'>Subscription Fee</div>
+				<div class='colon'>:</div>
+				<div class='value'>${subscription_fee}</div>
+			</div>
+			<div style='display:${adjustment_display}'>
+				<div class='label'>Adjustment</div>
+				<div class='colon'>:</div>
+				<div class='value'>${adjustment}</div>
+			</div>
+			<div style='display:${adjusted_fee_display}'>
+				<div class='label'>Adjusted Fee</div>
+				<div class='colon'>:</div>
+				<div class='value'>${adjusted_fee}</div>
+			</div>
+			<div style='display:table-row;height:18px'>
+			</div>
+			<div style='display:table-row'>
+				<div class='label'>Name of Student</div>
+				<div class='colon'>:</div>
+				<div class='value'>${name_of_student}</div>
+			</div>
+			<div style='display:table-row'>
+				<div class='label'>Session Remain</div>
+				<div class='colon'>:</div>
+				<div class='value'>${session_remain}</div>
+			</div>
+		</div>
+		 -->
+		<br/>
+		<div style='display:${attendance_history_display}'>
+			<span style='text-decoration:underline'>Student Attendance History</span>
+			<div style='height:5px'></div>
+			<div style='display:table'>
+				<!-- 
+				<div style='display:table-row'>
+					<div style='display:table-cell'>Date</div>
+					<div style='display:table-cell;padding-left:10px'>Session No</div>
+					<div style='display:table-cell;padding-left:10px'>Status</div>
+				</div>
+				 -->
+				${attendance_history_header}
+				<div style='display:table-row;height:5px'></div>
+				${attendance_history_rows}
+				<!-- 
+				<div style='display:${attendance_history_row0_display}'>
+					<div style='display:table-cell'>${attendance_history_date0}</div>
+					<div style='display:table-cell;padding-left:10px'>${attendance_history_sessionno0}</div>
+					<div style='display:table-cell;padding-left:10px'>${attendance_history_status0}</div>
+				</div>
+				 -->
+			</div>
+		</div>
+		<br/>
+		<br/>
+		<div>Yours faithfully,</div>
+		<img style='height:100px' src=${logo3}>
+		<div>DECODERS Co. Ltd. / Little Scholars Creative Workshop</div>
+		<div>Tel: 2537 9519 / 2869 5777 / 3615 0117</div>
+		<div>Address: 1/F Hollywood Centre, 233 Hollywood Road, Sheung Wan, H.K.</div>
+		<div>email: 
+			<a class='mailto-for-email' href='mailto:info@decoders-ls.com'>info@decoders-ls.com</a>
+			<span class='mailto-for-print' style='display:none;color:#007bff'>info@decoders-ls.com</span>
+		</div>
+		<br/>
+		<div class='links-for-email' style='display:table'>
+			<a href='https://www.decoders-ls.com'><img style='display:table-cell;height:50px' src=${link_logo1}></a>
+			<div style='display:table-cell;width:5px'></div>
+			<a href='https://wa.me/+85251182819'><img style='display:table-cell;height:50px' src=${link_logo2}></a>
+			<div style='display:table-cell;width:5px'></div>
+			<a href='https://www.facebook.com/Little-Scholars-Creative-Workshop-102324619082325/'><img style='display:table-cell;height:50px' src=${link_logo3}></a>
+			<div style='display:table-cell;width:5px'></div>
+			<a href='https://www.instagram.com/littlescholarscreativeworkshop/'><img style='display:table-cell;height:50px' src=${link_logo4}></a>
+		</div>
+		<div class='links-for-print' style='display:none'>
+			<img style='display:table-cell;height:50px' src=${link_logo1}>
+			<div style='display:table-cell;width:5px'></div>
+			<img style='display:table-cell;height:50px' src=${link_logo2}>
+			<div style='display:table-cell;width:5px'></div>
+			<img style='display:table-cell;height:50px' src=${link_logo3}>
+			<div style='display:table-cell;width:5px'></div>
+			<img style='display:table-cell;height:50px' src=${link_logo4}>
+		</div>
+		<!-- 
+		<div style='background-color:lightgray;height:1px;margin-top:30px'></div>
+		<div style='margin-top:30px'>
+			<p><span style="font-size:14px"><span style="font-family:Tahoma,Geneva,sans-serif">Dear ${student_contact_person},</span></span></p>
+			<p><span style="font-size:14px"><span style="font-family:Tahoma,Geneva,sans-serif">Kindly note that it is time for ${student_first_name} to pay for next ${course_no_of_session} sessions.<br />
+				Please prepare payment of ${adjusted_course_fee_sessions} by one of the following methods:</span></span><br />
+			</p>
+			<ol>
+				<li><span style="font-size:14px"><span style="font-family:Tahoma,Geneva,sans-serif"> Cheque make payable to "Little Scholars Creative Workshop"<br />
+ 					(kindly send the cheque to us, or deposit to the bank and provide the pay-in slip)</span></span><br />
+  				</li>
+ 				<li><span style="font-size:14px"><span style="font-family:Tahoma,Geneva,sans-serif">Direct deposit:<br />
+ 					Bank name: <strong>Chong Hing Bank Limited</strong><br />
+ 					Account name: <strong>"Little Scholars Creative Workshop"</strong><br />
+					Bank code: <strong>041</strong><br />
+					Account No.: <strong>256-20-369786-0</strong></span></span><br />
+  				</li>
+ 				<li><span style="font-size:14px"><span style="font-family:Tahoma,Geneva,sans-serif">FPS,  ID:   info@decoders-ls.com</span></span><br />
+  				</li>
+			</ol>
+			<p><span style="font-size:14px"><span style="font-family:Tahoma,Geneva,sans-serif">and send us a copy of the deposit slip for our record purpose.</span></span></p>
+			<p><span style="font-size:14px"><span style="font-family:Tahoma,Geneva,sans-serif">Should you have any further questions, please do not hesitate to contact us.</span></span></p>
+			<p><br />
+				<span style="font-family:Tahoma,Geneva,sans-serif"><span style="font-size:8px"><strong><span style="color:#2980b9">DECODERS Co. Ltd. / Little Scholars Creative Workshop<br />
+				Tel: 2537 9519 / 2869 5777 / 3615 0117<br />
+				Address: 1/F Hollywood Centre, 233 Hollywood Road, Sheung Wan, H.K.<br />
+				email: info@decoders-ls.com<br />
+				www.decoders-ls.com</span></strong></span></span>
+			</p>
+		</div>
+		 -->
+	</div>
+</body>
+</html>

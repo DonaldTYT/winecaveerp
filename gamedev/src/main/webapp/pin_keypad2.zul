@@ -1,0 +1,64 @@
+<?page title="PIN Keypad" contentType="text/html;charset=UTF-8"?>
+<window id="root" title="PIN Entry" border="normal" width="340px"
+        apply="com.kikyosoft.zk.mlogin"
+        xmlns:w="client">
+    <style>
+        .keypad { margin-top:10px; }
+        .keypad .z-button { width:90px; height:64px; font-size:18px; }
+        .pinbox { font-size:18px; letter-spacing:6px; }
+    </style>
+
+    <script><![CDATA[
+        function _pinBox() { return zk.Widget.$("$pinBox"); }
+        function kbAppend(d){
+            var tb=_pinBox(); if(!tb) return;
+            var v=tb.getValue()||"";
+            if(v.length<6) tb.setValue(v + d);
+        }
+        function kbBack(){
+            var tb=_pinBox(); if(!tb) return;
+            var v=tb.getValue()||"";
+            if(v.length>0) tb.setValue(v.substring(0, v.length-1));
+        }
+    ]]></script>
+
+    <vlayout hflex="1" spacing="8px">
+        <label value="Enter PIN (max 6 digits)"/>
+        <textbox id="pinBox" type="password" readonly="true" maxlength="6"
+                 hflex="1" sclass="pinbox"/>
+
+        <grid sclass="keypad" sizedByContent="true">
+            <columns>
+                <column width="100px"/><column width="100px"/><column width="100px"/>
+            </columns>
+            <rows>
+                <row>
+                    <button label="1" w:onClick='kbAppend("1")'/>
+                    <button label="2" w:onClick='kbAppend("2")'/>
+                    <button label="3" w:onClick='kbAppend("3")'/>
+                </row>
+                <row>
+                    <button label="4" w:onClick='kbAppend("4")'/>
+                    <button label="5" w:onClick='kbAppend("5")'/>
+                    <button label="6" w:onClick='kbAppend("6")'/>
+                </row>
+                <row>
+                    <button label="7" w:onClick='kbAppend("7")'/>
+                    <button label="8" w:onClick='kbAppend("8")'/>
+                    <button label="9" w:onClick='kbAppend("9")'/>
+                </row>
+                <row>
+                    <button id="backspaceBtn" label="&lt;BS&gt;" w:onClick='kbBack()'/>
+                    <button label="0" w:onClick='kbAppend("0")'/>
+                    <!-- <ENT> goes to server; Composer listens to onClick -->
+                    <button id="enterBtn" label="&lt;ENT&gt;"
+                            w:onClick='(function(){ 
+                            var tb = zk.Widget.$("$pinBox");
+                            tb.fire("onChange", {value: tb.getValue()}, {toServer:true});
+                            })()'
+        			/>
+                </row>
+            </rows>
+        </grid>
+    </vlayout>
+</window>

@@ -1,0 +1,11 @@
+{
+  "mcpServers": {
+    "eclipse": {
+      "type": "streamable-http",
+      "url": "http://localhost:8124/mcp/eclipse-ide",
+      "headers": {
+        "Authorization": "Bearer e47aae41-84a6-4835-b3b3-1028c97deb9c"
+      }
+    }
+  }
+}

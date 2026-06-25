@@ -1,0 +1,46 @@
+<zk>
+<grid style="text-align:left;" id="detail_grid">
+	<columns>
+		<column align="right" hflex="min" />
+		<column hflex="1" />
+	</columns>
+	<rows>
+		<row>
+			<label hflex="1" id="lb_stdt_rg" value="stdt_rg"/>
+			<doublebox hflex="1" id="stdt_rg"/>
+		</row>
+		<row>
+			<label hflex="1" id="lb_stdt_name" value="stdt_name"/>
+			<textbox hflex="1" id="stdt_name"/>
+		</row>
+		<row>
+			<label hflex="1" id="lb_stdt_flags" value="stdt_flags"/>
+			<textbox hflex="1" id="stdt_flags"/>
+		</row>
+		<row>
+			<label hflex="1" id="lb_stdt_warranty" value="stdt_warranty"/>
+			<textbox hflex="1" id="stdt_warranty" rows="5"/>
+		</row>
+		<row>
+			<label hflex="1" id="lb_stdt_delivery" value="stdt_delivery"/>
+			<textbox hflex="1" id="stdt_delivery"/>
+		</row>
+		<row>
+			<label hflex="1" id="lb_stdt_remark" value="stdt_remark"/>
+			<textbox hflex="1" id="stdt_remark" rows="5"/>
+		</row>
+		<row>
+			<label hflex="1" id="lb_stdt_pays0" value="stdt_pays3"/>
+			<textbox hflex="1" id="stdt_pays3"/>
+		</row>
+		<row>
+			<label hflex="1" id="lb_stdt_pays1" value="stdt_pays1"/>
+			<textbox hflex="1" id="stdt_pays1"/>
+		</row>
+		<row>
+			<label hflex="1" id="lb_stdt_pays2" value="stdt_pays2"/>
+			<textbox hflex="1" id="stdt_pays2"/>
+		</row>
+	</rows>
+</grid>
+</zk>

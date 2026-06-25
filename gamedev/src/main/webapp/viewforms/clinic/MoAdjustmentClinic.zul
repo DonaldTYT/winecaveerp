@@ -1,0 +1,81 @@
+<zk xmlns:n="native">
+	<toolbar id="detail_toolbar" align="end"> </toolbar>
+			<bs-row style="padding-right:10px">
+			<!--
+				<zkbitextbox jxId="stm_ref1" labelWidth="30%" compWidth="70%" template="tstmref1" >
+						<template name="tstmref1">
+							<div sclass="zkbitextbox-lb-div" hflex="1" align="right">
+					 		<image id="bc_status" src="images/001-barcode.png" height="30px"/>
+							</div>
+						</template>	
+				</zkbitextbox>
+				-->
+				<zkbitextbox jxId="stm_ref1" labelWidth="30%" compWidth="70%" > </zkbitextbox>
+				<zkbitextbox jxId="stm_ctrspec" labelWidth="30%" compWidth="70%" textboxRows="2"></zkbitextbox>
+				<zkbitextbox jxId="stm_ref3" labelWidth="30%" compWidth="70%" ></zkbitextbox>
+				<zkbidatebox jxId="stm_date" labelWidth="30%" compWidth="70%" ></zkbidatebox>
+				<!--
+				<zkbitimebox jxId="stm_nref1" labelWidth="30%" compWidth="70%" ></zkbitimebox>
+				-->
+				<zkbidatebox jxId="stm_nref1" labelWidth="30%" compWidth="70%" ></zkbidatebox>
+				<zkbilistbox jxId="floc_desc" labelWidth="30%" compWidth="70%"></zkbilistbox>
+				<zkbilistbox jxId="tloc_desc" labelWidth="30%" compWidth="70%"></zkbilistbox>
+				<zkbilistbox jxId="stm_status" labelWidth="30%" compWidth="70%"></zkbilistbox>
+				<zkbilistbox jxId="stm_cur" labelWidth="30%" compWidth="70%"></zkbilistbox>
+				<zkbidoublebox jxId="stm_tolAmt" labelWidth="30%" compWidth="70%"></zkbidoublebox>
+			</bs-row>
+	<template name="template_clinic_DrugDetail_st_icode">
+		<hlayout>
+		<radiogroup id="stmd_tdtype" orient="vertical"></radiogroup>
+		<vlayout>
+		<bandbox id="st_icode" use="com.uniinformation.jx.zk.ZkJxPickInput"/>
+		<label id="st_iname"></label>
+		</vlayout>
+		</hlayout>
+	<!--
+		<bs-row>
+		<zkbipickinput jxId="st_icode" labelWidth="30%" compWidth="70%" ></zkbipickinput>
+		</bs-row>
+		-->
+	</template>
+	<template name="template_clinic_DrugDetail_stmd_ref4" twidth="300px">
+		<vlayout>
+		<!--
+		<combobox id="stmd_ref4" width="100%"></combobox>
+		<selectbox id="stmd_ref4" width="100%"></selectbox>
+		-->
+		<listbox id="stmd_ref4" width="100%" mold="select" height="20px"></listbox>
+		<hlayout>
+		<datebox id="stmd_exprdate"></datebox>
+		<textbox id="stmd_lotno"></textbox>
+		</hlayout>
+		<hlayout>
+			<div width="120px"><label>Value Date</label></div>
+			<datebox id="stmd_date" width="90%" readonly="true"></datebox>
+		</hlayout>
+		</vlayout>
+		<!--
+		<bs-row>
+		</bs-row>
+		-->
+	</template>
+
+	<template name="template_clinic_DrugDetail_stmd_entryqty" twidth="120px">
+		<vlayout>
+			<hlayout>
+				<div width="10px"><label></label></div>
+				<doublebox id="stmd_entryqty" width="90%"></doublebox>
+			</hlayout>
+			<hlayout>
+				<div width="10px"><label>@</label></div>
+				<doublebox id="stmd_uprice" width="90%"></doublebox>
+			</hlayout>
+			<hlayout>
+				<div width="10px"><label>=</label></div>
+				<doublebox id="stmd_exprice" width="90%" readonly="true"></doublebox>
+			</hlayout>
+		</vlayout>
+	<!--
+		-->
+	</template>
+</zk>

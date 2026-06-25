@@ -1,0 +1,301 @@
+<zk>
+<style dynamic="true">
+
+<!-- cut/hide the vertical borders in the grid rows -->
+.myGridWithNoBorder tr.z-row td.z-row-inner { border-right: 0px #CCC; }
+.GridLayoutNoBorder tr.z-row td.z-row-inner, tr.z-row .z-cell,div.z-grid 
+{ 
+border: none; 
+overflow: hidden; 
+zoom: 1; 
+#background:#f8f8f8 !important;  <!-- remove hover -->
+background:white !important;  <!-- remove hover -->
+border-top: none; 
+border-left: none; 
+border-right: none; 
+border-bottom: none; 
+} 
+</style>
+	<grid style="text-align:left;border: 1px solid #000;" id="detail_grid"  sclass="GridLayoutNoBorder" >
+	<columns>
+	<!-- 
+		<column width="160px"></column>
+		<column width="600px"></column>
+		<column width="160px"></column>
+		<column width="450px"></column>
+	 -->
+		<column width="160px"></column>
+		<column width="1210px"></column>
+		<column></column>
+		<column width="300px"></column>
+	</columns>
+	<rows>
+		<row>
+			<cell align="right"><label>Type/Category</label> </cell>
+			<cell>
+			<hlayout valign="middle">
+				<combobox id="st_mtype" width="100px"></combobox>
+				<div width="40px"></div>
+				<combobox id="mt_tpname" width="400px"></combobox>
+				<div width="100px" style="text-align:right">Brand</div>
+				<combobox id="stbd_code"></combobox>
+				<div>Short Code</div>
+				<textbox id="mt_tpscode"></textbox>
+			</hlayout>
+			</cell>
+			<!-- 
+			<cell align="right"><label>Brand</label></cell>
+			<cell>
+				<hlayout valign="middle">
+				<combobox id="stbd_code"></combobox>
+				<div>Short Code</div>
+				<textbox id="mt_tpscode"></textbox>
+				</hlayout>
+			</cell>
+			 -->
+			<cell></cell>
+			<cell>
+				<label>Ref No.:</label>
+				<label id="st_irg"></label>
+			</cell>
+		</row>
+		<row>
+			<cell align="right"><label>Item Code</label> </cell>
+			<cell>
+			<hlayout valign="middle">
+				<combobox id="st_icode" width="240px"></combobox> 
+				<div width="300px"></div>
+				<div width="100px" style="text-align:right">Obsoleted</div>
+				<checkbox id="st_obsolete"></checkbox>
+			</hlayout>
+			</cell>
+			<!-- 
+			<cell>
+				<hbox align="middle">
+				<combobox id="st_icode"></combobox> 
+				</hbox>
+			</cell>
+			<cell align="right"><label>Obsoleted</label></cell>
+			<cell>
+				<checkbox id="st_obsolete"></checkbox>
+			</cell>
+			 -->
+			<cell></cell>
+			<cell>
+				<label>Customer Code:</label>
+				<label id="inv_vcode"></label>
+			</cell>
+		</row>
+		<row>
+			<cell align="right"><label>Item Name</label> </cell>
+			<cell>
+				<textbox id="st_iname" width="560px"></textbox>
+			</cell>
+			<cell align="right"><label>Part No</label> </cell>
+			<cell>
+				<textbox id="st_oicode"></textbox>
+			</cell>
+			<cell></cell>
+			<cell>
+				<label>Create By:</label>
+				<label id="st_cuser"></label>
+			</cell>
+		</row>
+		<row>
+			<cell align="right"><label>Chinese Name</label> </cell>
+			<cell>
+				<textbox id="st_einame" width="560px"></textbox>
+			</cell>
+			<cell align="right"><label>Model No</label> </cell>
+			<cell>
+				<textbox id="st_modelno"></textbox>
+			</cell>
+			<cell></cell>
+			<cell>
+				<label>Create On:</label>
+				<label id="st_cdate"></label>
+			</cell>
+		</row>
+		<row>
+			<cell align="right"><label>Location</label> </cell>
+			<cell>
+				<textbox id="st_location"></textbox>
+			</cell>
+			<cell align="right"><label>Unit</label> </cell>
+			<cell>
+				<combobox id="st_unit" width="100px"></combobox>
+			</cell>
+			<cell></cell>
+			<cell>
+				<label>Update By:</label>
+				<label id="st_uuser"></label>
+			</cell>
+		</row>
+		<row>
+			<cell align="right"><label>Price</label> </cell>
+			<cell>
+				<hlayout valign="middle">
+				<doublebox id="st_standardprice"></doublebox>
+				<combobox id="st_standardcur" width="100px"></combobox>
+				</hlayout>
+			</cell>
+			<cell align="right"><label>Power Option</label> </cell>
+			<cell>
+				<combobox id="st_mszrange" width="200px"></combobox>
+				<!-- 
+				<combobox id="st_unit" width="100px"></combobox>
+				 -->
+			</cell>
+			<cell></cell>
+			<cell>
+				<label>Update On:</label>
+				<label id="st_udate"></label>
+			</cell>
+		</row>
+		<row>
+			<cell align="right"><label>Cost</label> </cell>
+			<cell>
+				<hlayout valign="middle">
+				<doublebox id="st_standardcost"></doublebox>
+				<combobox id="st_standardcostcur" width="100px"></combobox>
+				<div width="50px"></div>
+				<div width="50px">Markup:</div>
+				<doublebox id="st_markup"></doublebox>
+				</hlayout>
+			</cell>
+			<cell align="right"><label>Reorder Level</label> </cell>
+			<cell>
+				<hlayout valign="middle">
+				<doublebox id="st_lowmark" width="100px"></doublebox>
+				<label>-</label>
+				<doublebox id="st_highmark" width="100px"></doublebox>
+				</hlayout>
+			</cell>
+			<cell></cell>
+			<cell>
+			</cell>
+		</row>
+		<row>
+			<cell align="right"><label>Remark</label> </cell>
+			<cell>
+				<textbox id="st_remark" width="500px"></textbox>
+			</cell>
+			<cell align="right"><label></label> </cell>
+			<cell>
+			</cell>
+			<cell></cell>
+			<cell>
+			</cell>
+		</row>
+		<row>
+			<cell align="right"><label>Dimension</label> </cell>
+			<cell colspan="4">
+				<hlayout>
+				<vlayout width="180px">
+					<label>Length</label>
+					<intbox id="st_dimensionl"></intbox>
+				</vlayout>
+				<vlayout width="180px">
+					<label>Width</label>
+					<intbox id="st_dimensionw"></intbox>
+				</vlayout>
+				<vlayout width="180px">
+					<label>Height</label>
+					<intbox id="st_dimensionh"></intbox>
+				</vlayout>
+				<vlayout width="180px">
+					<label>Net Weight</label>
+					<intbox id="st_netweight"></intbox>
+				</vlayout>
+				<vlayout width="180px">
+					<label>Packing (L)</label>
+					<intbox id="st_packd"></intbox>
+				</vlayout>
+				<vlayout width="180px">
+					<label>Packing (W)</label>
+					<intbox id="st_packw"></intbox>
+				</vlayout>
+				<vlayout width="180px">
+					<label>Packing (H)</label>
+					<intbox id="st_packh"></intbox>
+				</vlayout>
+				<vlayout width="180px">
+					<label>Gross Weight</label>
+					<intbox id="st_grossweight"></intbox>
+				</vlayout>
+				</hlayout>
+			</cell>
+			<cell>
+			</cell>
+		</row>
+		<row>
+			<cell colspan="2">
+			Allocation and Reserve :-
+			</cell>
+		</row>
+		<row>
+			<cell colspan="6">
+			<listbox id="list_AfsStockMove">
+			</listbox>
+			</cell>
+		</row>
+		
+		<row>
+			<cell align="right"><label></label> </cell>
+			<cell> </cell>
+			<cell colspan="2"></cell>
+			<cell></cell>
+			<cell>
+				<hbox align="middle">
+				<div width="50px">Sold</div>
+				<doublebox id="stg_allocated"></doublebox>
+				<doublebox id="stg_rdytodeli"></doublebox>
+				<!-- 
+				 -->
+				</hbox>
+			</cell>
+		</row>
+		<row>
+			<cell align="right"><label></label> </cell>
+			<cell> </cell>
+			<cell colspan="2"></cell>
+			<cell></cell>
+			<cell>
+				<hbox align="middle">
+				<div width="50px">Free</div>
+				<doublebox id="stg_onorder"></doublebox>
+				<doublebox id="stg_freestock"></doublebox>
+				</hbox>
+			</cell>
+		</row>
+		<row>
+			<cell align="right"><label></label> </cell>
+			<cell> </cell>
+			<cell colspan="2"></cell>
+			<cell></cell>
+			<cell>
+				<hbox align="middle">
+				<div width="50px">Adjustment</div>
+				<div width="100px"></div>
+				<doublebox id="st_adjustment"></doublebox>
+				</hbox>
+			</cell>
+		</row>
+		<row>
+			<cell align="right"><label></label> </cell>
+			<cell> </cell>
+			<cell colspan="2"></cell>
+			<cell></cell>
+			<cell>
+				<hbox align="middle">
+				<div width="50px">On Hand</div>
+				<div width="100px"></div>
+				<doublebox id="st_onhand"></doublebox>
+				</hbox>
+			</cell>
+		</row>
+	</rows>
+	</grid>
+	<toolbar id="detail_toolbar" align="end">
+	</toolbar>
+</zk>

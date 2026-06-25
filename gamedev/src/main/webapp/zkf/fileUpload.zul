@@ -1,0 +1,16 @@
+<zk>
+<window sclass="zkbi-form zkbi-main-window" width="600px" apply="com.uniinformation.zkf.ZkCellActionForm">
+	<label sclass="zkbi-form-header" id="lbHeader" value="File Upload"></label>
+	<vlayout sclass="zkbi-form-content">
+		<div align="center">
+			<button width="100px" id="btOK" label="Upload"> 
+			<!--
+			-->	
+				<custom-attributes actionHandler="com.uniinformation.erpv4.PerfJsonRpcCall" actionId="perfwx_ping" uploadType="any"></custom-attributes>
+			</button>
+		</div>
+	</vlayout>
+	<div visible="false">
+	</div>
+</window>
+</zk>

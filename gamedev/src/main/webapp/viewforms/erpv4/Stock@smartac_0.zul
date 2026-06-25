@@ -1,0 +1,75 @@
+<zk xmlns:n="native">
+<style dynamic="true">
+
+<!-- cut/hide the vertical borders in the grid rows -->
+.myGridWithNoBorder tr.z-row td.z-row-inner { border-right: 0px #CCC; }
+.GridLayoutNoBorder tr.z-row td.z-row-inner, tr.z-row .z-cell,div.z-grid 
+{ 
+border: none; 
+overflow: hidden; 
+zoom: 1; 
+#background:#f8f8f8 !important;  <!-- remove hover -->
+background:white !important;  <!-- remove hover -->
+border-top: none; 
+border-left: none; 
+border-right: none; 
+border-bottom: none; 
+} 
+</style>
+	<toolbar id="detail_toolbar" align="end"></toolbar>
+			<bs-row style="padding-right:10px">
+					<zkbiintbox jxId="st_irg" labelWidth="30%" compWidth="70%" > </zkbiintbox>
+					<zkbitextbox jxId="st_icode" labelWidth="30%" compWidth="70%" ></zkbitextbox>
+					<zkbitextbox jxId="st_iname" labelWidth="30%" compWidth="70%" ></zkbitextbox>
+					<zkbitextbox jxId="st_einame" labelWidth="30%" compWidth="70%" ></zkbitextbox>
+					<zkbitextbox jxId="st_barcode" labelWidth="30%" compWidth="70%" ></zkbitextbox>
+					<zkbilistbox jxId="mt_tpname" labelWidth="30%" compWidth="70%" ></zkbilistbox>
+					<!--
+					<zkbitextbox jxId="mt_tpname" labelWidth="30%" compWidth="70%" ></zkbitextbox>
+					<listbox id="mt_tpname" mold="select"/>
+					-->
+					<!--
+					<zkbitextbox jxId="st_unit" labelWidth="30%" compWidth="70%" ></zkbitextbox>
+					<zkbitextbox jxId="stu_unit" labelWidth="30%" compWidth="70%" ></zkbitextbox>
+					-->
+					<zkbilistbox jxId="stu_desc" labelWidth="30%" compWidth="70%" fieldWidth="150px" template="tstudesc">
+						<template name="tstudesc">
+							<!--
+							<div sclass="zkbitextbox-lb-div" hflex="1" align="right">
+							</div>
+							-->
+							<div sclass="zkbitextbox-lb-div" width="20px" align="right"> </div>
+							<label id="st_unit"></label>		
+						</template>	
+					</zkbilistbox>
+					<zkbidoublebox jxId="st_standardcost" labelWidth="30%" compWidth="70%"></zkbidoublebox>
+					<zkbidoublebox jxId="st_standardprice" labelWidth="30%" compWidth="70%" ></zkbidoublebox>
+					<zkbidoublebox jxId="st_price1" labelWidth="30%" compWidth="70%" template="tp1">
+					<!--
+						<template name="tp1">
+							<doublebox id="st_disc1" style="padding-left:5px"></doublebox>
+						</template>	
+						-->
+					</zkbidoublebox>
+					<zkbidoublebox jxId="st_price2" labelWidth="30%" compWidth="70%" template="tp2">
+					<!--
+						<template name="tp2">
+							<doublebox id="st_disc2" style="padding-left:5px"></doublebox>
+						</template>	
+						-->
+					</zkbidoublebox>
+					<zkbidoublebox jxId="st_price3" labelWidth="30%" compWidth="70%" template="tp3">
+					<!--
+						<template name="tp3">
+							<doublebox id="st_disc3" style="padding-left:5px"></doublebox>
+						</template>	
+						-->
+					</zkbidoublebox>
+					<zkbitextbox jxId="st_remark" labelWidth="30%" compWidth="70%" ></zkbitextbox>
+					<zkbidoublebox jxId="stg_freestock" labelWidth="30%" compWidth="70%"></zkbidoublebox>
+					<zkbidoublebox jxId="stl1_stockqty" labelWidth="30%" compWidth="70%"></zkbidoublebox>
+					<zkbidoublebox jxId="stl2_stockqty" labelWidth="30%" compWidth="70%"></zkbidoublebox>
+					<zkbidoublebox jxId="stlo_stockqty" labelWidth="30%" compWidth="70%"></zkbidoublebox>
+			</bs-row>
+			<listbox id="list_erpv4_StockMove" visible="false"></listbox>
+</zk>

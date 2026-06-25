@@ -1,0 +1,53 @@
+<zk>
+<style dynamic="true">
+<!-- cut/hide the vertical borders in the grid rows -->
+.myGridWithNoBorder tr.z-row td.z-row-inner { 
+	border-right: 0px #CCC; 
+}
+.gridLayoutNoBorder tr.z-row td.z-row-inner, tr.z-row .z-cell,div.z-grid { 
+	border: none; 
+	<!--   overflow: hidden;  -->
+	<!--   zoom: 1;  --> <!-- andrew remark: do not use zoom -->
+	<!--   background:#f8f8f8 !important;  --> <!-- remove hover -->
+	background:white !important;  <!-- remove hover -->
+	border-top: none; 
+	border-left: none; 
+	border-right: none; 
+	border-bottom: none; 
+} 
+.listboxNoSeparator .z-listitem > .z-listcell {
+	border-top: none; 
+	vertical-align: top;
+}
+.listboxNoSeparator > .z-listbox-body {
+	overflow-y: hidden !important;	
+}
+</style>
+	<toolbar id="detail_toolbar" align="end"> 
+		<button id="btCopyTran" label="Copy Tran" visible="true"><custom-attributes tlkey="bt_CopyTran"></custom-attributes></button>
+	</toolbar>
+	<div height="20px"/>
+	<grid style="text-align:left;border: 1px solid #ececec; border-bottom: none;" id="detail_grid" sclass="gridLayoutNoBorder">
+	</grid>
+	<listbox id="list_erpv4_GlJn" height="450px">
+	<!--
+		<listhead>
+		</listhead>
+    	<auxhead zclass="z-listbox-footer">
+        	<auxheader zclass="z-listbox-footer" colspan="4">B/F</auxheader>
+        	<auxheader zclass="z-listbox-footer" colspan="1"></auxheader>
+        	<auxheader zclass="z-listbox-footer" colspan="2"></auxheader>
+        	<auxheader zclass="z-listbox-footer"><div style="text-align:right;padding-right:5px;"><label id="bls_begbal"></label></div></auxheader>
+        	<auxheader zclass="z-listbox-footer" colspan="2"></auxheader>
+        	<auxheader zclass="z-listbox-footer"><div style="text-align:right;padding-right:5px;"><label id="bls_lbegbal"></label></div></auxheader>
+    	</auxhead>
+    	-->
+	   <listfoot >
+        <listfooter span="9"></listfooter>
+        <listfooter><div style="text-align:right;"><label id="tr_plamount"/></div></listfooter>
+        <listfooter><div style="text-align:right;"><label id="tr_nlamount"/></div></listfooter>
+       </listfoot>
+	</listbox>
+	<div height = "100px">
+	</div>
+</zk>

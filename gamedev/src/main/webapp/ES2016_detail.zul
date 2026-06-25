@@ -1,0 +1,135 @@
+<window border="normal" width="1000px" height="800px" title="Welcome" apply="com.uniinformation.jx.zk.ZkJxComposer" id="ES2016_detail">
+<grid >
+   <columns visible="false" >
+      <column width="200px" /><!-- define 2 columns to enable auxhead/er -->
+      <column width="120px"/>
+      <column/>
+	</columns>
+    <rows>
+       <row> 
+       		Job Number/Title
+       		<intbox id="Pdg_jobnum" width="100px" disabled="true"></intbox>
+       		<textbox id="Pdg_title" width="600px"></textbox> 
+       </row>
+       <row> 
+       		Customer Code/Name
+       		<combobox id="Pdg_custcode" width="100px"></combobox> 
+       		<textbox id="Pdg_custname" width="600px" disabled="true"></textbox>
+       </row>
+    </rows>
+</grid>
+<tabbox id="Pc_je_detail">
+	<tabs>
+		<tab label="Product Detail" />
+		<tab label="Pre-flight" />
+	</tabs>
+	<tabpanels>
+		<tabpanel id="Tn_pdtinfo">
+		   <grid >
+        	<columns visible="false" >
+        	    <column width="120px" /><!-- define 2 columns to enable auxhead/er -->
+        	    <column/>
+        	</columns>
+        	<rows>
+        		 <row> Edition
+        		 	<hlayout>
+        		 	<combobox id="Pdg_catname" width="500px"></combobox>
+        		 	<!-- 
+        		 	<spinner id="Pdg_volcnt" constraint="no empty,min 1 max 30" ></spinner>
+        		 	 -->
+        		 	<spinner id="Pdg_volcnt" ></spinner>
+        		 	</hlayout>
+        		 </row>
+        		 <row> Remark <textbox id="Pdg_remark" hflex="1" /> </row>	
+        		 <row> Size 
+        		 	<hlayout valign="middle">
+	        		 	<doublebox id="Pdg_qdepth" /> 
+	        		 	x
+	        		 	<doublebox id="Pdg_qwidth" /> 
+	        		 	<radiogroup id="Pdg_qmetric">
+	        		 		<radio label="inch"/>
+	        		 		<radio label="mm"/>
+	        		 	</radiogroup>
+	        		 	=
+	        		 	<doublebox id="Pdg_depth" disabled="true" /> 
+	        		 	x
+	        		 	<doublebox id="Pdg_width"  disabled="true"/> 
+	        		 	mm
+	        		 	<textbox id="Pdg_lp" disabled="true"></textbox>
+        		 	</hlayout>
+        		 </row>	
+        		 <!-- 
+        		 <row> 
+        		 	Material
+	        		 	<hlayout id="Pdx_matpanel" valign="middle">
+	        		 		<div width="150px">
+		        		 	<label id="Pdx_matextname" value="XXXX"> </label>
+	        		 		</div>
+		        		 	<combobox id="Pdx_mattype" width="250px"></combobox>
+    		    		 	<combobox id="Pdx_matname" width="250px"></combobox>
+        				 	<combobox id="Pdx_matwt" width="100px"></combobox>
+        		 		</hlayout>	
+        		 </row>
+        		  -->
+        		 <row>
+        		 	Materials
+        		 	<vlayout id="Pdx_materials"> 
+						<template name="Pdx_mattemplate">
+	        		 	<hlayout id="Pdx_matpanel" valign="middle">
+	        		 		<div width="120px"> <label id="Pdx_matextname"> </label> </div>
+		        		 	<combobox id="Pdx_mattype" width="250px"></combobox>
+    		    		 	<combobox id="Pdx_matname" width="250px"></combobox>
+        				 	<combobox id="Pdx_matwt" width="100px"></combobox>
+        		 		</hlayout>	
+        		 		</template>
+        		 	</vlayout>
+        		 </row>
+        		 <row>
+        		 	Editions
+        			<spreadsheet id="editionGrid" src="/template/blank.xls" hflex="1" height="200px"/> 
+        		 </row>
+        		 
+        		           <row spans="2" align="right">
+                <hlayout>
+                    <button id="Pb_recalculate" label="Re-Cal" />
+                    <button id="btOK" label="OK" />
+                    <button id="btCancel" label="Cancel" />
+                </hlayout>
+            </row>
+            </rows>
+    	</grid>	
+    	<!--
+		 <selectbox id="Pdx_optionlist" />
+		 <selectbox id="Pdx_fproc" />
+		 <selectbox id="Pdx_bproc" />
+		 <selectbox id="Pdx_fpms" />
+		 <selectbox id="Pdx_bpms" />
+		 <selectbox id="Pdx_fmetallic" />
+		 <selectbox id="Pdx_bmetallic" />
+		 <selectbox id="Pdx_fvarnish" />
+		 <selectbox id="Pdx_bvarnish" />
+		 <selectbox id="Pdx_ffluorescent" />
+		 <selectbox id="Pdx_bfluorescent" />
+		 <selectbox id="Pdx_ftint" />
+		 <selectbox id="Pdx_btint" />
+		 <selectbox id="Pdp_newcostgrp" />
+		 <textbox id="Pdp_newcostdesp" />
+		 <selectbox id="Pde_volume" />
+		 <combobox id="Pdp_newcostext" />
+		 <tree id="Tn_production"></tree>
+		 <textbox id="Pdp_desp" />
+		 <doublebox id="Pdp_scost" />
+		 <doublebox id="Pdp_mcost" />
+		 <textbox id="Pdp_rcunit" />
+		 <textbox id="Pdp_rqunit" />
+		 <textbox id="Pdp_itchdr0" />
+		 <textbox id="Pdp_itchdr1" />
+		 <textbox id="Pdp_itchdr2" />
+		 <textbox id="Pdp_itchdr3" />
+		 <textbox id="Pdp_itchdr4" />
+    	  -->
+		</tabpanel>
+		<tabpanel></tabpanel>
+	</tabpanels>
+</tabbox>
+</window>

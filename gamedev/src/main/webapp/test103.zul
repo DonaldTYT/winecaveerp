@@ -1,0 +1,10 @@
+<zk>
+	<vlayout>
+		<div height="300px"></div>
+		<combobox autocomplete="false"><comboitem label="Case"/><comboitem label="Bottle"/></combobox>
+		<datebox readonly="true"/>
+		<slider/>
+		<spinner />
+		<textbox readonly="true"></textbox>
+	</vlayout>
+</zk>

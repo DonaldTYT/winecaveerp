@@ -1,0 +1,40 @@
+<zk>
+<script>
+<![CDATA[
+function initContent(srcDoc) {
+	var $ifrmContent = jq('$ifrmContent');
+	var doc = $ifrmContent.prop('contentWindow').document;
+	$ifrmContent.load(function(){
+		resizeContent();
+	});
+	doc.open('text/html', 'replace');
+	doc.write(srcDoc);
+	doc.close();
+}
+function resizeContent() {
+	var $ifrmContent = jq('$ifrmContent');
+	var doc = $ifrmContent.prop('contentWindow').document;
+	var oldScrollTop = $(window).scrollTop();
+	$ifrmContent.height(50);
+	$ifrmContent.height($(doc).height());
+	$(window).scrollTop(oldScrollTop);
+}
+$(window).resize(function(){
+	resizeContent();	
+});
+]]>
+</script>
+<div width="100%" id="JxZkEmailContent" apply="com.uniinformation.jx.zk.JxZkEmailContent">
+    <div id="divHeader" style="background-color:#f5f7fa;padding:10px;">
+		<custom-attributes org.zkoss.zk.ui.updateByClient="true"/>
+    </div>
+	<separator spacing="10px" />
+    <iframe id="ifrmContent" src="http://www.hellovoice.com" width="100%;height:50px;" scrolling="no">
+		<custom-attributes org.zkoss.zk.ui.updateByClient="true"/>
+	</iframe>
+	<separator spacing="10px" />
+    <vlayout id="vlAttachments" style="background-color:#f5f7fa;padding:10px;">
+		<custom-attributes org.zkoss.zk.ui.updateByClient="true"/>
+    </vlayout>
+</div>
+</zk>

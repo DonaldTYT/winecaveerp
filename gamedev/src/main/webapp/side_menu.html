@@ -1,0 +1,149 @@
+<%@ page language="java" pageEncoding="utf-8" contentType="text/html;charset=utf-8"%>
+<%@ page import="java.util.*, com.uniinformation.utils.*,com.uniinformation.webcore.* " %>
+<%@ taglib uri="http://www.zkoss.org/jsp/zul" prefix="z" %>
+<%
+//response.setHeader("Expires", DateUtil.toDateString(new java.util.Date(new java.util.Date().getTime()-((long) 7)*86400*1000), "www, dd mmm yyyy HH:MM:SS ")+"GMT");
+response.setHeader("Cache-Control", "no-cache, no-store, must-revalidate"); // HTTP 1.1.
+response.setHeader("Pragma", "no-cache"); // HTTP 1.0.
+response.setHeader("Expires", "0"); // Proxies.
+try {	
+	SessionHelper sessionHelper = ZkSessionHelper.getSessionHelper(request, response);   
+	sessionHelper.validateLogin(request, response);
+%>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<style>
+.wndcontainer {
+    float:right;
+    position:relative;
+    left:-50%;
+    text-align:left;
+}
+.menublk {
+    list-style:none;
+    position:relative;
+    width:auto;
+    left:50%;
+}
+.menublk li {
+	padding: 0 30px 0 30px;
+	float:left;
+	position: relative;
+}/* ie needs position:relative here*/
+
+.wndblk {
+    list-style:none;
+    position:relative;
+    width:auto;
+    left:50%;
+}
+.menuli {
+	padding: 0 30px 0 30px;
+	float:left;
+	position: relative;
+}/* ie needs position:relative here*/
+
+#sidemenu-button {
+    display: block;
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    overflow: hidden;
+    text-decoration: none;
+  	color: #231f20;
+  	border: 1px solid #a7a5a6;
+  	background: #f0f0f0;
+}
+#sidemenu-button .fa {
+	font-size: 25px;
+	width: 34px;
+	height: 31px;
+	line-height: 31px;
+	text-align: center;
+	vertical-align: middle;
+}
+
+
+</style>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<jsp:include page="commonInit.jsp" flush="true"/>
+<div id="Layer1" style="position:absolute; width:100%; height:100%; z-index:-1; left:0px ; top:0px; filter:Alpha(opacity=100); ">
+	<img src="images/bg.jpg" style="position:fixed; width:100%; height:100%; left:0px; top:0px;"/>  
+</div>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title><%=sessionHelper.getWebPageTitle()%></title>
+<link rel="stylesheet" href="css/sidr.dark.css">
+<link rel="stylesheet" href="css/sidr.dropdown.css">
+<script src="js/zkpages.js"></script>
+<script type="text/javascript" src="js/jquery-3.1.1.min.js"></script>
+<script type="text/javascript" src="js/jquery.sidr.js"></script>
+</head>
+
+<body>
+	<script type="text/javascript">
+	$(document).ready(function(){
+		if ('ontouchstart' in window) {
+		}
+		else {
+		    $(".dashboard ul li div").hover(
+	    		function(){
+					$(this).css( {boxShadow: '5px 5px 10px #888888'});
+		        }, 
+		        function(){
+					$(this).css( {boxShadow: 'none'});
+		    });	
+		}
+    });
+	$.sidrDefault('sidemenu-button', 'sidr', 'container');
+	</script>
+	<%-- add timer avoid zk session timeout 10min--%>
+	<z:page>
+		<z:timer id="timerKeepAliveSession" repeats="true" delay="600000" onTimer=""/>
+	</z:page>
+	<%
+	sessionHelper.generateSideMenu(request,out, "sidr");
+	%>
+	<a id="sidemenu-button" href="">
+  		<i class="fa fa-bars" aria-hidden="true"></i>
+	</a>
+	<div id="container">
+		<div class="nav"></div>
+		<div id="content">
+		</div>
+		
+		<div id="headerls">
+		<div id="logols">
+			<div class="logolsstyle1"><%=sessionHelper.getWebPageCoName()%> </div>
+			<div class = "nav"></div>	
+			<div class="logolsstyle2">
+				Web ERP System
+			</div>
+		</div>
+	</div>
+	<div class = "nav"></div>
+		<div class = "nav"></div>	
+   <div id="mainwnd" class = "wndcontainer" >
+		<div>
+			<%
+			sessionHelper.generateMenu(request,out);
+			%>
+		</div>
+   
+	</div>
+	<div class = "nav"></div>	
+   <div id="bottombar" class = "wndcontainer" >
+		<div class = "wndblk">
+			<a href="javascript:history.back(-1)"><img src="images/exit.jpg" ></a>
+		</div>
+	</div>
+	<div class = "nav"></div>		
+	</div>
+</body>
+</html>
+<%
+} catch(Exception ex) {
+	UniLog.log(ex);
+	throw(ex);
+} finally {
+}
+%>

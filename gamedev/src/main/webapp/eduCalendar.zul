@@ -1,0 +1,93 @@
+<zk>
+<style>
+	.mainCaption .z-caption-content { 
+		display: flex; 
+		display: -webkit-flex; 
+		flex: 1; 
+		-webkit-flex: 1; 
+		line-height: 16px;
+	}
+	.mainCaption .z-caption-content .captionDiv {
+		display: flex; 
+		display: -webkit-flex; 
+		flex: 1; 
+		-webkit-flex: 1; 
+		justify-content: flex-end;
+		-webkit-justify-content: flex-end;
+		margin-right: 6px;
+	}
+	.mainCaption .z-checkbox-switch >.z-checkbox-mold {
+		margin-top: 1px;
+		margin-bottom: 1px;
+	}
+	.calendarWin .z-window-content {
+		overflow: auto;
+	}
+	.calendarWin,
+	.eventListWin {
+		margin-top:20px; 
+		padding:1px !important;
+	}
+	.eventListWin .z-window-content {
+		padding: 0;
+	}
+	.eventListGrid span {
+		font-size: 12px !important;
+	}
+	.eventListGrid.z-grid > .z-grid-body {
+		max-height: 200px;
+	}
+	
+</style>
+<zscript>
+<![CDATA[
+	String composer = "ZkBiComposerBase";
+	String classPrefix = "com.uniinformation.zkbi.";
+	if (Executions.getCurrent().getParameter("composer") != null){
+		composer = Executions.getCurrent().getParameter("composer").trim();
+	}
+	if (Executions.getCurrent().getParameter("prefix") != null){
+		classPrefix = "com.uniinformation."+Executions.getCurrent().getParameter("prefix").trim()+".";
+	}
+]]></zscript>
+	<div id="divCalendar" apply="${classPrefix}${composer}" xmlns:h="native">
+		<hbox> 
+			<window id="winCalendar" sclass="calendarWin" sizable="true" title="Calendar" width="1200px" border="narrow">
+	    		<caption style="font-size:14px">
+	    			<toolbarbutton id="btnHelp" image="images/icons/zkweb/089-support-25x25.png" sclass="zkbi-header-help narrowtoolbarbutton zkbi-tbb-active" />
+        		</caption>
+	    		<h:div id="calendar001" style="margin-top:5px;"></h:div>
+	    	</window>
+	    	<vbox>
+				<window id="winCoursetypeList" sclass="eventListWin" sizable="true" width="460px"  border="narrow">
+					<caption label="Course Type" sclass="mainCaption">
+						<div sclass="captionDiv">
+							<checkbox id="cbCoursetypeListAll" mold="switch" checked="true"/>
+						</div>
+					</caption>
+				</window>
+				<window id="winTutorList" sclass="eventListWin" style="margin-top:0" sizable="true" width="460px"  border="narrow">
+					<caption label="Tutor List" sclass="mainCaption">
+						<div sclass="captionDiv">
+							<checkbox id="cbTutorListAll" mold="switch" checked="true"/>
+						</div>
+					</caption>
+				</window>
+				<window id="winFacilityList" sclass="eventListWin" style="margin-top:0" sizable="true" width="460px"  border="narrow">
+					<caption label="Facility List" sclass="mainCaption">
+						<div sclass="captionDiv">
+							<checkbox id="cbFacilityListAll" mold="switch" checked="true"/>
+						</div>
+					</caption>
+				</window>
+				<window id="winEventList" sclass="eventListWin" style="margin-top:0" sizable="true" width="460px"  border="narrow">
+					<caption label="Event List" sclass="mainCaption">
+						<div sclass="captionDiv">
+							<checkbox id="cbEventListAll" mold="switch" checked="true"/>
+						</div>
+					</caption>
+				</window>
+	    	</vbox>
+		</hbox>
+	</div>
+</zk>

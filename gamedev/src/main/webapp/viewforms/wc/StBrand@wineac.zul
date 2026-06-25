@@ -1,0 +1,9 @@
+<zk>
+<toolbar id="detail_toolbar" align="end">
+</toolbar>
+<grid style="text-align:left;" id="detail_grid">
+</grid>
+<vlayout >
+<html id="bd_image"></html>
+</vlayout>
+</zk>

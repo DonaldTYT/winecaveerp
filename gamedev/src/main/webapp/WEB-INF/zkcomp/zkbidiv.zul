@@ -1,0 +1,17 @@
+<zk xmlns:n="native">
+	<n:div>
+	<!-- 
+	<n:div style="width:100%">
+			<label id="lb" style="float:right;" use="com.uniinformation.zkcomp.ZkBiHeaderLabel"></label>
+		</div>
+		<div id="compDiv" sclass="zkbitextbox-lb-div" width="20%">
+		</div>
+	 -->
+ 	<hlayout sclass="zkbidiv">
+		<div id="lbDiv" width="100px">
+			<label id="lb" sclass="zkbi-col-label" style="float:right;" use="com.uniinformation.zkcomp.ZkBiHeaderLabel"></label>
+		</div>
+		<div id="compDiv"> </div>
+ 	</hlayout>
+	</n:div>
+</zk>

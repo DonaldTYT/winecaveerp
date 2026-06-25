@@ -1,0 +1,198 @@
+<zk>
+<style>
+.visDiv {
+	font-size: 14px;
+	background: white;
+} 
+</style>
+<zscript>
+<![CDATA[
+	String composer = "ZkBiComposerBase";
+	String classPrefix = "com.uniinformation.zkbi.";
+	if (Executions.getCurrent().getParameter("composer") != null){
+		composer = Executions.getCurrent().getParameter("composer").trim();
+	}
+	if (Executions.getCurrent().getParameter("prefix") != null){
+		classPrefix = "com.uniinformation."+Executions.getCurrent().getParameter("prefix").trim()+".";
+	}
+]]></zscript>
+<script>
+<![CDATA[
+const eduResourceAllocationTimeline = (function() {
+    const minScale = 1.2;
+	const mathLog = function(x, y) {
+		return Math.log(x) / Math.log(y);
+	};
+	const mathCeil = function(x) {
+		return Math.ceil(Math.round(x * 1000) / 1000);
+	};
+	const mathFloor = function(x) {
+		return Math.floor(Math.round(x * 1000) / 1000);
+	};
+	const getZoomScaleExp = function(timeline) {
+		const w = timeline.getWindow();
+		const r = timeline.range.options;
+        const start = w.start.valueOf();
+        const end = w.end.valueOf();
+        const min = new Date(r.min).valueOf();
+        const max = new Date(r.max).valueOf();
+
+        const currInterval = end - start;
+        const minInterval = r.zoomMin;
+        const maxInterval = max - min;
+        console.log('currInterval:' + currInterval + ',minInterval:' + minInterval + ',maxInterval:' + maxInterval);
+        
+        const maxScaleExp = mathLog(maxInterval / minInterval, minScale);
+        const currScaleExp = mathLog(currInterval / minInterval, minScale);
+        const scaleExpCount = mathCeil(maxScaleExp);
+        console.log('maxScaleExp:' + maxScaleExp + ',currScaleExp:' + currScaleExp + ',scaleExpCount:' + scaleExpCount + ',currScaleExp ceil:' + mathCeil(currScaleExp));
+        return {'maxScaleExp' : maxScaleExp, 'currScaleExp' : currScaleExp, 'scaleExpCount' : scaleExpCount};
+	};	
+	const zoom = function(p_containerSelctor, scaleExp) {
+		const timeline = jq(p_containerSelctor).data('timeline');
+		const w = timeline.getWindow();
+        const start = w.start.valueOf();
+        const end = w.end.valueOf();
+
+        const interval = end - start;
+        const newInterval = interval * Math.pow(minScale, scaleExp);
+        const distance = (newInterval - interval) / 2;
+        const newStart = start - distance;
+        const newEnd = end + distance;
+        console.log('interval:' + interval + ',newInterval:' + newInterval);
+
+        timeline.setWindow(newStart, newEnd, {animation: true});
+	};
+	const zoomIn = function(p_containerSelctor) {
+		const timeline = jq(p_containerSelctor).data('timeline');
+		timeline.zoomIn(minScale - 1, {animation: false});
+	};
+	const zoomOut = function(p_containerSelctor) {
+		const timeline = jq(p_containerSelctor).data('timeline');
+		timeline.zoomOut(minScale - 1, {animation: false});
+	};
+	const setupSliderZoomComp = function(p_containerSelctor) {
+		const timeline = jq(p_containerSelctor).data('timeline');
+		const $sliderZoom = jq(p_containerSelctor).data('sliderZoomComp');
+
+        const zr = getZoomScaleExp(timeline);
+        $sliderZoom.prop('max', zr.scaleExpCount);
+        $sliderZoom.val(mathCeil(zr.currScaleExp));
+	};
+	const setup = function(p_containerSelctor, p_sliderZoomCompSelctor, p_options, p_groups, p_items) {
+		if (typeof vis == 'undefined'){
+			console.log("vis lib not loaded");
+			return;
+		}
+		const $container = jq(p_containerSelctor);
+		if ($container.length == 0){
+			console.log("container is null:" + p_containerSelctor)
+			return;
+		}
+		let timeline = $container.data('timeline');
+		if (!timeline) {
+			timeline = new vis.Timeline($container[0]);
+			$container.data('timeline', timeline);
+			const $sliderZoom = jq(p_sliderZoomCompSelctor);
+			$container.data('sliderZoomComp', $sliderZoom);
+
+			timeline.on('rangechanged', function(properties) {
+				setupSliderZoomComp(p_containerSelctor);
+			});
+
+			//setup slider comp event
+       	 	$sliderZoom.on('input', function(e) {
+       	 		const v = $(this).val();
+        		const zr = getZoomScaleExp(timeline);
+        		const exp = mathFloor(v - zr.currScaleExp);
+       			console.log('v:' + v + ',currScaleExp:' + zr.currScaleExp + 'exp:' + exp);
+				zoom(p_containerSelctor, exp);
+         	});
+		}
+		if (p_options) {
+			if (p_options.groupOrder)
+				p_options.groupOrder = (new Function('return ' + p_options.groupOrder))();
+			if (p_options.moment)
+				p_options.moment = (new Function('return ' + p_options.moment))();
+			timeline.setOptions(p_options);
+		}
+		if (p_groups) {
+			const groups = new vis.DataSet(p_groups);
+			$container.data('timelineGroups', groups);
+			timeline.setGroups(groups);
+		}
+		if (p_items)
+			timeline.setItems(new vis.DataSet(p_items));
+			
+		console.log('timeline', timeline);
+		setupSliderZoomComp(p_containerSelctor);
+	};
+	const setRange = function(p_containerSelctor, p_min, p_max, p_start, p_end) {
+		//console.log('setRange', 'min:' + p_min + ',max:' + p_max + ',start:' + p_start + ',end:' + p_end);
+		const timeline = jq(p_containerSelctor).data('timeline');
+		const r = timeline.range.options;
+		r.min = p_min;
+		r.max = p_max;
+		timeline.setWindow(p_start, p_end, {animation: false});
+		setupSliderZoomComp(p_containerSelctor);
+	};
+	const showGroups = function(p_containerSelctor, p_visibleGroupIds) {
+		//console.log('showGroups', p_visibleGroupIds);
+		const groups = jq(p_containerSelctor).data('timelineGroups');
+		groups.forEach(function(group) {
+			const id = group['id'];
+			const oldVisible = group['visible'];
+			const newVisible = $.inArray(id, p_visibleGroupIds) >= 0;
+			if (!oldVisible && newVisible)
+				groups.update({id: id, visible: true});
+			else if (oldVisible && !newVisible)
+				groups.update({id: id, visible: false});
+        });
+	};
+	return { setup: setup, setRange: setRange, showGroups: showGroups, zoom: zoom, zoomIn: zoomIn, zoomOut: zoomOut };
+})();
+]]></script>
+<window id="winResourceAllocationTimeline" sizable="true" title="Resource Allocation Timeline" hflex="1" border="narrow" apply="${classPrefix}${composer}" xmlns:h="native">
+	<caption style="font-size:14px">
+		<toolbarbutton id="btnHelp" image="images/icons/zkweb/089-support-25x25.png" sclass="zkbi-header-help narrowtoolbarbutton zkbi-tbb-active" />
+	</caption>
+	<separator height="10px"/>
+	<hlayout>
+		<label value="Date:"/> 
+		<datebox id="dbFrom"/>
+		<label id="lblTo" value="to" visible="false"/> 
+		<datebox id="dbTo" visible="false" disabled="true"/>
+	</hlayout>
+	<separator height="10px"/>
+	<hlayout>
+		<label value="Resource Type:"/> 
+		<combobox id="cbResourceType" readonly="true">
+			<comboitem label="Tutor"/>
+			<comboitem label="Facility"/>
+		</combobox>
+	</hlayout>
+	<separator height="10px"/>
+	<div width="100%" style="display:flex;display:-webkit-flex;flex-wrap:wrap;-webkit-flex-wrap:wrap;">
+		<hlayout style="flex:auto;-webkit-flex:auto">
+			<button id="btnToday" label="Today"/>
+			<space/>
+			<button id="btnPrev" iconSclass="z-icon-chevron-left"/>
+			<button id="btnNext" iconSclass="z-icon-chevron-right"/>
+		</hlayout>
+		<div style="margin-top:10px">
+			<radiogroup id="rdgDayOrWeek">
+				<radio id="rdDay" label="Day" checked="true"/>
+				<radio id="rdWeek" label="Week"/>
+			</radiogroup>
+		</div>
+		<space/>
+		<h:input id="sliderZoom" type="range" width="300px" style="appearance:auto;margin-top:10px" min="0" step="1"/>
+		<!--
+		<h:input type="button" value="ZoomIn" onClick="eduResourceAllocationTimeline.zoomIn('.visDiv')"/>
+		<h:input type="button" value="ZoomOut" onClick="eduResourceAllocationTimeline.zoomOut('.visDiv')"/>
+		-->
+	</div>
+	<separator height="10px"/>
+	<div id="visDiv" class="visDiv"> </div>
+</window>
+</zk>

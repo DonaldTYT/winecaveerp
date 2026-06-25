@@ -1,0 +1,373 @@
+<zk>
+<style dynamic="true">
+<!-- cut/hide the vertical borders in the grid rows -->
+.myGridWithNoBorder tr.z-row td.z-row-inner { 
+	border-right: 0px #CCC; 
+}
+.gridLayoutNoBorder tr.z-row td.z-row-inner, tr.z-row .z-cell,div.z-grid { 
+	border: none; 
+	<!--   overflow: hidden;  -->
+	<!--   zoom: 1;  --> <!-- andrew remark: do not use zoom -->
+	<!--   background:#f8f8f8 !important;  --> <!-- remove hover -->
+	background:white !important;  <!-- remove hover -->
+	border-top: none; 
+	border-left: none; 
+	border-right: none; 
+	border-bottom: none; 
+} 
+.listboxNoSeparator .z-listitem > .z-listcell {
+	border-top: none; 
+	vertical-align: top;
+}
+.listboxNoSeparator > .z-listbox-body {
+	overflow-y: hidden !important;	
+}
+</style>
+	<toolbar id="detail_toolbar" align="end">
+		<button id="btVoidInv" label="Void" visible="true" disabled="false"></button>
+		<button id="btPrintInv" label="Print Invoice" visible="true" disabled="false"></button>
+		<button id="btConfirmInv" label="Post" visible="true"></button>
+		<button id="btUnConfirmInv" label="Unpost" visible="true"></button>
+	</toolbar>
+	<grid style="text-align:left;border: 1px solid #ececec; border-bottom: none;" id="detail_grid" sclass="gridLayoutNoBorder">
+		<columns>
+			<column hflex="min"></column>
+			<column hflex="min"></column>
+			<column hflex="min"></column>
+			<column hflex="min"></column>
+			<column hflex="min"></column>
+			<column hflex="min"></column>
+		</columns>
+		<rows>
+			<row>
+				<cell colspan="1" width="600px">
+				<image id="co_logo" height="80px" />
+				<!-- 
+					<image src="images/logo/kh_logo_a.png" height="80px" />
+				 -->
+				</cell>
+				<cell colspan="3"> </cell>
+				<cell>
+	 				<vlayout>
+	 				<label style="font-weight: bold;font-size:30px !important;" value="INVOICE"><custom-attributes tlkey="lb_header1"></custom-attributes></label>
+	 				</vlayout>
+				</cell>
+			</row>
+			<row>
+				<cell colspan="6">
+				<hlayout>
+				<div width="50px"></div>
+				<div width="700px">
+				<grid>
+				<columns>
+					<column hflex="min"></column>
+					<column hflex="min"></column>
+				</columns>
+				<rows>
+					<row>
+						<label hflex="1" id="lb_vd_vname" value="Customer Name"><custom-attributes tlkey="lb_vd_vname"></custom-attributes></label>
+						<combobox id="vd_vname"/>
+					</row>
+					<row>
+						<label hflex="1" id="lb_inv_addr0" value="Addr 0"><custom-attributes tlkey="lb_inv_addr0"></custom-attributes></label>
+						<textbox id="inv_addr0" width="400px"/>
+					</row>
+					<row>
+						<label hflex="1" id="lb_inv_addr1" value="Addr 1"><custom-attributes tlkey="lb_inv_addr1"></custom-attributes></label>
+						<textbox id="inv_addr1"/>
+					</row>
+					<row>
+						<label hflex="1" id="lb_inv_addr2" value="Addr 2"><custom-attributes tlkey="lb_inv_addr2"></custom-attributes></label>
+						<textbox id="inv_addr2"/>
+					</row>
+					<row>
+						<label hflex="1" id="lb_inv_addr3" value="Addr 3"><custom-attributes tlkey="lb_inv_addr3"></custom-attributes></label>
+						<textbox id="inv_addr3"/>
+					</row>
+					<row>
+						<label hflex="1" id="lb_inv_contact" value="Attn"><custom-attributes tlkey="lb_inv_contact"></custom-attributes></label>
+						<textbox id="inv_contact"/>
+					</row>
+					<row>
+						<label hflex="1" id="lb_inv_tel" value="Telephone"><custom-attributes tlkey="lb_inv_tel"></custom-attributes></label>
+						<textbox id="inv_tel"/>
+					</row>
+					<row>
+						<label hflex="1" id="lb_inv_fax" value="Fax"><custom-attributes tlkey="lb_inv_fax"></custom-attributes></label>
+						<textbox id="inv_fax"/>
+					</row>
+					<row>
+						<label hflex="1" id="lb_inv_projecttitle" value="Content"><custom-attributes tlkey="lb_inv_projecttitle"></custom-attributes></label>
+						<textbox id="inv_projecttitle" width="400px" multiline="true"/>
+					</row>
+					<row>
+						<label hflex="1" id="lb_inv_remark" value="Remark"><custom-attributes tlkey="lb_inv_remark"></custom-attributes></label>
+						<textbox id="inv_remark" width="550px" height="30px" multiline="true"/>
+					</row>
+				</rows>
+				</grid>
+				</div>
+				
+				<div width="100px">
+				</div>
+				<div width="400px">
+				<grid>
+				<columns>
+					<column hflex="min"></column>
+					<column hflex="min"></column>
+				</columns>
+				<rows>
+					<row>
+						<label hflex="1" id="lb_inv_date" value="Invoice Date"><custom-attributes tlkey="lb_inv_date"></custom-attributes></label>
+						<datebox id="inv_date"/>
+					</row>
+					<row>
+						<label hflex="1" id="lb_inv_invno" value="Invoice No"><custom-attributes tlkey="lb_inv_invno"></custom-attributes></label>
+						<textbox id="inv_invno"/>
+					</row>
+					<row>
+						<label hflex="1" id="lb_inv_quonum" value="inv_quonum"><custom-attributes tlkey="lb_inv_quonum"></custom-attributes></label>
+						<textbox id="inv_quonum"/>
+					</row>
+					<row>
+						<label hflex="1" id="lb_inv_pocode" value="Customer Po"><custom-attributes tlkey="lb_inv_pocode"></custom-attributes></label>
+						<textbox id="inv_pocode"/>
+					</row>
+					<row>
+						<div height="30px"></div>
+						<label hflex="1"></label>
+					</row>
+					<row>
+						<label hflex="1" id="lb_inv_invstatus" value="Status"><custom-attributes tlkey="lb_inv_invstatus"></custom-attributes></label>
+						<textbox id="inv_invstatus"/>
+					</row>
+					<row>
+						<label hflex="1" id="lb_inv_dettotal" value="Amount"><custom-attributes tlkey="lb_inv_dettotal"></custom-attributes></label>
+						<hlayout><textbox id="inv_dettotal"/><textbox width="50px" id="inv_cid"/></hlayout>
+					</row>
+					<row>
+						<label hflex="1" id="lb_inv_discount" value="Discount"><custom-attributes tlkey="lb_inv_discount"></custom-attributes></label>
+						<textbox id="inv_discount"/>
+					</row>
+					<row>
+						<label hflex="1" id="lb_inv_total" value="Net Total"><custom-attributes tlkey="lb_inv_total"></custom-attributes></label>
+						<textbox id="inv_total"/>
+					</row>
+					<row>
+						<label hflex="1" id="lb_vd_dueday" value="Terms"><custom-attributes tlkey="lb_vd_dueday"></custom-attributes></label>
+						<hlayout><textbox id="vd_dueday"/><label>Days</label></hlayout>
+					</row>
+					<row>
+						<label hflex="1" id="lb_inv_duedate" value="Due Date"><custom-attributes tlkey="lb_inv_duedate"></custom-attributes></label>
+						<datebox id="inv_duedate"/>
+					</row>
+				</rows>
+				</grid>
+				</div>
+				<div width="250px" style="text-align:right">
+					<vlayout>
+					<hlayout>
+						<label sclass="zkbi-col-label">Ref No.:</label>
+						<label id="inv_rg"></label>
+					</hlayout>	
+					<hlayout>
+						<label sclass="zkbi-col-label">Customer Code:</label>
+						<label id="inv_vcode"></label>
+					</hlayout>	
+					<hlayout>
+						<label sclass="zkbi-col-label">Create By:</label>
+						<label id="inv_cuser"></label>
+					</hlayout>	
+						<label sclass="zkbi-col-label">Create On:</label>
+						<label id="inv_cdate"></label>
+					<hlayout>
+					</hlayout>	
+						<label sclass="zkbi-col-label">Update By:</label>
+						<label id="inv_uuser"></label>
+					<hlayout>
+					</hlayout>	
+					<hlayout>
+						<label sclass="zkbi-col-label">Update On:</label>
+						<label id="inv_udate"></label>
+					</hlayout>	
+					</vlayout>
+				</div>
+				<div width="50px"></div>
+				</hlayout>
+				</cell>
+			</row>
+			<row>
+				<cell colspan="6">
+	<tabbox id="zkbiListTop" width="100%">
+		<tabs width="100%">
+			<tab>Workorder Item</tab>
+			<tab id="quotationTab">Invoice Detail</tab>
+		</tabs>
+	<tabpanels>
+	<tabpanel id="projectDetailPanel" > 
+					<listbox id="list_hw_InvQuoDet" sclass="listboxNoSeparator">
+					</listbox>
+						<div align="right">
+					<vlayout>
+						<hlayout>
+						<div width="150px"><label sclass="zkbi-col-label">Project Amount</label></div>
+						<doublebox id="inv_grtotal"></doublebox>
+						</hlayout>
+						<hlayout>
+						<div width="150px"><label sclass="zkbi-col-label">Less Discount</label></div>
+						<doublebox id="inv_grdiscount"></doublebox>
+						</hlayout>
+						<hlayout>
+						<div width="150px"><label sclass="zkbi-col-label">Project Total</label></div>
+						<doublebox id="inv_grnettotal"></doublebox>
+						</hlayout>
+						<!--
+						-->
+					</vlayout>
+						</div>
+	</tabpanel>
+	<tabpanel id="quotationDetailPanel" > 
+					<listbox id="list_hw_InvDet" sclass="listboxNoSeparator">
+					</listbox>
+						<div align="right">
+					<vlayout>
+					</vlayout>
+						</div>
+	</tabpanel>
+	</tabpanels>
+	</tabbox>
+				</cell>
+			</row>
+		</rows>
+	</grid>
+	<div height = "100px">
+	</div>
+	<!-- 
+	<grid style="text-align:left;border: 1px solid #ECECEC;border-top:none;" id="gridSummary" sclass="gridLayoutNoBorder">
+		<columns>
+			<column hflex="min"></column>
+			<column hflex="min"></column>
+			<column hflex="min"></column>
+			<column hflex="min"></column>
+			<column hflex="1"></column>
+			<column hflex="min"></column>
+		</columns>
+		<rows>
+		</rows>
+	</grid>
+	 -->
+	<template name="template_HwQuoDet_Printing">
+		<div style="text-align:left">
+			<hlayout>
+					<div width="15px">
+					</div>
+					<div width="185px">
+					<textbox id="ind_ref1" width="170px" tabindex="0" maxlength="160" rows="2"></textbox>
+					</div>
+			<vlayout>
+				<hlayout valign="middle">
+					<div width="80px">
+					</div>
+					<div width="25px">
+					<label>MS:</label>
+					</div>
+					<doublebox id="ind_usize1" width="90px" format="0.00" tabindex="0"> </doublebox>
+					<div width="80px">
+					<label>(W)</label>
+					</div>
+					<label>x</label>
+					<div width="55px">
+					</div>
+					<label>(H)</label>
+					<doublebox id="ind_usize2" width="90px" format="0.00" tabindex="0"> </doublebox>
+					<div width="5px"></div>
+					<div width="80px">
+					<combobox id="ind_unit" width="70px"></combobox>
+					</div>
+					<div width="80px">
+					<doublebox id="ind_qty" width="60px"></doublebox>
+					</div>
+				</hlayout>
+				<hlayout valign="middle">
+					<div width="25px">
+					<label>DS:</label>
+					</div>
+					<div width="80px">
+					<doublebox id="ind_bleed1" width="64px" format="0.00" tabindex="0"></doublebox>
+					<label>+</label>
+					</div>
+					<doublebox id="ind_size1" width="90px" format="0.00" tabindex="0"></doublebox>
+					<div width="80px">
+					<label>+</label>
+					<doublebox id="ind_bleed1r" width="64px" format="0.00" tabindex="0"></doublebox>
+					</div>
+					<label>x</label>
+					<div width="80px">
+					<doublebox id="ind_bleed2" width="64px" format="0.00" tabindex="0"></doublebox>
+					<label>+</label>
+					</div>
+					<doublebox id="ind_size2" width="90px" format="0.00" tabindex="0"></doublebox>
+					<div width="80px">
+					<label>+</label>
+					<doublebox id="ind_bleed2r" width="64px" format="0.00" tabindex="0"></doublebox>
+					</div>
+					<div width="80px" align="center">
+						<label id="ind_areas"></label>
+					</div>
+				</hlayout>
+			</vlayout>
+			</hlayout>
+		</div>
+	</template>
+	<template name="template_HwQuoDet_MessageType">
+		<hlayout valign="middle">
+			<label id="ind_messagetype"></label>
+		</hlayout>
+	</template>
+	<template name="template_HwQuoDet_Job">
+		<!-- 
+			<div style="text-align:center">
+		-->
+		<div style="text-align:left">
+			<textbox id="ind_desc" width="480px"></textbox>
+		</div>
+	</template>
+	<template name="template_AfsQuoDet_LineBreak">
+		<div style="text-align:center">
+			<separator bar="true"></separator>
+		</div>
+	</template>
+	<template name="template_AfsQuoDet_QdstStatus">
+		<vlayout>
+			<div hflex="1">
+				<html id="ind_optdesc"></html>
+			</div>
+		</vlayout>
+	</template>
+	<template name="template_AfsQuoDet_Price">
+		<vlayout>
+		<hlayout valign="middle">
+			<div width="130px">
+			<doublebox id="ind_puprice" width="75px" format="##,##0.00"></doublebox>
+			<combobox id="mur_name" width="50px"></combobox>
+			</div>
+			<doublebox id="ind_uprice" width="80px" format="###,##0.00"></doublebox>
+		</hlayout>
+			<div align="right">
+			Less Discount
+			<intbox id="ind_discpercent" width="50px"></intbox>	
+			%
+			</div>
+		</vlayout>
+	</template>
+	<!-- 
+	<template name="template_AfsQuoDet_Quantity">
+		<div vflex="1">
+		<vlayout >
+			<doublebox id="ind_qty" width="100px"></doublebox>
+			<label id="ind_areas"></label>
+		</vlayout>
+		</div>
+	</template>
+	 -->
+</zk>

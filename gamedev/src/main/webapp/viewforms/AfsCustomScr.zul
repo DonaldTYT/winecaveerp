@@ -1,0 +1,28 @@
+<zk>
+<div width="680px">
+<vlayout>
+<listbox id="ipk_list" height="450px" width="100%">
+	<listhead>
+		<listheader width="250px" label="Custom Group" />
+		<listheader label="Quantity" />
+		<listheader label="Gross Weight" />
+		<listheader label="Volumne" />
+		<listheader label="Cost" />
+	</listhead>
+</listbox>
+<hlayout valign = "middle">
+	<div width="100px"></div>
+	<label>Total Weight:</label>
+	<doublebox id="custScr_gwt" width="130px" format="#,###,##0.000"></doublebox>
+	<label>Total Amount:</label>
+	<doublebox id="custScr_amt" width="130px" format="##,###,##0.00"></doublebox>
+</hlayout>
+	<toolbar align="center">
+	<!--  
+		<button id="btSelect" label="Select"></button>
+		<button id="btAdd" label="Add New"></button>
+	-->
+	</toolbar>
+</vlayout>
+</div>
+</zk>

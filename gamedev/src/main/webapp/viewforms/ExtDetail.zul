@@ -1,0 +1,36 @@
+<vlayout xmlns:h="native">
+<grid style="text-align:left;" id="detail_grid">
+   <columns visible="false" >
+      <column width="200px" />
+      <column/>
+	</columns>
+</grid>
+<hbox>
+<vbox>
+<listbox id="list_BdExtBind" width="200px">
+<!-- 
+	<listhead>
+		<listheader align="center">
+		<toolbarbutton id="btadd_list_BdExtBind" iconSclass="z-icon-plus z-icon-2x" ></toolbarbutton>
+		</listheader>
+	</listhead>
+ -->
+</listbox>
+<hbox>
+<combobox id="extPick" width="80px"></combobox>
+<button id="btadd_list_BdExtBind">Add</button>
+<!-- 
+<button id="btdel_list_BdExtBind">Delete</button>
+ -->
+</hbox>
+</vbox>
+<div id="visNwEventDiv" width="1200px" height="500px"> 
+	<h:div style="width:100%; height:90%;" id="visNwContentDiv"></h:div>
+</div>
+</hbox>
+<toolbar id="detail_toolbar" align="end">
+		<toolbarbutton id="btAddLink" label="Add Link" disabled="true" mode="toggle" width="100px"></toolbarbutton>
+    	<toolbarbutton id="btDelLink" label="Delete Link" disabled="true" width="100px"></toolbarbutton>
+    	<toolbarbutton id="btRedraw" label="Redraw" width="100px"></toolbarbutton>
+</toolbar>
+</vlayout>

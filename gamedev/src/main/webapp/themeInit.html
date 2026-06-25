@@ -1,0 +1,46 @@
+<%
+	//included by commoninit, override default css.
+	//named as html to bypass eclipse jsp fragment validation
+	
+	
+	
+	String curTheme = sessionHelper.getTheme();
+	
+	
+	//accept param large for backward compatible only
+	if (sessionHelper.getLargeFlag()){  //221207 obtain large param from sessionhelper
+		//curTheme = "large";
+		curTheme = "large_" + curTheme;  //220808 preserve existing theme
+	}
+	UniLog.log1("curTheme:" + curTheme);
+	
+	/*
+	//set theme
+	if (StringUtils.equalsAnyIgnoreCase(request.getParameter("theme"),"default","large")){
+		curTheme = request.getParameter("theme");
+	}
+	*/
+%>
+<script>
+console.log('themeinit called');
+//set viewport
+mobileUtil.muSetViewPort();
+
+//load common css (mode based) 
+mobileUtil.muLoadCss("<%=request.getParameter("mode")%>" , "<%=cssHome%>/style-color-blue-grey.css<%=versionTag%>");
+mobileUtil.muLoadCss("<%=request.getParameter("mode")%>", "<%=cssHome%>/style.css<%=versionTag%>", "<%=cssMobileHome%>/style.css<%=versionTag%>");
+mobileUtil.muLoadCss("<%=request.getParameter("mode")%>", "<%=cssHome%>/dashboard.css<%=versionTag%>", "<%=cssMobileHome%>/dashboard.css<%=versionTag%>");
+mobileUtil.muLoadCss("<%=request.getParameter("mode")%>" , "<%=cssHome%>/zkpdf.css<%=versionTag%>","<%=cssMobileHome%>/zkpdf.css<%=versionTag%>");
+
+<%
+	//load theme specific css. 
+
+	for (String themeSplit : StringUtils.split(curTheme, "-_")){
+//		if (StringUtils.equalsAny(themeSplit,"large","g2")){
+%>			
+			mobileUtil.muLoadCss("<%=request.getParameter("mode")%>" , "<%=cssHome%>/style-<%=themeSplit%>.css<%=versionTag%>");
+<%			
+//		}
+	}
+%>
+</script>

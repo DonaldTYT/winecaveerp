@@ -1,0 +1,19 @@
+<?page title="Auto Generated index.zul"?>
+<zk>
+	<style dynamic="true">
+		body{
+			text-align: left;
+		}
+	</style>
+<script src="js/visUtil.js"></script>
+<window border="normal" height="600px" width="800px" title="Welcome v14" id="JxZkTestVis2" apply="com.uniinformation.jx.zk.ZkJxComposer" xmlns:h="native">
+	<div id="visContentHolder">
+    <h:div style="width:100%; height:90%;" id="visContentDiv"></h:div>
+	</div>
+    <div style="background:yellow;" id="visEventDiv"></div>
+    <button id="btDraw1" label="Draw1"></button>
+    <button id="btDraw2" label="Draw2"></button>
+    <button id="btDraw3" label="Draw3"></button>
+</window>
+</zk>
+    

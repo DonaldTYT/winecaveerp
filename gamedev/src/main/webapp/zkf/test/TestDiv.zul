@@ -1,0 +1,14 @@
+<zk>
+<div width="1000px">
+<!-- 
+	<vlayout style="border: solid 3px">
+ -->
+ 	<hlayout spacing="0">
+	<vlayout spacing="0">
+	<div width="200px" height="100px" style="background-color:#e8e2be;border: solid 1px">HAHA</div>
+	<div width="200px" height="100px" style="background-color:#e8e2be;border: solid 1px">HAHA</div>
+	</vlayout>
+	<div width="200px" height="200px" style="background-color:#e8e2be;border: solid 1px">HAHA</div>
+ 	</hlayout>
+</div>
+</zk>

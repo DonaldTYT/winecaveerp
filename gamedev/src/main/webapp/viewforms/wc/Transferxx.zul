@@ -1,0 +1,7 @@
+<zk>
+	<toolbar id="detail_toolbar">
+		<button id="bt_setFrom" label="set From" visible="true"></button>
+		<button id="bt_setTo" label="set To" visible="true"></button>
+		
+	</toolbar>
+</zk>

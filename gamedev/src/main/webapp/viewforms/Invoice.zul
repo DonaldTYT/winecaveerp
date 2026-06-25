@@ -1,0 +1,112 @@
+<zk>
+<style dynamic="true">
+<!-- cut/hide the vertical borders in the grid rows -->
+.myGridWithNoBorder tr.z-row td.z-row-inner { border-right: 0px #CCC; }
+.GridLayoutNoBorder tr.z-row td.z-row-inner, tr.z-row .z-cell,div.z-grid 
+{ 
+border: none; 
+overflow: hidden; 
+zoom: 1; 
+background: white !important;  <!-- remove hover -->
+border-top: none; 
+border-left: none; 
+border-right: none; 
+border-bottom: none; 
+} 
+</style>
+
+
+<grid id="detail_grid" sclass="GridLayoutNoBorder " style="border: 1px solid #000">
+	<columns>
+		<column width="100px"></column>
+		<column width="600px"></column>
+		<column width="100px"></column>
+		<column></column>
+	</columns>
+	<rows>
+	<!-- 
+		<row>
+		<cell>Bill To1</cell>
+		<cell>Bill To2</cell>
+		<cell>Bill To3</cell>
+		<cell>Bill To4</cell>
+		</row>
+	 -->
+	 	<row>
+	 		<cell colspan="4">
+	 		<image src="images/logo_afs.png"/>
+	 		</cell>
+	 	</row>
+		<row>
+		<cell><label>Bill To</label> </cell>
+		<cell>
+		<hbox>
+		<bandbox id="vd_vname" use="com.uniinformation.jx.zk.ZkJxPickInput"></bandbox> 
+		<textbox id="inv_vcode"></textbox>
+		</hbox>
+		</cell>
+		<cell><label>Invoice No.</label> </cell>
+		<cell>
+		<hbox>
+		<textbox id="inv_invno"></textbox>
+		<intbox id="inv_rg"></intbox>
+		</hbox>
+		</cell>
+		</row>
+		<row>
+		<cell rowspan="3"><label>Address</label> </cell>
+		<cell rowspan="3">
+		<textbox id="inv_addr" rows="5" width="400px"></textbox>
+		</cell>
+		<cell><label>Date</label> </cell>
+		<cell><datebox id="inv_date"></datebox></cell>
+		</row>
+		<row>
+		<cell><label>Quotation No.</label> </cell>
+		<cell><textbox id="inv_quonum"></textbox></cell>
+		</row>
+		<row>
+		<cell><label>Payment Term</label> </cell>
+		<cell><textbox id="inv_term"></textbox></cell>
+		</row>
+		<row>
+		<cell><label>Telephone</label> </cell>
+		<cell>
+
+		<hbox>
+		<textbox id="inv_tel"></textbox>
+		<label>Fax</label>
+		<textbox id="inv_fax"></textbox>
+		</hbox>
+		</cell>
+		</row>
+		<row>
+		<cell><label>Contact</label> </cell>
+		<cell><textbox id="inv_contact"></textbox></cell>
+		</row>
+		<row>
+		<cell colspan="4">
+		<listbox id="list_InvDet">
+		<listfoot>
+		<listfooter> </listfooter>
+		<listfooter> </listfooter>
+		<listfooter> </listfooter>
+		<listfooter> </listfooter>
+		<listfooter> </listfooter>
+		<listfooter> </listfooter>
+		<listfooter><label>Total Amount:</label> </listfooter>
+		<listfooter><textbox id="inv_total"></textbox></listfooter>
+		</listfoot>
+		</listbox>
+		</cell>
+		</row>
+
+		<row>
+		<cell><label>Remark:</label></cell>
+		<cell>
+		<textbox id="inv_remark" rows="5" width="400px"></textbox>
+		</cell>
+		</row>
+	</rows>
+</grid>
+</zk>

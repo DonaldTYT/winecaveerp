@@ -1,0 +1,66 @@
+<zk>
+<div width="500px">
+	<vlayout>
+		<hlayout>
+		<!--
+			<listbox id="invoiceList" hflex="1" height="400px">
+			<listhead>
+			<listheader label="Date" />
+			<listheader label="Invoice No." />
+			<listheader label="Create By" />
+			<listheader label="Status" />
+			<listheader label="Job No" />
+			</listhead>
+			<listitem forEach="${items}">
+			<listcell label="i-1"/>
+			<listcell label="i-2"/>
+			<listcell label="i-3"/>
+			<listcell label="i-4"/>
+			</listitem>
+			</listbox>
+			-->
+			<listbox id="listbox" mold="paging" pageSize="5" multiple="true" checkmark="true">
+			<auxhead>
+			<auxheader label="Date"/>
+			<auxheader label="Invoice No." />
+			<auxheader label="Amount" colspan="2"/>
+			</auxhead>
+			<listhead>
+			<listheader width="50px">Head 1</listheader>
+			<listheader/>
+			<listheader/>
+			<listheader/>
+			</listhead>
+		<listitem>
+			<listcell/>
+			<listcell label="i-1"/>
+			<listcell label="i-2"/>
+			<listcell label="i-3"/>
+			<listcell>
+				<vlayout>
+				<label>HAHA1</label>
+				<label>HAHA2</label>
+				</vlayout>
+			</listcell>
+		</listitem>
+		<listitem>
+			<listcell/>
+			<listcell label="i-1"/>
+			<listcell label="i-2"/>
+			<listcell label="i-3"/>
+			<listcell label="i-4"/>
+		</listitem>
+	</listbox>
+			<vlayout>
+			<button width="100px" id="btSelect" label="Select"></button>
+			<button width="100px" id="btOK" label="Create"></button>
+			</vlayout>
+		</hlayout>
+		<div align="right">
+			<hlayout>
+			<button width="100px" id="btCancel" label="Cancel"></button>
+			</hlayout>
+		</div>
+	</vlayout>
+</div>
+</zk>

@@ -1,0 +1,38 @@
+<%@ page language="java" pageEncoding="utf-8" contentType="text/html;charset=utf-8"%>
+<%@ page import="java.util.*, com.uniinformation.utils.*,com.uniinformation.webcore.* " %>
+<%
+response.setHeader("Cache-Control", "no-cache, no-store, must-revalidate"); // HTTP 1.1.
+response.setHeader("Pragma", "no-cache"); // HTTP 1.0.
+response.setHeader("Expires", "0"); // Proxies.
+try {	
+%>
+
+<%
+} catch(Exception ex) {
+	UniLog.log(ex);
+	out.println("<br/><span class='red'>System Error. Please try again later.</span>");
+	//throw(ex);
+}
+%>
+
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<body>
+   <h2>Using JavaScript to resirect a webpage after 5 seconds </h2>
+   <p id = "result"></p>
+   <script>
+      function redirect () {
+         setTimeout(myURL, 100);
+         var result = document.getElementById("result");
+         result.innerHTML = "<b> The page will redirect after delay of 0.5 seconds";
+      }
+
+      function myURL() {
+         document.location.href = '<%= OffsiteRedirect.getUrl(request.getParameter("urlkey")) %>';
+      }
+      redirect ();
+   </script>
+</body>
+</html>

@@ -1,0 +1,124 @@
+﻿Add
+新增
+Delete
+刪除
+Detail
+詳細
+Export
+導出
+Save Changes
+儲存修改
+Update
+更改
+Import
+導入
+Password Protect?
+密碼保護?
+Password protect
+密碼保護
+Ok
+確定
+Cancel
+取消
+Save Changes
+保存修改
+Save New Record
+保存新記錄
+Close
+關閉
+Refresh
+刷新
+Start
+開始
+End
+完成
+Exit
+離開
+Clear
+清除   						
+Pending for Receive
+待收貨
+Continue
+繼續
+Add Next...
+加下一個...
+Proceed
+繼續
+Back
+返回
+Match All
+全符合
+Delivery Note
+送貨單
+Print Invoice
+打印發票
+Print Invoices
+打印發票
+Print Packing List
+打印裝箱單
+Create Order
+創建訂單
+Next Record
+下一個記錄
+Login
+登入
+Import/Export
+導入/導出
+Maintenance
+維​​護
+Import G2
+導入G2
+Copy
+複製
+Paste
+貼上
+Copy & Paste
+複製/貼上
+Export To File
+導出到文件
+Import From File
+從文件導入
+Update Current
+修改
+Copy & Add
+複製和新增
+Add Block
+增加塊
+Search
+搜索
+Reset
+重置
+View custom query string
+查看自定義查詢字符串
+Issue Purchase Order
+發出採購單
+Allocate From Stock
+從庫存中分配
+Download
+下載
+Proceed
+繼續
+Batch Update
+批量更新
+Back
+返回
+EDIT
+編輯
+OK
+確定
+CLEAR
+清除
+IMPORT
+導入
+EXPORT
+導出
+CLOSE
+關閉
+Confirm
+確認
+Right Off
+註銷
+Copy Link
+複製連結
+Recal&Update
+重新計算及更新

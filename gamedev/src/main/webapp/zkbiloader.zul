@@ -1,0 +1,18 @@
+<?page title="Auto Generated index.zul"?>
+<zk>
+<zscript>
+<![CDATA[
+	String composer = "ZkBiComposerBase";
+	String classPrefix = "com.uniinformation.zkbi.";
+	if (Executions.getCurrent().getParameter("composer") != null){
+		composer = Executions.getCurrent().getParameter("composer").trim();
+	}
+	if (Executions.getCurrent().getParameter("prefix") != null){
+		classPrefix = "com.uniinformation."+Executions.getCurrent().getParameter("prefix").trim()+".";
+	}
+]]></zscript>
+<window id="zkbibrowser" apply="${classPrefix}${composer}" border="none" style="padding:0px !important">
+ 
+	<custom-attributes listboxHeight="css"/>
+</window>
+</zk>

@@ -1,0 +1,208 @@
+<zk>
+	<hlayout>
+   <vlayout>
+     <hlayout>
+        <div width="150px"> <label>Initial Balance</label> </div>
+        <doublebox id="tradj_initbal"></doublebox>
+     </hlayout>
+     <hlayout>
+        <div width="150px"> <label>Page</label> </div>
+        <combobox id="tradj_page"></combobox>
+     </hlayout>
+     <hlayout>
+        <div width="150px"> <label>Month Start</label> </div>
+        <intbox id="tradj_pmstart"></intbox>
+     </hlayout>
+     <hlayout>
+        <div width="150px"> <label>Month End</label> </div>
+        <intbox id="tradj_pmend"></intbox>
+     </hlayout>
+     <hlayout>
+        <div width="150px"> <label>Starting Balance</label> </div>
+        <doublebox id="tradj_stbal"></doublebox>
+     </hlayout>
+     <hlayout>
+        <div width="150px"> <label>Win</label> </div>
+        <doublebox id="tradj_tolwin"></doublebox>
+     </hlayout>
+     <hlayout>
+        <div width="150px"> <label>Loss</label> </div>
+        <doublebox id="tradj_tolloss"></doublebox>
+     </hlayout>
+     <hlayout>
+        <div width="150px"> <label>Current Balance</label> </div>
+        <doublebox id="tradj_curbal"></doublebox>
+     </hlayout>
+     <hlayout>
+        <div width="150px"> <label>Profit / Loss</label> </div>
+        <doublebox id="tradj_totalpl"></doublebox>
+     </hlayout>
+     <hlayout>
+        <div width="150px"> <label>% Gain</label> </div>
+        <doublebox id="tradj_percentgain"></doublebox>
+     </hlayout>
+     <hlayout>
+        <div width="150px"> <label>Total Trades</label> </div>
+        <intbox id="tradj_ntrade"></intbox>
+     </hlayout>
+     <hlayout>
+        <div width="150px"> <label>Winning Trades</label> </div>
+        <intbox id="tradj_wtrade"></intbox>
+     </hlayout>
+     <hlayout>
+        <div width="150px"> <label>Lossing Trades</label> </div>
+        <intbox id="tradj_ltrade"></intbox>
+     </hlayout>
+     <hlayout>
+        <div width="150px"> <label>Breakeven Trades</label> </div>
+        <intbox id="tradj_btrade"></intbox>
+     </hlayout>
+     <hlayout>
+        <div width="150px"> <label>% Winning Trades</label> </div>
+        <doublebox id="tradj_percentwin"></doublebox>
+     </hlayout>
+     <hlayout>
+        <div width="150px"> <label>Average Win</label> </div>
+        <doublebox id="tradj_averagewin"></doublebox>
+     </hlayout>
+     <hlayout>
+        <div width="150px"> <label>Average Loss</label> </div>
+        <doublebox id="tradj_averageloss"></doublebox>
+     </hlayout>
+     <hlayout>
+        <div width="150px"> <label>% Risk Per Trade</label> </div>
+        <doublebox id="tradj_priskpertrade" value="1.3"></doublebox>
+     </hlayout>
+     <hlayout>
+        <div width="150px"> <label>Risk Per Trade</label> </div>
+        <doublebox id="tradj_ariskpertrade" value="3.2"></doublebox>
+     </hlayout>
+     <hlayout>
+        <div width="150px"> <label>PL By Months</label> </div>
+        <label id="tradj_jsonpl"></label>
+     </hlayout>
+   </vlayout>
+   		<div width="150px"></div>
+   	<vlayout>
+     <hlayout>
+        <div width="150px"> <label>Month</label> </div>
+        <div width="250px"> <label>P/L</label> </div>
+        <div width="250px"> <label>Gain</label> </div>
+     </hlayout>
+     <hlayout>
+        <div width="150px"> <label>JAN</label> </div>
+        <div width="250px">
+        	<doublebox id="tradj_pl_1"></doublebox>
+        </div>
+        <div width="250px">
+        	<doublebox id="tradj_gain_1"></doublebox>
+        </div>
+     </hlayout>
+     <hlayout>
+        <div width="150px"> <label>FEB</label> </div>
+        <div width="250px">
+        	<doublebox id="tradj_pl_2"></doublebox>
+        </div>
+        <div width="250px">
+        	<doublebox id="tradj_gain_2"></doublebox>
+        </div>
+     </hlayout>
+     <hlayout>
+        <div width="150px"> <label>MAR</label> </div>
+        <div width="250px">
+        	<doublebox id="tradj_pl_3"></doublebox>
+        </div>
+        <div width="250px">
+        	<doublebox id="tradj_gain_3"></doublebox>
+        </div>
+     </hlayout>
+     <hlayout>
+        <div width="150px"> <label>APR</label> </div>
+        <div width="250px">
+        	<doublebox id="tradj_pl_4"></doublebox>
+        </div>
+        <div width="250px">
+        	<doublebox id="tradj_gain_4"></doublebox>
+        </div>
+     </hlayout>
+     <hlayout>
+        <div width="150px"> <label>MAY</label> </div>
+        <div width="250px">
+        	<doublebox id="tradj_pl_5"></doublebox>
+        </div>
+        <div width="250px">
+        	<doublebox id="tradj_gain_5"></doublebox>
+        </div>
+     </hlayout>
+     <hlayout>
+        <div width="150px"> <label>JUN</label> </div>
+        <div width="250px">
+        	<doublebox id="tradj_pl_6"></doublebox>
+        </div>
+        <div width="250px">
+        	<doublebox id="tradj_gain_6"></doublebox>
+        </div>
+     </hlayout>
+     <hlayout>
+        <div width="150px"> <label>JUL</label> </div>
+        <div width="250px">
+        	<doublebox id="tradj_pl_7"></doublebox>
+        </div>
+        <div width="250px">
+        	<doublebox id="tradj_gain_7"></doublebox>
+        </div>
+        <div width="250px">
+        	<doublebox id="tradj_cpl_7"></doublebox>
+        </div>
+     </hlayout>
+     <hlayout>
+        <div width="150px"> <label>AUG</label> </div>
+        <div width="250px">
+        	<doublebox id="tradj_pl_8"></doublebox>
+        </div>
+        <div width="250px">
+        	<doublebox id="tradj_gain_8"></doublebox>
+        </div>
+     </hlayout>
+     <hlayout>
+        <div width="150px"> <label>SEP</label> </div>
+        <div width="250px">
+        	<doublebox id="tradj_pl_9"></doublebox>
+        </div>
+        <div width="250px">
+        	<doublebox id="tradj_gain_9"></doublebox>
+        </div>
+     </hlayout>
+     <hlayout>
+        <div width="150px"> <label>OCT</label> </div>
+        <div width="250px">
+        	<doublebox id="tradj_pl_10"></doublebox>
+        </div>
+        <div width="250px">
+        	<doublebox id="tradj_gain_10"></doublebox>
+        </div>
+        <div width="250px">
+        	<doublebox id="tradj_cpl_10"></doublebox>
+        </div>
+     </hlayout>
+     <hlayout>
+        <div width="150px"> <label>NOV</label> </div>
+        <div width="250px">
+        	<doublebox id="tradj_pl_11"></doublebox>
+        </div>
+        <div width="250px">
+        	<doublebox id="tradj_gain_11"></doublebox>
+        </div>
+     </hlayout>
+     <hlayout>
+        <div width="150px"> <label>DEC</label> </div>
+        <div width="250px">
+        	<doublebox id="tradj_pl_12"></doublebox>
+        </div>
+        <div width="250px">
+        	<doublebox id="tradj_gain_12"></doublebox>
+        </div>
+     </hlayout>
+   	</vlayout>
+	</hlayout>
+</zk>

@@ -1,0 +1,110 @@
+<zk>
+<vlayout xmlns:h="native">
+
+<grid style="text-align:left;" id="detail_grid">
+	<columns>
+		<column align="right" hflex="min" />
+		<column hflex="1" />
+	</columns>
+	<rows>
+		<row>
+			<label hflex="1" id="lb_st_irg" value="Ref No"><custom-attributes tlkey="lb_st_irg"></custom-attributes></label>
+			<doublebox hflex="1" id="st_irg"/>
+		</row>
+		<row>
+			<label hflex="1" id="lb_st_cdate" value="Create On"><custom-attributes tlkey="lb_st_cdate"></custom-attributes></label>
+			<textbox hflex="1" id="st_cdate"/>
+		</row>
+		<row>
+			<label hflex="1" id="lb_st_cuser" value="Create By"><custom-attributes tlkey="lb_st_cuser"></custom-attributes></label>
+			<textbox hflex="1" id="st_cuser"/>
+		</row>
+		<row>
+			<label hflex="1" id="lb_st_uuser" value="Update By"><custom-attributes tlkey="lb_st_uuser"></custom-attributes></label>
+			<textbox hflex="1" id="st_uuser"/>
+		</row>
+		<row>
+			<label hflex="1" id="lb_st_udate" value="Last Update On"><custom-attributes tlkey="lb_st_udate"></custom-attributes></label>
+			<textbox hflex="1" id="st_udate"/>
+		</row>
+		<row>
+			<label hflex="1" id="lb_st_obsolete" value="Obsoleted"><custom-attributes tlkey="lb_st_obsolete"></custom-attributes></label>
+			<checkbox hflex="1" id="st_obsolete"/>
+		</row>
+		<row>
+			<label hflex="1" id="lb_mt_tpname" value="Category"><custom-attributes tlkey="lb_mt_tpname"></custom-attributes></label>
+			<bandbox hflex="1" id="mt_tpname" use="com.uniinformation.jx.zk.ZkJxPickInput"/>
+		</row>
+		<row>
+			<label hflex="1" id="lb_st_icode" value="Item Code"><custom-attributes tlkey="lb_st_icode"></custom-attributes></label>
+			<textbox hflex="1" id="st_icode"/>
+		</row>
+		<row>
+			<label hflex="1" id="lb_st_barcode" value="Barcode"><custom-attributes tlkey="lb_st_barcode"></custom-attributes></label>
+			<textbox hflex="1" id="st_barcode"/>
+		</row>
+		<row>
+			<label hflex="1" id="lb_st_iname" value="Name"><custom-attributes tlkey="lb_st_iname"></custom-attributes></label>
+			<textbox hflex="1" id="st_iname"/>
+		</row>
+		<row>
+			<label hflex="1" id="lb_st_einame" value="Chinese Name"><custom-attributes tlkey="lb_st_einame"></custom-attributes></label>
+			<textbox hflex="1" id="st_einame"/>
+		</row>
+		<row>
+			<label hflex="1" id="lb_st_unit" value="Unit"><custom-attributes tlkey="lb_st_unit"></custom-attributes></label>
+			<textbox hflex="1" id="st_unit"/>
+		</row>
+		<row>
+			<label hflex="1" id="lb_st_mszrange" value="Size/Spec"><custom-attributes tlkey="lb_st_mszrange"></custom-attributes></label>
+			<textbox hflex="1" id="st_mszrange"/>
+		</row>
+		<row>
+			<label hflex="1" id="lb_st_netweight" value="Net Weight"><custom-attributes tlkey="lb_st_netweight"></custom-attributes></label>
+			<intbox hflex="1" id="st_netweight"/>
+		</row>
+			<row>
+			<label hflex="1" id="lb_st_dimensionunit" value="Dimension"><custom-attributes tlkey="lb_st_dimensionunit"></custom-attributes></label>
+			<combobox hflex="1" id="st_dimensionunit"/>
+		</row>
+		<row>
+			<label hflex="1" id="lb_st_dimensionw" value="Dimension(W)"><custom-attributes tlkey="lb_st_dimensionw"></custom-attributes></label>
+			<intbox hflex="1" id="st_dimensionw"/>
+		</row>
+		<row>
+			<label hflex="1" id="lb_st_dimensionl" value="Dimension(L)"><custom-attributes tlkey="lb_st_dimensionl"></custom-attributes></label>
+			<intbox hflex="1" id="st_dimensionl"/>
+		</row>
+		<row>
+			<label hflex="1" id="lb_st_dimension" value="Area/Volume"><custom-attributes tlkey="lb_st_dimension"></custom-attributes></label>
+			<intbox hflex="1" id="st_dimension"/>
+		</row>
+		<row>
+			<label hflex="1" id="lb_st_remark" value="Remark"><custom-attributes tlkey="lb_st_remark"></custom-attributes></label>
+			<textbox hflex="1" id="st_remark"/>
+		</row>
+		<row>
+			<label hflex="1" id="lb_st_lowmark" value="Low Water Mark"><custom-attributes tlkey="lb_st_lowmark"></custom-attributes></label>
+			<intbox hflex="1" id="st_lowmark"/>
+		</row>
+		<row>
+			<label hflex="1" id="lb_st_highmark" value="High Water Mark"><custom-attributes tlkey="lb_st_highmark"></custom-attributes></label>
+			<intbox hflex="1" id="st_highmark"/>
+		</row>
+		<row>
+			<label hflex="1" id="lb_stg_freestock" value="Free Stock"><custom-attributes tlkey="lb_stg_freestock"></custom-attributes></label>
+			<intbox hflex="1" id="stg_freestock"/>
+		</row>
+	<row spans="2">
+		<div>
+		<div align="left">
+		<label id="lb_list_Stock_Movement" value="Movement Details"/>
+		</div>
+		<listbox id="list_erpv4_StockMove"/>
+		</div>
+	</row>
+	</rows>
+</grid>
+
+</vlayout>
+</zk>

@@ -1,0 +1,36 @@
+<?page title="Auto Generated index.zul"?>
+<zk>
+<script src="js/visUtil.js"></script>
+<window id="zkbibrowser" border="none" apply="com.uniinformation.zkbi.ZkBiComposerWipOrder2" xmlns:h="native">
+	<custom-attributes listboxHeight="css"/>
+	<tabbox id="zkbiListTop" width="100%">
+		<tabs width="100%">
+			<tab>Summary</tab>
+			<tab>Timeline</tab>
+		</tabs>
+		<tabpanels>
+			<tabpanel id="zkbiListPanel" > 
+				<listbox id="browser_listbox"/>
+				<hlayout height="10px" valign="middle"> </hlayout>
+				<vbox id="zkbiBottomPanel" width="100%"></vbox>
+			</tabpanel>
+			<tabpanel id="JxJobStatusTimeline">
+			    <h:div id="visContentDiv"></h:div>
+    			<div style="background:yellow;" id="visEventDiv"></div>
+    			<toolbar>
+    			<toolbarbutton id="btToday" label="今天"></toolbarbutton>
+    			<toolbarbutton id="btCurrWeek" label="本週"></toolbarbutton>
+    			<toolbarbutton id="btCurrMonth" label="本月"></toolbarbutton>
+    			</toolbar>
+    			<!-- 
+    			<hlayout>
+    			<button id="btToday" label="今天"></button>
+    			<button id="btCurrWeek" label="本週"></button>
+    			<button id="btCurrMonth" label="本月"></button>
+    			</hlayout>
+    			 -->
+			</tabpanel>
+		</tabpanels>
+	</tabbox>
+</window>
+</zk>

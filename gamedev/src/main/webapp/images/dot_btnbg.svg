@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   width="15"
+   height="15"
+   viewBox="0 0 15 15"
+   version="1.1"
+   id="svg241"
+   sodipodi:docname="dot_btnbg.svg"
+   inkscape:version="1.2.2 (732a01da63, 2022-12-09)"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview243"
+     pagecolor="#ffffff"
+     bordercolor="#000000"
+     borderopacity="0.25"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     inkscape:document-units="mm"
+     showgrid="false"
+     inkscape:zoom="40.443168"
+     inkscape:cx="3.1896611"
+     inkscape:cy="7.7268922"
+     inkscape:window-width="1920"
+     inkscape:window-height="1018"
+     inkscape:window-x="-6"
+     inkscape:window-y="-6"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="layer1" />
+  <defs
+     id="defs238" />
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1">
+    <path
+       style="fill:#0000ff"
+       d="M 2.727498,4.0038272 5.2626724,5.5074478"
+       id="path780" />
+    <path
+       style="fill:#0000ff"
+       d="M 14.996353,0 0.01236303,14.996353"
+       id="path782" />
+    <path
+       style="fill:#01a7e1;fill-opacity:1"
+       d="M 0,14.996353 H 14.98399 L 14.996353,0 Z"
+       id="path790" />
+    <path
+       style="fill:#01a7e1;fill-opacity:1"
+       d="m 7.1829191,10.409669 2.0893516,1.335207 3.9808953,-4.5125048 v 0"
+       id="path3982" />
+    <path
+       style="fill:#ffffff;fill-opacity:1"
+       d="m 6.255692,10.731108 2.3489752,2.076989"
+       id="path4768" />
+    <path
+       style="fill:#ff8080;fill-opacity:1"
+       d="m 5.7611709,11.151451 1.9780844,1.829728 v 0 0 0"
+       id="path4770" />
+    <path
+       style="fill:#ff8080;fill-opacity:1"
+       d="m 5.835349,11.497616 1.7060979,1.458837"
+       id="path6395" />
+    <path
+       style="fill:none;fill-opacity:1"
+       d="M 5.7117188,11.423438 7.8381595,12.981179 12.486658,8.8519278"
+       id="path8577" />
+    <ellipse
+       style="fill:#ffffff;fill-opacity:1;stroke:#ffffff;stroke-width:1.4348;stroke-linecap:round;stroke-dasharray:none;stroke-opacity:1"
+       id="path11775"
+       cx="10.595114"
+       cy="10.916553"
+       rx="1.4771144"
+       ry="1.4276624" />
+  </g>
+</svg>

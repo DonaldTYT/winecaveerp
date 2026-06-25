@@ -1,0 +1,108 @@
+<zk xmlns:n="native">
+<style dynamic="true">
+.toolbar-container {
+	display: flex;
+	display: -webkit-flex;
+	align-items: center;
+	-webkit-align-items: center;
+	flex-flow: row wrap;
+	-webkit-flex-flow: row wrap;
+	background: #f2f2f2;
+}
+.toolbar-leftarea {
+	display: inline-flex;
+	display: -webkit-inline-flex;
+	align-items: center;
+	-webkit-align-items: center;
+	flex: auto;
+	-webkit-flex: auto;
+}
+.list_erpv4_MoDetG2 .z-listbox-body {
+<!-- 
+    height: 40vh;
+    min-height: 200px;
+ -->
+    min-height: 40vh;
+}
+/*
+ .zkbi-linkcomp-listbox .z-listbox-body { 
+ }
+ */
+</style>
+	<div class="toolbar-container">
+		<div class="toolbar-leftarea">
+		<!--
+			<zkbidiv jxId="vd_vcode"></zkbidiv>
+			<zkbidiv jxId="vd_vname"></zkbidiv>
+		  -->
+		</div>
+		<toolbar id="detail_toolbar" align="end">
+		</toolbar>
+	</div>
+	<!-- 
+	<div>
+		<zkbidiv jxId="vd_vcode"></zkbidiv>
+		<zkbidiv jxId="vd_vname"></zkbidiv>
+	</div>
+	 -->
+	 <!--  
+	 -->
+						<bs-row>
+							<div sclass="col-xl-6 col-lg-12">
+							<zkbidiv jxId="stm_date"></zkbidiv>
+							<zkbidiv jxId="stm_ref1"></zkbidiv>
+							<zkbidiv jxId="stm_ref3"></zkbidiv>
+							<zkbidiv jxId="floc_desc"></zkbidiv>
+							<zkbidiv jxId="tloc_desc"></zkbidiv>
+							<zkbidiv jxId="stm_ctrspec"></zkbidiv>
+							<zkbidiv jxId="stm_nref1"></zkbidiv>
+							<zkbidiv jxId="stm_status"></zkbidiv>
+							<zkbidiv jxId="stm_cur"></zkbidiv>
+							<zkbidiv jxId="stm_tolAmt"></zkbidiv>
+							</div>
+							<div sclass="col-xl-4 col-lg-6">
+							</div>
+							<div sclass="col-xl-2 col-lg-6">
+							</div>
+						</bs-row>
+	 <!--
+	<tabbox id="zkbiListTop" width="100%" height="75vh">
+		<tabs width="100%">
+			<tab><custom-attributes tlkey="tp_customer_info"></custom-attributes>General Information</tab>
+			<tab id="quoInvoiceTab" visible="true"></tab>
+		</tabs>
+		<tabpanels>
+			<tabpanel> 
+			<grid id="detail_grid"  sclass="zkbi-detail-grid"> 
+	   -->
+	   <!-- 
+			<rows>
+				<row>
+					<cell colspan="2">
+					</cell>
+				</row>
+			</rows>
+	    -->
+			</grid>
+	 <!--
+			</tabpanel>
+		</tabpanels>	
+	</tabbox>
+	-->
+	<listbox sclass="list_erpv4_MoDetG2" id="list_erpv4_MoDetG2"> </listbox>
+	<template name="template_erpv4_MoDetG2_stmdo_name" twidth="100px">
+		<div>
+			<radiogroup id="stmdo_name" orient="vertical"></radiogroup>
+		</div>
+	</template>	
+	<template name="template_erpv4_MoDetG2_stmd_itemdiv" twidth="600px">
+		<vlayout>
+			<hlayout>
+				<label>Item Code</label>
+				<bandbox id="st_icode" use="com.uniinformation.jx.zk.ZkJxPickInput"/>
+			</hlayout>
+			<label id="st_iname"></label>
+		</vlayout>
+	</template>	
+	
+</zk>

@@ -1,0 +1,89 @@
+<zk>
+<style>
+    .meter {
+        font-size: 1px;
+        height: 3px;
+    }
+    .meter-inner {
+        width: 0px;
+        height: 3px;
+    }
+    .meter-red .meter-inner{
+        background: red;
+    }
+    .meter-orange .meter-inner{
+        background: orange;
+    }
+    .meter-green .meter-inner{
+        background: green;
+    }
+</style>
+<zscript>
+<![CDATA[
+	import com.uniinformation.webcore.*;
+	SessionHelper sessionHelper = SessionHelper.getSessionHelper();
+	String gridLeftWidth = sessionHelper.isMobile() ? "120px" : "300px";
+]]>
+</zscript>
+<toolbar id="detail_toolbar" align="end">
+	<button id="btUpdateAttendance" label="Update Attendance"></button>
+	<button id="btSetLoginPassword" label="Set Login Password" iconSclass="z-icon-lock"></button>
+	<button id="btCalendar" label="Calendar" iconSclass="z-icon-calendar"></button>
+	<button id="btCourseSummary" label="Course Summary" iconSclass="z-icon-list"></button>
+</toolbar>
+<grid style="text-align:left;" id="detail_grid">
+	<columns>
+		<column align="right" width="${gridLeftWidth}" />
+		<column hflex="1" />
+	</columns>
+	<rows>
+		<row>
+			<label id="lb_estt_ttno" value="Tutor Code"><custom-attributes tlkey="lb_estt_ttno"></custom-attributes></label>
+			<textbox id="estt_ttno"/>
+		</row>
+		<row>
+			<label id="lb_estt_idtype" value="ID Type"><custom-attributes tlkey="lb_estt_idtype"></custom-attributes></label>
+			<hlayout>
+				<radiogroup id="estt_idtype"/>
+				<space></space>
+				<label id="lb_estt_idno" value="ID Number"><custom-attributes tlkey="lb_estt_idno"></custom-attributes></label>
+				<textbox id="estt_idno"/>
+			</hlayout>
+		</row>
+		<row>
+			<label id="lb_estt_name" value="Name"><custom-attributes tlkey="lb_estt_name"></custom-attributes></label>
+			<textbox id="estt_name"/>
+		</row>
+		<row>
+			<label id="lb_estt_status" value="Status"><custom-attributes tlkey="lb_estt_status"></custom-attributes></label>
+			<radiogroup id="estt_status"/>
+		</row>
+		<!--
+		<row>
+			<label id="lb_lgu_login" value="Login Id"><custom-attributes tlkey="lb_lgu_login"></custom-attributes></label>
+			<textbox id="lgu_login"/>
+		</row>
+		<row>
+			<label id="lb_lgu_name" value="Login Name"><custom-attributes tlkey="lb_lgu_name"></custom-attributes></label>
+			<combobox id="lgu_name"/>
+		</row>
+		-->
+		<row>
+			<label id="lb_esmgl_name" value="Management Level"><custom-attributes tlkey="lb_esmgl_name"></custom-attributes></label>
+			<combobox id="esmgl_name"/>
+		</row>
+		<row spans="2">
+			<div align="start">
+				<label value="Course"/>
+				<listbox id="list_edu_TutorCourse" height="300px"/>	
+			</div>
+		</row>
+		<row spans="2">
+			<div align="start">
+				<label value="Attendance"/>
+				<listbox id="list_edu_TutorAttendance" height="300px"/>	
+			</div>
+		</row>
+	</rows>
+</grid>
+</zk>

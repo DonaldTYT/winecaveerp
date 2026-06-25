@@ -1,0 +1,251 @@
+<zk xmlns:n="native">
+	<style dynamic="true">
+		div.z-grid.zkbi-detail-grid > div.z-grid-body {
+			height: auto;
+		}
+		div.z-grid.zkbi-detail-grid {
+		   border: 1px solid transparent;
+		}
+		div.zkbifdiv-lbdiv {
+		    min-width: 0px;
+		    width: 120px;
+		}
+		div.zkbidiv > div.z-hlayout-inner:first-child > div.z-div {
+		    width: 120px !important;
+		}	
+		div.row {
+		    margin-left: 0px;
+		    margin-right: 0px;
+		}
+		@media (min-width: 992px) {
+			div.row > div.seccol div.zkbifdiv-lbdiv {
+				width: initial;
+			}
+		}
+		@media (max-width: 991px) {
+			div.row > div.seccol div.zkbifdiv-lbdiv {
+				width: 120px;
+			}
+		}
+	</style>
+	<div class="zkbi-detail-toolbar-container">
+		<div class="zkbi-detail-toolbar-leftarea">
+		</div>
+		<toolbar id="detail_toolbar" align="end">
+		</toolbar>
+	</div>
+	<tabbox id="zkbiListTop" width="100%" sclass="zkbi-detail-tabbox" height="80vh" style="overflow-y:auto">
+		<tabs width="100%">
+			<tab><custom-attributes tlkey="tp_general"></custom-attributes>Stock Detail</tab>
+			<tab><custom-attributes tlkey="tp_skill"></custom-attributes>Stock Ledger</tab>
+			<tab><custom-attributes tlkey="tp_work_experience"></custom-attributes>Work Experience</tab>
+			<tab><custom-attributes tlkey="tp_reward_record"></custom-attributes>Reward Record</tab>
+			<tab><custom-attributes tlkey="tp_violation_record"></custom-attributes>Violation Record</tab>
+			<tab><custom-attributes tlkey="tp_production_error"></custom-attributes>Production Error</tab>
+			<tab><custom-attributes tlkey="tp_training"></custom-attributes>Training</tab>
+		</tabs>
+		<tabpanels>
+			<tabpanel>
+				<bs-row>
+					<div sclass="col-lg-4 col-sm-12">
+						<zkbidiv jxId="em_eid"/>
+						<zkbifdiv jxId="em_surname"/>
+						<zkbifdiv jxId="em_csurname"/>
+						<zkbifdiv jxId="etmt_name"/>
+						<zkbifdiv jxId="gdmt_name"/>
+						<separator height="20px"/>
+						<zkbidiv jxId="em_nation"/>
+						<zkbidiv jxId="em_birth"/>
+						<zkbidiv jxId="em_sex"/>
+						<hlayout>
+							<zkbidiv jxId="em_height"/>cm
+						</hlayout>
+						<zkbidiv jxId="em_marital"/>
+						<zkbidiv jxId="em_numchild"/>
+					</div>
+
+					<div sclass="col-lg-4 col-sm-12">
+						<div class="row">
+							<div sclass="col-lg-7 col-12 col-sm-12">
+								<zkbifdiv jxId="em_oldeid"/>
+							</div>
+							<div sclass="col-lg-5 col-12 col-sm-12 seccol">
+								<zkbifdiv jxId="em_badgeid"/>
+							</div>
+						</div>
+						<zkbifdiv jxId="em_midname"/>
+						<div class="row">
+							<div sclass="col-lg-7 col-12 col-sm-12">
+								<zkbifdiv jxId="em_cmidname"/>
+							</div>
+							<div sclass="col-lg-5 col-12 col-sm-12 seccol">
+								<zkbifdiv jxId="em_nickname"/>
+							</div>
+						</div>
+						<zkbifdiv jxId="dpmt_name"/>
+						<zkbifdiv jxId="ptmt_name"/>
+						<separator height="20px"/>
+						<div class="row">
+							<div sclass="col-lg-8 col-12 col-sm-12">
+								<zkbifdiv jxId="em_idno"/>
+							</div>
+							<div sclass="col-lg-4 col-12 col-sm-12 seccol">
+								<zkbifdiv jxId="tip_name"/>
+							</div>
+						</div>
+						<div class="row">
+							<div sclass="col-lg-7 col-12 col-sm-12">
+								<zkbifdiv jxId="em_ensdate" compStyle="max-width:130px"/>
+							</div>
+							<div sclass="col-lg-5 col-12 col-sm-12 seccol">
+								<zkbifdiv jxId="em_validate" compStyle="max-width:130px"/>
+							</div>
+						</div>
+						<zkbifdiv jxId="em_addr1"/>
+						<div class="row">
+							<div sclass="col-lg-7 col-12 col-sm-12">
+								<zkbifdiv jxId="em_tel"/>
+							</div>
+							<div sclass="col-lg-5 col-12 col-sm-12 seccol">
+								<zkbifdiv jxId="em_mobilephone"/>
+							</div>
+						</div>
+						<zkbifdiv jxId="em_urgentcontact"/>
+					</div>
+
+					<div sclass="col-lg-4 col-sm-12">
+						<separator height="40px"/>
+						<vbox align="center" width="100%">
+							<image id="imgEmployeePhoto" width="250px" height="250px" style="object-fit:contain;background-color:lightgrey"/>
+							<hbox>
+								<button id="btEmployeePhoto" label="Upload"><custom-attributes tlkey="bt_employeephoto"></custom-attributes></button>
+								<button id="btRemoveEmployeePhoto" label="Remove"><custom-attributes tlkey="bt_remove_employeephoto"></custom-attributes></button>
+								<button id="btDownloadEmployeePhoto" label="Download"><custom-attributes tlkey="bt_download_employeephoto"></custom-attributes></button>
+							</hbox>
+						</vbox>
+					</div>
+
+					<div sclass="col-lg-4 col-sm-12">
+						<separator height="20px"/>
+						<zkbidiv jxId="em_stdate"/>
+						<zkbidiv jxId="em_trialenddate"/>
+						<zkbidiv jxId="em_aldecimal"/>
+						<zkbidiv jxId="em_enddate"/>
+						<zkbidiv jxId="em_probation"/>
+					</div>
+
+					<div sclass="col-lg-4 col-sm-12">
+						<separator height="20px"/>
+						<zkbifdiv jxId="em_introdname"/>
+						<zkbifdiv jxId="em_remark"/>
+						<hlayout width="100%">
+							<zkbifdiv jxId="drmt_code" compWidth="75px"/>
+							<div hflex="1">
+								<zkbifdiv jxId="em_dimotherreason" labelPosition="invisible"/>
+							</div>
+						</hlayout>
+						<zkbifdiv jxId="em_idno2"/>
+					</div>
+
+					<div sclass="col-lg-4 col-sm-12">
+						<separator height="20px"/>
+						<zkbifdiv jxId="em_bankname"/>
+						<zkbifdiv jxId="em_bankcode"/>
+						<zkbifdiv jxId="em_bankaccountno"/>
+						<zkbifdiv jxId="em_iatricno"/>
+						<zkbifdiv jxId="em_idno3"/>
+					</div>
+
+					<div sclass="col-lg-8 col-sm-12">
+						<separator height="20px"/>
+						<zkbifdiv jxId="em_alst_day_str1" labelPosition="invisible" compStyle="white-space:initial"/>
+						<zkbifdiv jxId="em_alst_day_str2" labelPosition="invisible" compStyle="white-space:initial"/>
+					</div>
+
+					<div sclass="col-lg-4 col-sm-12">
+						<separator height="20px"/>
+						<button id="btOfficeHour" label="Setup Office Hour" style="margin-left:30px"><custom-attributes tlkey="bt_officehour"></custom-attributes></button>
+						<separator height="5px"/>
+						<hbox>
+							<zkbifdiv jxId="em_shiftchg"/>
+							<zkbifdiv jxId="em_yflag" compWidth="50px"/>
+						</hbox>
+					</div>
+				</bs-row>
+			</tabpanel>
+			<tabpanel> 
+				<zkbidiv jxId="em_ename"/>
+				<zkbidiv jxId="em_chinname"/>
+				<separator spacing="20px"/>
+				<div>
+					<label value="Foreign Language Level"><custom-attributes tlkey="lb_list_erpv4ext_EmLanguage"/></label>
+					<listbox id="list_erpv4ext_EmLanguage"/>
+				</div>
+				<separator spacing="20px"/>
+				<div>
+					<label value="Skill"><custom-attributes tlkey="lb_list_erpv4ext_EmSkill"/></label>
+					<listbox id="list_erpv4ext_EmSkill"/>
+				</div>
+				<separator spacing="20px"/>
+				<div>
+					<label value="Education"><custom-attributes tlkey="lb_list_erpv4ext_EmEducation"/></label>
+					<zkbidiv jxId="em_lastscholl" labelWidth="initial !important"/>
+					<separator spacing="5px"/>
+					<listbox id="list_erpv4ext_EmEducation"/>
+				</div>
+			</tabpanel>
+			<tabpanel> 
+				<zkbidiv jxId="em_ename1"/>
+				<zkbidiv jxId="em_chinname1"/>
+				<separator spacing="20px"/>
+				<div>
+					<label value="Work Experience"><custom-attributes tlkey="lb_list_erpv4ext_EmWkExp"/></label>
+					<zkbidiv jxId="em_work" labelWidth="initial !important"/>
+					<separator spacing="5px"/>
+					<listbox id="list_erpv4ext_EmWorkExperience"/>
+				</div>
+			</tabpanel>
+			<tabpanel> 
+				<zkbidiv jxId="em_ename2"/>
+				<zkbidiv jxId="em_chinname2"/>
+				<separator spacing="20px"/>
+				<div>
+					<label value="Reward Record"><custom-attributes tlkey="lb_list_erpv4ext_EmRewardRecord"/></label>
+					<listbox id="list_erpv4ext_EmRewardRecord"/>
+				</div>
+			</tabpanel>
+			<tabpanel> 
+				<zkbidiv jxId="em_ename3"/>
+				<zkbidiv jxId="em_chinname3"/>
+				<separator spacing="20px"/>
+				<div>
+					<label value="Violation Record"><custom-attributes tlkey="lb_list_erpv4ext_EmVioRecord"/></label>
+					<listbox id="list_erpv4ext_EmViolationRecord"/>
+				</div>
+			</tabpanel>
+			<tabpanel> 
+				<zkbidiv jxId="em_ename4"/>
+				<zkbidiv jxId="em_chinname4"/>
+				<separator spacing="20px"/>
+				<div>
+					<label value="Production Error"><custom-attributes tlkey="lb_list_erpv4ext_EmProdError"/></label>
+					<listbox id="list_erpv4ext_EmProductionError"/>
+				</div>
+			</tabpanel>
+			<tabpanel> 
+				<zkbidiv jxId="em_ename5"/>
+				<zkbidiv jxId="em_chinname5"/>
+				<separator spacing="20px"/>
+				<div>
+					<label value="External Training"><custom-attributes tlkey="lb_list_erpv4ext_EmExtTraining"/></label>
+					<listbox id="list_erpv4ext_EmExternalTraining"/>
+				</div>
+				<separator spacing="20px"/>
+				<div>
+					<label value="Internal Training"><custom-attributes tlkey="lb_list_erpv4ext_EmInterTraining"/></label>
+					<listbox id="list_erpv4ext_EmInternalTraining"/>
+				</div>
+			</tabpanel>
+		</tabpanels>	
+	</tabbox>
+</zk>

@@ -1,0 +1,144 @@
+<zk xmlns:n="native">
+<style dynamic="true">
+div.z-grid.zkbi-detail-grid > div.z-grid-body {
+	height: auto;
+}
+div.z-grid.zkbi-detail-grid {
+   border: 1px solid transparent;
+}
+.list_erpv4_MoDetG2 .z-listbox-body {
+<!-- 
+    min-height: 200px;
+    min-height: 40vh;
+ -->
+    height: 45vh;
+}
+/*
+ .zkbi-linkcomp-listbox .z-listbox-body { 
+ }
+ */
+</style>
+	<div class="toolbar-container">
+		<div class="toolbar-leftarea">
+		<!--
+			<zkbidiv jxId="vd_vcode"></zkbidiv>
+			<zkbidiv jxId="vd_vname"></zkbidiv>
+		  -->
+		</div>
+		<toolbar id="detail_toolbar" align="end">
+		</toolbar>
+	</div>
+	<div style="background-color:white">
+		<bs-row>
+			<bs-col-311>
+				<image id="co_logo" height="100px" />
+			</bs-col-311>
+			<bs-col-311>
+			</bs-col-311>
+			<bs-col-311 align="right">
+	 			<label id="pageTitle" style="font-weight: bold;font-size:30px !important;" value="Purchase Order"><custom-attributes tlkey="hdr_erp_v4_po"></custom-attributes></label>
+			</bs-col-311>
+		</bs-row>
+		<bs-row>
+			<div sclass="col-xl-6">
+				<zkbicombobox jxId="floc_desc" labelWidth="30%" compWidth="70%" template="tfloc">
+					<template name="tfloc">
+						<label id="stm_fromloc"/>
+					</template>
+				</zkbicombobox>
+				<zkbicombobox jxId="vd_vname" labelWidth="30%" compWidth="70%" template="tvdcode">
+					<template name="tvdcode">
+						<label id="stm_ref2"/>
+					</template>
+				</zkbicombobox>
+				<zkbicombobox jxId="stm_cur" labelWidth="30%" compWidth="70%" template="txrate">
+					<template name="txrate">
+						<doublebox id="stm_rate"/>
+					</template>
+				</zkbicombobox>
+				<zkbitextbox jxId="stm_shipagent" labelWidth="30%" compWidth="70%"> </zkbitextbox>
+			</div>
+			<div sclass="col-xl-4">
+				<zkbidatebox jxId="stm_date" labelWidth="30%" compWidth="70%"> </zkbidatebox>
+				<zkbitextbox jxId="stm_ref1" labelWidth="30%" compWidth="70%"> </zkbitextbox>
+				<zkbilistbox jxId="stm_status" labelWidth="30%" compWidth="70%"> </zkbilistbox>
+			</div>
+			<div sclass="col-xl-2">
+				<zkbilabel jxId="stm_mrg" labelWidth="30%" compWidth="70%" ></zkbilabel>
+				<zkbilabel jxId="stm_cocode" labelWidth="30%" compWidth="70%" ></zkbilabel>
+				<zkbilabel jxId="stm_cuser" labelWidth="30%" compWidth="70%" ></zkbilabel>
+				<zkbilabel jxId="stm_cdate" labelWidth="30%" compWidth="70%" ></zkbilabel>
+			</div>
+			<!--
+			<div sclass="col-xl-6 col-lg-12">
+				<zkbidiv jxId="stm_date"></zkbidiv>
+				<zkbidiv jxId="stm_ref1"></zkbidiv>
+				<zkbidiv jxId="stm_ref3"></zkbidiv>
+				<zkbidiv jxId="floc_desc"></zkbidiv>
+				<zkbidiv jxId="tloc_desc"></zkbidiv>
+				<zkbidiv jxId="stm_ctrspec"></zkbidiv>
+				<zkbidiv jxId="stm_nref1"></zkbidiv>
+				<zkbidiv jxId="stm_status"></zkbidiv>
+				<zkbidiv jxId="stm_cur"></zkbidiv>
+				<zkbidiv jxId="stm_tolAmt"></zkbidiv>
+		
+				<zkbidiv jxId="stm_mrg"></zkbidiv>
+				<zkbidiv jxId="stm_cocode"></zkbidiv>
+				<zkbidiv jxId="stm_ref2"></zkbidiv>
+				<zkbidiv jxId="vd_vname"></zkbidiv>
+				<zkbidiv jxId="stm_cuser"></zkbidiv>
+				<zkbidiv jxId="stm_cdate"></zkbidiv>
+				<zkbidiv jxId="stm_shipagent"></zkbidiv>
+				<zkbidiv jxId="stm_nettotal"></zkbidiv>
+				<zkbidiv jxId="stm_totalcnt"></zkbidiv>
+				<zkbidiv jxId="stm_discount"></zkbidiv>
+			</div>
+			<div sclass="col-xl-4 col-lg-6">
+			</div>
+			<div sclass="col-xl-2 col-lg-6">
+			</div>
+			-->
+		</bs-row>
+	</div>
+	
+	<listbox id="list_erpv4_PoDet">
+		<listfoot>
+        	<listfooter zclass="z-listbox-footer" span="4"><div style="text-align:right;padding:4px 5px;"></div></listfooter>
+        	<listfooter zclass="z-listbox-footer" span="1"><div style="text-align:right;padding:4px 5px;"><label value="Item Count"><custom-attributes tlkey="lb_itemcount"></custom-attributes></label></div></listfooter>
+        	<listfooter zclass="z-listbox-footer" span="1"><div style="text-align:right;padding:4px 5px;"><label id="stm_totalcnt"></label></div></listfooter>
+	        <listfooter zclass="z-listbox-footer" span="1">
+	        	<div style="text-align:right;padding:4px 5px;">
+	        		<vlayout>
+	        			<label value="Gross Total"><custom-attributes tlkey="lb_grosstotal"></custom-attributes></label>
+	        			<label value="Less Discount"><custom-attributes tlkey="lb_lessdiscount"></custom-attributes></label>
+	        			<label value="Net Total"><custom-attributes tlkey="lb_nettotal"></custom-attributes></label>
+	        		</vlayout> 
+	        	</div>
+	   		</listfooter>
+	        <listfooter zclass="z-listbox-footer" span="1">
+	        	<div style="text-align:right;padding:4px 5px;">
+	       			<vlayout>
+	        			<label id="stm_tolAmt"></label>
+	        			<doublebox id="stm_discount" width="120px"></doublebox>
+	        			<label id="stm_nettotal"></label>
+	        		</vlayout>
+	        	</div>
+	       	</listfooter>
+       	</listfoot>
+	</listbox>
+	
+	<template name="template_erpv4_MoDetG2_stmdo_name" twidth="100px">
+		<div>
+			<radiogroup id="stmdo_name" orient="vertical"></radiogroup>
+		</div>
+	</template>	
+	<template name="template_erpv4_MoDetG2_stmd_itemdiv" twidth="600px">
+		<vlayout>
+			<hlayout>
+				<label>Item Code</label>
+				<bandbox id="st_icode" use="com.uniinformation.jx.zk.ZkJxPickInput"/>
+			</hlayout>
+			<label id="st_iname"></label>
+		</vlayout>
+	</template>	
+</zk>

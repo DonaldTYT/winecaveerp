@@ -1,0 +1,31 @@
+<zk>
+	<hlayout hflex='1' vflex='1'>
+		<vbox hflex="1" vflex="1">
+			<bandbox value="Ok, left below" width="100px">
+				<bandpopup width="200px" height="200px" />
+			</bandbox>
+			<separator vflex="1" />
+			<datebox readonly="true"></datebox>
+			<bandbox value="Not Ok, at default position" width="100px">
+				<bandpopup width="200px" height="200px" />
+			</bandbox>
+			<separator vflex="1" />
+			<bandbox value="Ok, left above" width="100px">
+				<bandpopup width="200px" height="200px" />
+			</bandbox>
+		</vbox>
+		<vbox hflex="1" vflex="1" align="end">
+			<bandbox value="Ok, left below" width="100px">
+				<bandpopup width="200px" height="200px" />
+			</bandbox>
+			<separator vflex="1" />
+			<bandbox value="Not Ok, at default position" width="100px">
+				<bandpopup width="200px" height="200px" />
+			</bandbox>
+			<separator vflex="1" />
+			<bandbox value="Ok, left above" width="100px">
+				<bandpopup width="200px" height="200px" />
+			</bandbox>
+		</vbox>
+	</hlayout>
+</zk>

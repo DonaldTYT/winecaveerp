@@ -1,0 +1,268 @@
+%{
+  import java.io.*;
+  import java.util.*;
+  import com.uniinformation.utils.*;
+  import com.kyoko.parser.*;
+%}
+      
+%token NL          /* newline  */
+%token <dval> NUM  /* a number */
+%token <ival> INT  /* a number */
+%token <obj> FUNC  /* a number */
+%token <obj> CELL  /* a number */
+%token <obj> RANGE /* a number */
+%token <sval> STRING /* a string literal */
+%token TRUE        
+%token FALSE       
+%token GT
+%token GE
+%token LT
+%token LE
+%token EQ
+%token NE
+%token MATCHES
+%token LIKE
+%token T_IS
+%token T_NOT
+%token T_IN
+%token T_NULL
+%token NOT_MATCHES
+%token NOT_REGEXP
+%token NOT_LIKE
+%token T_BETWEEN
+%token T_REGEXP
+
+%type <obj> exp
+%type <obj> bexp
+%type <obj> functexpr
+%type <obj> arglist
+%type <obj> argelt
+%type <ival> bexpoper
+
+%left '-' '+'
+%left '*' '/'
+%left NEG          /* negation--unary minus */
+%right '^'         /* exponentiation        */
+%left OR
+%left AND
+%left NOT
+      
+%%
+line:  exp {
+		       setResult($1);
+           }
+		 | bexp {
+		       setResult($1);
+           }
+		 |
+       ;
+bexp:		TRUE   { /* $$ = new Boolean(true); */ $$ = new Condition(true);}
+       | FALSE  { /* $$ = new Boolean(false); */ $$ = new Condition(false);}
+		 | bexp AND bexp { 
+//		 		$$ = new Boolean((((Boolean) $1).booleanValue() && ((Boolean) $3).booleanValue()));
+				$$ = new Condition((Condition) $1,Condition.LOGIC_OP_AND,(Condition) $3);
+				}
+		 | bexp OR bexp { 
+//		 		$$ = new Boolean((((Boolean) $1).booleanValue() || ((Boolean) $3).booleanValue())); 
+				$$ = new Condition((Condition) $1,Condition.LOGIC_OP_OR,(Condition) $3);
+				}
+		 | T_NOT bexp { /* $$ = new Boolean(!(((Boolean) $2).booleanValue())); */ $$ = new Condition(Condition.LOGIC_OP_NOT,(Condition) $2);}
+		 | NOT bexp { /* $$ = new Boolean(!(((Boolean) $2).booleanValue())); */ $$ = new Condition(Condition.LOGIC_OP_NOT,(Condition) $2);}
+       | '(' bexp ')'        { $$ = $2; }
+       | exp bexpoper exp { $$ = comparison((Expression) $1, $2, (Expression) $3); }
+       | exp T_IS T_NULL { $$ = new Condition((Expression) $1,Condition.COMPARE_OP_IS_NULL);}
+       | exp T_IS T_NOT T_NULL { $$ = new Condition((Expression) $1,Condition.COMPARE_OP_IS_NOT_NULL);}
+       | exp T_IN '(' arglist ')' { $$ = new Condition((Expression) $1,Condition.COMPARE_OP_IN_ITEMLIST,(List) $4);}
+       | exp T_NOT T_IN '(' arglist ')' { $$ = new Condition((Expression) $1,Condition.COMPARE_OP_NOTIN_ITEMLIST,(List) $5);}
+       | exp T_BETWEEN  exp AND exp { $$ = new Condition((Expression) $1,Condition.COMPARE_OP_BETWEEN,(Expression) $3,(Expression) $5);}
+       | exp T_NOT T_BETWEEN  exp AND exp { $$ = new Condition((Expression) $1,Condition.COMPARE_OP_NOT_BETWEEN,(Expression) $4,(Expression) $6);}
+
+		 | functexpr {
+		      $$ = $1;
+		   }
+		 ;
+functexpr: FUNC  '(' arglist ')'  {
+			   try {
+//		         $$ = evalfunct(((LexIdent) $1).getIdname(), (Vector) $3); 
+		         $$ = new Expression(
+						 new Function (((LexIdent) $1).getIdname(), functInterface,(Vector) $3)
+						); 
+			   } catch (Exception ex) {
+			      errorMessage = ex.toString();
+			      throw(ex);
+			   }
+			}
+		 ;
+bexpoper: GT { $$ = GT; }
+        | GE { $$ = GE; }
+        | LT { $$ = LT; }
+        | LE { $$ = LE; }
+        | EQ { $$ = EQ; }
+        | NE { $$ = NE; }
+        | MATCHES { $$ = MATCHES; }
+        | LIKE { $$ = LIKE; }
+        | T_REGEXP { $$ = T_REGEXP; }
+		  | T_NOT LIKE {$$ = NOT_LIKE;}
+		  | T_NOT MATCHES {$$ = NOT_MATCHES;}
+		  | T_NOT T_REGEXP {$$ = NOT_REGEXP;}
+		  ;
+
+exp:     NUM    { /* $$ = new Double($1); */ $$ = new Expression($1); }
+       | INT    { /* $$ = new Integer($1); */ $$ = new Expression($1); }
+       | STRING { /* $$ = $1; */ $$ = new Expression($1);}
+       | CELL   { 
+					   try {
+		               $$ = evalVariable(((LexIdent) $1).getIdname()); 
+						} catch (Exception ex) {
+							errorMessage = ex.toString();
+							throw(ex);
+						}
+					 }
+       | exp '+' exp        { /* $$ = operation($1, '+', $3); */ $$ = new Expression((Expression) $1,Expression.OPERATOR_PLUS,(Expression) $3);}
+       | exp '-' exp        { /* $$ = operation($1, '-', $3); */ $$ = new Expression((Expression) $1,Expression.OPERATOR_MINUS,(Expression) $3);}
+       | exp '*' exp        { /* $$ = operation($1, '*', $3); */ $$ = new Expression((Expression) $1,Expression.OPERATOR_MULTIPLY,(Expression) $3);}
+       | exp '/' exp        { /* $$ = operation($1, '/', $3); */ $$ = new Expression((Expression) $1,Expression.OPERATOR_DIVIDE,(Expression) $3);}
+       | '-' exp  %prec NEG { /* $$ = operation(null, '-', $2) */ $$ = new Expression(null,Expression.OPERATOR_MINUS,(Expression) $2);}
+       | exp '^' exp        { /* $$ = operation($1, '^', $3); */ $$ = new Expression((Expression) $1,Expression.OPERATOR_XOR,(Expression) $3);}
+       | '(' exp ')'        { $$ = $2; }
+		 | functexpr          { $$ = $1; }
+       ;
+argelt: exp                 { $$ = $1; }
+      | bexp                { $$ = $1; }
+      | RANGE { 
+					   try {
+		               $$ = evalRange(((LexIdent) $1).getIdname()); 
+						} catch (Exception ex) {
+							errorMessage = ex.toString();
+							throw(ex);
+						}
+					 }
+		;
+arglist:                    { $$ = null; }
+       | argelt             { Vector v = new Vector(); 
+		                        v.addElement($1);
+									   $$ = v;
+		                      }
+       | arglist ',' argelt { ((Vector) $1).addElement($3);
+		                        $$ = $1;
+		                      }
+       ;
+%%
+  private boolean fCollect = true;
+  private Yylex lexer = null;
+  private String errorMessage = null;
+  private Object result = new Double(0);
+  private VariableInterface varInterface = null;
+  private FunctionInterface functInterface = null;
+  private String lastInput = null;
+
+  public boolean hasError() {
+     return(errorMessage != null);
+  }
+  public String getErrorMessage() {
+     return(errorMessage);
+  }
+  private int yylex() {
+     int yyl_return = -1;
+     try {
+        yylval = new ParserVal(0);
+        yyl_return = lexer.yylex();
+     } catch (IOException e) {
+		  UniLog.log(e);
+     }
+     return yyl_return;
+  }
+  public void yyerror(String error) {
+     UniLog.logClass(this, error);
+  }
+  public Parser(Reader r) {
+     lexer = new Yylex(r, this);
+  }
+  public Parser(String p_string) {
+     lastInput = p_string;
+     //lexer = new Yylex(new StringReader(p_string+"\n"), this);
+  }
+  public Parser(String p_string, VariableInterface p_varInterface, FunctionInterface p_functInterface) {
+     this(p_string);
+     varInterface = p_varInterface;
+     functInterface = p_functInterface;
+  }
+  public void setVarInterface(VariableInterface p_varInterface) {
+     varInterface = p_varInterface;
+  }
+  public void setFunctInterface(FunctionInterface p_functInterface) {
+     functInterface = p_functInterface;
+  }
+  public Object evalVariable(String p_varname) throws Exception {
+		return(new Expression(new Variable(p_varname,varInterface)));
+  }
+  public Object evalRange(String p_varname) throws Exception {
+		return(new Expression(new Variable(p_varname,varInterface)));
+  }
+  public void setResult(Object p_result) {
+     result = p_result;
+  }
+  public Object getResult() {
+     return(result);
+  }
+  public Object parse() throws Exception {
+     lexer = new Yylex(new StringReader(lastInput+"\n"), this);
+	  errorMessage = null;
+     yyparse();
+	  if (errorMessage != null)
+	     throw(new Exception(errorMessage));
+     return(getResult());
+  }
+  public Object parse(String p_input) throws Exception {
+     lastInput = p_input;
+     lexer = new Yylex(new StringReader(p_input+"\n"), this);
+     return(parse());
+  }
+  public Object comparison(Expression p_x, int p_operand, Expression p_y) throws Exception {
+	  switch (p_operand) {
+	     case GT:
+//		     return(new Boolean(x.compareTo(y) > 0));
+		     return(new Condition(p_x,Condition.COMPARE_OP_GT,p_y));
+	     case GE:
+//		     return(new Boolean(x.compareTo(y) >= 0));
+		     return(new Condition(p_x,Condition.COMPARE_OP_GE,p_y));
+	     case LT:
+//		     return(new Boolean(x.compareTo(y) < 0));
+		     return(new Condition(p_x,Condition.COMPARE_OP_LT,p_y));
+	     case LE:
+//		     return(new Boolean(x.compareTo(y) <= 0));
+		     return(new Condition(p_x,Condition.COMPARE_OP_LE,p_y));
+	     case EQ:
+//		     return(new Boolean(x.compareTo(y) == 0));
+		     return(new Condition(p_x,Condition.COMPARE_OP_EQ,p_y));
+	     case NE:
+//		     return(new Boolean(x.compareTo(y) != 0));
+		     return(new Condition(p_x,Condition.COMPARE_OP_NE,p_y));
+	     case MATCHES:
+//		     return(new Boolean(compare_matches(x.toString(), y.toString())));
+		     return(new Condition(p_x,Condition.COMPARE_OP_MA,p_y));
+	     case LIKE:
+//		     return(new Boolean(compare_like(x.toString(), y.toString())));
+		     return(new Condition(p_x,Condition.COMPARE_OP_LK,p_y));
+	     case T_REGEXP:
+		     return(new Condition(p_x,Condition.COMPARE_OP_REGEXP,p_y));
+	     case NOT_LIKE:
+//		     return(new Boolean(compare_like(x.toString(), y.toString())));
+		     return(new Condition(p_x,Condition.COMPARE_OP_NLK,p_y));
+	     case NOT_MATCHES:
+//		     return(new Boolean(compare_like(x.toString(), y.toString())));
+		     return(new Condition(p_x,Condition.COMPARE_OP_NM,p_y));
+	     case NOT_REGEXP:
+		     return(new Condition(p_x,Condition.COMPARE_OP_NOT_REGEXP,p_y));
+	  }
+//	  return(new Boolean(false));
+	  return(null);
+  }
+
+  public int getErrCnt()
+  {
+  		return(yynerrs);
+  }
+  public int getErrPos() {
+		return(lexer.getCurrentPos());
+  }

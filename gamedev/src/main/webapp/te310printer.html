@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>TSC TE310 Emulator (Fixed QR and TEXT)</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
+  <style>
+    body { font-family: Arial, sans-serif; }
+    #labelCanvas { background: white; }
+  </style>
+</head>
+<body>
+  <h1>TSC TE310 Emulator (Text + QR Code Working)</h1>
+
+  <textarea id="tspl" rows="15" cols="100" placeholder="Paste your TSPL-EZ code here..."></textarea><br/>
+  <button onclick="renderLabel()">Render Label</button>
+  <br><br>
+  <canvas id="labelCanvas" style="border:1px solid black;"></canvas>
+
+  <script>
+    async function renderLabel() {
+      const tspl = document.getElementById('tspl').value;
+      const canvas = document.getElementById('labelCanvas');
+      const ctx = canvas.getContext('2d');
+
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      let labelWidth = 600;
+      let labelHeight = 400;
+
+      const lines = tspl.split('\n').map(line => line.trim()).filter(line => line.length > 0);
+
+      // First pass: check for SIZE command
+      for (const line of lines) {
+        if (line.startsWith('SIZE')) {
+          const parts = line.split(' ');
+          labelWidth = parseFloat(parts[1]) * 8;
+          labelHeight = parseFloat(parts[2]) * 8;
+          canvas.width = labelWidth;
+          canvas.height = labelHeight;
+          ctx.fillStyle = 'white';
+          ctx.fillRect(0, 0, labelWidth, labelHeight);
+        }
+      }
+
+      // Second pass: render commands
+      for (const line of lines) {
+        const parts = line.split(' ');
+        const command = parts[0].toUpperCase();
+
+        if (command === 'TEXT') {
+          const x = parseInt(parts[1]);
+          const y = parseInt(parts[2]);
+          const font = parts[3].replace(/"/g, '');
+          const rotation = parseInt(parts[4]);
+          const xMul = parseInt(parts[5]);
+          const yMul = parseInt(parts[6]);
+          const textContent = parts.slice(7).join(' ').replace(/"/g, '');
+
+          ctx.save();
+          ctx.translate(x, y);
+          ctx.rotate(rotation * (Math.PI / 180));
+
+          ctx.fillStyle = 'black';
+          ctx.textBaseline = 'top';
+          const fontSize = 12 * yMul; // Multiplied Y scale is font size
+          ctx.font = `${fontSize}px Arial`; // Simulating ROMAN.TTF with Arial
+          ctx.fillText(textContent, 0, 0);
+          ctx.restore();
+        }
+
+        else if (command === 'QRCODE') {
+          const x = parseInt(parts[1]);
+          const y = parseInt(parts[2]);
+          const ecc = parts[3];
+          const cellSize = parseInt(parts[4]);
+          const rotation = parseInt(parts[6]);
+          const qrData = parts.slice(9).join(' ').replace(/"/g, '');
+
+          await drawQRCode(ctx, x, y, cellSize, qrData, rotation);
+        }
+      }
+    }
+
+    function drawQRCode(ctx, x, y, cellSize, data, rotation) {
+      return new Promise((resolve) => {
+        const qr = qrcode(0, 'L');
+        qr.addData(data);
+        qr.make();
+
+        const moduleCount = qr.getModuleCount();
+
+        ctx.save();
+        ctx.translate(x, y);
+        ctx.rotate(rotation * Math.PI / 180);
+        ctx.fillStyle = 'black';
+
+        for (let row = 0; row < moduleCount; row++) {
+          for (let col = 0; col < moduleCount; col++) {
+            if (qr.isDark(row, col)) {
+              ctx.fillRect(col * cellSize, row * cellSize, cellSize, cellSize);
+            }
+          }
+        }
+        ctx.restore();
+        resolve();
+      });
+    }
+  </script>
+</body>
+</html>
+<!-- 
+QRCODE 20 20 L 5 A 0 M2 S7 "RB9287"
+TEXT 150 20 "ROMAN.TTF" 0 12 12 "RB9287"
+TEXT 150 40 "ROMAN.TTF" 0 12 12 "Avery EA repo "
+TEXT 150 60 "ROMAN.TTF" 0 12 12 "easyapply gloss "
+TEXT 150 80 "ROMAN.TTF" 0 12 12 "(MPI 1105-60)"
+TEXT 150 100 "ROMAN.TTF" 0 12 12 "1.52m x 50m"
+TEXT 150 120 "ROMAN.TTF" 0 12 12 "07/10/2024
+ -->

@@ -1,0 +1,120 @@
+<%@ taglib prefix="c"  uri="http://java.sun.com/jsp/jstl/core" %>
+<%
+  // Expected <jsp:include> params:
+  // - ids        : unique id prefix (e.g., "ce1")
+  // - dataUrl    : GET JSON endpoint (default: /larva/pages/customer-edit)
+  // - actionUrl  : POST endpoint (default: /larva/pages/customer-edit)
+  // - code       : optional customer code to prefill
+%>
+<c:set var="ids" value="${empty param.ids ? 'ce1' : param.ids}" />
+<c:set var="dataUrl" value="${empty param.dataUrl ? pageContext.request.contextPath.concat('/larva/pages/customer-edit') : param.dataUrl}" />
+<c:set var="actionUrl" value="${empty param.actionUrl ? pageContext.request.contextPath.concat('/larva/pages/customer-edit') : param.actionUrl}" />
+<c:set var="code" value="${empty param.code ? '' : param.code}" />
+
+<!-- Alerts -->
+<div id="${ids}-result" class="mb-3" style="display:none;"></div>
+
+<form id="${ids}-form" class="mx-auto" method="post" action="${actionUrl}" style="max-width:900px;">
+  <input type="hidden" name="action" value="save">
+  <div class="row g-3">
+
+    <div class="col-sm-4">
+      <label class="form-label">Customer Code *</label>
+      <input name="vd_customerCode" class="form-control" required>
+    </div>
+
+    <div class="col-sm-4">
+      <label class="form-label">Login ID</label>
+      <input name="vd_loginId" class="form-control">
+    </div>
+
+    <div class="col-sm-4">
+      <label class="form-label">Password</label>
+      <input name="vd_password" type="password" class="form-control">
+    </div>
+
+    <div class="col-md-6">
+      <label class="form-label">Name</label>
+      <input name="vd_name" class="form-control">
+    </div>
+
+    <div class="col-md-6">
+      <label class="form-label">Chinese Name</label>
+      <input name="vd_chineseName" class="form-control">
+    </div>
+
+    <div class="col-sm-3">
+      <label class="form-label">Type</label>
+      <input name="vd_type" class="form-control" placeholder="C">
+    </div>
+
+    <div class="col-sm-3">
+      <label class="form-label">CType</label>
+      <input name="vd_ctype" class="form-control">
+    </div>
+
+    <div class="col-sm-3">
+      <label class="form-label">Salesman ID</label>
+      <input name="vd_salesmanId" class="form-control">
+    </div>
+
+    <div class="col-sm-3 d-flex align-items-end">
+      <div class="form-check">
+        <input class="form-check-input" type="checkbox" id="${ids}-suspend" name="vd_isSuspended" value="on">
+        <label class="form-check-label" for="${ids}-suspend">Suspended</label>
+      </div>
+    </div>
+
+    <div class="col-md-6">
+      <label class="form-label">Primary Email</label>
+      <input name="vd_primaryEmail" type="email" class="form-control">
+    </div>
+
+    <div class="col-md-6">
+      <label class="form-label">Alt Email</label>
+      <input name="vd_altEmail" type="email" class="form-control">
+    </div>
+
+    <div class="col-sm-6">
+      <label class="form-label">Phone</label>
+      <input name="vd_phone" class="form-control">
+    </div>
+
+    <div class="col-sm-6">
+      <label class="form-label">Mobile</label>
+      <input name="vd_mobileNumber" class="form-control">
+    </div>
+
+    <div class="col-12">
+      <label class="form-label">Address Line 1</label>
+      <input name="vd_addressLine1" class="form-control">
+    </div>
+    <div class="col-12">
+      <label class="form-label">Address Line 2</label>
+      <input name="vd_addressLine2" class="form-control">
+    </div>
+    <div class="col-12">
+      <label class="form-label">Address Line 3</label>
+      <input name="vd_addressLine3" class="form-control">
+    </div>
+    <div class="col-12">
+      <label class="form-label">Address Line 4</label>
+      <input name="vd_addressLine4" class="form-control">
+    </div>
+
+    <div class="col-12 d-flex gap-2 mt-3">
+      <button id="${ids}-save"   type="button" class="btn btn-primary">
+        <span class="lbl">Save</span>
+        <span class="spinner-border spinner-border-sm ms-2" style="display:none;" aria-hidden="true"></span>
+      </button>
+      <button id="${ids}-cancel" type="button" class="btn btn-outline-secondary">
+        <span class="lbl">Cancel</span>
+        <span class="spinner-border spinner-border-sm ms-2" style="display:none;" aria-hidden="true"></span>
+      </button>
+    </div>
+
+  </div>
+
+  <input type="hidden" id="${ids}-dataUrl" value="${dataUrl}">
+  <input type="hidden" id="${ids}-code" value="${code}">
+</form>

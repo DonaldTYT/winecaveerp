@@ -1,0 +1,73 @@
+<zk>
+<style dynamic="true">
+
+<!-- cut/hide the vertical borders in the grid rows -->
+.myGridWithNoBorder tr.z-row td.z-row-inner { border-right: 0px #CCC; }
+.GridLayoutNoBorder tr.z-row td.z-row-inner, tr.z-row .z-cell,div.z-grid 
+{ 
+border: none; 
+overflow: hidden; 
+zoom: 1; 
+#background:#f8f8f8 !important;  <!-- remove hover -->
+background:white !important;  <!-- remove hover -->
+border-top: none; 
+border-left: none; 
+border-right: none; 
+border-bottom: none; 
+} 
+</style>
+	<grid style="text-align:left;border: 1px solid #000;" id="detail_grid"  sclass="GridLayoutNoBorder" >
+		<columns>
+		<column align="right" hflex="min" />
+		<column hflex="1" />
+	</columns>
+	<rows>
+		<row>
+			<label hflex="1" id="lb_mt_tpcode" value="Ref No"/>
+			<doublebox width ="150px" id="mt_tpcode"/>
+		</row>
+		<row>
+			<label hflex="1" id="lb_mt_tpscode" value="Short Code"/>
+			<textbox width="150px" id="mt_tpscode"/>
+		</row>
+		<row>
+			<label hflex="1" id="lb_mt_tpname" value="Name"/>
+			<textbox width="500px" id="mt_tpname"/>
+		</row>
+		<row>
+			<label hflex="1" id="lb_mt_tpcname" value="Chinese Name"/>
+			<textbox width="500px" id="mt_tpcname"/>
+		</row>
+		<row>
+			<label hflex="1" id="lb_stu_unit" value="Stock Unit"/>
+			<combobox width="80px" id="stu_unit"/>
+		</row>
+		<row>
+			<label hflex="1" id="lb_mt_munit1" value="MU1"/>
+			<hlayout valign="middle">
+			<combobox width="80px" id="mt_munit1"/>
+			<textbox width="40px" text="=?" disabled="true" tooltiptext="此欄在貨品記錄填寫"></textbox>
+			<combobox width="80px" id="mt_dunit1"/>
+			</hlayout>
+		</row>
+		<row>
+			<label hflex="1" id="lb_mt_munit2" value="MU2"/>
+			<hlayout valign="middle">
+			<combobox width="80px" id="mt_munit2"/>
+			<textbox width="40px" text="=?" disabled="true" tooltiptext="此欄在貨品記錄填寫"></textbox>
+			<combobox width="80px" id="mt_dunit2"/>
+			</hlayout>
+		</row>
+		<row>
+			<label hflex="1" id="lb_mt_munit3" value="MU3"/>
+			<hlayout valign="middle">
+			<combobox width="80px" id="mt_munit3"/>
+			<textbox width="40px" text="=?" disabled="true" tooltiptext="此欄在貨品記錄填寫"></textbox>
+			<combobox width="80px" id="mt_dunit3"/>
+			</hlayout>
+		</row>
+	</rows>
+ 	</grid>
+	<toolbar id="detail_toolbar" align="end">
+	</toolbar>
+</zk>

@@ -1,0 +1,11 @@
+<zk>
+<zscript>
+<![CDATA[
+	import com.uniinformation.webcore.*;
+	SessionHelper sessionHelper = ZkSessionHelper.getSessionHelper();
+]]>
+</zscript>
+<div apply="com.uniinformation.jx.zk.JxZkSitemap" id="zkSitemap">
+	<html content="${sessionHelper.generateMenu()}"/>
+</div>
+</zk>

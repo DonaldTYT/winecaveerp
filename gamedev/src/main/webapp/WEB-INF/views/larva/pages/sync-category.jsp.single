@@ -1,0 +1,178 @@
+<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+
+<c:set var="assetsBase" value="${assetsBase != null ? assetsBase : '/larva/assets'}"/>
+<c:set var="pageTitle" value="${uiText.htmlTitle != null ? uiText.htmlTitle : 'Sync Category to Saleor'}"/>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title><c:out value="${pageTitle}"/></title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=0, minimal-ui">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="description" content="Mantis is made using Bootstrap 5 design framework.">
+  <meta name="keywords" content="Mantis, Dashboard UI Kit, Bootstrap 5, Admin Template">
+
+  <link rel="icon" href="<c:url value='${assetsBase}/images/favicon.svg'/>" type="image/x-icon">
+
+  <!-- Fonts & Icons (same as login.jsp) -->
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@300;400;500;600;700&display=swap" id="main-font-link">
+  <link rel="stylesheet" href="<c:url value='${assetsBase}/fonts/tabler-icons.min.css'/>">
+  <link rel="stylesheet" href="<c:url value='${assetsBase}/fonts/feather.css'/>">
+  <link rel="stylesheet" href="<c:url value='${assetsBase}/fonts/fontawesome.css'/>">
+  <link rel="stylesheet" href="<c:url value='${assetsBase}/fonts/material.css'/>">
+
+  <!-- Mantis CSS -->
+  <link rel="stylesheet" href="<c:url value='${assetsBase}/css/style.css'/>" id="main-style-link">
+  <link rel="stylesheet" href="<c:url value='${assetsBase}/css/style-preset.css'/>">
+
+  <style>
+    .maxw-700 { max-width: 700px; }
+    .center-box { margin: 48px auto; }
+    .title-strong { font-weight: 700; }
+    .form-card { border: 2px solid #000; border-radius: .5rem; }
+  </style>
+</head>
+<body>
+  <!-- Optional: wrap inside your dashboard shell; this is a simple centered card -->
+  <div class="container">
+    <div class="center-box maxw-700">
+      <div class="card form-card shadow-0">
+        <div class="card-body text-center">
+          <h3 class="mb-5 title-strong">Sync Category to Saleor</h3>
+
+          <!-- Result / toast -->
+          <div id="resultArea" class="mb-3" style="display:none;"></div>
+
+          <!-- Progress -->
+          <div id="progressWrap" class="mb-4" style="display:none;">
+            <div class="d-flex justify-content-between mb-1">
+              <span class="small text-muted">Progress</span>
+              <span class="small text-muted" id="progressText">0%</span>
+            </div>
+            <div class="progress">
+              <div id="progressBar" class="progress-bar progress-bar-striped progress-bar-animated"
+                   role="progressbar" style="width: 0%"></div>
+            </div>
+          </div>
+
+          <!-- Form -->
+          <form id="syncForm" method="post" action="<c:url value='/larva/pages/sync-category'/>" class="mx-auto" style="max-width:520px;">
+            <div class="row align-items-center g-3 mb-4">
+              <div class="col-12 col-md-4 text-md-end">
+                <label class="col-form-label fw-semibold">Remarks :</label>
+              </div>
+              <div class="col-12 col-md-8">
+                <input type="text" name="remarks" class="form-control" placeholder="(optional)">
+              </div>
+            </div>
+
+            <c:if test="${not empty sessionScope.csrfToken}">
+              <input type="hidden" name="csrf" value="${sessionScope.csrfToken}">
+            </c:if>
+
+            <button id="submitBtn" type="submit" class="btn btn-outline-dark px-4 fw-bold">
+              <span class="btn-label">Execute</span>
+              <span class="spinner-border spinner-border-sm ms-2" style="display:none;" aria-hidden="true"></span>
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Required JS (match login.jsp) -->
+  <script src="<c:url value='${assetsBase}/js/plugins/popper.min.js'/>"></script>
+  <script src="<c:url value='${assetsBase}/js/plugins/simplebar.min.js'/>"></script>
+  <script src="<c:url value='${assetsBase}/js/plugins/bootstrap.min.js'/>"></script>
+  <script src="<c:url value='${assetsBase}/js/fonts/custom-font.js'/>"></script>
+  <script src="<c:url value='${assetsBase}/js/pcoded.js'/>"></script>
+  <script src="<c:url value='${assetsBase}/js/plugins/feather.min.js'/>"></script>
+
+  <script>
+    // Optional Mantis presets (same as login.jsp)
+    try{
+      layout_change('light'); change_box_container('false'); layout_rtl_change('false');
+      preset_change("preset-1"); font_change("Public-Sans");
+    }catch(e){}
+  </script>
+
+  <!-- AJAX + progress -->
+  <script>
+  (() => {
+    const form   = document.getElementById('syncForm');
+    const btn    = document.getElementById('submitBtn');
+    const spin   = btn.querySelector('.spinner-border');
+    const label  = btn.querySelector('.btn-label');
+    const result = document.getElementById('resultArea');
+    const pWrap  = document.getElementById('progressWrap');
+    const pBar   = document.getElementById('progressBar');
+    const pText  = document.getElementById('progressText');
+    let pollTimer = null;
+
+    function showAlert(type, msg) {
+      result.style.display = 'block';
+      result.className = '';
+      result.classList.add('alert', `alert-${type}`);
+      result.textContent = msg;
+    }
+    function setBusy(b) {
+      btn.disabled = b;
+      spin.style.display = b ? 'inline-block' : 'none';
+      label.textContent = b ? 'Working…' : 'Execute';
+    }
+    function showProgress(percent) {
+      pWrap.style.display = 'block';
+      const pct = Math.max(0, Math.min(100, percent|0));
+      pBar.style.width = pct + '%';
+      pText.textContent = pct + '%';
+    }
+    function hideProgress() {
+      pWrap.style.display = 'none';
+      pBar.style.width = '0%';
+      pText.textContent = '0%';
+    }
+    async function poll(jobId, statusUrl) {
+      try {
+        const r = await fetch(statusUrl + '?jobId=' + encodeURIComponent(jobId), { headers: { 'Accept': 'application/json' } });
+        const s = await r.json(); // {ok, done, percent, message}
+        if (typeof s.percent === 'number') showProgress(s.percent);
+        if (s.done) {
+          clearInterval(pollTimer); pollTimer = null;
+          setBusy(false); hideProgress();
+          showAlert(s.ok ? 'success' : 'danger', s.message || (s.ok ? 'Completed.' : 'Failed.'));
+        }
+      } catch (e) {
+        clearInterval(pollTimer); pollTimer = null;
+        setBusy(false); hideProgress();
+        showAlert('danger', 'Status error: ' + e.message);
+      }
+    }
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      setBusy(true); result.style.display = 'none'; hideProgress();
+      try {
+        const fd = new FormData(form);
+        const r = await fetch(form.action, {
+          method: 'POST',
+          headers: { 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'application/json' },
+          body: fd
+        });
+        const payload = await r.json();
+        if (!r.ok || payload.ok === false) {
+          setBusy(false); showAlert('danger', payload.message || 'Failed.'); return;
+        }
+        if (payload.progress && payload.progress.enabled && payload.jobId && payload.progress.statusUrl) {
+          showProgress(0); pollTimer = setInterval(() => poll(payload.jobId, payload.progress.statusUrl), 700);
+        } else {
+          setBusy(false); showAlert('success', payload.message || 'Started.');
+        }
+      } catch (err) {
+        setBusy(false); showAlert('danger', 'Network error: ' + err.message);
+      }
+    });
+  })();
+  </script>
+</body>
+</html>

@@ -1,0 +1,53 @@
+<zk>
+<window sclass="zkbi-form zkbi-main-window" width="600px" apply="com.uniinformation.zkf.erpv4.AnalysisReport">
+	<hlayout>
+		<div align="center">
+		<vlayout>
+			<div height="10px"/>
+			<label>Analysis Report</label>
+			<div height="10px"/>
+			<label>Aggregates</label>
+			<hlayout>
+				<combobox id="aggregateFunction" ></combobox>
+				<label>(</label>
+				<combobox id="aggregateExpression"></combobox>
+				<label>)</label>
+			</hlayout>
+			<label>Pivot</label>
+			<div>
+				<combobox id="pivotColumn"></combobox>
+			</div>
+			<checkbox id="showCount" label="Show Count"></checkbox>
+			<div height="10px"/>
+			<!--
+			<hlayout>
+				<label>Label</label>
+				<textbox id="vclabel"/>
+				<label>Formula</label>
+				<textbox id="vcformula"/>
+				<label>Type</label>
+				<textbox id="vctype"/>
+				<button width="100px" id="btCreateCol" label="Create Column"> </button>
+			</hlayout>
+			-->
+			<div align="center">
+				<hlayout>
+				<!--
+				<button width="100px" id="btGenerate" label="Generate"> </button>
+				<div width="30px"/>
+				<button width="100px" id="btPrint" label="Print"> </button>
+				<div width="30px"/>
+				-->
+				<button width="100px" id="btPlot" label="Plot"> </button>
+				</hlayout>
+			</div>
+		</vlayout>
+		</div>
+		<!--
+		<div id="cjsdiv" width="800px" height="400px" style="background-color:red;"> </div>
+		-->
+		<div id="cjsdiv" width="800px" height="400px"> </div>
+	</hlayout>
+
+</window>
+</zk>

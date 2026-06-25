@@ -1,0 +1,7 @@
+.zkpdf { 
+	/*not all browser support it, rewrite it later*/
+	width:95vw; 
+	/*height:85vh;*/
+	height:72vh; /*reserve some space for action bar*/
+  }
+}

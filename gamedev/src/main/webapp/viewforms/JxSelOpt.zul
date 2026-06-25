@@ -1,0 +1,33 @@
+<zk>
+<style dynamic="true">
+.jxselopt .z-listcell-content, .jxselopt .z-listheader-content { 
+    line-height: initial !important;
+    min-height: initial !important;
+}
+.jxselopt .z-listbox-header {
+	display: none !important;
+}
+</style>
+<zscript>
+<![CDATA[
+	import com.uniinformation.webcore.*;
+	SessionHelper sessionHelper = SessionHelper.getSessionHelper();
+	String selOptFilterPlaceHolder = sessionHelper.getLabel("Please input any keyword");
+]]>
+</zscript>
+<div id="formArea" hflex="1" vflex="1">
+<vlayout vflex="1">
+	<toolbar hflex="1" vflex="min" style="padding:2px 2px;">
+		<!--
+ 		<textbox placeholder="Please input any keyword" id="selOptFilter" width="80%"></textbox>
+		-->
+ 		<textbox placeholder="${selOptFilterPlaceHolder}" id="selOptFilter" width="80%"></textbox>
+		<toolbarbutton id="btClear" label="Clear" visible="false"/>
+	</toolbar>
+	<listbox id="pickListBox" width="100%" height="260px" sclass="jxselopt" style="overflow-wrap:break-word;">
+		<listhead>
+		</listhead>
+	</listbox>
+</vlayout>
+</div>
+</zk>

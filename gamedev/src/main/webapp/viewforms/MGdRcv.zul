@@ -1,0 +1,68 @@
+<zk>
+	<grid style="text-align:left;" id="detail_grid">
+	<rows id="link_GiPltInfo">
+		<template name="template_GiPltInfo">
+			<row id="GiPltInfo_row">
+			<hbox>
+				<vbox hflex = "1">
+					<hbox align="center">
+						<div width="50px"> 板號</div>
+						<textbox id="GiPltInfo_gipi_prefix" width="120px"></textbox>
+					</hbox>
+					<hbox align="center">
+						<div width="50px"> 類別</div>
+						<combobox id="GiPltInfo_gipi_plttype" width="120px"></combobox>
+					</hbox>
+					<hbox align="center">
+						<div width="50px"> 箱號</div>
+						<textbox id="GiPltInfo_gipi_ctnprefix" width="120px"></textbox>
+					</hbox>
+					<hbox align="center">
+						<div width="50px"> 箱數</div>
+						<intbox id="GiPltInfo_gipi_ctncnt" width="120px"></intbox>
+					</hbox>
+					<hbox align="center">
+						<!-- 
+						<div width="30px"></div>
+						 -->
+						<button id="GiPltInfo_gipi_copysize">Copy Size</button>
+					</hbox>
+				</vbox>
+				<div width="20px"></div>
+				<vbox hflex = "1">
+					<hbox align="center">
+						<div width="30px"> 長</div>
+						<doublebox id="GiPltInfo_gipi_depth" width="80px"></doublebox>
+					</hbox>
+					<hbox align="center">
+						<div width="30px"> 闊</div>
+						<doublebox id="GiPltInfo_gipi_width" width="80px"></doublebox>
+					</hbox>
+					<hbox align="center">
+						<div width="30px"> 高</div>
+						<doublebox id="GiPltInfo_gipi_height" width="80px"></doublebox>
+					</hbox>
+					<hbox align="center">
+						<div width="30px"> 重</div>
+						<doublebox id="GiPltInfo_gipi_weight" width="80px"></doublebox>
+					</hbox>
+					<hbox align="center">
+						<!-- 
+						<div width="30px"></div>
+						 -->
+						<button id="GiPltInfo_gipi_copywt" width="110px">Copy Wt.</button>
+					</hbox>
+				</vbox>
+			</hbox>
+			</row>
+        </template>
+	</rows>
+	</grid>
+	<toolbar id="detail_toolbar" align="end">
+		<button id="addPallet" label="散板" visible="false"></button>
+		<button id="addCarton" label="散箱" visible="false"></button>
+		<button id="addReload" label="重設" visible="false"></button>
+		<button id="btUpdate" label="確定" disabled="true"></button>
+		<button id="btClose" label="退出"></button>
+	</toolbar>
+</zk>

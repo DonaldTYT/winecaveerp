@@ -1,0 +1,317 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?page title="Trade Analysis Tools" contentType="text/html;charset=UTF-8"?>
+<zk xmlns:h="native">
+
+  <style>
+    :root{
+      --bg1:#d7e6ef;
+      --bg2:#cfe0ea;
+      --card:#ffffffb8;
+      --text:#0b2230;
+      --muted:#3c5563;
+      --accent:#2a6f8f;
+      --shadow: 0 14px 40px rgba(0,0,0,.10);
+      --shadow2: 0 10px 26px rgba(0,0,0,.12);
+    }
+
+    *{ box-sizing:border-box; }
+
+    /*
+      Make the ZK Window (and its inner content div) fully transparent.
+      ZK renders an inner .z-window-content with a default background; this overrides it.
+    */
+    /* Window root keeps layout; make it transparent */
+    .pageRoot{
+      min-height:100vh;
+      width:100%;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      margin:0;
+      background: transparent !important;
+      color:var(--text);
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Noto Sans", "Helvetica Neue", sans-serif;
+    }
+
+    /* Override ZK's default window/content white background */
+    .pageRoot.z-window,
+    .pageRoot .z-window-embedded,
+    .pageRoot .z-window-embedded-cnt,
+    .pageRoot .z-window-content{
+      background: transparent !important;
+      border: 0 !important;
+    }
+
+    .wrap{
+      width:min(1180px, 92vw);
+      padding:42px 18px 56px;
+      text-align:center;
+    }
+
+    .top{
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      gap:10px;
+      margin-bottom:26px;
+    }
+
+    .logoMark{
+      width:288px;
+      height:288px;
+      display:grid;
+      place-items:center;
+      border-radius:18px;
+      background:rgba(255,255,255,.55);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(8px);
+      overflow:hidden;
+    }
+    .logoMark img{ width:100%; height:100%; object-fit:contain; }
+
+    .brand{
+      font-weight:700;
+      letter-spacing:.2px;
+      font-size:18px;
+      color:var(--text);
+      margin-top:4px;
+    }
+    
+    .grid{
+  /* Use flex-wrap so rows are always centered even if some tiles are invisible */
+  display:flex;
+  flex-wrap:wrap;
+  justify-content:center;
+  gap:22px;
+  align-items:stretch;
+  margin-top:26px;
+}
+
+.tile{
+  /* sizing for flex layout */
+  flex: 0 1 190px;
+  width: 100%;
+  max-width: 240px;
+}
+
+@media (max-width: 980px){
+  .tile{ flex-basis: 200px; max-width: 260px; }
+}
+
+@media (max-width: 640px){
+  .tile{ flex: 1 1 160px; max-width: 260px; min-height:150px; }
+}
+    
+
+    .tile{
+      text-decoration:none;
+      color:inherit;
+      border-radius:18px;
+      padding:18px 14px 16px;
+      background: var(--card);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(8px);
+      transition: transform .18s ease, box-shadow .18s ease, background .18s ease;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      justify-content:flex-start;
+      min-height:160px;
+      cursor:pointer;
+    }
+    .tile:hover{
+      transform: translateY(-3px);
+      box-shadow: var(--shadow2);
+      background: rgba(255,255,255,.82);
+    }
+
+    .icon{
+      width:74px;
+      height:74px;
+      display:grid;
+      place-items:center;
+      border-radius:16px;
+      background: rgba(255,255,255,.68);
+      border:1px solid rgba(0,0,0,.06);
+    }
+
+    .title{
+      margin-top:12px;
+      font-weight:650;
+      font-size:14px;
+      line-height:1.2;
+      color:var(--muted);
+      text-shadow: 0 1px 0 rgba(255,255,255,.6);
+    }
+
+    .hint{
+      margin-top:14px;
+      font-size:12px;
+      color:rgba(60,85,99,.75);
+    }
+
+    .disclaimer{
+      margin: 18px auto 0;
+      max-width: 980px;
+      text-align:left;
+      padding: 14px 16px;
+      border-radius: 14px;
+      background: rgba(255,255,255,.62);
+      box-shadow: 0 10px 26px rgba(0,0,0,.08);
+      backdrop-filter: blur(8px);
+      border: 1px solid rgba(42,111,143,.18);
+      color: rgba(60,85,99,.92);
+      font-size: 12px;
+      line-height: 1.45;
+    }
+    .disclaimer strong{
+      color: var(--text);
+      font-weight: 700;
+    }
+
+    @media (max-width: 980px){
+      .grid{ grid-template-columns: repeat(3, minmax(160px, 1fr)); }
+    }
+    @media (max-width: 640px){
+      .grid{ grid-template-columns: repeat(2, minmax(150px, 1fr)); }
+      .tile{ min-height:150px; }
+    }
+  </style>
+
+  <window id="winMenu"
+          apply="com.uniinformation.zkf.aw.ZkCellActionMobileMenu"
+          border="none"
+          width="100%"
+          sclass="pageRoot"
+          style="background: transparent;"
+          contentStyle="background: transparent;">
+
+    <div sclass="wrap">
+      <!-- Top -->
+      <div sclass="top">
+        <div sclass="logoMark">
+          <!-- put vincero.png under web root, e.g. /img/vincero.png, then update src -->
+          <h:img src="./images/logo/pmspacklogo1.jpg" alt="Artway Limited"/>
+        </div>
+        <div sclass="brand">New Artway Printing</div>
+        <div sclass="brand">新藝域印刷製作有限公司</div>
+      </div>
+
+      <!-- Grid -->
+      <div id="mainMenu" sclass="grid">
+        <!-- 1 -->
+        <a id="a0001" sclass="tile" href="/zkbiloader.html?zul=zkf/vincero/ZkFormCompoundResult.zul" label="">
+          <div sclass="icon">
+            <h:svg width="54" height="54" viewBox="0 0 64 64" fill="none">
+              <h:path d="M10 50V14" stroke="#2a6f8f" stroke-width="2" stroke-linecap="round"/>
+              <h:path d="M10 50H54" stroke="#2a6f8f" stroke-width="2" stroke-linecap="round"/>
+              <h:path d="M14 44l10-9 8 6 18-20" stroke="#2a6f8f" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+              <h:path d="M44 21h8v8" stroke="#2a6f8f" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+              <h:rect x="16" y="46" width="6" height="4" rx="1" fill="#2a6f8f" opacity=".25"/>
+              <h:rect x="26" y="43" width="6" height="7" rx="1" fill="#2a6f8f" opacity=".25"/>
+              <h:rect x="36" y="39" width="6" height="11" rx="1" fill="#2a6f8f" opacity=".25"/>
+            </h:svg>
+          </div>
+          <div sclass="title">Compounding Result Simulator</div>
+        </a>
+
+        <!-- 2 -->
+        <a id="a0002" sclass="tile" href="/zkbiloader.html?zul=zkf/vincero/ZkFormForexTrade.zul" label="">
+          <div sclass="icon">
+            <h:svg width="54" height="54" viewBox="0 0 64 64" fill="none">
+              <h:rect x="10" y="12" width="26" height="40" rx="6" stroke="#2a6f8f" stroke-width="2.3"/>
+              <h:rect x="14" y="17" width="18" height="8" rx="2" fill="#2a6f8f" opacity=".18"/>
+              <h:g fill="#2a6f8f" opacity=".35">
+                <h:rect x="14" y="29" width="6" height="6" rx="1.5"/>
+                <h:rect x="22" y="29" width="6" height="6" rx="1.5"/>
+                <h:rect x="30" y="29" width="6" height="6" rx="1.5"/>
+                <h:rect x="14" y="37" width="6" height="6" rx="1.5"/>
+                <h:rect x="22" y="37" width="6" height="6" rx="1.5"/>
+                <h:rect x="30" y="37" width="6" height="6" rx="1.5"/>
+              </h:g>
+              <h:circle cx="46" cy="36" r="12" stroke="#2a6f8f" stroke-width="2.3"/>
+              <h:circle cx="46" cy="36" r="6" stroke="#2a6f8f" stroke-width="2.3" opacity=".8"/>
+              <h:circle cx="46" cy="36" r="2.2" fill="#2a6f8f"/>
+            </h:svg>
+          </div>
+          <div sclass="title">Trade Position Calculator</div>
+        </a>
+
+        <!-- 3 -->
+        <a id="a0003" sclass="tile" href="/zkbiloader.html?zul=zkf/vincero/ZkFormFtrStrategy.zul" label="">
+          <div sclass="icon">
+            <h:svg width="54" height="54" viewBox="0 0 64 64" fill="none">
+              <h:rect x="12" y="14" width="30" height="34" rx="6" stroke="#2a6f8f" stroke-width="2.3"/>
+              <h:path d="M18 40V30M25 40V26M32 40V33M39 40V22" stroke="#2a6f8f" stroke-width="2.6" stroke-linecap="round" opacity=".9"/>
+              <h:circle cx="44" cy="44" r="9" stroke="#2a6f8f" stroke-width="2.3"/>
+              <h:path d="M50 50l6 6" stroke="#2a6f8f" stroke-width="2.6" stroke-linecap="round"/>
+            </h:svg>
+          </div>
+          <div sclass="title">Fundamental Analysis Calculator</div>
+        </a>
+
+        <!-- 4 -->
+        <a id="a0004" sclass="tile" href="/zkbiloader.html?zul=zkf/vincero/ZkFormAdvStrategy.zul" label="">
+          <div sclass="icon">
+            <h:svg width="54" height="54" viewBox="0 0 64 64" fill="none">
+              <h:path d="M14 22l18-8 18 8-18 8-18-8z" stroke="#2a6f8f" stroke-width="2.3"/>
+              <h:path d="M14 30l18 8 18-8" stroke="#2a6f8f" stroke-width="2.3" opacity=".85"/>
+              <h:path d="M14 38l18 8 18-8" stroke="#2a6f8f" stroke-width="2.3" opacity=".65"/>
+              <h:circle cx="50" cy="44" r="7.5" stroke="#2a6f8f" stroke-width="2.3"/>
+              <h:path d="M50 36.5v3M50 48.5v3M42.5 44h3M54.5 44h3M45.2 39.2l2.1 2.1M52.7 46.7l2.1 2.1M54.8 39.2l-2.1 2.1M47.3 46.7l-2.1 2.1"
+                      stroke="#2a6f8f" stroke-width="2.1" stroke-linecap="round"/>
+            </h:svg>
+          </div>
+          <div sclass="title">Advanced Fundamental Analysis Calculator</div>
+        </a>
+
+        <!-- 5 -->
+        <a id="a0005" sclass="tile" href="/zkbiloader.html?zul=zkf/vincero/ZkFormTradeJournal.zul" label="">
+          <div sclass="icon">
+            <h:svg width="54" height="54" viewBox="0 0 64 64" fill="none">
+              <h:rect x="14" y="12" width="34" height="40" rx="6" stroke="#2a6f8f" stroke-width="2.3"/>
+              <h:path d="M22 12v40" stroke="#2a6f8f" stroke-width="2.3" opacity=".85"/>
+              <h:path d="M27 22h16M27 30h16M27 38h12" stroke="#2a6f8f" stroke-width="2.6" stroke-linecap="round" opacity=".9"/>
+              <h:circle cx="19" cy="22" r="1.5" fill="#2a6f8f"/>
+              <h:circle cx="19" cy="30" r="1.5" fill="#2a6f8f"/>
+              <h:circle cx="19" cy="38" r="1.5" fill="#2a6f8f"/>
+            </h:svg>
+          </div>
+          <div sclass="title">Trade Journal</div>
+        </a>
+      </div>
+
+      <div id="loginPanel">
+      	<vlayout>
+      	<div sclass="hint">
+        	<div>Enter Your Mobile Number To Login</div>
+        	<div>請輸入個人電話號碼登入</div>
+      	</div>
+        <textbox id="loginId" width="200px"></textbox>
+      	<div sclass="hint" >
+        	Enter Password 請輸入密碼
+      	</div>
+        <textbox id="loginPwd" width="100px" type="password"></textbox>
+      	</vlayout>
+      </div>
+
+      <div id="actionPanel">
+      	<div height="20px"></div>
+      	<vlayout>
+      	<hlayout>
+      	<button id="btLogin">Login 登入</button>
+      	<button id="btLogout">Logout 登出</button>
+      	</hlayout>
+      	<div height="20px"></div>
+      	<button id="btReset">Signup/Forgot Password 登記/忘記密碼</button>
+      	</vlayout>
+      </div>
+
+      <div id="disclaimer" sclass="disclaimer">
+        <h:strong>Disclaimer:</h:strong>
+        The information contained in this website is generic in nature and for information purpose only, it does not take into account you or your client? personal objectives, financial situation or needs. Nothing contained in this website is to be construed as a recommendation, advice or opinion of any sort; or an invitation or offer to buy or sell, or the solicitation or inducement of an offer to buy or sell any security, futures contract, financial product, instrument, commodity, foreign exchange or investment; or to participate in any particular trading strategy. You should not make any decision (financial, investment, trading or otherwise) based on the information contained in this website without undertaking independent due diligence and/or consultation with your professional advisor(s). Reproduction or redistribution of the information contained in this website is strictly prohibited. Justin Ho and Vincero Investment Academy do not represent, warrant or guarantee, whether expressly or by implication, that any information contained in this website is accurate, up-to-date, or complete and you should not rely upon it as such. Justin Ho, Vincero Investment Academy and their affiliates shall not be liable for any consequential effect, nor be liable for any loss or damage, howsoever caused, arising from any person? use of or reliance on any information contained in this website and shall not be liable for any error or omission in such information.
+      </div>
+
+    </div>
+  </window>
+</zk>

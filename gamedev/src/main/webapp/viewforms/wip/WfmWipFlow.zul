@@ -1,0 +1,42 @@
+<zk>
+<zscript><![CDATA[  
+	public void doResize() { 
+        visNwEventDivDet.invalidate();
+        Events.sendEvent(new Event("onSize", visNwEventDivDet, null));
+	};
+]]></zscript>
+<vlayout xmlns:h="native">
+	<toolbar id="detail_toolbar" align="end">
+		<button id="btCreateJob" label="Create Job" width="100px"></button>
+	</toolbar>
+	<hlayout>
+		<vlayout width="600px">
+			<grid style="text-align:left;" id="detail_grid">
+			<!-- 
+	   			<columns>
+	      			<column width="150px"></column>
+	      			<column hflex="1"></column>
+				</columns>
+			 -->
+			</grid>
+			<listbox id="list_wip_WfmFlowStep" width="600px" height="500px"> </listbox>
+		</vlayout> 
+		<panel width="1300px">
+       		<toolbar>
+				<toolbarbutton id="btAddLink" label="Add Dependency" disabled="true" mode="toggle" width="130px"></toolbarbutton>
+  				<toolbarbutton id="btDelLink" label="Delete Dependency" tooltiptext="click a link, then click delete button to remove a link" disabled="true" width="130px"></toolbarbutton>
+   				<toolbarbutton id="btUpdLink" label="Update Dependency" tooltiptext="click a link, then click update button to update properties" disabled="true" width="130px"></toolbarbutton>
+   				<toolbarbutton id="btRedraw" label="Redraw" tooltiptext="click to redraw the diagram" width="130px"></toolbarbutton>
+       		</toolbar>
+       		<panelchildren>
+            <hbox spacing="0" width="100%" height="100%">
+			<div id="visNwEventDivDet" hflex="1" height="750px"> 
+				<h:div style="width:100%; height:100%;" id="visNwContentDivDet"></h:div>
+			</div>
+            </hbox>
+       		</panelchildren>
+		</panel>
+	</hlayout>
+	
+</vlayout>
+</zk>

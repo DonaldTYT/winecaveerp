@@ -1,0 +1,103 @@
+<?page title="Auto Generated index.zul"?>
+<zk>
+<script type="text/javascript" src="js/pdfobject-2.0.min.js" />
+<script src="js/visUtil.js"></script>
+<script>
+<![CDATA[
+function zkDisplayPdf(p_link, p_container, p_downloadBtId) {
+	if (! jq('$' + p_container).length){
+		console.log("not exist:" + p_container);
+		return;
+	}
+	var $pdf = $('#' + jq('$' + p_container).attr('id')); //TODO: this statement very strange, rewrite it later!
+	var options = {
+		pdfOpenParams: {
+    		pageMode: 'none',
+    		scaleValue: 'page-fit',
+    		disableFullscreen: true,
+			disableOpenFile: true,
+			disableViewBookmark: true,
+		    disableDownload: true,
+		    disablePrinting: true,
+			downloadFun: 'zkDownloadPdf("'+ p_downloadBtId+'")'
+		},
+		forcePDFJS: true,
+		PDFJS_URL: "js/pdfjs/web/viewer.html",
+		fallbackLink: '<p>This browser does not support inline PDFs, please click this <a href="' + p_link + '">link</a> to download</p>'
+	};
+	PDFObject.embed(p_link, $pdf, options);
+}
+function zkDownloadPdf(p_btId) {
+	//var zkComp = zk.Widget.$('$btDownloadPdf');
+	var zkComp = zk.Widget.$('$' + p_btId);
+	if (zkComp !== null && zAu !== null && zk !== null)
+		zAu.send(new zk.Event(zkComp, "onClick", null, {toServer:true}));
+	else
+		console.log("comp or zAu is null, skip register event");
+}
+]]>
+</script>
+<zscript>
+<![CDATA[
+	String composer = "ZkBiComposerBase";
+	String classPrefix = "com.uniinformation.zkbi.";
+	if (Executions.getCurrent().getParameter("composer") != null){
+		composer = Executions.getCurrent().getParameter("composer").trim();
+	}
+]]>
+</zscript>
+<window id="zkbibrowser" apply="${classPrefix}${composer}" border="none" xmlns:h="native">>
+	<custom-attributes listboxHeight="css"/>
+		<tabbox id="zkbiListTop" width="100%">
+		<tabs width="100%">
+			<tab>Records</tab>
+			<tab id="tabTimeline">Timeline</tab>
+		</tabs>
+		<tabpanels>
+			<tabpanel id="zkbiListPanel" > 
+				<panel width="100%">
+       				<panelchildren>
+       					<hbox>
+       					<div>
+							<listbox id="browser_listbox"/>
+							<hlayout height="10px" valign="middle"> </hlayout>
+							<vbox id="zkbiBottomPanel" width="100%"></vbox>
+       					</div>
+            			<!-- 
+            			<splitter id="s1" collapse="after" onOpen='doResize()'/>
+            			 -->
+            			 <div>HAHA</div>
+       					</hbox>
+       				</panelchildren>
+				</panel>  
+			<!-- 
+				<panel width="100%">
+       				<panelchildren>
+			            <hbox spacing="0" width="100%" height="100%">
+			            <vlayout>
+			            </vlayout>
+			            </hbox>
+       				</panelchildren>
+				</panel>  
+			 -->
+			</tabpanel>
+			<tabpanel id="JxWipTimeline">
+			    <h:div id="visContentDiv"></h:div>
+			    <div style="background:yellow;" id="visEventDiv"></div>
+    		   	<toolbar>
+    			<toolbarbutton id="btToday" label="今天"></toolbarbutton>
+    			<toolbarbutton id="btCurrWeek" label="本週"></toolbarbutton>
+    			<toolbarbutton id="btCurrMonth" label="本月"></toolbarbutton>
+    			</toolbar>	
+			</tabpanel>
+		</tabpanels>
+	</tabbox>
+	<div id="pdfview" visible="false">
+		<div width="100%" sclass="zkpdf" id="pdfcontent"></div>
+		<separator spacing="5px" />	
+		<hbox id="zkPdfActionBar" pack="center" width="100%">
+			<button visible="true" style="" id="btClosePdf" label="Close Viewer"/>
+		</hbox>
+	</div>
+</window>
+</zk>

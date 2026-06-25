@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?page title="" language="xul/html"?>
+<window title="${arg.title}" sclass="z-messagebox-window ${arg.sclass}"
+ border="normal" width="800px" closable="true" position="center"
+ use="org.zkoss.zul.impl.MessageboxDlg" xmlns:w="client">
+	<hbox>
+		<div sclass="${arg.icon}"/>
+		<separator spacing="20px" />
+		<div sclass="z-messagebox">
+			<label value="${arg.message}" multiline="true"
+			w:onBind="zul.wnd.Messagebox.onBind(this, '500px')"/>
+		</div>
+	</hbox>
+	<separator spacing="25px"/>
+	<hbox id="buttons" style="margin-left:auto; margin-right:auto;">
+		<custom-attributes button.sclass="z-messagebox-button"/><!-- CSS class for buttons -->
+	</hbox>
+	<separator spacing="5px"/>
+</window>

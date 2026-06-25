@@ -1,0 +1,4 @@
+. ./profile.yacc
+rm -f Yylex.java Parser.java
+l calc.flex
+y calc.y

@@ -1,0 +1,10 @@
+<zk>
+    <template name="userCard">
+        <div>
+            <label value="@load(current.name)" />
+        </div>
+    </template>
+    <div>
+        <apply template="userCard" />
+    </div>
+</zk>

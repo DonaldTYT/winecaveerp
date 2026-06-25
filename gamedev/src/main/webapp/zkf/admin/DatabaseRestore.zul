@@ -1,0 +1,18 @@
+<zk>
+<window sclass="zkbi-form zkbi-main-window" width="700px" apply="com.uniinformation.zkf.ZkCellActionForm">
+<div align="center">
+	<vlayout>
+	<div height="50px"></div>
+	<label style="font-size:30px !important;" value="Database Restore"><custom-attributes tlkey="lb_dbrestore"/></label>
+	<div height="50px"></div>
+	<hlayout>
+	<button id="btProceed" label="Proceed">
+		<custom-attributes actionHandler="com.uniinformation.erpv4.PerfJsonRpcCall" needResponse="Y"  actionId="erpv4_database_restore" uploadType="gzip"></custom-attributes>
+		<custom-attributes tlkey="bt_proceed"/>
+	</button>
+	</hlayout>
+	<div height="50px"></div>
+	</vlayout>
+</div>
+</window>
+</zk>

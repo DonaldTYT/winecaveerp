@@ -1,0 +1,34 @@
+<?taglib uri="http://www.zkoss.org/dsp/web/core" prefix="c"?>
+<window border="normal" width="300px" title="Welcome" apply="com.uniinformation.jx.zk.ZkJxWipUpdate" id="ZkSample" use="com.uniinformation.jx.zk.ZkJxWindow">
+
+    <grid hflex="1"> <!-- hflex="1" - available width inside parent (window) -->
+        <columns visible="false" >
+            <column width="20%"/><!-- define 2 columns to enable auxhead/er -->
+            <column/>
+        </columns>
+        <rows>
+            <row> Resource <textbox id="textbox0" hflex="1" /> </row>
+            <row> W/O <textbox id="textbox1" hflex="1" /> </row>
+            <row> Extent  <textbox id="textbox2" hflex="1" /> </row>
+            <row> Workman <textbox id="textbox3" hflex="1" /> </row>
+            <row> Quantity <textbox id="textbox4" hflex="1" /> </row>
+            <row> Remark  <textbox id="textbox5" hflex="1" /> </row>
+            <row spans="2" align="right">
+                <hlayout>
+                    <button id="btSubmit" label="Start"/>
+                    <button id="btReset" label="Stop" />
+                </hlayout>
+            </row>
+            <row spans="2">
+            <!-- 
+            		<toolbarbutton image="/images/pulldown50.png"></toolbarbutton>
+            	 <toolbar id="tb" sclass="vista" height="30px" align="end">
+            		<toolbarbutton image="/images/pulldown50.png"></toolbarbutton>
+            		<toolbarbutton image="/images/pulldown50.png"></toolbarbutton>
+		        </toolbar>
+             -->
+            </row>
+        </rows>
+    </grid>
+    <timer id="timer" delay="1000" repeats="true"> </timer>
+</window>

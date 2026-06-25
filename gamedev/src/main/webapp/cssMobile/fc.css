@@ -1,0 +1,72 @@
+.fc-scroller {
+	/*overflow-y: hidden !important;*/
+	/* overflow: visible !important;*/
+}
+.fc-day-grid-container.fc-scroller {
+	overflow-y: hidden !important;
+}
+.fc-button-primary {
+	background-color: #779cb1;
+	border-color: #dddddd;
+}
+.fc-button-primary:not(:disabled):active, .fc-button-primary:not(:disabled).fc-button-active {
+    background-color: #139af6;
+    border-color: #dddddd;
+}
+.fc-button-primary:disabled {
+    background-color: #424e5a;
+    border-color: #dddddd;
+}
+#calendar001{
+	background: #f2f2f2;
+}
+.fc-view{
+	background: #fff;
+}
+.fc-toolbar.fc-header-toolbar {
+    margin-bottom: 0.1em;
+}
+.fc th, .fc td {
+    vertical-align: middle;
+}
+.fc-sun.fc-day-header { color:red; }
+.fc tr:first-child > td > .fc-day-grid-event {
+  margin-top: 0px;
+}
+.fc-event {
+	border :none;
+}
+
+.fc-view-container{
+    /*improve empty view*/
+	min-height:500px;
+}
+.fc-more{
+	white-space: nowrap;
+}
+.fc-button{
+	padding:3px;
+}
+.fc-prevYear-button, .fc-nextYear-button,
+.fc-listWeek-button, .fc-listDay-button {
+	display:none;
+}
+.fc {
+	font-size:0.7em;
+	
+}
+.fc-center{
+	font-size:0.5em;
+}
+.fc-content{
+	line-height:14px;
+	
+}
+
+/* 220318 adjust style of other month cell */
+td.fc-other-month{
+	background:#f0f0f0;
+}
+td.fc-day-top.fc-other-month {
+	opacity: 0.6;
+}

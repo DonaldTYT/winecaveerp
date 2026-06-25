@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<zk>
+    <window title="Market Sentiment Calculator" border="normal" width="1200px">
+        <vlayout width="100%">
+            <!-- Market Sentiment Section -->
+            <hlayout width="100%" spacing="10px">
+                <label value="Market Sentiment" style="font-weight:bold; font-size:16px; color:#2a3f5f;"/>
+                <combobox width="120px">
+                    <comboitem label="Risk On"/>
+                    <comboitem label="Risk Off"/>
+                </combobox>
+                <label value="(select)" style="color:red;"/>
+            </hlayout>
+
+            <separator/>
+
+            <!-- Currency Data Table -->
+            <grid width="100%">
+                <columns>
+                    <column label="Category" width="250px"/>
+                    <column label="USD" width="150px"/>
+                    <column label="EUR" width="150px"/>
+                    <column label="JPY" width="150px"/>
+                    <column label="GBP" width="150px"/>
+                    <column label="CHF" width="150px"/>
+                    <column label="CAD" width="150px"/>
+                    <column label="AUD" width="150px"/>
+                    <column label="NZD" width="150px"/>
+                </columns>
+                <rows>
+                    <!-- Economic Factors -->
+                    <row>
+                        <label value="Economic Growth"/>
+                        <textbox value="Good"/>
+                        <textbox value="Bad"/>
+                        <textbox value="Neutral"/>
+                        <textbox value="Bad"/>
+                        <textbox value="Good"/>
+                        <textbox value="Good"/>
+                        <textbox value="Very Good"/>
+                        <textbox value="Very Good"/>
+                    </row>
+                    <row>
+                        <label value="Inflation"/>
+                        <textbox value="Neutral"/>
+                        <textbox value="Neutral"/>
+                        <textbox value="Neutral"/>
+                        <textbox value="Neutral"/>
+                        <textbox value="Neutral"/>
+                        <textbox value="Good"/>
+                        <textbox value="Good"/>
+                        <textbox value="Very Good"/>
+                    </row>
+                    <row>
+                        <label value="Employment"/>
+                        <textbox value="Good"/>
+                        <textbox value="Very Good"/>
+                        <textbox value="Good"/>
+                        <textbox value="Neutral"/>
+                        <textbox value="Good"/>
+                        <textbox value="Very Good"/>
+                        <textbox value="Very Good"/>
+                        <textbox value="Bad"/>
+                    </row>
+                    <row>
+                        <label value="Balance of Trade"/>
+                        <textbox value="Bad"/>
+                        <textbox value="Very Good"/>
+                        <textbox value="Good"/>
+                        <textbox value="Bad"/>
+                        <textbox value="Neutral"/>
+                        <textbox value="Very Good"/>
+                        <textbox value="Good"/>
+                        <textbox value="Very Bad"/>
+                    </row>
+                    <row>
+                        <label value="Geopolitical Event"/>
+                        <textbox value="Very Bad"/>
+                        <textbox value="Neutral"/>
+                        <textbox value="Neutral"/>
+                        <textbox value="Neutral"/>
+                        <textbox value="Neutral"/>
+                        <textbox value="Very Good"/>
+                        <textbox value="Good"/>
+                        <textbox value="Very Bad"/>
+                    </row>
+
+                    <!-- Central Bank Stance -->
+                    <row>
+                        <label value="Central Bank Stance?" style="font-weight:bold;"/>
+                        <textbox value="Neutral Dovish"/>
+                        <textbox value="Hawkish"/>
+                        <textbox value="Neutral Hawkish"/>
+                        <textbox value="Neutral Dovish"/>
+                        <textbox value="Neutral Dovish"/>
+                        <textbox value="Neutral"/>
+                        <textbox value="Neutral Hawkish"/>
+                        <textbox value="Neutral Dovish"/>
+                    </row>
+
+                    <!-- Currency Risk On/Off -->
+                    <row>
+                        <label value="Is the currency Risk On or Risk Off?" style="font-weight:bold;"/>
+                        <textbox value="Neutral"/>
+                        <textbox value="Neutral"/>
+                        <textbox value="Risk Off"/>
+                        <textbox value="Neutral"/>
+                        <textbox value="Risk On"/>
+                        <textbox value="Risk Off"/>
+                        <textbox value="Risk Off"/>
+                        <textbox value="Risk Off"/>
+                    </row>
+                </rows>
+            </grid>
+
+            <separator/>
+
+            <!-- Calculator Result Section -->
+            <grid width="100%" style="background-color:#f5f5f5; padding:10px;">
+                <columns>
+                    <column label="Calculator Result" width="250px"/>
+                    <column label="USD" width="150px"/>
+                    <column label="EUR" width="150px"/>
+                    <column label="JPY" width="150px"/>
+                    <column label="GBP" width="150px"/>
+                    <column label="CHF" width="150px"/>
+                    <column label="CAD" width="150px"/>
+                    <column label="AUD" width="150px"/>
+                    <column label="NZD" width="150px"/>
+                </columns>
+                <rows>
+                    <row>
+                        <label/>
+                        <label value="Neutral Bearish" style="color:red;"/>
+                        <label value="Neutral Bullish" style="color:green;"/>
+                        <label value="Neutral Bullish" style="color:green;"/>
+                        <label value="Neutral Bearish" style="color:red;"/>
+                        <label value="Neutral Bearish" style="color:red;"/>
+                        <label value="Bullish" style="color:green;"/>
+                        <label value="Bullish" style="color:green;"/>
+                        <label value="Neutral"/>
+                    </row>
+                </rows>
+            </grid>
+
+            <separator/>
+
+            <!-- Personal View Section -->
+            <hlayout width="100%" spacing="10px">
+                <label value="What is your Personal View on the strength of the Currency?" 
+                    style="font-weight:bold; color:#2a3f5f;"/>
+                <textbox width="80%" multiline="true" rows="2"/>
+            </hlayout>
+
+            <separator/>
+
+            <!-- Fundamental Bias Section -->
+            <hlayout width="100%" spacing="10px">
+                <label value="Your Fundamental Bias" style="font-weight:bold; font-size:16px; color:#2a3f5f;"/>
+                <combobox width="120px">
+                    <comboitem label="Bearish"/>
+                    <comboitem label="Bullish"/>
+                </combobox>
+                <label value="(select)" style="color:red;"/>
+            </hlayout>
+        </vlayout>
+    </window>
+</zk>

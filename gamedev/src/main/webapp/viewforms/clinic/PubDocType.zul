@@ -1,0 +1,64 @@
+<zk xmlns:w="http://www.zkoss.org/2005/zk/client" xmlns:h="xhtml">
+<style>
+
+.vbox-nospace .z-vbox-separator {
+	height : 0px;
+}
+.vbox-space .z-vbox-separator {
+	height : .3em;
+}
+.hbox-nospace .z-hbox-separator {
+	width: 0px;
+}
+</style>
+<script><![CDATA[
+]]></script>
+<grid style="text-align:left;background:#FFF;border:0px;" id="detail_grid">
+	<columns>
+		<column align="right" width="300px"/>
+		<column hflex="1" />
+	</columns>
+	<rows>
+		<row>
+			<label id="lb_bcpdt_rg" value="Item No."/>
+			<intbox id="bcpdt_rg"/>
+		</row>
+		<row>
+			<label id="lb_bcpdt_name" value="bcpdt_name"/>
+			<textbox id="bcpdt_name"/>
+		</row>
+		<row>
+			<label id="lb_bcpdt_docfname" value="bcpdt_docfname"/>
+			<hlayout>
+				<textbox id="bcpdt_docfname"/>
+				<toolbarbutton id="btRemovePdf" iconSclass="z-icon-trash"/>
+			</hlayout>
+		</row>
+		<!-- 
+		<row>
+			<label id="lb_bcpdt_seq" value="bcpdt_seq"/>
+			<intbox id="bcpdt_seq"/>
+		</row>
+		 -->
+		<row>
+			<label id="lb_bcpdt_status" value="bcpdt_status"/>
+			<checkbox id="bcpdt_status"/>
+		</row>
+		<row>
+			<label id="lb_bcpdt_utime" value="bcpdt_utime"/>
+			<datebox id="bcpdt_utime" format="yyyy/MM/dd HH:mm:ss"/>
+		</row>
+	</rows>
+</grid>
+<separator spacing="2px"></separator>
+<div id="zkDropzone" style="border: dashed 2px #beefbe; background:#f3fff6;">
+	<h:div id="jsDropzone" class="dropzone" style="border:none;background:inherit;">
+		<h:div class="dz-message data-dz-message"><h:span>Drop files here or click to upload</h:span></h:div>
+	</h:div>
+</div>       
+<separator spacing="2px"></separator>
+<toolbar id="detail_toolbar" align="end">
+	<button id="btDownloadDoc" label="Download Doc" visible="true"></button>
+</toolbar>
+<separator spacing="40px"></separator>
+</zk>

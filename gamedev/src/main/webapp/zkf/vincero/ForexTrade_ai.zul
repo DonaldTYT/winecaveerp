@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<zk>
+    <window title="Forex Trade Calculator" border="normal" width="900px">
+        <vlayout>
+        	<label>
+        	HAHA
+        	</label>
+            <!-- Title -->
+            <label value="Forex Trade Calculator" 
+                style="font-size:20px; font-weight:bold; color:white; background-color:navy; padding:10px; display:block; text-align:center;" 
+                width="100%"/>
+            
+            <hlayout width="100%" spacing="10px">
+                <!-- BUY Section -->
+                <vlayout hflex="1" style="border:1px solid green; padding:10px;">
+                    <label value="BUY" 
+                        style="background-color:green; color:white; font-weight:bold; text-align:center; display:block; padding:5px;"/>
+                    
+                    <listbox width="100%">
+                        <listhead>
+                            <listheader label="Field" width="50%"/>
+                            <listheader label="Value" width="50%"/>
+                        </listhead>
+                        <listitem>
+                            <listcell label="Currency Pair:"/>
+                            <listcell><textbox value="GBPUSD" readonly="true" style="background:yellow;"/></listcell>
+                        </listitem>
+                        <listitem>
+                            <listcell label="Entry:"/>
+                            <listcell><doublebox value="1.1097"/></listcell>
+                        </listitem>
+                        <listitem>
+                            <listcell label="SL (Stop Loss):"/>
+                            <listcell><doublebox value="1.0916"/></listcell>
+                        </listitem>
+                        <listitem>
+                            <listcell label="TP1 (Take Profit 1):"/>
+                            <listcell><doublebox value="1.1420"/></listcell>
+                        </listitem>
+                        <listitem>
+                            <listcell label="TP2 (Take Profit 2):"/>
+                            <listcell><doublebox value="1.1729"/></listcell>
+                        </listitem>
+                    </listbox>
+
+                    <separator/>
+
+                    <!-- BUY Calculations -->
+                    <listbox width="100%">
+                        <listhead>
+                            <listheader label="Metric" width="50%"/>
+                            <listheader label="Value" width="50%"/>
+                        </listhead>
+                        <listitem>
+                            <listcell label="SL Distance:"/>
+                            <listcell><doublebox value="0.0181" readonly="true"/></listcell>
+                        </listitem>
+                        <listitem>
+                            <listcell label="TP1 Distance:"/>
+                            <listcell><doublebox value="0.0323" readonly="true"/></listcell>
+                        </listitem>
+                        <listitem>
+                            <listcell label="TP2 Distance:"/>
+                            <listcell><doublebox value="0.0632" readonly="true"/></listcell>
+                        </listitem>
+                        <listitem>
+                            <listcell label="Reward:Risk of TP1:"/>
+                            <listcell><label value="1.8 : 1"/></listcell>
+                        </listitem>
+                        <listitem>
+                            <listcell label="Reward:Risk of TP2:"/>
+                            <listcell><label value="3.5 : 1"/></listcell>
+                        </listitem>
+                    </listbox>
+                </vlayout>
+
+                <!-- SELL Section -->
+                <vlayout hflex="1" style="border:1px solid red; padding:10px;">
+                    <label value="SELL" 
+                        style="background-color:red; color:white; font-weight:bold; text-align:center; display:block; padding:5px;"/>
+                    
+                    <listbox width="100%">
+                        <listhead>
+                            <listheader label="Field" width="50%"/>
+                            <listheader label="Value" width="50%"/>
+                        </listhead>
+                        <listitem>
+                            <listcell label="Currency Pair:"/>
+                            <listcell><textbox value="GBPJPY" readonly="true" style="background:yellow;"/></listcell>
+                        </listitem>
+                        <listitem>
+                            <listcell label="Entry:"/>
+                            <listcell><doublebox value="161.5000"/></listcell>
+                        </listitem>
+                        <listitem>
+                            <listcell label="SL (Stop Loss):"/>
+                            <listcell><doublebox value="164.3000"/></listcell>
+                        </listitem>
+                        <listitem>
+                            <listcell label="TP1 (Take Profit 1):"/>
+                            <listcell><doublebox value="159.0000"/></listcell>
+                        </listitem>
+                        <listitem>
+                            <listcell label="TP2 (Take Profit 2):"/>
+                            <listcell><doublebox value="155.5000"/></listcell>
+                        </listitem>
+                    </listbox>
+
+                    <separator/>
+
+                    <!-- SELL Calculations -->
+                    <listbox width="100%">
+                        <listhead>
+                            <listheader label="Metric" width="50%"/>
+                            <listheader label="Value" width="50%"/>
+                        </listhead>
+                        <listitem>
+                            <listcell label="SL Distance:"/>
+                            <listcell><doublebox value="2.8000" readonly="true"/></listcell>
+                        </listitem>
+                        <listitem>
+                            <listcell label="TP1 Distance:"/>
+                            <listcell><doublebox value="2.5000" readonly="true"/></listcell>
+                        </listitem>
+                        <listitem>
+                            <listcell label="TP2 Distance:"/>
+                            <listcell><doublebox value="6.0000" readonly="true"/></listcell>
+                        </listitem>
+                        <listitem>
+                            <listcell label="Reward:Risk of TP1:"/>
+                            <listcell><label value="0.9 : 1"/></listcell>
+                        </listitem>
+                        <listitem>
+                            <listcell label="Reward:Risk of TP2:"/>
+                            <listcell><label value="2.1 : 1"/></listcell>
+                        </listitem>
+                    </listbox>
+                </vlayout>
+            </hlayout>
+        </vlayout>
+    </window>
+</zk>

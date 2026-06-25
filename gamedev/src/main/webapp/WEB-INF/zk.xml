@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+	Created by ZK Studio
+-->
+
+<zk>
+	<!-- testing value: session-timeout 3600(s), keep-alive-timer:10(min)  -->
+	<!-- max-desktops-per-session: default 15 -->
+	<session-config>
+		<device-type>ajax</device-type>
+		<session-timeout>3600</session-timeout>
+		<timer-keep-alive>true</timer-keep-alive>
+		<max-desktops-per-session>20</max-desktops-per-session>
+		<automatic-timeout>true</automatic-timeout>
+		<timeout-uri>/login.html</timeout-uri>
+	</session-config>
+	<device-config>
+		<device-type>ajax</device-type>
+	</device-config>
+	<client-config>
+		<debug-js>false</debug-js>
+	</client-config>
+	<library-property>
+    	<name>org.zkoss.theme.preferred</name>
+    	<value>iceblue_c</value> <!-- or silvertail, atlantic, breeze, iceblue, iceblue_c  -->
+	</library-property>
+	<library-property>
+    	<name>org.zkoss.zul.css.flex</name>
+    	<value>false</value> <!-- fix 201008: disable flex temporary to avoid listbox cell aligment problem  -->
+	</library-property>
+	
+	<!-- add custom tag -->
+	<language-config>
+	    <addon-uri>/WEB-INF/language-addon.xml</addon-uri>        
+	</language-config>
+	
+</zk>

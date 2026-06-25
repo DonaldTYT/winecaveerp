@@ -1,0 +1,38 @@
+<zk>
+<div width="680px">
+<vlayout>
+<hlayout height="40px" valign="middle">
+<div width="150px">Brand</div>
+<combobox id="ipc_brand" width="150px"></combobox>
+<div>Part No</div>
+<textbox id="ipc_partno"></textbox>
+</hlayout>
+<hlayout height="40px" valign="center">
+<div width="150px">Category</div>
+<combobox id="ipc_category" width="400px"></combobox>
+</hlayout>
+<hlayout height="40px" valign="center">
+<div width="150px">Model No</div>
+<textbox id="ipc_modelno" width="400px"></textbox>
+</hlayout>
+<hlayout height="40px" valign="center">
+<div width="150px">Description</div>
+<textbox id="ipc_iname" width="400px"></textbox>
+</hlayout>
+<hlayout height="40px" valign="center">
+<div width="150px">Item Code</div>
+<textbox id="ipc_icode" width="250px"></textbox>
+</hlayout>
+	<toolbar align="center">
+<!-- 
+		<button id="addPallet" label="��" visible="false"></button>
+		<button id="addCarton" label="�蝞�" visible="false"></button>
+		<button id="addReload" label="��身" visible="false"></button>
+		<button id="btUpdate" label="蝣箏��" disabled="true"></button>
+ -->
+		<button id="btAdd" label="Confirm"></button>
+		<button id="btCancel" label="Cancel"></button>
+	</toolbar>
+</vlayout>
+</div>
+</zk>

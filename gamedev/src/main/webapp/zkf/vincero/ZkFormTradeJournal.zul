@@ -1,0 +1,413 @@
+<zk>
+<script>
+	function setPlotChartStyle(classname) {
+	    const targetId = classname + "_canvas";
+
+	    let retryCount = 0;
+	    const maxRetries = 30;  // 最多等 3 秒
+	    const intervalMs = 100; // 每 100ms 檢查一次
+
+	    const interval = setInterval(() => {
+	        const target = document.getElementById(targetId);
+	        if (target) {
+	            target.style.backgroundColor = "white";  // 可自訂背景色
+	            target.style.border = "1px solid #ccc";
+	            target.style.borderRadius = "20px";
+	            target.style.marginTop = "20px";
+	            clearInterval(interval);
+	        } else {
+	            retryCount++;
+	            if (retryCount >= maxRetries) {
+	                clearInterval(interval);
+	                alert("找不到元素：" + targetId);
+	            }
+	        }
+	    }, intervalMs);
+	}
+
+	function setEditlistboxStyle(classname) {
+	    const targetId = classname + "-body";
+
+	    let retryCount = 0;
+	    const maxRetries = 30;  // 最多等 3 秒
+	    const intervalMs = 100; // 每 100ms 檢查一次
+
+	    const interval = setInterval(() => {
+	        const target = document.getElementById(targetId);
+	        if (target) {
+	            target.style.overflow = "unset";
+	        } else {
+	            retryCount++;
+	            if (retryCount >= maxRetries) {
+	                clearInterval(interval);
+	                alert("找不到元素：" + targetId);
+	            }
+	        }
+	    }, intervalMs);
+	}
+
+</script>
+    <style>
+        /* Align text to the top for the second column */
+        .custom-listbox .z-listcell {
+            vertical-align: top !important;
+        }
+
+        .btn_Chart {
+        	padding: 10px 20px !important;
+        	margin-right: 30px;
+        	margin-left: 20px;
+        }
+
+        <!--.z-window-content{
+        	height: 1546px !important;
+        }-->
+
+        .z-window-content, .z-window {
+		    border: none !important;
+		    background: transparent !important;
+		    box-shadow: none !important;
+		}
+
+		z-listbox-body {
+			overflow: unset !important;
+		}
+
+    </style>
+<window sclass="zkbi-form zkbi-main-window" width="1650px" apply="com.uniinformation.zkf.vincero.ZkCellActionTradeJournal">
+	<tabbox id="zkbiListTop" width="100%">
+		<tabs width="100%">
+			<tab id="tb_total">Total</tab>
+			<tab id="tb_Jan">Jan</tab>
+			<tab id="tb_Feb">Feb</tab>
+			<tab id="tb_Mar">Mar</tab>
+			<tab id="tb_Apr">Apr</tab>
+			<tab id="tb_May">May</tab>
+			<tab id="tb_Jun">Jun</tab>
+			<tab id="tb_Jul">Jul</tab>
+			<tab id="tb_Aug">Aug</tab>
+			<tab id="tb_Sep">Sep</tab>
+			<tab id="tb_Oct">Oct</tab>
+			<tab id="tb_Nov">Nov</tab>
+			<tab id="tb_Dec">Dec</tab>
+		</tabs>
+	</tabbox>
+	<hlayout>
+	<div width="20px"></div>
+	<vlayout>
+		<listbox id="lb_statistic" hflex="min" visible="true">
+				<auxhead>
+					<auxheader id="hdr_statistic" label="Yearly Trading Statistic" colspan="2"/>
+				</auxhead>
+				<listhead>
+					<listheader width="150px"></listheader>
+					<listheader width="80px"></listheader>
+				</listhead>
+				<listitem id="li_initial">
+					<listcell label="Initial Balance"/>
+					<listcell>
+						<doublebox id="tradj_initbal" style="background-color: yellow;"> </doublebox>
+					</listcell>
+				</listitem>
+				<listitem id="li_starting" visible="false">
+					<listcell label="Starting Balance"/>
+					<listcell>
+						<doublebox id="tradj_stbal"> </doublebox>
+					</listcell>
+				</listitem>
+				<listitem>
+					<listcell label="Current Balance"/>
+					<listcell>
+						<doublebox id="tradj_curbal"> </doublebox>
+					</listcell>
+				</listitem>
+				<listitem>
+					<listcell label="Profit/Loss"/>
+					<listcell>
+						<doublebox id="tradj_totalpl"> </doublebox>
+					</listcell>
+				</listitem>
+				<listitem>
+					<listcell label="% Gain"/>
+					<listcell>
+						<doublebox id="tradj_percentgain"> </doublebox>
+					</listcell>
+				</listitem>
+				<listitem>
+					<listcell label="Total Trades"/>
+					<listcell>
+						<intbox id="tradj_ntrade"> </intbox>
+					</listcell>
+				</listitem>
+				<listitem>
+					<listcell label="Winning Trades"/>
+					<listcell>
+						<intbox id="tradj_wtrade"> </intbox>
+					</listcell>
+				</listitem>
+				<listitem>
+					<listcell label="Losing Trades"/>
+					<listcell>
+						<intbox id="tradj_ltrade"> </intbox>
+					</listcell>
+				</listitem>
+				<listitem>
+					<listcell label="Breakeven Trades"/>
+					<listcell>
+						<intbox id="tradj_btrade"> </intbox>
+					</listcell>
+				</listitem>
+				<listitem>
+					<listcell label="% Winning Trades"/>
+					<listcell>
+						<doublebox id="tradj_percentwin"> </doublebox>
+					</listcell>
+				</listitem>
+				<listitem>
+					<listcell label="Average Win"/>
+					<listcell>
+						<doublebox id="tradj_averagewin"> </doublebox>
+					</listcell>
+				</listitem>
+				<listitem>
+					<listcell label="Average Loss"/>
+					<listcell>
+						<doublebox id="tradj_averageloss"> </doublebox>
+					</listcell>
+				</listitem>
+		</listbox>
+		<listbox id="lb_breakdown" hflex="min" visible="true">
+				<auxhead>
+					<auxheader id="hdr_breakdown" label="Monthly Breakdown and Averages" colspan="3"/>
+				</auxhead>
+				<listhead>
+					<listheader width="70px">Month</listheader>
+					<listheader width="80px">% Gain</listheader>
+					<listheader width="80px">$ Profit</listheader>
+				</listhead>
+				<listitem>
+					<listcell label="Jan"/>
+					<listcell>
+						<doublebox id="tradj_gain_1"> </doublebox>
+					</listcell>
+					<listcell>
+						<doublebox id="tradj_pl_1"> </doublebox>
+					</listcell>
+				</listitem>
+				<listitem>
+					<listcell label="Feb"/>
+					<listcell>
+						<doublebox id="tradj_gain_2"> </doublebox>
+					</listcell>
+					<listcell>
+						<doublebox id="tradj_pl_2"> </doublebox>
+					</listcell>
+				</listitem>
+				<listitem>
+					<listcell label="Mar"/>
+					<listcell>
+						<doublebox id="tradj_gain_3"> </doublebox>
+					</listcell>
+					<listcell>
+						<doublebox id="tradj_pl_3"> </doublebox>
+					</listcell>
+				</listitem>
+				<listitem>
+					<listcell label="Apr"/>
+					<listcell>
+						<doublebox id="tradj_gain_4"> </doublebox>
+					</listcell>
+					<listcell>
+						<doublebox id="tradj_pl_4"> </doublebox>
+					</listcell>
+				</listitem>
+				<listitem>
+					<listcell label="May"/>
+					<listcell>
+						<doublebox id="tradj_gain_5"> </doublebox>
+					</listcell>
+					<listcell>
+						<doublebox id="tradj_pl_5"> </doublebox>
+					</listcell>
+				</listitem>
+				<listitem>
+					<listcell label="Jun"/>
+					<listcell>
+						<doublebox id="tradj_gain_6"> </doublebox>
+					</listcell>
+					<listcell>
+						<doublebox id="tradj_pl_6"> </doublebox>
+					</listcell>
+				</listitem>
+				<listitem>
+					<listcell label="Jul"/>
+					<listcell>
+						<doublebox id="tradj_gain_7"> </doublebox>
+					</listcell>
+					<listcell>
+						<doublebox id="tradj_pl_7"> </doublebox>
+					</listcell>
+				</listitem>
+				<listitem>
+					<listcell label="Aug"/>
+					<listcell>
+						<doublebox id="tradj_gain_8"> </doublebox>
+					</listcell>
+					<listcell>
+						<doublebox id="tradj_pl_8"> </doublebox>
+					</listcell>
+				</listitem>
+				<listitem>
+					<listcell label="Sep"/>
+					<listcell>
+						<doublebox id="tradj_gain_9"> </doublebox>
+					</listcell>
+					<listcell>
+						<doublebox id="tradj_pl_9"> </doublebox>
+					</listcell>
+				</listitem>
+				<listitem>
+					<listcell label="Oct"/>
+					<listcell>
+						<doublebox id="tradj_gain_10"> </doublebox>
+					</listcell>
+					<listcell>
+						<doublebox id="tradj_pl_10"> </doublebox>
+					</listcell>
+				</listitem>
+				<listitem>
+					<listcell label="Nov"/>
+					<listcell>
+						<doublebox id="tradj_gain_11"> </doublebox>
+					</listcell>
+					<listcell>
+						<doublebox id="tradj_pl_11"> </doublebox>
+					</listcell>
+				</listitem>
+				<listitem>
+					<listcell label="Dec"/>
+					<listcell>
+						<doublebox id="tradj_gain_12"> </doublebox>
+					</listcell>
+					<listcell>
+						<doublebox id="tradj_pl_12"> </doublebox>
+					</listcell>
+				</listitem>
+				<listfoot>
+					<listfooter>Average</listfooter>
+					<listfooter>
+						<label id="tradj_avmgain">0.1%</label>
+					</listfooter>
+					<listfooter>
+						<label id="tradj_avmprofit">$333</label>
+					</listfooter>
+				</listfoot>
+		</listbox>
+		<listbox id="lb_moneymgmt" hflex="min" visible="true">
+				<auxhead>
+					<auxheader id="hdr_moneymgmt" label="Money Management" colspan="2"/>
+				</auxhead>
+				<listhead>
+					<listheader width="150px"></listheader>
+					<listheader width="80px"></listheader>
+				</listhead>
+				<listitem>
+					<listcell label="% RIsk Per Trade"/>
+					<listcell>
+						<doublebox id="tradj_priskpertrade" style="background-color: yellow;"> </doublebox>
+					</listcell>
+				</listitem>
+				<listitem>
+					<listcell label="RIsk Per Trade"/>
+					<listcell>
+						<doublebox id="tradj_riskpertrade"> </doublebox>
+					</listcell>
+				</listitem>
+		</listbox>
+	</vlayout>
+	<div width="20px"></div>
+	<vlayout>
+		<listbox class="custom-listbox" id="lb_tradedetail" style="width: 100%; overflow: unset !important;" hflex="min" visible="false" sclass="zkbi-linkcomp-listbox">
+				<auxhead>
+					<auxheader id="hdr_tradedetail" colspan="10" style="padding: 4px;">
+						<hbox width="100%">
+							<div hflex="1" style="text-align: left;">
+							<label>Trade Details</label>
+							</div>
+							<button id="btNewTrade" style="margin-left:auto; margin-right: 10px;">New Trade</button>
+						</hbox>
+					</auxheader>
+
+				</auxhead>
+				<listhead>
+					<listheader width="110px">Date</listheader>
+					<listheader width="100px">Pair</listheader>
+					<listheader width="200px">Trade</listheader>
+					<listheader width="100px">P/L</listheader>
+					<listheader width="100px">Reward to Risk</listheader>
+					<listheader width="100px">Setup Frame</listheader>
+					<listheader width="160px">Time Taken</listheader>
+					<listheader width="180px">Reason For Trade</listheader>
+					<listheader width="180px">Comments</listheader>
+					<listheader width="100px"></listheader>
+				</listhead>
+				
+				<listitem id="liNewTrade" style=" border-style: inset;">
+					<listcell style="vertical-align:top;"> 
+						<vlayout>
+						<datebox id="trnew_date" placeholder="Required"> </datebox> 
+						</vlayout>
+					</listcell>
+					<listcell style="vertical-align:top;"> 
+						<vlayout>
+						<textbox id="trnew_ccy" style="background-color: yellow;"> </textbox> 
+						</vlayout>
+					</listcell>
+					<listcell style="vertical-align:top;"> 
+						<vlayout>
+						<hlayout><div width="80px">Buy/Sell</div><combobox id="trnew_buysell" width="100px" style="background-color: yellow;">
+						<comboitem label="Buy" value="Buy"></comboitem>
+						<comboitem label="Sell" value="Sell"></comboitem>
+						</combobox></hlayout>
+						<hlayout><div width="80px">Entry</div><doublebox style="background-color: yellow;" id="trnew_entry"> </doublebox> </hlayout>
+						<hlayout><div width="80px">Exit</div><doublebox style="background-color: yellow;" id="trnew_exit"> </doublebox></hlayout>
+						<hlayout><div width="80px">Stop Loss</div><doublebox style="background-color: yellow;" id="trnew_stoplost"> </doublebox> </hlayout>
+						<hlayout><div width="80px">Take Profit 1</div><doublebox style="background-color: yellow;" id="trnew_takeprofit"> </doublebox> </hlayout>
+						<hlayout><div width="80px">Take Profit 2</div><doublebox style="background-color: yellow;" id="trnew_takeprofit2"> </doublebox> </hlayout>
+						</vlayout>
+					</listcell>
+					<listcell style="vertical-align:top;"> 
+						<doublebox id="trnew_pl" style="background-color: yellow;"> </doublebox> </listcell>
+					<listcell style="vertical-align:top;"> 
+						<doublebox id="trnew_rewardtorisk" style="background-color: yellow;"> </doublebox>
+					</listcell>
+					<listcell style="vertical-align:top;"> <textbox style="background-color: yellow;" id="trnew_timeframe" > </textbox> </listcell>
+					<listcell style="vertical-align:top;"> <datebox id="trnew_timetaken" format="long+medium" width="160px"> </datebox> </listcell>
+					<listcell style="vertical-align:top;"> <textbox hflex="1" style="background-color: yellow;" id="trnew_reason" rows="4"> </textbox> </listcell>
+					<listcell style="vertical-align:top;"> <textbox hflex="1" style="background-color: yellow;" id="trnew_comments" rows="4"> </textbox> </listcell>
+					<listcell style="vertical-align:top;">
+						<vlayout>
+						<button id="btAddRecord">Save</button> 
+						<button id="btAbort">Cancel</button> 
+						</vlayout>
+					</listcell>
+				</listitem>
+		</listbox>
+	<div id="div_chart" visible="true">
+        
+        <hbox style="margin-top: 20px; width: 100%;">
+        <div style="width: 100%; text-align: center;">
+            <button id="plotButton" class="btn_Chart" label="Plot Chart"/>
+            <button id="clearButton" class="btn_Chart" label="Clear Chart"/>
+        </div>
+
+        </hbox>
+     
+	        
+	    
+        <div id="chartContainer" style="width: 700px; height: 500px;"></div>
+	</div>
+	</vlayout>
+	</hlayout>
+</window>
+</zk>

@@ -1,0 +1,33 @@
+<zk xmlns:n="native">
+<style dynamic="true">
+div.edit_vote {
+	display: flex;
+	justify-content: center;
+	align-content: flex-start;
+	column-gap: 10px;
+	row-gap: 10px;
+	flex-wrap: wrap;
+	overflow-y: auto;
+	padding-bottom: 10px;
+}
+div.edit_vote button.z-button.unselect {
+	opacity: 0.5
+}
+</style>
+<script>
+<![CDATA[
+]]>
+</script>
+<div class="zkbi-detail-toolbar-container">
+	<div class="zkbi-detail-toolbar-leftarea">
+	</div>
+	<toolbar id="detail_toolbar" align="end">
+	</toolbar>
+</div>
+<template name="editVoteTemplate">
+	<div sclass="edit_vote" width="calc(100% - 20px)" style="margin-left:10px">
+		<label>選擇臨時選項</label>
+		<separator height="0px" width="100%"/>
+	</div>
+</template>
+</zk>

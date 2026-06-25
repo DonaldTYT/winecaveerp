@@ -1,0 +1,353 @@
+<zk>
+<style dynamic="true">
+<!-- cut/hide the vertical borders in the grid rows -->
+.myGridWithNoBorder tr.z-row td.z-row-inner { border-right: 0px #CCC; }
+.GridLayoutNoBorder tr.z-row td.z-row-inner, tr.z-row .z-cell,div.z-grid 
+{ 
+border: none; 
+overflow: hidden; 
+zoom: 1; 
+#background:#f8f8f8 !important;  <!-- remove hover -->
+background:white !important;  <!-- remove hover -->
+border-top: none; 
+border-left: none; 
+border-right: none; 
+border-bottom: none; 
+} 
+</style>
+	<toolbar id="detail_toolbar" align="end">
+		<button id="btConfirmOdr" label="Confirm" visible="true"><custom-attributes tlkey="bt_confirmodr"></custom-attributes></button>
+		<button id="btUnConfirmOdr" label="Unconfirm" visible="false"><custom-attributes tlkey="bt_unconfirmodr"></custom-attributes></button>
+		<button id="btVoidOdr" label="Void" visible="true" disabled="false"><custom-attributes tlkey="bt_voidodr"></custom-attributes></button>
+		<button id="btReviseOdr" label="Revise" visible="false" disabled="true"><custom-attributes tlkey="bt_reviseodr"></custom-attributes></button>
+		<button id="btCopyOdr" label="Copy" visible="true" disabled="false"><custom-attributes tlkey="bt_copyodr"></custom-attributes></button>
+		<button id="btPrintBody" label="Print" visible="false" disabled="true"><custom-attributes tlkey="bt_printbody" ></custom-attributes></button>
+		<button id="btTestModel" label="TestModel" visible="false"><custom-attributes tlkey="bt_testmodel" ></custom-attributes></button>
+		<button id="btPrintQuo" label="Print Quo" visible="false" disabled="false"><custom-attributes tlkey="bt_printquo"></custom-attributes></button>
+	</toolbar>
+	<grid style="text-align:left;border: 1px solid #000;" id="detail_grid"  sclass="GridLayoutNoBorder" >
+	<columns>
+		<column hflex="min"></column>
+		<column hflex="min"></column>
+		<column hflex="min"></column>
+		<column hflex="min"></column>
+		<column hflex="min"></column>
+		<column hflex="min"></column>
+	</columns>
+	<rows>
+		<row>
+	 		<cell colspan="3">
+	 		<!-- 
+	 		<image id="co_logo" src="images/logo/hapyik_logo.jpg" height="150px"/>
+	 		 -->
+	 		<image id="co_logo" src="images/logo/default_logo.jpg" height="150px"/>
+	 		</cell>
+	 		<cell colspan="2">
+	 		<!-- 
+	 		<image src="images/progress_sample.png" hflex="1"></image>
+	 		 -->
+	 		</cell>
+	 		<cell>
+	 			<vlayout>
+	 			<div height="5px"></div>
+	 			<label style="font-weight: bold;font-size:28px !important;" value="SALES"><custom-attributes tlkey="lb_header1"></custom-attributes></label>
+	 			<label style="font-weight: bold;font-size:28px !important;" value="ORDER"><custom-attributes tlkey="lb_header2"></custom-attributes></label>
+	 			</vlayout>
+ 			</cell>
+		</row>
+		<row>
+			<cell align="right"><label value="Date"><custom-attributes tlkey="lb_inv_date"></custom-attributes></label> </cell>
+			<cell>
+				<hlayout>
+				<datebox id="inv_date" format="yyyy/MM/dd"></datebox>
+				<div width="20px"></div>
+				<combobox id="sm_name" width="250px"></combobox>
+				</hlayout>
+			</cell>
+			<cell align="right"><label value="Order No."><custom-attributes tlkey="lb_inv_invno"></custom-attributes></label></cell>
+			<cell>
+				<hbox align="middle">
+				<div width="200px">
+				<label id="inv_invno"></label>
+				<label>Rev</label>
+				<label id="inv_revisonno"></label>
+				</div>
+				</hbox>
+			</cell>
+			<cell></cell>
+			<cell>
+				<label value="Ref No.:"><custom-attributes tlkey="lb_inv_rg"></custom-attributes></label>
+				<label id="inv_rg"></label>
+			</cell>
+		</row>
+		<row>
+			<cell align="right"><label value="Deliver At"><custom-attributes tlkey="lb_loc_desc"></custom-attributes></label> </cell>
+			<cell>
+				<hlayout>
+				<combobox id="loc_desc"></combobox>
+				</hlayout>
+			</cell>
+			<cell align="right"><label value="Order Type"><custom-attributes tlkey="lb_inv_type"></custom-attributes></label></cell>
+			<cell>
+				<combobox id="inv_type"></combobox>
+			</cell>
+			<cell></cell>
+			<cell>
+				<label value="Loc Code:"><custom-attributes tlkey="lb_inv_loc"></custom-attributes></label>
+				<label id="inv_loc"></label>
+			</cell>
+			<!--
+			-->
+		</row>
+		<row>
+			<cell align="right"><label value="Sell To"><custom-attributes tlkey="lb_vd_vname"></custom-attributes></label> </cell>
+			<cell>
+				<hbox align="middle">
+				<textbox id="inv_vcode"></textbox>
+				<combobox id="vd_vname"></combobox> 
+				</hbox>
+			</cell>
+			<cell align="right"><label value="Status"><custom-attributes tlkey="lb_inv_quostatus"></custom-attributes></label></cell>
+			<cell>
+				<hbox align="middle">
+				<div width="200px">
+				<label id="inv_quostatus"></label>
+				</div>
+				</hbox>
+			</cell>
+			<cell></cell>
+			<cell>
+			<!--
+				<label value="Customer Code:"><custom-attributes tlkey="lb_inv_vcode"></custom-attributes></label>
+				<label id="inv_vcode"></label>
+				-->
+				<label>Salesman:</label>
+				<label id="inv_smcode"></label>
+			</cell>
+		</row>
+		<row>
+		
+			<cell align="right">
+				<label hflex="1" id="lb_svloc_desp" value="Deliver To"><custom-attributes tlkey="lb_svloc_desp"></custom-attributes></label>
+			</cell>
+			<cell>
+				<combobox hflex="1" id="svloc_desp" />
+			</cell>
+			<cell align="right"><label value="Customer PO"><custom-attributes tlkey="lb_inv_pocode"></custom-attributes></label> </cell>
+			<cell>
+				<textbox id="inv_pocode"></textbox>
+			</cell>
+			<cell></cell>
+			<cell>
+				<label value="Create By:"><custom-attributes tlkey="lb_inv_cuser"></custom-attributes></label>
+				<label id="inv_cuser"></label>
+			</cell>
+		</row>
+		<row>
+			<cell align="right">
+				<label hflex="1" id="lb_svloc_addr1" value="Address Line 1"><custom-attributes tlkey="lb_svloc_addr1"></custom-attributes></label>
+			</cell>
+			<cell>
+				<textbox hflex="1" id="svloc_addr1"/>	
+			</cell>
+			<cell align="right"><label value="Contact Person"><custom-attributes tlkey="lb_inv_contact"></custom-attributes></label> </cell>
+			<cell>
+				<textbox id="inv_contact"></textbox>
+			</cell>
+			<cell></cell>
+			<cell>
+				<label value="Create On:"><custom-attributes tlkey="lb_inv_cdate"></custom-attributes></label>
+				<label id="inv_cdate"></label>
+			</cell>
+		</row>
+		<row>
+		
+			<cell align="right">
+				<label hflex="1" id="lb_svloc_addr2" value="Address Line 2"><custom-attributes tlkey="lb_svloc_addr2"></custom-attributes></label>
+			 </cell>
+			<cell>
+				<textbox hflex="1" id="svloc_addr2"/>	
+			</cell>
+			<cell align="right"><label value="Telephone"><custom-attributes tlkey="lb_inv_tel"></custom-attributes></label> </cell>
+			<cell>
+				<textbox id="inv_tel"></textbox>
+			</cell>
+			<cell></cell>
+			<cell>
+				<label value="Update By:"><custom-attributes tlkey="lb_inv_uuser"></custom-attributes></label>
+				<label id="inv_uuser"></label>
+			</cell>
+		</row>
+		<row>
+			<cell align="right">
+				<label hflex="1" id="lb_svloc_city" value="District"><custom-attributes tlkey="lb_svloc_city"></custom-attributes></label>
+			</cell>
+			<cell>
+				<textbox hflex="1" id="svloc_city"/>
+			</cell>
+			<cell align="right"><label value="Mobile"><custom-attributes tlkey="lb_inv_fax"></custom-attributes></label> </cell>
+			<cell>
+				<textbox id="inv_fax"></textbox>
+			</cell>
+			<cell></cell>
+			<cell>
+				<label value="Update On:"><custom-attributes tlkey="lb_inv_udate"></custom-attributes></label>
+				<label id="inv_udate"></label>
+			</cell>
+		</row>
+		<row>
+			<cell align="right">
+				<label hflex="1" id="lb_svloc_state" value="City"><custom-attributes tlkey="lb_svloc_state"></custom-attributes></label>
+			</cell>
+				<textbox hflex="1" id="svloc_state"/>
+			<cell align="right">
+			<!--
+			<label value="Payment"><custom-attributes tlkey="lb_inv_duedays"></custom-attributes></label> 
+			-->
+			<label value="Payment Term"><custom-attributes tlkey="lb_vd_termtype"></custom-attributes></label> 
+			</cell>
+			<cell>
+			<!--
+				<textbox id="inv_duedays"></textbox>
+				-->
+				<radiogroup id="vd_termtype"></radiogroup>
+			</cell>
+			<cell></cell>
+			<cell>
+			<!-- 
+				<label value="Exchange Rate:"><custom-attributes tlkey="lb_inv_xrate"></custom-attributes></label>
+				<label id="inv_xrate"></label>
+			 -->
+			</cell>
+		</row>
+		<row>
+			<cell colspan="6">
+	<listbox id="list_erpv4_QuoDet">
+	<listhead>
+		<listheader width="80px">
+		<box hflex="1" align="center">
+	    	<toolbarbutton id="btAddPopup" sclass="narrowtoolbarbutton" image="images/row_add20.png" onClick='puAddPopup.setAttribute("actionIdx",-1); puAddPopup.open(self)' />
+		</box>
+    	<popup id="puAddPopup">
+		<vbox>
+			<div width="120px"></div>
+   	    	<button id="btAddQuoDet_5" width="120px" label="Series" onClick="puAddPopup.close()" visible="false"/>
+			<!-- 
+   	    	<button id="btAddQuoDet_1" width="120px" label="Stock Item" onClick="puAddPopup.close()" visible="false"/>
+			 -->
+		   	<!-- test add multiple begin -->
+			<menupopup id="mpAddQuoDet_1">
+				<menuitem label="Add 5 Stock Items">
+					<attribute name="onClick"><![CDATA[
+						Events.postEvent("onClick", btAddQuoDet_1, "{ 'multipleCnt':5 }");
+					]]></attribute>
+				</menuitem>
+				<menuitem label="Add 10 Stock Items">
+					<attribute name="onClick"><![CDATA[
+						Events.postEvent("onClick", btAddQuoDet_1, "{ 'multipleCnt':10 }");
+					]]></attribute>
+				</menuitem>
+			</menupopup>
+			
+			<space/>
+			<div class="btn-group">
+				<button id="btAddQuoDet_1" width="120px" class="btn" label="Stock Item" onClick="puAddPopup.close()"/>
+				<button style="min-width:0px;" class="btn dropdown-toggle" onClick='mpAddQuoDet_1.open(self.previousSibling, "after_start")'></button>
+			</div>	
+		   	<!-- test add multiple end -->
+			 
+			 
+			 
+			 
+			 
+   	    	<button id="btAddQuoDet_2" width="120px" label="Service Item" onClick="puAddPopup.close()" visible="false"/>
+   	    	<button id="btAddQuoDet_3" width="120px" label="Description" onClick="puAddPopup.close()" visible="false"/>
+   	    	<button id="btAddQuoDet_4" width="120px" label="Header" onClick="puAddPopup.close()" visible="false"/>
+   	    	<button id="btAddQuoDet_6" width="120px" label="Line Break" onClick="puAddPopup.close()" visible="false"/>
+   	    	<button id="btAddQuoDet_7" width="120px" label="Page Break" onClick="puAddPopup.close()" visible="false"/>
+   	    	<button id="btAddQuoDet_8" width="120px" label="Delivery" onClick="puAddPopup.close()" visible="false"/>
+      	</vbox>
+    	</popup>	
+		</listheader>
+	</listhead>
+	</listbox>
+			</cell>
+		</row>
+		<row>
+			<cell align="right"><label value="Terms"><custom-attributes tlkey="lb_inv_term"></custom-attributes></label> </cell>
+			<cell>
+			<textbox id="inv_term" hflex="1" rows="2"></textbox>
+			</cell>
+			<cell colspan="2"></cell>
+			<!-- 
+			<cell></cell>
+			 -->
+			<cell colspan="2">
+				<hbox align="middle">
+				<div width="200px">
+				<label value="Total Amount"><custom-attributes tlkey="lb_inv_grtotal"></custom-attributes></label>
+				<combobox id="inv_cid"></combobox>
+				</div>
+				<doublebox id="inv_grtotal"></doublebox>
+				</hbox>
+			</cell>
+		</row>
+		<row>
+			<cell align="right"><label value="Delivery"><custom-attributes tlkey="lb_inv_quodeli"></custom-attributes></label> </cell>
+			<cell>
+			<textbox id="inv_quodeli" hflex="1" rows="2"></textbox>
+			</cell>
+			<cell colspan="2"></cell>
+			<!-- 
+			<cell></cell>
+			 -->
+			<cell colspan="2">
+				<vbox>
+				<hbox align="middle">
+				<div width="200px"><label value="Less Discount"><custom-attributes tlkey="lb_inv_discount"></custom-attributes></label></div>
+				<doublebox id="inv_discount"></doublebox>
+				</hbox>
+				<hbox align="middle">
+				<div width="200px"><label value="Delivery Charge"><custom-attributes tlkey="lb_inv_tax"></custom-attributes></label></div>
+				<doublebox id="inv_tax"></doublebox>
+				</hbox>
+				</vbox>
+			</cell>
+		</row>
+		<row>
+			<cell align="right"><label value="Remark"><custom-attributes tlkey="lb_inv_remark"></custom-attributes></label> </cell>
+			<cell>
+			<textbox id="inv_remark" hflex="1" rows="2"></textbox>
+			</cell>
+			<cell colspan="2"></cell>
+			<!-- 
+			<cell></cell>
+			 -->
+			<cell colspan="2">
+				<hbox align="middle">
+				<div width="200px"><label value="Net Total"><custom-attributes tlkey="lb_inv_total"></custom-attributes></label></div>
+				<doublebox id="inv_total"></doublebox>
+				</hbox>
+			</cell>
+		</row>
+	</rows>
+	</grid>
+	<template name="template_QuoDet_LineBreak">
+		<div style="text-align:center">Line Break</div>
+	</template>
+	<template name="template_QuoDet_QdstStatus">
+		<hlayout valign="middle">
+			<div hflex="1"> <label id="qdst_status"></label> </div>
+			<checkbox id="ind_instock" label="" width="30px"></checkbox>
+			<toolbarbutton id="btQdstReserve" iconSclass="flaticon-ec-shopping-basket-1" Tooltiptext="Reserved Stock" ></toolbarbutton>
+		</hlayout>
+	</template> 
+	<template name="template_QuoDet_Price">
+		<hlayout valign="middle">
+		<doublebox id="ind_uprice" width="100px"></doublebox>
+		<label id="ind_punit"></label>
+		<intbox id="ind_discpercent" width="30px"></intbox>
+		<label>%</label>
+		</hlayout>
+	</template>
+</zk>

@@ -1,0 +1,344 @@
+<zk xmlns:n="native">
+
+<style dynamic="true">
+div.z-grid.zkbi-detail-grid > div.z-grid-body {
+	height: auto;
+}
+div.z-grid.zkbi-detail-grid {
+   border: 1px solid transparent;
+}
+.list_erpv4_QuoDetG2xx .z-listbox-body {
+<!-- 
+    min-height: 200px;
+    min-height: 40vh;
+ -->
+    height: 40vh;
+}
+/*
+ .zkbi-linkcomp-listbox .z-listbox-body { 
+ }
+ */
+div.list_erpv4_QuoDetG2 td.z-listcell {
+	vertical-align: top;
+}
+div.list_erpv4_QuoDetG2 td.z-listbox-footer {
+	background: white;
+}
+</style>
+	<div class="zkbi-detail-toolbar-container">
+		<div class="zkbi-detail-toolbar-leftarea">
+			<button id="btPrintQuo" label="Print Quo" visible="true" disabled="false"><custom-attributes tlkey="bt_printquo"></custom-attributes></button>
+			<button id="btPrintCon" label="Print Contract" visible="true" disabled="false"><custom-attributes tlkey="bt_printcon"></custom-attributes></button>
+			<button id="btPrintInv" label="Print Inv" visible="false" disabled="false"><custom-attributes tlkey="bt_printinv"></custom-attributes></button>
+		</div>
+		<toolbar id="detail_toolbar" align="end">
+		</toolbar>
+	</div>
+	<bs-row style="background:white">
+		<div sclass="col-12 col-lg-6">
+			<hlayout>
+			<zkbifdiv jxId="inv_quostatus"></zkbifdiv>
+			<zkbifdiv jxId="inv_approveby" labelWidth="50px"></zkbifdiv>
+			</hlayout>
+			<zkbifdiv jxId="vd_vcode"></zkbifdiv>
+
+			<hlayout>
+			<zkbidiv jxId="svloc_desp"></zkbidiv>
+			<zkbifdiv jxId="vd_bsnature"></zkbifdiv>
+			</hlayout>
+			<zkbidiv jxId="inv_vname"></zkbidiv>
+			<hlayout>
+			<zkbidiv jxId="inv_addr0" compWidth="450px"></zkbidiv>
+			<vlayout>
+			<!-- 
+			<zkbidiv jxId="inv_addr1" labelWidth="60px" compWidth="100px"></zkbidiv>
+			 -->
+			<hlayout>
+			<zkbidiv jxId="inv_addr2" labelWidth="60px" compWidth="100px"></zkbidiv>
+			<zkbidiv jxId="inv_province" labelWidth="60px" compWidth="40px"></zkbidiv>
+			</hlayout>
+			<zkbidiv jxId="inv_addr3" labelWidth="60px" compWidth="100px"></zkbidiv>
+			</vlayout>
+			</hlayout>
+			<hlayout>
+			<zkbidiv jxId="inv_contact" compWidth="150px"></zkbidiv>
+			<zkbidiv jxId="inv_tel" labelWidth="60px" compWidth="150px"></zkbidiv>
+			<zkbidiv jxId="inv_email" labelWidth="40px" compWidth="200px"></zkbidiv>
+			</hlayout>
+			<hlayout>
+			<zkbidiv jxId="vd_priceclass" compWidth="150px"></zkbidiv>
+			<zkbidiv jxId="sm_name" labelWidth="60px" compWidth="150px"></zkbidiv>
+			<zkbidiv jxId="sm2_name" labelWidth="40px" compWidth="200px"></zkbidiv>
+			</hlayout>
+			<hlayout>
+			<zkbifdiv jxId="inv_remark" compWidth="640px"></zkbifdiv>
+			</hlayout>
+
+		</div>
+		<div sclass="col-12 col-lg-1">
+		</div>
+		<div sclass="col-12 col-lg-5">
+			<hlayout>
+			<zkbidiv jxId="inv_quonum"></zkbidiv>
+			<div width="50px"></div>
+			<zkbidiv jxId="inv_quodate"></zkbidiv>
+			</hlayout>
+			<hlayout>
+			<zkbidiv jxId="inv_invno"></zkbidiv>
+			<div width="50px"></div>
+			<zkbidiv jxId="inv_date"></zkbidiv>
+			</hlayout>
+			<hlayout>
+			<zkbidiv jxId="inv_contract" labelWidth="120px" compWidth="220px"></zkbidiv>
+			<zkbidiv jxId="inv_validdays" labelWidth="65px" compWidth="80px"></zkbidiv>
+			</hlayout>
+			<hlayout>
+			<zkbidiv jxId="inv_concfmdate"></zkbidiv>
+			<div width="60px"></div>
+			<zkbidiv jxId="inv_compdate"></zkbidiv>
+			</hlayout>
+			<hlayout>
+			<zkbidiv jxId="inv_delidays"></zkbidiv>
+			<div width="90px"></div>
+			<zkbidiv jxId="inv_delidate"></zkbidiv>
+			</hlayout>
+			<hlayout>
+			<zkbidiv jxId="inv_termtype"></zkbidiv>
+			<zkbidiv jxId="inv_duedate" labelWidth="50px"></zkbidiv>
+			</hlayout>
+			<!-- 
+			<hlayout>
+			<zkbifdiv jxId="inv_pschs0"></zkbifdiv>
+			<zkbifdiv jxId="inv_psch0" labelWidth="50px"></zkbifdiv>
+			<zkbifdiv jxId="inv_psch1" labelWidth="50px"></zkbifdiv>
+			<zkbifdiv jxId="inv_psch2" labelWidth="50px"></zkbifdiv>
+			</hlayout>
+			-->
+			<hlayout>
+			<zkbifdiv jxId="inv_psch0" labelWidth="50px"></zkbifdiv>
+			<zkbifdiv jxId="inv_pschs0" labelWidth="50px"></zkbifdiv>
+			</hlayout>
+			<hlayout>
+			<zkbifdiv jxId="inv_psch1" labelWidth="50px"></zkbifdiv>
+			<zkbifdiv jxId="inv_pschs1" labelWidth="50px"></zkbifdiv>
+			</hlayout>
+			<hlayout>
+			<zkbifdiv jxId="inv_psch2" labelWidth="50px"></zkbifdiv>
+			<zkbifdiv jxId="inv_pschs2" labelWidth="50px"></zkbifdiv>
+			</hlayout>
+		</div>
+		
+	</bs-row>
+	<tabbox id="zkbiListTop" width="100%" sclass="zkbi-detail-tabbox" height="60vh">
+		<tabs width="100%" visible="true">
+			<tab><custom-attributes tlkey="tp_item_detail"></custom-attributes>Item Detail</tab>
+			<tab visible="false"><custom-attributes tlkey="tp_delivery_info"></custom-attributes>Delivery Information XX</tab>
+			<tab visible="false" id="tp_invoices"><custom-attributes tlkey="tp_invoices"></custom-attributes>Invoices</tab>
+			<tab visible="false" id="tp_compstatus"><custom-attributes tlkey="tp_compstatus"></custom-attributes>Completion status</tab>
+			<tab visible="false" id="tp_attach"><custom-attributes tlkey="tp_attach"></custom-attributes>Attach</tab>
+		</tabs>
+		<tabpanels>
+			<tabpanel> 
+	<listbox id="list_erpv4_QuoDetG2" sclass="zkbi-summary-header" vflex="1">
+	   <auxhead>
+        <auxheader id="footer_list_erpv4_QuoDetG2" colspan="7">
+        	<vlayout sclass="nopadding">
+        		<hlayout>
+				<zkbidiv jxId="inv_term" labelWidth="100px" compWidth="600px"></zkbidiv>
+				<zkbidiv jxId="inv_warantymth" labelWidth="100px"></zkbidiv>
+        		</hlayout>
+        		<hlayout>
+				<zkbidiv jxId="inv_quodeli" labelWidth="100px" compWidth="200px"></zkbidiv>
+				<zkbidiv jxId="inv_delichg" labelWidth="100px"></zkbidiv>
+				<zkbidiv jxId="inv_hasservice" labelWidth="150px"></zkbidiv>
+				<zkbidiv jxId="inv_installchg" labelWidth="150px"></zkbidiv>
+        		</hlayout>
+        	</vlayout>
+        </auxheader>
+        <auxheader colspan="1"><div style="text-align:right;padding:4px 5px;"></div>
+				<zkbidiv jxId="inv_cid" labelWidth="40px"></zkbidiv>
+        </auxheader>
+        <auxheader colspan="1"><div style="text-align:right;padding:4px 5px;"></div>
+        	<div style="text-align:right;padding:4px 5px;">
+        	<vlayout sclass="nopadding">
+				<zkbidiv jxId="inv_grtotal"></zkbidiv>
+				<zkbidiv jxId="inv_discount"></zkbidiv>
+				<zkbidiv jxId="inv_total" labelWidth="45px"></zkbidiv>
+        	<!-- 
+        		<hlayout>
+				<zkbidiv jxId="inv_cid"></zkbidiv>
+        		</hlayout>
+        		<hlayout>
+        		</hlayout>
+        	 -->
+        	</vlayout>
+        	</div>
+        </auxheader>
+       </auxhead>
+	</listbox>
+			
+			</tabpanel>
+			<tabpanel>
+	<bs-row style="background:white">
+		<div sclass="col-xl-6 col-lg-12">
+			<zkbifdiv jxId="inv_duedays"></zkbifdiv>
+		</div>
+		<div sclass="col-xl-2 col-lg-6">
+			<zkbifdiv jxId="inv_cuser"></zkbifdiv>
+			<zkbifdiv jxId="inv_cdate"></zkbifdiv>
+			<zkbifdiv jxId="inv_uuser"></zkbifdiv>
+			<zkbifdiv jxId="inv_udate"></zkbifdiv>
+			<zkbifdiv jxId="inv_rg"></zkbifdiv>
+		</div>
+	</bs-row>
+
+	
+			</tabpanel>
+			<tabpanel>
+			<!--
+	<bs-row style="background:white">
+		<vlayout>
+			<hlayout>
+			<zkbifdiv jxId="inv_psch0" labelWidth="50px"></zkbifdiv>
+			<zkbifdiv jxId="inv_pschs0" labelWidth="50px"></zkbifdiv>
+			</hlayout>
+			<hlayout>
+			<zkbifdiv jxId="inv_psch1" labelWidth="50px"></zkbifdiv>
+			<zkbifdiv jxId="inv_pschs1" labelWidth="50px"></zkbifdiv>
+			</hlayout>
+			<hlayout>
+			<zkbifdiv jxId="inv_psch2" labelWidth="50px"></zkbifdiv>
+			<zkbifdiv jxId="inv_pschs2" labelWidth="50px"></zkbifdiv>
+			</hlayout>
+		</vlayout>
+	</bs-row>
+			  -->
+
+	<listbox id="list_erpv4_QuoInvoiceG2" vflex="1" sclass="zkbi-summary-footer">
+	   <listfoot>
+        <listfooter id="footer_list_erpv4_QuoInvoiceG2" span="5"><div style="text-align:right;padding:4px 5px;"></div></listfooter>
+        <listfooter span="1"></listfooter>
+        <listfooter span="2"><div style="text-align:right;padding:4px 5px;"></div></listfooter>
+       </listfoot>
+	</listbox>
+			</tabpanel>
+			<tabpanel>
+				<separator height="20px"/>
+				<bs-row style="background:white">
+					<div sclass="col-12 col-lg-3">
+						<zkbidiv jxId="inv_invtotal"></zkbidiv>
+						<zkbidiv jxId="inv_cansendinv"></zkbidiv>
+						<zkbidiv jxId="inv_hassendinv"></zkbidiv>
+					</div>
+					<div sclass="col-12 col-lg-3">
+						<zkbidiv jxId="inv_completed"></zkbidiv>
+						<zkbidiv jxId="inv_compadj"></zkbidiv>
+						<zkbidiv jxId="inv_compremark" compWidth="300px"></zkbidiv>
+					</div>
+				</bs-row>
+			</tabpanel>
+			<tabpanel> 
+				<listbox id="list_erpv4_OrdersAttach" vflex="1" sclass="zkbi-summary-footer"/>
+			</tabpanel>
+		</tabpanels>
+	</tabbox>
+	<template name="template_erpv4_QuoDetG2_ind_typediv" twidth="hflex=min">
+		 	<vlayout>
+			<hlayout>
+			<zkbidiv jxId="ind_itemno" labelPosition="invisible"></zkbidiv>
+			<zkbidiv jxId="ind_pdsrg" labelPosition="invisible"></zkbidiv>
+			</hlayout>
+			<div style="text-align:right">
+			<zkbidiv jxId="ind_subitem" labelWidth="80px"></zkbidiv>
+			</div>
+		 	</vlayout>
+	</template>
+	<template name="template_erpv4_QuoDetG2_ind_itemdiv" twidth="hflex=min">
+			<hlayout>
+		 	<vlayout>
+			<zkbidiv jxId="st_icode"></zkbidiv>
+			<zkbidiv jxId="ind_ref1"></zkbidiv>
+			<zkbidiv jxId="ind_ref2"></zkbidiv>
+		 	</vlayout>
+		 	<vlayout>
+			<zkbidiv jxId="ind_desc" labelPosition="invisible" visible="false"></zkbidiv>
+			<zkbidiv jxId="stbd_pickname" ></zkbidiv>
+			<zkbidiv jxId="st_pickmodel" ></zkbidiv>
+			<zkbidiv jxId="st_oicode"></zkbidiv>
+		 	</vlayout>
+			</hlayout>
+	</template>
+	<template name="template_erpv4_QuoDetG2_ind_qtydiv" twidth="195px">
+		 	<vlayout>
+
+		 	<hlayout>
+		 	<div width="10px"></div>
+			<zkbidiv jxId="ind_qty" labelPosition="invisible"></zkbidiv>
+			<zkbidiv jxId="ind_unit" labelPosition="invisible"></zkbidiv>
+		 	</hlayout>
+
+		 	<div id="ind_ratiodiv" visible="false">
+		 	<hlayout>
+		 	<div width="10px">x</div>
+			<zkbidiv jxId="ind_eratio" labelPosition="invisible"></zkbidiv>
+			<zkbidiv jxId="stur_ratiounit" labelPosition="invisible"></zkbidiv>
+		 	</hlayout>
+		 	</div>
+
+		 	<hlayout>
+		 	<div width="10px"></div>
+			<zkbidiv jxId="ind_promostr" labelPosition="invisible"></zkbidiv>
+			</hlayout>
+
+		 	<hlayout>
+		 	<div width="10px"></div>
+			<zkbidiv jxId="ind_rpricestr" labelPosition="invisible"></zkbidiv>
+			</hlayout>
+
+			<hlayout>
+			<!-- 
+			<label>+</label>
+			<zkbidiv jxId="ind_vat" labelWidth="60px" compWidth="100px" labelPosition="invisible"></zkbidiv>
+			<label>% Vat</label>
+			 -->
+			<zkbidiv jxId="ind_vat" labelWidth="60px"></zkbidiv>
+			<label>%</label>
+			</hlayout>
+		 	</vlayout>
+	</template>
+	<template name="template_erpv4_QuoDetG2_ind_pricediv" twidth="225px">
+			<vlayout>
+		 	<hlayout>
+			<zkbidiv jxId="ind_sprice"></zkbidiv>
+		 	</hlayout>
+		 	<hlayout>
+			<zkbidiv jxId="ind_uprice"></zkbidiv>
+			<!-- 
+			<zkbidiv jxId="stur_priceunit" labelPosition="invisible"></zkbidiv>
+			 -->
+		 	</hlayout>
+		 	<hlayout>
+			<zkbidiv jxId="ind_discpercent"></zkbidiv>
+			<label>%</label>
+		 	</hlayout>
+			</vlayout>
+	</template>
+	<template name="template_erpv4_QuoDetG2_ind_amountdiv" twidth="188px">
+		 	<hlayout>
+		 	<!-- <zkbidiv jxId="ind_setamount" labelPosition="invisible" CompWidth="180px" CompStyle="text-align:right;"></zkbidiv> -->
+			<zkbidiv jxId="ind_setamount" labelPosition="invisible" CompWidth="180px"/>
+		 	</hlayout>
+	</template>
+
+<!-- 
+	<template name="template_erpv4_QuoInvoice_invh_headerdiv" twidth="hflex=min">
+			<zkbidiv jxId="invh_invno"></zkbidiv>
+			<zkbidiv jxId="invh_date"></zkbidiv>
+			<zkbidiv jxId="invh_pocode"></zkbidiv>
+	</template>
+	<template name="template_erpv4_QuoInvoice_invh_infodiv" twidth="hflex=min">
+			<zkbidiv jxId="invh_projecttitle"></zkbidiv>
+			<zkbidiv jxId="invh_remark"></zkbidiv>
+	</template>
+ -->
+</zk>

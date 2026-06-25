@@ -1,0 +1,13 @@
+<zk>
+	<separator height="5px"/>
+	<div style="background:white; padding:5px;">
+		<hlayout>
+			<label value="Year"><custom-attributes tlkey="lb_year"/></label>
+			<combobox id="cbYear" readonly="true" width="80px"/>
+			<space/>
+			<label value="Month"><custom-attributes tlkey="lb_month"/></label>
+			<combobox id="cbMonth" readonly="true" width="60px"/>
+		</hlayout>
+	</div>
+	<separator height="5px"/>
+</zk>

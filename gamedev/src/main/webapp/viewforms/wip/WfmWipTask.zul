@@ -1,0 +1,18 @@
+<zk>
+<vlayout xmlns:h="native">
+<toolbar id="detail_toolbar" align="end"></toolbar>
+<hlayout>
+<div hflex="1">
+<grid style="text-align:left;" id="detail_grid">
+   <columns visible="false" >
+      <column width="200px" />
+      <column/>
+	</columns>
+</grid>
+</div>
+<div width="350px">
+<div id="propertyPanel"></div>
+</div>
+</hlayout>
+</vlayout>
+</zk>

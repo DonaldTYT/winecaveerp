@@ -1,0 +1,676 @@
+<zk xmlns:w="http://www.zkoss.org/2005/zk/client">
+<separator spacing="5px" />
+<div apply="com.uniinformation.jx.zk.JxZkCustomMenu" id="zkCustomMenu">
+	<hbox width="100%" align="end">
+	<div hflex="1"><label id="lbDashboard" value="Home" style="padding-left:10px; font-size:25px; display:none"/></div>
+	<div hflex="1" style="height:20px;text-align:right;padding-right:10px">
+		<a id="anEdit" iconSclass="z-icon-cog" href="" class="editGridStack editGridBtn" style="font-size:20px"></a>
+		<div class="editGridStackBtns">
+			<a id="anSortByName" label="Sort by Name" href="" class="sortByNameGridStack editGridBtn"></a><span class="editGridBtn"> | </span>
+			<a id="anSortByCategory" label="Sort by Menu Order" href="" class="sortByCategoryGridStack editGridBtn"></a><span class="editGridBtn"> | </span>
+			<a id="anAddAll" label="Add All" href="" class="addAllGridStack editGridBtn"></a><span class="editGridBtn"> | </span>
+			<a id="anRemoveAll" label="Remove All" href="" class="removeAllGridStack editGridBtn"></a><span class="editGridBtn"> | </span>
+			<!--
+			<a id="anSave" label="Save" href="" class="saveGridStack editGridBtn"></a><span class="editGridBtn"> | </span>
+			-->
+			<a id="anSave" label="Close" href="" class="saveGridStack editGridBtn"></a><span class="editGridBtn"></span>
+		</div>
+	</div>
+	</hbox>
+	<div class="grid-stack add-grid">
+   	</div>
+	<separator spacing="20px" />
+	<div class="grid-stack remove-grid">
+   	</div>
+	<div id="divTemp" class="tempComps">
+   	</div>
+</div>
+<script>
+<![CDATA[
+    var gridStackBuilder;
+    function onCreate(items, sortMode) {
+    	gridStackBuilder = new GridStackBuilder(items, sortMode);
+    }
+    function updateOnAction(rg, options) {
+    	gridStackBuilder.updateOnAction(rg, options);
+    }
+    function sendNotificationCount(rg, count) {
+    	gridStackBuilder.sendNotificationCount(rg, count);
+    }
+    function detectZoom() {
+        var ratio = 0,
+            screen = window.screen,
+            ua = navigator.userAgent.toLowerCase();
+
+        if (window.devicePixelRatio !== undefined)
+            ratio = window.devicePixelRatio;
+        else if (~ua.indexOf('msie')) {
+            if (screen.deviceXDPI && screen.logicalXDPI)
+                ratio = screen.deviceXDPI / screen.logicalXDPI;
+        }
+        else if (window.outerWidth !== undefined && window.innerWidth !== undefined)
+            ratio = window.outerWidth / window.innerWidth;
+
+        return ratio;
+    }
+
+   	var waitForFinalEvent = function() {
+   		var b = {};
+   		return function(c,d,a) {
+   			a || (a = "I am a banana!");
+   			b[a] && clearTimeout(b[a]);
+   			b[a] = setTimeout(c,d)
+		}
+   	}();	
+   	var fullDateString = new Date();
+
+    GridStackBuilder.prototype.gridStack = function ($grid) {
+		return $grid.data('gridstack');
+    };
+    GridStackBuilder.prototype.gridStackItemNode = function ($gridItem) {
+		return $gridItem.data('_gridstack_node');
+    };
+    GridStackBuilder.prototype.gridStackItemNodeEx = function ($gridItem) {
+		return $gridItem.data('_gridstack_node_ex');
+    };
+    GridStackBuilder.prototype.calcGridWidth = function () {
+    	/*var minCellWidth = 1024 / 24;
+ 		if ($('.grid-stack').css('font-size') == '12px')
+    		minCellWidth = 1440 / 48;*/
+    	//var zoom = !$.support.touch ? detectZoom() : 1;
+    	//bug191002: if window scale 200%, browser zoom:100% => window.devicePixelRatio=2. result:the icon will become very small
+    	var zoom = 1; //bypass detechZoom tmporary
+    	if (!$.support.touch && navigator.userAgent.indexOf("Chrome") > -1 && navigator.userAgent.indexOf("Safari") > -1) {
+        	if (window.outerWidth !== undefined && window.innerWidth !== undefined)
+            	zoom = window.outerWidth / window.innerWidth;
+    	}
+    	
+   		if (zoom == 0)
+			zoom = 1;
+   		var minCellWidth = 30 / zoom;
+    	var gw = $('.add-grid').width() / minCellWidth;
+    	if (gw < this.minGridItemWidth)
+    		gw = this.minGridItemWidth;
+    	gw = Math.round(gw / this.minGridItemWidth) * this.minGridItemWidth;
+
+		//min cell width 100px
+   		var cellWidthPx;
+		for (;;) {
+    		cellWidthPx = $('.add-grid').width() / (gw / this.minGridItemWidth);
+    		if (cellWidthPx < 100 && gw > this.minGridItemWidth)
+    			gw -= this.minGridItemWidth;
+   			else
+   				break;
+		}	
+
+    	console.log('calcGridWidth zoom=' + zoom + ',gw=' + gw + ',minCellWidth=' + minCellWidth + ',cellWidthPx=' + cellWidthPx);
+    	return gw;
+    };
+    GridStackBuilder.prototype.calcGridItemWH = function (grid, itemWHPx) {
+    	var cellWidth = $('.add-grid').width() / grid.getGridWidth();
+		return Math.ceil(itemWHPx / cellWidth);
+    };
+    GridStackBuilder.prototype.correctGridItemSize = function (grid, node) {
+    	$.each(this.items, function(i, item){
+    		if (item.rg === node.rg) {
+    			node.minWidth = item.minWidth;
+    			node.maxWidth = item.maxWidth;
+    			node.minHeight = item.minHeight;
+    			node.maxHeight = item.maxHeight;
+    			return false;	
+    		}
+    	});
+		if (node.minWidth === 0)
+        	node.minWidth = this.minGridItemWidth; 
+        if (node.minHeight === 0)
+        	node.minHeight = this.minGridItemHeight; 
+        if (node.maxWidth === 0)
+        	node.maxWidth = grid.getGridWidth(); 
+        if (node.maxHeight === 0)
+        	node.maxHeight = grid.getGridWidth(); 
+        if (node.minWidth < this.minGridItemWidth)
+        	node.minWidth = this.minGridItemWidth;
+        if (node.minWidth > node.width)
+        	node.minWidth = node.width;
+        if (node.minHeight < this.minGridItemHeight)
+        	node.minHeight = this.minGridItemHeight;
+        if (node.minHeight > node.height)
+        	node.minHeight = node.height;
+        if (node.maxWidth < node.width)
+        	node.maxWidth = node.width;
+        if (node.maxHeight < node.height)
+        	node.maxHeight = node.height; 
+    };
+
+    function GridStackBuilder(items, sortMode) {
+       	this.items = items;
+       	this.sortMode = sortMode; //0: by name, 1: by category
+       	this.editMode = false;
+       	this.isDirty = false;
+  		this.minGridItemWidth = 4;
+  		this.minGridItemHeight = 4;
+       	this.idSeq = 0;
+       	
+       	var self = this;
+    	var gw = this.calcGridWidth();
+		$('.grid-stack').gridstack({
+			alwaysShowResizeHandle: /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent),
+			float: true,
+			auto: false,
+			width: gw,
+			minWidth: 130,
+			cellHeight: $('.add-grid').width() / gw,
+			acceptWidgets: true
+		});
+		/*this.items = [
+                    {x: 0, y: 0, width: 3, height: 4, minWidth: 4, maxWidth: 7, minHeight: 4, maxHeight: 7, rg: 1, link: 'abc', icon: 'fa-building', title: 'Title 1', removed: false},
+                    {x: 3, y: 1, width: 4, height: 4, minWidth: 4, maxWidth: 5, minHeight: 4, maxHeight: 5, rg: 2, link: 'abc', icon: 'fa-cogs', title: 'Title 2', removed: false},
+                    {x: 4, y: 1, width: 4, height: 4, minWidth: 4, maxWidth: 5, minHeight: 4, maxHeight: 5, rg: 3, link: 'abc', icon: 'fa-calendar', title: 'Title 3', removed: false},
+                    {x: 4, y: 3, width: 4, height: 4, minWidth: 4, maxWidth: 6, minHeight: 4, maxHeight: 6, rg: 4, link: 'abc', icon: 'fa-calendar-plus-o', title: 'Title 4', removed: false},
+                    {x: 4, y: 5, width: 4, height: 4, minWidth: 4, maxWidth: 8, minHeight: 4, maxHeight: 8, rg: 5, link: 'abc', icon: 'fa-database', title: 'Title 5', removed: false},
+                    {x: 10, y: 0, width: 4, height: 4, minWidth: 4, maxWidth: 4, minHeight: 4, maxHeight: 4, rg: 6, link: 'abc', icon: 'fa-tachometer', title: 'Title 6', removed: false},
+                    {x: 0, y: 0, width: 4, height: 4, minWidth: 4, maxWidth: 5, minHeight: 4, maxHeight: 5, rg: 7, link: 'abc', icon: 'fa-building', title: 'Title 7', removed: true},
+                    {x: 3, y: 1, width: 4, height: 4, minWidth: 4, maxWidth: 9, minHeight: 4, maxHeight: 9, rg: 8, link: 'abc', icon: 'fa-cogs', title: 'Title 8', removed: true},
+                    {x: 4, y: 1, width: 4, height: 4, minWidth: 4, maxWidth: 5, minHeight: 4, maxHeight: 5, rg: 9, link: 'abc', icon: 'fa-calendar', title: 'Title 9', removed: true}
+            ];*/
+        this.addGrid = this.gridStack($('.add-grid'));
+        this.removeGrid = this.gridStack($('.remove-grid'));
+        this.addItem = function (grid, node) {
+        	var $grid = grid.container;
+        	var $tag;
+        	this.idSeq++;
+        	if (node.embdedNum) {
+            	$tag = $('<div><div class="grid-stack-item-content">' 
+	               			+ '<div class="content" style="display:table;width:100%;height:100%">'
+	               			+ '<div class="content1" style="display:table-cell;text-align:center;vertical-align:middle">'
+	               			+ '<div class="content2" style="display:inline-block">'
+	                   		+ '</div></div></div>'
+	                   		+ '</div>'
+	                   		+ '<a href="" class="close-btn"><i class="fa fa-close" aria-hidden="true"></i></a>'
+	                   		+ '</div>');
+            	var $content2 = $tag.find('.content2');
+	            $content2.attr('embdedNum', node.embdedNum);
+	            var padding = 20;
+	            var found = false;
+        		$('.tempComps > div').each(function(){
+        			if ($(this).attr('embdedNum') === $content2.attr('embdedNum')) {
+        				if (node.width === 0)
+        					node.width = self.calcGridItemWH(grid, $(this).outerWidth(true) + padding);
+        				if (node.height === 0)
+        					node.height = self.calcGridItemWH(grid, $(this).outerHeight(true) + padding);
+						self.correctGridItemSize(grid, node);
+        				var embdedTag = $(this).html();
+        				//$content2.html(embdedTag);
+        				//$(this).remove();	
+        				$(this).detach().appendTo($content2); //220803 fix component event loss problem
+        				
+        				$.each(self.items, function(i, item){
+        					if (item.rg === node.rg) {
+        						item.embdedTag = embdedTag;
+        						return false;
+        					}
+        				});
+        				found = true;
+        				return false;
+        			}
+        		});
+        		if (!found) {
+        			$.each(self.items, function(i, item){
+        				if (item.rg === node.rg && item.embdedTag) {
+        					$content2.html(item.embdedTag);
+        					return false;
+        				}
+        			});
+        		}
+        	} else {
+            	$tag = $('<div><div class="grid-stack-item-content" style="overflow:visible">' 
+	                 		+ '<a href="" class="content">'
+	               			+ '<div style="text-align:center;overflow-wrap:break-word">'
+	                   		+ '<span class="title"></span>'
+	            			+ '<span class="noti-count" style="display:none;"></span>'
+	                   		+ '</div></a>'
+	                   		+ '</div>'
+	                   		+ '<a href="" class="close-btn"><i class="fa fa-close" aria-hidden="true"></i></a>'
+	                   		+ '</div>');
+	            $tag.find('.content').attr('href', node.link);
+	            $tag.find('.title').text(node.title).before(
+	          		node.icon.startsWith('fa-') || node.icon.startsWith('flaticon-') ? 
+	       				'<i class="icon fa ' + node.icon + '" aria-hidden="true" style="width:64px;height:64px;font-size:44px;line-height:44px"></i>' : 
+	       				'<img class="icon" src="' + node.icon + '" style="width:64px;height:64px"/>'
+	           	);
+	            var $noti_count = $tag.find('.noti-count');
+ 				//if ($('.grid-stack-item-content .title').css('font-size') == '12px')
+ 				if ($('.grid-stack').css('font-size') == '12px')
+ 					$noti_count.css('min-width', '18px');
+	            if (node.noti_count && node.noti_count > 0) {
+	            	$noti_count.text('' + node.noti_count);
+	            	$noti_count.show();
+	            } else {
+	            	$noti_count.text('');
+	            	$noti_count.hide();
+	            }
+	            /*var resizeEvent = function() {
+	            	var refContentHeight = 98.31;
+	            	var refTitleHeight = 36.12;
+	            	var refIconHeight = 62.19;
+	            	var refIconFaFontSize = 42.19;
+
+       				var $content = $tag.find('.grid-stack-item-content');
+            		var $title = $content.find('.title');
+            		var $icon = $content.find('.icon');
+	            	var iconHeight, titleHeight, iconFaFontSize;
+	            	if ($content.width() > 0 && $content.height() > 0) {
+	            		iconHeight = $content.height() / refContentHeight * refIconHeight;
+	            		titleHeight = $content.height() - iconHeight;
+	            		iconFaFontSize = $content.height() / refContentHeight * refIconFaFontSize;
+	            	} else {
+						titleHeight = refTitleHeight;
+	            		iconHeight = grid.cellHeight() * self.minGridItemHeight - titleHeight - 20;
+	            		iconFaFontSize = iconHeight - 20;
+	            	}
+            		if (iconHeight < 1)
+						iconHeight = 1;
+            		if (iconFaFontSize < 1)
+						iconFaFontSize = 1;
+            		//console.log('resize: cw=' + $content.width() + ',ch=' + $content.height() + ',th=' + $title.height() + ',iconHeight=' + iconHeight + ',titleHeight=' + titleHeight);
+	            	$icon.css('width', iconHeight + 'px');
+	            	$icon.css('height', iconHeight + 'px');
+	            	if ($icon.hasClass('fa')) {
+						$icon.css('font-size', iconFaFontSize + 'px');
+   						$icon.css('line-height', iconFaFontSize + 'px');
+	            	}
+	            };
+				resizeEvent();
+	            $tag.resize(function(){
+        			waitForFinalEvent(
+						resizeEvent
+        			, 300, $tag.attr('data-gs-id') + ' ' + fullDateString.getTime());
+	            });*/
+        	}
+            var $widget = grid.addWidget($tag, 
+						{rg: node.rg, link: node.link, icon: node.icon, noti_count: node.noti_count, title: node.title, embdedNum: node.embdedNum, oriSeq: node.oriSeq },
+            			node.x, node.y, node.width, node.height, 
+                		node.x < 0 ? true : false, node.minWidth, node.maxWidth, node.minHeight, node.maxHeight, 'griditem' + this.idSeq);
+            //grid.setExtraData($widget, {rg: node.rg, link: node.link, icon: node.icon, title: node.title, embdedNum: node.embdedNum, onAdd: node.onAdd, onRemove: node.onRemove});
+        }.bind(this);
+        this.makeNode = function ($grid, $item) {
+      		var node = this.gridStackItemNode($item);
+            var node1 = this.gridStackItemNodeEx($item);
+            return {
+                x: node.x,
+                y: node.y,
+                width: node.width,
+                height: node.height,
+            	minWidth: node.minWidth,    
+            	maxWidth: node.maxWidth,    
+               	minHeight: node.minHeight,    
+               	maxHeight: node.maxHeight,
+               	rg: node1.rg,
+               	link: node1.link,
+               	icon: node1.icon,
+               	noti_count: node1.noti_count,
+               	title: node1.title,
+				embdedNum: node1.embdedNum,
+				oriSeq: node1.oriSeq,
+               	removed: $grid.attr('id') === $('.remove-grid').attr('id') ? true : false
+            };
+        }.bind(this);
+        this.loadGrid = function () {
+            this.addGrid.removeAll();
+            this.removeGrid.removeAll();
+            $.each(this.items, function (i, node) {
+               self.addItem(!node.removed ? self.addGrid : self.removeGrid, node);
+            });
+        }.bind(this);
+        this.saveGrid = function () {
+        	var tmpItems = this.items.concat();
+            this.items = $('.grid-stack > .grid-stack-item:visible').map(function(i, el){
+                var $el = $(el);
+                var $grid = $el.parent('.grid-stack');
+                var result = self.makeNode($grid, $el);
+                if (result.removed) {
+                	result.x = result.y = -1;	
+                }
+                result.noti_count = 0;
+                $.each(tmpItems, function(i, item){
+                	if (item.rg === result.rg) {
+                		result.minWidth = item.minWidth;
+                		result.maxWidth = item.maxWidth;
+                		result.minHeight = item.minHeight;
+                		result.maxHeight = item.maxHeight;
+                		result.onAdd = item.onAdd;
+                		result.onRemove = item.onRemove;
+                		result.embdedTag = item.embdedTag;
+                		return false;
+                	}
+                });
+                return result;
+            }).get();
+        	var zkComp = zk.Widget.$('$zkCustomMenu');
+			if (zkComp !== null && zAu !== null && zk !== null) {
+				var obj = {sortMode: this.sortMode, items: this.items};
+				zAu.send(new zk.Event(zkComp, 'onSave', JSON.stringify(obj), {toServer:true}));
+			}	
+			else
+				alert('save fail');
+			this.removeGrid.removeAll();
+			$.each(this.items, function(i, node){
+				if (node.removed)					
+               		self.addItem(self.removeGrid, node);
+			});
+        }.bind(this);
+        this.enableGrid = function () {
+        	this.addGrid.enable();	
+         	this.removeGrid.enable();	
+            $('.grid-stack > .grid-stack-item:visible').each(function () {
+              	var $el = $(this);
+              	var $grid = $el.parent('.grid-stack');
+                var grid = self.gridStack($grid);
+                var node = self.gridStackItemNode($el);
+                var node1 = self.gridStackItemNodeEx($el);
+                //if (node.minWidth === node.maxWidth && node.minHeight === node.maxHeight) 
+				//	grid.resizable($el, false);
+				grid.resizable($el, false);
+                $el.find('.content').removeAttr('href');
+				if ($.support.touch && $grid.attr('id') === $('.add-grid').attr('id'))
+           			$el.find('.close-btn').show();
+            });
+            this.editMode = true;
+        }.bind(this);
+        this.disableGrid = function () {
+        	this.addGrid.disable();	
+        	this.removeGrid.disable();	
+            $('.grid-stack > .grid-stack-item:visible').each(function () {
+              	var $el = $(this);
+                var node1 = self.gridStackItemNodeEx($el);
+                $el.find('.content').attr('href', node1.link);
+				if ($.support.touch)
+           			$el.find('.close-btn').hide();
+            });
+            this.editMode = false;
+        }.bind(this);
+        this.sortGrid = function ($grid, sortMode) { //sortMode: 0 - by name, 1 - by category
+        	if (typeof sortMode !== 'undefined')
+        		this.sortMode = sortMode;
+        	var grid = this.gridStack($grid);
+        	$grid.find('> .grid-stack-item:visible').each(function(i, el) {
+                var $el = $(el);
+				var node = self.gridStackItemNode($el);
+				var node1 = self.gridStackItemNodeEx($el);
+				if (node1.embdedNum) {
+            		var $content2 = $el.find('.content2');
+            		var tmpNode = $.extend({}, node);
+	            	var padding = 20;
+     				tmpNode.width = Math.max(tmpNode.width, self.calcGridItemWH(grid, $content2.outerWidth(true) + padding));
+     				tmpNode.height = Math.max(tmpNode.height, self.calcGridItemWH(grid, $content2.outerHeight(true) + padding));
+					self.correctGridItemSize(grid, tmpNode);
+					grid.itemSize($el, tmpNode);
+				}
+        	});
+        	//console.log('sortGrid', self.sortMode);
+        	grid.autoArrangeNodes(function(a, b) {
+        		if (self.sortMode === 1)
+            		return a.nodeEx.oriSeq - b.nodeEx.oriSeq;
+           		else
+            		return a.nodeEx.title.localeCompare(b.nodeEx.title);
+            });
+            /*var tmpItems = $grid.find('> .grid-stack-item:visible').map(function(i, el) {
+                var $el = $(el);
+                var result = self.makeNode($grid, $el);
+                return result;
+            }).get();
+            if (sortTitle) {
+            	tmpItems.sort(function(a, b) {
+	            	return a.title.localeCompare(b.title);
+	            });
+            } else
+            	tmpItems = GridStackUI.Utils.sort(tmpItems);
+        	grid.removeAll();
+            $.each(tmpItems, function (i, node) {
+            	node.x = node.y = -1;
+            	self.addItem(grid, node);
+            });*/
+        }.bind(this);
+        this.addAllGrid = function () {
+            var tmpItems = $('.remove-grid > .grid-stack-item:visible').map(function(i, el) {
+                var $el = $(el);
+                var $grid = $el.parent('.grid-stack');
+                var result = self.makeNode($grid, $el);
+                return result;
+            }).get();
+            $.each(tmpItems, function (i, node) {
+            	node.x = node.y = -1;
+            	self.addItem(self.addGrid, node);
+            });
+            this.removeGrid.removeAll();
+        }.bind(this);
+        this.removeAllGrid = function () {
+            var tmpItems = $('.add-grid > .grid-stack-item:visible').map(function(i, el) {
+                var $el = $(el);
+                var $grid = $el.parent('.grid-stack');
+                var result = self.makeNode($grid, $el);
+                return result;
+            }).get();
+            $.each(tmpItems, function (i, node) {
+            	node.x = node.y = -1;
+            	self.addItem(self.removeGrid, node);
+            });
+            this.addGrid.removeAll();
+        }.bind(this);
+        $('.grid-stack').on('removed', function(event, items) {
+           	$.each(items, function(i, item){
+           		var node = item;
+           		var node1 = item.nodeEx;
+           		node1 && self.onRemove(node1);
+           	});
+        });
+        $('.grid-stack').on('added', function(event, items) {
+           	$.each(items, function(i, item){
+           		var $item = item.el;	
+           		var grid = item._grid;
+           		var $grid = item._grid.container;
+           		var $closeBtn = $item.find('.close-btn');
+           		var node = self.gridStackItemNode($item);
+           		var node1 = self.gridStackItemNodeEx($item);
+				$closeBtn.click(function(e){
+					e.preventDefault();
+					var n = self.makeNode($grid, $item);
+					grid.removeWidget($item);	
+					if (!n.removed) {
+						n.x = n.y = -1;
+						self.addItem(self.removeGrid, n);
+						self.sortGrid($('.add-grid'));
+						self.sortGrid($('.remove-grid'));
+						self.isDirty = true;
+					}
+				});
+				if ($item.hasClass('ui-draggable-disabled') || $grid.attr('id') === $('.remove-grid').attr('id'))
+					$closeBtn.hide();
+				else {
+					if (!$.support.touch) {
+						$item.hover(function(){
+							if (!$item.hasClass('ui-draggable-disabled') && $grid.attr('id') === $('.add-grid').attr('id'))
+								$closeBtn.show();
+						}, function(){
+							$closeBtn.hide();
+						});
+					} else {
+						$closeBtn.show();
+					}
+				}
+				//if (node.minWidth === node.maxWidth && node.minHeight === node.maxHeight)
+				//	grid.resizable($item, false);
+				grid.resizable($item, false);
+          		node1 && self.onAdd(node1);	
+           	});
+        });
+        $('.grid-stack').on('endMoving', function(event, p) {
+        	//console.log('endMoving moveType:' + p.moveType + ', isDropped:' + p.isDropped);
+        	if (p.moveType === 'dragstop' && p.isDropped) {
+        		self.isDirty = true;
+      			waitForFinalEvent(function() {
+					self.sortGrid($('.add-grid'));
+					self.sortGrid($('.remove-grid'));
+        		}, 300, 'endMoving ' + fullDateString.getTime());
+        	}
+        });
+        this.addGridResizeEvent = function ($grid) {
+        	var gridWidth;
+			$grid.resize(function(){
+				var width = $grid.width();
+				if (width === gridWidth)
+					return;
+				gridWidth = width;
+		       	waitForFinalEvent(function() {
+		       		self.resizeGrid($grid);
+		       	}, 300, 'grid' + $grid.attr('id') + ' ' + fullDateString.getTime());
+			});
+        };
+        this.resizeGrid = function ($grid) {
+			var grid = this.gridStack($grid);	
+			var gw = this.calcGridWidth();
+			if (gw !== grid.getGridWidth()) {
+				grid.setGridWidth(gw, true);
+				if ($grid.width() > 1)
+					grid.cellHeight(($grid.width() / gw) + 'px');
+				grid._initStyles();
+				grid._updateStyles();
+				this.sortGrid($grid);
+				this.editMode ? this.enableGrid() : this.disableGrid();
+			}
+        }.bind(this);
+        this.onAdd = function (node) {
+        	$.each(this.items, function (i, item){
+        		if (node.rg === item.rg) {
+        			item.onAdd && item.onAdd();
+        			return false;
+        		}
+        	});	
+        }.bind(this);
+        this.onRemove = function (node) {
+        	$.each(this.items, function (i, item){
+        		if (node.rg === item.rg) {
+        			item.onRemove && item.onRemove();
+        			return false;
+        		}
+        	});	
+        }.bind(this);
+        this.updateOnAction = function (rg, options) {
+        	$.each(this.items, function(i, item) {
+        		if (item.rg === rg)	{
+        			item.onAdd = options.onAdd || item.onAdd;
+        			item.onRemove = options.onRemove || item.onRemove;
+        			return false;
+        		}
+        	});	
+        }.bind(this);
+        this.sendNotificationCount = function (rg, count) {
+        	$.each(this.items, function(i, item) {
+        		if (item.rg === rg)	{
+        			item.noti_count = count;
+            		$('.grid-stack > .grid-stack-item:visible').each(function(i, el){
+                		var $el = $(el);
+                		var $grid = $el.parent('.grid-stack');
+                		var gridItem = self.makeNode($grid, $el);
+                		if (gridItem.rg === rg) {
+                			var $noti_count = $el.find('.noti-count');
+                			if (count > 0) {
+                				$noti_count.text('' + count);
+                				$noti_count.fadeIn(500);
+                			} else {
+                				$noti_count.text('');
+                				$noti_count.hide();
+                			}
+                			return false;
+                		}
+            		});
+        			return false;
+        		}
+        	});	
+        }.bind(this);
+        this.addGrid.removeAll();
+        this.removeGrid.removeAll();
+        this.loadGrid();
+		this.sortGrid($('.add-grid'));
+		this.sortGrid($('.remove-grid'));
+        this.disableGrid();
+		this.addGridResizeEvent($('.add-grid'));
+		this.addGridResizeEvent($('.remove-grid'));
+		var $mainDiv = $('#' + jq('$zkCustomMenu').attr('id'));
+		$mainDiv.resize(function(){
+      		waitForFinalEvent(function() {
+	        	var zkComp = zk.Widget.$('$zkCustomMenu'); 
+	        	if (zkComp !== null && zAu !== null){
+	        		zAu.send(new zk.Event(zkComp, "onClientSize", {width:$mainDiv.outerWidth(true), height:$mainDiv.outerHeight(true)}, {toServer:true }));
+	        	}
+        	}, 10, 'zkCustomMenu ' + fullDateString.getTime());
+		});
+        $('.editGridStack').click(function(e){
+        	$('.add-grid').addClass("add-grid-edit");
+			e.preventDefault();
+           	$('.editGridStack').hide();
+           	$('.editGridStackBtns').show();
+           	$('.remove-grid').show();
+           	self.enableGrid();	
+			self.isDirty = false;
+        });
+        $('.sortByNameGridStack').click(function(e){
+			e.preventDefault();
+			self.sortGrid($('.add-grid'), 0);
+			self.sortGrid($('.remove-grid'), 0);
+			self.isDirty = true;
+        });
+        $('.sortByCategoryGridStack').click(function(e){
+			e.preventDefault();
+			self.sortGrid($('.add-grid'), 1);
+			self.sortGrid($('.remove-grid'), 1);
+			self.isDirty = true;
+        });
+        $('.addAllGridStack').click(function(e){
+			e.preventDefault();
+			self.addAllGrid();
+			self.sortGrid($('.add-grid'));
+			self.isDirty = true;
+        });
+        $('.removeAllGridStack').click(function(e){
+			e.preventDefault();
+			self.removeAllGrid();
+			self.sortGrid($('.remove-grid'));
+			self.isDirty = true;
+        });
+        $('.saveGridStack').click(function(e){
+       		$('.add-grid').removeClass("add-grid-edit");
+			e.preventDefault();
+          	$('.editGridStackBtns').hide();
+          	$('.editGridStack').show();
+        	if (self.isDirty)
+           		self.saveGrid();
+        	else {
+           		self.loadGrid();
+				self.sortGrid($('.add-grid'));
+				self.sortGrid($('.remove-grid'));
+        	}
+         	self.disableGrid();	
+           	$('.remove-grid').hide();
+         });
+         $('.cancelEditGridStack').click(function(e){
+        	$('.add-grid').removeClass("add-grid-edit");
+			e.preventDefault();
+           	$('.editGridStackBtns').hide();
+           	$('.editGridStack').show();
+           	self.loadGrid();
+			self.sortGrid($('.add-grid'));
+			self.sortGrid($('.remove-grid'));
+           	self.disableGrid();	
+           	$('.remove-grid').hide();
+        });
+        $('.testGridStack').click(function(e){
+			e.preventDefault();
+			self.sendNotificationCount(50, 7);
+			self.sendNotificationCount(32, 3);
+        });
+        if ($.sidrOpenOnLoad)
+       		$.sidrOpenOnLoad();
+    }
+]]></script>
+</zk>

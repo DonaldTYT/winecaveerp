@@ -1,0 +1,97 @@
+<zk>
+<grid hflex="1">
+    <columns>
+        <column width="100px" label="Format" />
+        <column hflex="1" label="Datebox" />
+        <column hflex="1" label="Timebox " />
+        <column width="140px" label="Locale" />
+    </columns>
+    <rows>
+        <row>
+            Short : 
+            <datebox id="db0" cols="12" format="short " onCreate="self.value = new Date()" />
+            <timebox id="tb0" cols="12" format="short" onCreate="self.value = new Date()" />
+            System
+        </row>
+        <row>
+            Short :
+            <datebox id="db1" cols="12" format="short" onCreate="self.value = new Date()" locale="de" />
+            <timebox id="tb1" cols="12" format="short" onCreate="self.value = new Date()" locale="th"/>           
+            <html>
+                <attribute name="content"><![CDATA[
+                    Date: Germany <b>(de)</b><br />
+                    Time: Thailand <b>(th)</b>
+                ]]></attribute>
+            </html>
+        </row>
+        <row>
+            Medium : 
+            <datebox id="db2" cols="12" format="medium" onCreate="self.value = new Date()" />
+            <timebox id="tb2" cols="12" format="medium" onCreate="self.value = new Date()" />
+            System
+        </row>
+        <row>
+            Long : 
+            <cell colspan="2">
+                <datebox id="db3" cols="12" format="long" onCreate="self.value = new Date()" width="230px" />
+            </cell>
+            System
+        </row>
+        <row>
+            Long+Medium :
+            <cell colspan="2">
+                <datebox id="db4" cols="12" format="long+medium" onCreate="self.value = new Date()" width="230px" />
+            </cell>
+            System
+        </row>
+        <row>
+            Custom : 
+            <vlayout>
+            <datebox id="db5" cols="12" format="yyyy/MM/dd" onCreate="self.value = new Date()" />
+            ( yyyy/MM/dd )
+            </vlayout>
+            <vlayout>
+            <timebox id="tb3" cols="12" format="a hh:mm:ss" onCreate="self.value = new Date()" />
+            ( a hh:mm:ss )
+            </vlayout>
+            System
+        </row>
+    </rows>
+</grid>
+    <listbox id="box">
+    	<auxhead>
+        <auxheader align="center" label="BC" colspan="2" />
+    	</auxhead>
+        <listhead sizable="true">
+            <listheader label="name" sort="auto" />
+            <listheader label="gender" sort="auto" />
+        </listhead>
+        <listitem>
+            <listcell label="Mary" />
+            <listcell label="FEMALE" />
+        </listitem>
+        <listitem>
+            <listcell label="John" />
+            <listcell label="MALE" />
+        </listitem>
+        <listitem>
+            <listcell label="Jane" />
+            <listcell label="FEMALE" />
+        </listitem>
+        <listitem>
+            <listcell label="Henry" />
+            <listcell label="MALE" />
+        </listitem>
+        <listfoot>
+            <listfooter>
+                <label value="This is footer1" />
+            </listfooter>
+            <listfooter>
+                <label value="This is footer2" />
+            </listfooter>
+        </listfoot>
+    </listbox>
+    <textbox/>
+    <textbox/>
+    <toolbarbutton tabindex="-1"/>
+</zk>

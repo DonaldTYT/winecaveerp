@@ -1,0 +1,237 @@
+<zk>
+
+	<style dynamic="true">
+		<!-- cut/hide the vertical borders in the grid rows -->
+		.myGridWithNoBorder tr.z-row td.z-row-inner { border-right: 0px
+		#CCC; } .GridLayoutNoBorder tr.z-row td.z-row-inner, tr.z-row
+		.z-cell,div.z-grid { border: none; overflow: hidden; zoom: 1;
+		#background:#f8f8f8 !important;<!-- remove hover -->
+		background:white !important;<!-- remove hover -->
+		border-top: none; border-left: none; border-right: none;
+		border-bottom: none; }
+	</style>
+	<toolbar id="detail_toolbar" align="end">
+		<!--
+		<button id="btCustom" label="Custom Report" visible="false"></button>
+		-->
+		<button id="btPrintInvNew" label="Print All Invoices" visible="true"><custom-attributes tlkey="bt_printinvoices"/></button>
+		<!--
+		<button id="btPrintCInv" label="Print Commerical Invoice" visible="false"> </button>
+		<button id="btPrintInv" label="Print Invoice" visible="true"></button>
+		-->
+		<button id="btPrint" label="Print Invoice" visible="true"></button>
+		<button id="btPrintPacklist" label="Print Packing List" visible="true"><custom-attributes tlkey="bt_printpacklist"/></button>
+	</toolbar>
+	<grid style="text-align:left;border: 1px solid #000;"
+		id="detail_grid" sclass="GridLayoutNoBorder">
+		<columns>
+			<column width="160px"></column>
+			<column width="650px"></column>
+			<column width="160px"></column>
+			<column width="450px"></column>
+			<column></column>
+			<column width="300px"></column>
+		</columns>
+		<rows>
+			<row>
+				<cell colspan="3">
+				<!-- 
+					<image src="images/logo_afs.jpg" height="150px" />
+				 -->
+				</cell>
+				<cell colspan="2">
+					<!-- 
+						<image src="images/progress_sample.png" hflex="1"></image>
+					-->
+				</cell>
+				<cell>
+					<vlayout>
+						<label
+							style="font-weight: bold;font-size:30px !important;">
+							DELIVERY
+						</label>
+						<label
+							style="font-weight: bold;font-size:30px !important;">
+							ORDER
+						</label>
+					</vlayout>
+				</cell>
+			</row>
+			<row>
+				<cell align="right">
+					<label value="Date"><custom-attributes tlkey="lb_stm_date"></custom-attributes></label>
+				</cell>
+				<cell>
+					<hlayout>
+					<datebox id="stm_date" format="yyyy/MM/dd"></datebox>
+					<div width="50px"/>
+					<checkbox id="stm_flag1" label="Delivered"> 
+						<custom-attributes tlkey="lb_stm_flag1"></custom-attributes> 
+					</checkbox>
+					</hlayout>
+				</cell>
+				<cell align="right">
+					<label value="Order No."><custom-attributes tlkey="lb_stm_ref1"></custom-attributes></label>
+				</cell>
+				<cell>
+					<hbox align="middle">
+						<div width="200px">
+							<label id="stm_ref1"></label>
+						</div>
+					</hbox>
+				</cell>
+				<cell></cell>
+				<cell>
+					<label value="Ref No."><custom-attributes tlkey="lb_stm_mrg"></custom-attributes></label>
+					<label id="stm_mrg"></label>
+				</cell>
+			</row>
+			<row>
+				<cell colspan="2" rowspan="5"> 
+					<listbox id="list_erpv4_StmPostInv" height="160px"></listbox>
+				</cell>
+				<cell align="right">
+					<label value="Status"><custom-attributes tlkey="lb_stm_status"></custom-attributes></label>
+				</cell>
+				<cell>
+					<hbox align="middle">
+						<div width="200px">
+							<combobox id="stm_status"></combobox>
+						</div>
+					</hbox>
+				</cell>
+				<cell></cell>
+				<cell>
+				<!-- 
+					<label value="Customer Code:"><custom-attributes tlkey="lb_stm_ref2"></custom-attributes></label>
+					<label id="stm_ref2"></label>
+				 -->
+				</cell>
+			</row>
+			<row>
+				<cell align="right">
+					<label value="Waybill"><custom-attributes tlkey="lb_stm_ref6"></custom-attributes></label>
+				<!-- 
+					<label value="Invoice No."><custom-attributes tlkey="lb_stm_ref3"></custom-attributes></label>
+				 -->
+				</cell>
+				<cell>
+				<!-- 
+					<textbox id="stm_ref3"></textbox>
+				 -->
+					<!-- 
+					<textbox id="inv_pocode"></textbox>
+					 -->
+					<textbox id="stm_ref6"></textbox>
+				</cell>
+				<cell></cell>
+				<cell>
+					<label value="Create By:"><custom-attributes tlkey="lb_stm_cuser"></custom-attributes></label>
+					<label id="stm_cuser"></label>
+				</cell>
+			</row>
+			<row>
+				<cell align="right">
+					<label value="Courier"><custom-attributes tlkey="lb_stm_ctrspec"></custom-attributes></label>
+				</cell>
+				<cell>
+					<textbox id="stm_ctrspec"></textbox>
+				</cell>
+				<cell></cell>
+				<cell>
+					<label value="Create On:"><custom-attributes tlkey="lb_stm_cdate"></custom-attributes></label>
+					<label id="stm_cdate"></label>
+				</cell>
+			</row>
+			<row>
+				<cell align="right">
+					<label value="Contact Person"><custom-attributes tlkey="lb_stm_contact"></custom-attributes></label>
+				</cell>
+				<cell>
+					<textbox id="stm_contact"></textbox>
+				</cell>
+				<cell></cell>
+				<cell>
+					<label value="Update By:"><custom-attributes tlkey="lb_stm_uuser"></custom-attributes></label>
+					<label id="stm_uuser"></label>
+				</cell>
+			</row>
+			<row>
+				<cell align="right">
+					<label value="Telephone"><custom-attributes tlkey="lb_stm_tel"></custom-attributes></label>
+				<!-- 
+					<label value="Mobile"><custom-attributes tlkey="lb_inv_fax"></custom-attributes></label>
+				 -->
+				</cell>
+				<cell>
+				<!-- 
+					<textbox id="inv_fax"></textbox>
+				 -->
+					<textbox id="stm_tel"></textbox>
+				</cell>
+				<cell></cell>
+				<cell>
+					<label value="Update On:"><custom-attributes tlkey="lb_inv_udate"></custom-attributes></label>
+					<label id="stm_udate"></label>
+				</cell>
+			</row>
+			<row>
+				<cell colspan="6">
+					<listbox id="list_erpv4_DoDetMulti"></listbox>
+				</cell>
+			</row>
+			<row>
+				<cell align="right">
+					<label value="Delivery Remark"><custom-attributes tlkey="lb_stm_shipname"></custom-attributes></label>
+				</cell>
+				<cell>
+					<textbox id="stm_shipname" hflex="1" rows="1"></textbox>
+				</cell>
+				<cell colspan="2"></cell>
+				<cell></cell>
+				<cell>
+				<!-- 
+					<hbox align="middle">
+						<div width="150px">Less Discount</div>
+						<doublebox id="inv_discount"></doublebox>
+					</hbox>
+				 -->
+				</cell>
+			</row>
+			<row>
+				<cell align="right">
+					<label value="Extra Instruction"><custom-attributes tlkey="lb_stm_shipagent"></custom-attributes></label>
+				</cell>
+				<cell>
+					<textbox id="stm_shipagent" hflex="1" rows="2"></textbox>
+				</cell>
+				<cell colspan="2"></cell>
+				<cell></cell>
+				<cell>
+				<!-- 
+					<hbox align="middle">
+						<div width="150px">Net Total</div>
+						<doublebox id="inv_total"></doublebox>
+					</hbox>
+				 -->
+				</cell>
+			</row>
+			<row>
+				<cell align="right">
+				<!-- 
+					<label value="Payment"><custom-attributes tlkey="lb_stm_remark"></custom-attributes></label>
+				 -->
+				</cell>
+				<cell>
+				<!-- 
+					<textbox id="stm_remark" hflex="1" rows="3"></textbox>
+				 -->
+				</cell>
+				<cell colspan="2"></cell>
+				<cell></cell>
+				<cell>
+				</cell>
+			</row>
+		</rows>
+	</grid>
+</zk>

@@ -1,0 +1,8 @@
+<window id="mainWin" title="Main Window" border="normal" width="500px">
+    
+    <!-- Include CompoundResult.zul -->
+    <include id="compInclude" src="CompoundResult.zul"/>
+    
+    <!-- Button to update label inside CompoundResult.zul -->
+    <button label="Update Label" onClick="mainWin.getFellow('resultLabel')"/>
+</window>

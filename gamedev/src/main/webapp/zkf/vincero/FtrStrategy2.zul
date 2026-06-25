@@ -1,0 +1,64 @@
+<zk>
+<div id="frxsdiv">
+	<vlayout sclass="zkbi-form-content">
+		<div align="left">
+			<label id="sheetTitle" style="font-size:30px!important;font-weight:bold!important">FTR Strategy Calculatorr</label>	
+		</div>
+		<vlayout>
+		<div align="center" style="color:red;"><label style="font-size:20px!important">Header</label></div>
+		<hlayout>
+			<div style="background-color:#305496;color:white;" width="200px" align="right"><label>Market Sentiment</label></div>
+			<combobox width="300px" id="ftrs_mktsentiment" style="background-color:#ffff00"></combobox>
+		</hlayout>
+		<div align="center">
+			<listbox id="list_ftxstretegy" height="680px">
+			<auxhead>
+			<auxheader label=""/>
+			<auxheader label="USD" colspan="2"/>
+			<auxheader label="EUR" colspan="2"/>
+			<auxheader label="JPY" colspan="2"/>
+			<auxheader label="GBP" colspan="2"/>
+			<auxheader label="CHF" colspan="2"/>
+			<auxheader label="CAD" colspan="2"/>
+			<auxheader label="AUD" colspan="2"/>
+			<auxheader label="NZD" colspan="2"/>
+			</auxhead>
+				<listhead>
+					<listheader width="200px"></listheader>
+					<listheader width="100px">(Select)</listheader>
+					<listheader width="60px">Score</listheader>
+					<listheader width="100px">(Select)</listheader>
+					<listheader width="60px">Score</listheader>
+					<listheader width="100px">(Select)</listheader>
+					<listheader width="60px">Score</listheader>
+					<listheader width="100px">(Select)</listheader>
+					<listheader width="60px">Score</listheader>
+					<listheader width="100px">(Select)</listheader>
+					<listheader width="60px">Score</listheader>
+					<listheader width="100px">(Select)</listheader>
+					<listheader width="60px">Score</listheader>
+					<listheader width="100px">(Select)</listheader>
+					<listheader width="60px">Score</listheader>
+					<listheader width="100px">(Select)</listheader>
+					<listheader width="60px">Score</listheader>
+				</listhead>
+				<listitem>
+					<listcell label="1"/>
+					<listcell label="Win"/>
+					<listcell label="60"/>
+					<listcell label="90"/>
+					<listcell label="3090"/>
+				</listitem>
+				<listitem>
+					<listcell label="2"/>
+					<listcell label="Loss"/>
+					<listcell label="65"/>
+					<listcell label="-65" style="color:red!important"/>
+					<listcell label="3025"/>
+				</listitem>
+			</listbox>
+		</div>
+		</vlayout>
+	</vlayout>
+</div>
+</zk>

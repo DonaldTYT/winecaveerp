@@ -1,0 +1,74 @@
+<zk>
+<style>
+.z-button {
+	border-radius: 15px;
+	color: black;
+	background-color: white;
+	border-color: #808080;
+}
+
+.z-button:hover{
+	background-color: #808080;
+}
+
+.z-button:focus, .z-button:active{
+	background-color: #4D4D4D;
+	color: white;
+}
+</style>
+<div apply="com.uniinformation.zkf.erpv4.ZkFormDeviceLogin" style="background-color: #bcd6ed;">
+<div align="center" height="260px" style="background-color: #006fc0; justify-content: center;
+    display: flex; flex-direction: column; align-items: center; color: white; ">
+			<label id="ldv_cmpname" style="font-size:72px !important; font-family: sans-serif; font-weight: bold;"></label>
+			<label id="ldv_cmpname1" style="font-size:35px !important; font-family: sans-serif; font-weight: bold;"></label>
+		</div>
+	<div align="center" height="80px">
+		<label id="ldv_title" style="font-size:40px !important; display: none;"></label>
+	</div>
+<div align="center" height="200px" style="background-color: #FFF5CC; color: black; justify-content: center;
+    display: flex; align-items: center; margin-bottom: 50px;">
+		<label id="ldv_locname" style="font-size:96px !important;  font-family: sans-serif; font-weight: bold;"></label>
+	</div>
+<div height="100px"></div>
+<div align="center" height="200px">
+	<label id="ldv_keybuf" style="font-size:120px !important;"></label>
+</div>
+<div height="100px"></div>
+<div id="btGroup1" align="center" visible="true">
+	<vlayout>
+		<hlayout>
+		<button id="btN1" width="100px" height="100px" style="font-size:50px !important">1</button>
+		<div width="50px"></div>
+		<button id="btN2" width="100px" height="100px" style="font-size:50px !important">2</button>
+		<div width="50px"></div>
+		<button id="btN3" width="100px" height="100px" style="font-size:50px !important">3</button>
+		</hlayout>
+		<div height="50px"></div>
+		<hlayout>
+		<button id="btN4" width="100px" height="100px" style="font-size:50px !important">4</button>
+		<div width="50px"></div>
+		<button id="btN5" width="100px" height="100px" style="font-size:50px !important">5</button>
+		<div width="50px"></div>
+		<button id="btN6" width="100px" height="100px" style="font-size:50px !important">6</button>
+		</hlayout>
+		<div height="50px"></div>
+		<hlayout>
+		<button id="btN7" width="100px" height="100px" style="font-size:50px !important">7</button>
+		<div width="50px"></div>
+		<button id="btN8" width="100px" height="100px" style="font-size:50px !important">8</button>
+		<div width="50px"></div>
+		<button id="btN9" width="100px" height="100px" style="font-size:50px !important">9</button>
+		</hlayout>
+		<div height="50px"></div>
+		<hlayout>
+		<button id="btaBack" width="100px" height="100px" style="font-size:50px !important">B</button>
+		<div width="50px"></div>
+		<button id="btN0" width="100px" height="100px" style="font-size:50px !important">0</button>
+		<div width="50px"></div>
+		<button id="btaEnter" width="100px" height="100px" style="font-size:50px !important">E</button>
+		</hlayout>
+		<separator height="65px"/>
+	</vlayout>
+</div>
+</div>
+</zk>

@@ -1,0 +1,115 @@
+<?page title="Auto Generated index.zul"?>
+<zk>
+<style>
+        .myLabelNews{
+			color: blue !important;
+        }
+</style>
+
+<script type="text/javascript" src="js/pdfobject-2.0.min.js" />
+<script src="js/visUtil.js"></script>
+<script>
+<![CDATA[
+function zkDisplayPdf(p_link, p_container, p_downloadBtId) {
+	if (! jq('$' + p_container).length){
+		console.log("not exist:" + p_container);
+		return;
+	}
+	var $pdf = $('#' + jq('$' + p_container).attr('id')); //TODO: this statement very strange, rewrite it later!
+	var options = {
+		pdfOpenParams: {
+    		pageMode: 'none',
+    		scaleValue: 'page-fit',
+    		disableFullscreen: true,
+			disableOpenFile: true,
+			disableViewBookmark: true,
+		    disableDownload: true,
+		    disablePrinting: true,
+			downloadFun: 'zkDownloadPdf("'+ p_downloadBtId+'")'
+		},
+		forcePDFJS: true,
+		PDFJS_URL: "js/pdfjs/web/viewer.html",
+		fallbackLink: '<p>This browser does not support inline PDFs, please click this <a href="' + p_link + '">link</a> to download</p>'
+	};
+	PDFObject.embed(p_link, $pdf, options);
+}
+function zkDownloadPdf(p_btId) {
+	//var zkComp = zk.Widget.$('$btDownloadPdf');
+	var zkComp = zk.Widget.$('$' + p_btId);
+	if (zkComp !== null && zAu !== null && zk !== null)
+		zAu.send(new zk.Event(zkComp, "onClick", null, {toServer:true}));
+	else
+		console.log("comp or zAu is null, skip register event");
+}
+]]>
+</script>
+<zscript>
+<![CDATA[
+	String composer = "ZkBiComposerBase";
+	String classPrefix = "com.uniinformation.zkbi.";
+	if (Executions.getCurrent().getParameter("composer") != null){
+		composer = Executions.getCurrent().getParameter("composer").trim();
+	}
+	void splitterHideComp(splitter, comp) {
+		if (splitter.isOpen()){
+ 			comp.setVisible(true);
+ 		}
+ 		else{
+ 			comp.setVisible(false);
+ 		}
+		splitter.getParent().invalidate();
+	}
+]]>
+</zscript>
+<window id="zkbibrowser" apply="${classPrefix}${composer}" border="none" xmlns:h="native">
+	<custom-attributes listboxHeight="css"/>
+		<tabbox id="zkbiListTop" width="100%">
+		<tabs id="zkBiTabs" width="100%">
+			<tab>Records</tab>
+			<!-- 
+			<tab id="tabTimeline">Timeline</tab>
+			 -->
+		</tabs>
+		<tabpanels id="zkBiTabPanels">
+			<!-- old method splitter  -->
+			<!-- 
+			<tabpanel> 
+				<panel width="100%">
+       				<panelchildren>
+       				 <hbox spacing="0" hflex="1">
+       					<vbox spacing="0" hflex="2">
+       						<div id="zkbiListPanel"> </div>
+       					</vbox>
+            			<splitter id="s1" collapse="after" onOpen="splitterHideComp(self,listDetailPanel)"/>
+       				 	<vlayout hflex="1" id="listDetailPanel"></vlayout>
+       				 </hbox>
+       				</panelchildren>
+				</panel>  
+			</tabpanel>
+			 -->
+			<!-- 200417 new method borderlayout. for testing ony, probably fallback to splitter method later -->
+ 			<tabpanel style="overflow:auto;" vflex="1">
+				<borderlayout vflex="min" hflex="1">
+					<center vflex="min">
+						<div style="" vflex="1">
+							<div id="zkbiListPanel"></div>
+						</div>
+					</center>
+					<east title="Record Detail" vflex="min" size="30%" splittable="true" open="true" collapsible="true">
+						<div style="" vflex="1">
+       					 	<vlayout style="" hflex="1" id="listDetailPanel"></vlayout>
+						</div>
+					</east>
+				</borderlayout>
+			</tabpanel>
+		</tabpanels>
+	</tabbox>
+	<div id="pdfview" visible="false">
+		<div width="100%" sclass="zkpdf" id="pdfcontent"></div>
+		<separator spacing="5px" />	
+		<hbox id="zkPdfActionBar" pack="center" width="100%">
+			<button visible="true" style="" id="btClosePdf" label="Close Viewer"/>
+		</hbox>
+	</div>
+</window>
+</zk>

@@ -1,0 +1,98 @@
+/* ep 01 */
+/* customize font  */
+span.zkbi-col-label {
+	font-style: italic;
+	font-family: "Times New Roman", Times, DFKai-sb, BiauKai;
+/*	font-size : 90% !important; */
+}
+button.z-button, div.sidr span {
+    font-family: "Gill Sans MT", "Gill Sans", sans-serif, "JhengHei";
+    border-radius: 32px !important;
+}
+
+
+/* 220808 remove input border */
+.z-textbox:not(textarea), .z-decimalbox, .z-intbox, .z-longbox, .z-doublebox,
+.z-datebox-input, .z-datebox-button, .z-combobox-input, .z-combobox-button, .z-bandbox-input, .z-bandbox-button
+{
+	border-top: none !important;
+	border-left: none !important;
+	border-right: none !important;
+}
+.z-combobox-input:focus+*, .z-bandbox-input:focus+*, .z-datebox-input:focus+*, .z-timebox-input:focus+*, .z-spinner-input:focus+*, .z-doublespinner-input:focus+*{
+	border-left: none !important;
+	border-bottom: solid 1px #189CF8 !important;
+}
+.select2-container span.select2-selection.select2-selection--single,
+.select2-container span.select2-selection.select2-selection--multiple
+{
+	border-top: none !important;
+	border-left: none !important;
+	border-right: none !important;
+}
+
+
+/* 220809 right align for numeric field (experimental) */
+.zkbidiv span.zkbi-coltype-serial,
+.zkbidiv span.zkbi-coltype-integer,
+.zkbidiv span.zkbi-coltype-money,
+.zkbidiv span.zkbi-coltype-float,
+.zkbidiv span.zkbi-coltype-double
+{
+	float: right;
+}
+
+/* 230213 adjust bootstrap grid padding. esp for 2 fields in div (experimental) */
+.col, .col-1, .col-10, .col-11, .col-12, .col-2, .col-3, .col-4, .col-5, .col-6, .col-7, .col-8, .col-9, .col-auto, .col-lg, .col-lg-1, .col-lg-10, .col-lg-11, .col-lg-12, .col-lg-2, .col-lg-3, .col-lg-4, .col-lg-5, .col-lg-6, .col-lg-7, .col-lg-8, .col-lg-9, .col-lg-auto, .col-md, .col-md-1, .col-md-10, .col-md-11, .col-md-12, .col-md-2, .col-md-3, .col-md-4, .col-md-5, .col-md-6, .col-md-7, .col-md-8, .col-md-9, .col-md-auto, .col-sm, .col-sm-1, .col-sm-10, .col-sm-11, .col-sm-12, .col-sm-2, .col-sm-3, .col-sm-4, .col-sm-5, .col-sm-6, .col-sm-7, .col-sm-8, .col-sm-9, .col-sm-auto, .col-xl, .col-xl-1, .col-xl-10, .col-xl-11, .col-xl-12, .col-xl-2, .col-xl-3, .col-xl-4, .col-xl-5, .col-xl-6, .col-xl-7, .col-xl-8, .col-xl-9, .col-xl-auto {
+	padding-left: 2px;
+	padding-right: 2px;
+}
+.zkbi-main-window .z-window-content {
+	background-color: transparent !important;
+	padding : 0px !important;	
+}
+.z-window {
+	background-color: transparent !important;
+}
+.zk-container{
+	width:100%;
+	margin: 0 auto;
+    text-align:left;
+}
+.zkbi-main-window {
+	border-radius: 0px !important;
+	border: 0px !important;
+}
+
+/* list odd event row color, exclude linkcomp */
+:not(.zkbi-linkcomp-listbox):not(.jxselopt) > .z-listbox-body .z-listbox-odd .z-listcell {
+    background: #EDEDED !important;
+}
+:not(.zkbi-linkcomp-listbox):not(.jxselopt) > .z-listbox-body .z-listcell {
+    background: #FDFDFD !important;
+}
+:not(.zkbi-linkcomp-listbox):not(.jxselopt) > .z-listbox-body .z-listitem-selected .z-listcell {
+	background: #CAE8F8 !important;
+}
+:not(.zkbi-linkcomp-listbox):not(.jxselopt) > .z-listbox-body, 
+:not(.zkbi-linkcomp-listbox):not(.jxselopt) > .z-listbox-body .z-listbox-emptybody-content {
+    background: #FDFDFD !important;
+}
+
+/*240223 formula cell */
+:not(.zkbi-linkcomp-listbox):not(.jxselopt) > .z-listbox-body .z-listbox-odd .z-listcell.zkbi-formula {
+    background-color: #EDEDED !important;
+    /*
+    background-image: radial-gradient(#444cf7 1px, #e5e5f7 1px);
+  	background-size: 20px 20px;
+  	opacity: 0.2;
+  	*/
+}
+:not(.zkbi-linkcomp-listbox):not(.jxselopt) > .z-listbox-body .z-listcell.zkbi-formula {
+    background-color: #FDFDFD !important;
+    /*
+    background-image: radial-gradient(#444cf7 1px, #e5e5f7 1px);
+    opacity: 0.2;
+  	background-size: 20px 20px;
+  	*/
+}

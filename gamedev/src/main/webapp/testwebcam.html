@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>2D Barcode Scanner + Photo Capture (Safe Mobile)</title>
+  <script src="https://unpkg.com/html5-qrcode@2.3.7/html5-qrcode.min.js"></script>
+  <style>
+    body { margin:0; padding:0; background:#000; color:#fff; font-family:Arial,sans-serif; text-align:center; }
+    h2 { margin:16px 0 8px; }
+
+    #controls { display:flex; gap:8px; justify-content:center; align-items:center; margin:8px 0 0; flex-wrap:wrap; }
+    button, label { background:#111; color:#0f0; border:1px solid #0f0; padding:8px 12px; border-radius:6px; cursor:pointer; font-size:14px; }
+    button:disabled { opacity:.5; cursor:not-allowed; }
+
+    #scanner-container { margin-top:16px; display:flex; justify-content:center; align-items:center; }
+    #reader { width:300px; height:300px; border:2px solid #0f0; box-sizing:border-box; position:relative; overflow:hidden; border-radius:8px; }
+
+    #result { margin-top:12px; font-size:1.2em; color:#0f0; }
+
+    #capture-output { margin:16px auto 32px; max-width:min(600px,92vw); }
+    #photo { width:100%; height:auto; border:1px solid #0f0; border-radius:8px; display:none; }
+    #download-link { display:none; margin-top:8px; text-decoration:none; color:#0f0; border:1px solid #0f0; padding:6px 10px; border-radius:6px; }
+    #capture-canvas { display:none; }
+  </style>
+</head>
+<body>
+  <h2>Scan a 2D Barcode</h2>
+
+  <div id="controls">
+    <button id="start-btn">▶️ Start Scanning</button>
+    <button id="stop-btn" disabled>⏹ Stop Scanning</button>
+    <button id="snap-inline-btn" disabled>📸 Snapshot (inline)</button>
+    <button id="native-photo-btn" disabled>📱 Take Photo (native)</button>
+    <label style="display:flex; align-items:center; gap:6px;">
+      <input type="checkbox" id="auto-stop" checked> Auto-stop after first scan
+    </label>
+  </div>
+
+  <div id="scanner-container">
+    <div id="reader" aria-label="Camera preview area"></div>
+  </div>
+
+  <div id="result">Scanned Code: <span id="barcode-data">None</span></div>
+
+  <div id="capture-output">
+    <img id="photo" alt="Captured photo preview">
+    <br />
+    <a id="download-link" download>Download Photo</a>
+  </div>
+
+  <!-- Hidden canvas for inline snapshots -->
+  <canvas id="capture-canvas"></canvas>
+  <!-- Hidden native camera input (uses phone’s camera UI) -->
+  <input id="file-capture" type="file" accept="image/*" capture="environment" style="display:none;" />
+
+  <script>
+    const readerId = "reader";
+    const html5QrCode = new Html5Qrcode(readerId);
+
+    const startBtn = document.getElementById("start-btn");
+    const stopBtn = document.getElementById("stop-btn");
+    const snapInlineBtn = document.getElementById("snap-inline-btn");
+    const nativePhotoBtn = document.getElementById("native-photo-btn");
+    const autoStopChk = document.getElementById("auto-stop");
+    const barcodeSpan = document.getElementById("barcode-data");
+    const photoImg = document.getElementById("photo");
+    const downloadLink = document.getElementById("download-link");
+    const canvas = document.getElementById("capture-canvas");
+    const fileCapture = document.getElementById("file-capture");
+
+    let isRunning = false;
+
+    function setUI(running) {
+      isRunning = running;
+      startBtn.disabled = running;
+      stopBtn.disabled = !running;
+      snapInlineBtn.disabled = !running;   // only when camera stream is active
+      nativePhotoBtn.disabled = !running;  // we stop then restart around native capture
+    }
+
+    function getVideoEl() {
+      return document.querySelector(`#${readerId} video`);
+    }
+
+    function waitForVideoReady(timeoutMs = 4000) {
+      return new Promise((resolve, reject) => {
+        const start = performance.now();
+        (function check() {
+          const vid = getVideoEl();
+          if (vid && vid.videoWidth > 0 && vid.readyState >= 2) return resolve(vid);
+          if (performance.now() - start > timeoutMs) return reject(new Error("Video element not ready"));
+          requestAnimationFrame(check);
+        })();
+      });
+    }
+
+    async function startScanning() {
+      try {
+        barcodeSpan.textContent = "None";
+        photoImg.style.display = "none";
+        downloadLink.style.display = "none";
+
+        await html5QrCode.start(
+          { facingMode: "environment" },
+          { fps: 10, qrbox: { width: 250, height: 250 } },
+          onScanSuccess,
+          onScanFailure
+        );
+
+        await waitForVideoReady().catch(() => {});
+        setUI(true);
+      } catch (err) {
+        console.error("Failed to start scanning:", err);
+        alert("Unable to start camera. Make sure you granted permission and are using HTTPS.");
+      }
+    }
+
+    async function stopScanning() {
+      try { await html5QrCode.stop(); }
+      catch (_) {}
+      setUI(false);
+    }
+
+    function onScanSuccess(decodedText, decodedResult) {
+      barcodeSpan.textContent = decodedText;
+      if (autoStopChk.checked) stopScanning();
+    }
+
+    function onScanFailure(_error) {
+      // noisy by design; keep silent
+    }
+
+    // --- Fix: Pause scanner before inline snapshot, then resume ---
+    async function snapshotInline() {
+      if (!isRunning) return alert("Start scanning first.");
+      try {
+        // Freeze video and internal processing
+        html5QrCode.pause(true);
+
+        const video = await waitForVideoReady();
+        const vw = video.videoWidth;
+        const vh = video.videoHeight;
+
+        canvas.width = vw;
+        canvas.height = vh;
+        const ctx = canvas.getContext("2d");
+        ctx.drawImage(video, 0, 0, vw, vh);
+
+        const dataUrl = canvas.toDataURL("image/jpeg", 0.92);
+        photoImg.src = dataUrl;
+        photoImg.style.display = "block";
+        downloadLink.href = dataUrl;
+        downloadLink.download = `photo_${Date.now()}.jpg`;
+        downloadLink.style.display = "inline-block";
+      } catch (err) {
+        console.error("Inline snapshot failed:", err);
+        alert("Couldn’t capture a photo from the stream.");
+      } finally {
+        // Resume scanning so the camera stays live
+        try { html5QrCode.resume(); } catch (_) {}
+      }
+    }
+
+    // --- Native camera path: stop stream, open system camera, then restart ---
+    let shouldRestartAfterNative = false;
+
+    async function takeNativePhoto() {
+      if (!isRunning) return alert("Start scanning first.");
+      // Stop to free the camera so the OS camera can open
+      await stopScanning();
+      shouldRestartAfterNative = true;
+
+      // Trigger native camera UI
+      fileCapture.value = ""; // clear previous
+      fileCapture.click();
+    }
+
+    fileCapture.addEventListener("change", async () => {
+      const file = fileCapture.files && fileCapture.files[0];
+      if (!file) {
+        if (shouldRestartAfterNative) { shouldRestartAfterNative = false; await startScanning(); }
+        return;
+      }
+      // Show the captured image
+      const url = URL.createObjectURL(file);
+      photoImg.src = url;
+      photoImg.style.display = "block";
+      downloadLink.href = url;
+      downloadLink.download = file.name || `photo_${Date.now()}.jpg`;
+      downloadLink.style.display = "inline-block";
+
+      // Restart scanner (optional)
+      if (shouldRestartAfterNative) {
+        shouldRestartAfterNative = false;
+        await startScanning();
+      }
+    });
+
+    // Wire up controls
+    startBtn.addEventListener("click", startScanning);
+    stopBtn.addEventListener("click", stopScanning);
+    snapInlineBtn.addEventListener("click", snapshotInline);
+    nativePhotoBtn.addEventListener("click", takeNativePhoto);
+
+    // Auto-start like your original page
+    startScanning();
+  </script>
+</body>
+</html>

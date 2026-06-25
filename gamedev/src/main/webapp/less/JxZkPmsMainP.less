@@ -1,0 +1,183 @@
+       [class*="z-"]:not([class*="z-icon-"]) {
+          overflow: none;
+      }
+      body {
+         padding:0 0px !important;
+	 text-align: left;
+      }
+      div.z-page{
+         width: 100%;
+         height: 100%;
+      }
+      .grid-no-border tr.z-row td.z-row-inner, tr.z-row z-cell,div.z-grid { 
+         border: none; 
+         overflow: none; 
+         zoom: 1;
+         background: white; 
+         border-top: none; 
+         border-left: none;
+         border-right: none; 
+         border-bottom: none; 
+       }
+      .textbox-whitered{ 
+         background-color : #FFFFFF; 
+         color: red; 
+         border-style : none;
+         font-weight: bold;
+      }
+      .z-paging-input{
+         text-align: center !important;
+      }
+      
+      .grid-max-height table{ 
+         color:black;
+         height:100%;
+       }
+       
+       .z-grid-body{
+          overflow: hidden !important;
+       }
+       .z-listbox-body{
+       }
+       .z-window-content {
+       		padding: 0px !important;
+       }
+   @media only screen and (max-width:300px) and (orientation:landscape){
+      //.z-textbox-readonly { background:blue  !important; }
+      .pmsElement(300px,1,1);
+   }
+   @media only screen and (min-width:350px) and (max-width:400px) and (orientation:landscape){
+      //.z-textbox-readonly { background:blue  !important; }
+      .pmsElement(350px,1,1);
+   }
+   @media only screen and (min-width:401px) and (max-width:500px) and (orientation:landscape){
+      //.z-textbox-readonly { background:blue  !important; }
+      .pmsElement(400px,1,1);
+   }
+   @media only screen and (min-width:501px) and (max-width:600px) and (orientation:landscape){
+      //.z-textbox-readonly { background:blue  !important; }
+      .pmsElement(500px,1,1);
+   }
+   @media only screen and (min-width:601px) and (max-width:800px) and (orientation:landscape){
+      //.z-textbox-readonly { background:blue  !important; }
+      .pmsElement(600px,1,1);
+   }
+   @media only screen and (min-width:801px) and (max-width:1000px) and (orientation:landscape){
+      //.z-textbox-readonly { background:blue  !important; }
+      .pmsElement(800px,1,1);
+   }
+   @media only screen and (min-width:1001px) and (max-width:1200px) and (orientation:landscape){
+      //.z-textbox-readonly { background:green  !important; }
+      .pmsElement(900px,1,1);
+   }
+   @media only screen and (min-width:1201px) and (max-width:1500px) and (orientation:landscape){
+      //.z-textbox-readonly { background:green  !important; }
+      .pmsElement(900px,1,1);
+   }
+   @media only screen and (min-width:1501px) and (max-width:2000px) and (orientation:landscape){
+      //.z-textbox-readonly { background:yellow  !important; }
+      .pmsElement(900px,1,1);
+   }
+   @media only screen and (min-width:2001px) and (orientation:landscape){
+      //.z-textbox-readonly { background:red  !important; }
+      .pmsElement(900px,1,1);
+   }
+
+   @media only screen and (max-width:300px) and (orientation:portrait){
+      //.z-textbox-readonly { background:blue  !important; }
+      .pmsElement(300px,1,1);
+   }
+   @media only screen and (min-width:350px) and (max-width:400px) and (orientation:portrait){
+      //.z-textbox-readonly { background:blue  !important; }
+      .pmsElement(350px,1,1);
+   }
+   @media only screen and (min-width:401px) and (max-width:500px) and (orientation:portrait){
+      //.z-textbox-readonly { background:blue  !important; }
+      .pmsElement(400px,1,1);
+   }
+   @media only screen and (min-width:501px) and (max-width:600px) and (orientation:portrait){
+      //.z-textbox-readonly { background:blue  !important; }
+      .pmsElement(500px,1,1);
+   }
+   @media only screen and (min-width:601px) and (max-width:800px) and (orientation:portrait){
+      //.z-textbox-readonly { background:blue  !important; }
+      .pmsElement(600px,1,1);
+   }
+   @media only screen and (min-width:801px) and (max-width:1000px) and (orientation:portrait){
+      //.z-textbox-readonly { background:blue  !important; }
+      .pmsElement(800px,1,1);
+   }
+   @media only screen and (min-width:1001px) and (max-width:1200px) and (orientation:portrait){
+      //.z-textbox-readonly { background:green  !important; }
+      .pmsElement(800px,1,1);
+   }
+   @media only screen and (min-width:1201px) and (max-width:1500px) and (orientation:portrait){
+      //.z-textbox-readonly { background:green  !important; }
+      .pmsElement(800px,1,1);
+   }
+   @media only screen and (min-width:1501px) and (max-width:2000px) and (orientation:portrait){
+      //.z-textbox-readonly { background:yellow  !important; }
+      .pmsElement(800px,1,1);
+   }
+   @media only screen and (min-width:2001px) and (orientation:portrait){
+      //.z-textbox-readonly { background:red  !important; }
+      .pmsElement(800px,1,1);
+   }
+   .pmsElement(@w, @s, @bs){ 
+       [class*="z-"]:not([class*="z-icon-"]) {
+          //font-size: round(@w / 50 * @bs);
+          font-size: round(@w / 40 * @bs);
+      }
+       .pmain-button{
+          font-size: round(@w / 22 * @bs) !important;
+       }
+       .z-paging{
+          /*height: round(@w / 30) !important;*/
+          /*height: round(@w / 25, 1) !important;*/
+          height:200% !important; /*should change to px*/
+       }
+      .z-paging-icon {
+          font-size: round(@w / 40 * @bs) !important;
+          line-height: round(@w / 30 * @bs) !important;
+      }
+       .z-paging-button {
+           width: round(@w / 10 * @bs) !important;
+           height: round(@w / 26 * @bs) !important;
+       }
+       .z-paging-input {
+          height: round(@w / 26 * @bs) !important;
+          font-size: round(@w / 50 * @bs) !important;
+       }
+       .z-paging-text {
+          height: round(@w / 26 * @bs) !important;
+          font-size: round(@w / 50 * @bs) !important;
+       }
+       .z-paging-info{
+          line-height: round(@w / 30 * @bs) !important;
+          font-size: round(@w / 50 * @bs) !important;
+       }
+      .z-messagebox-button{
+          width: round(@w / 10 * @bs * 1.5) !important;
+          height: round(@w / 25 * @bs * 1.5) !important;
+          font-size: round(@w / 25 * @bs) !important;
+      }
+      /*
+      .z-listcell-content{
+         font-size: round(@w / 50 * @s) !important;
+         height: round(@w / 24 * @s)  !important;
+         line-height: round(@w / 26 * @s) !important;
+      }
+      */
+      .z-listcell-content .z-label{
+         line-height: round(@w / 26 * @s) !important;
+      }
+      /*
+      .z-listheader-content{
+         font-size: round(@w / 55 * @s) !important;
+         height: round(@w / 24 * @s) !important;
+         line-height: round(@w / 26 * @s)  !important;
+      }
+      */
+   }
+      
+   

@@ -1,0 +1,185 @@
+<zk xmlns:n="native">
+<style dynamic="true">
+div.z-grid.zkbi-detail-grid > div.z-grid-body {
+	height: auto;
+}
+div.z-grid.zkbi-detail-grid {
+   border: 1px solid transparent;
+}
+.list_erpv4_MoDetG2 .z-listbox-body {
+<!-- 
+    min-height: 200px;
+    min-height: 40vh;
+ -->
+    height: 40vh;
+}
+/*
+ .zkbi-linkcomp-listbox .z-listbox-body { 
+ }
+ */
+div.list_erpv4_MoDetG2 td.z-listcell {
+	vertical-align: top;
+}
+div.list_erpv4_MoDetG2 td.z-listbox-footer {
+	background: white;
+}
+</style>
+	<div class="toolbar-container">
+		<div class="toolbar-leftarea">
+		<button id="btPrintVoucher" label="Print" visible="true"><custom-attributes tlkey="bt_PrintVoucher"></custom-attributes></button>
+		<!--
+			<zkbidiv jxId="vd_vcode"></zkbidiv>
+			<zkbidiv jxId="vd_vname"></zkbidiv>
+		  -->
+		</div>
+		<toolbar id="detail_toolbar" align="end">
+		</toolbar>
+	</div>
+							<bs-row style="background:white">
+							<div sclass="col-xl-6 col-lg-12">
+							<hlayout>
+							<zkbidiv jxId="stm_date" compWidth="120px"></zkbidiv>
+							<zkbidiv jxId="stm_ref1" compWidth="120px"></zkbidiv>
+							</hlayout>
+							<zkbidiv jxId="floc_desc" compWidth="405px"></zkbidiv>
+							<zkbidiv jxId="tloc_desc" compWidth="405px"></zkbidiv>
+							<zkbidiv jxId="cldoc_name" compWidth="405px"></zkbidiv>
+							<zkbidiv jxId="vd_vcode" compWidth="405px"></zkbidiv>
+							<zkbidiv jxId="vd_vname" compWidth="405px"></zkbidiv>
+							<hlayout>
+							<zkbidiv jxId="stm_ref3" compWidth="120px"></zkbidiv>
+							<zkbidiv jxId="stm_ref4" compWidth="120px"></zkbidiv>
+							</hlayout>
+							</div>
+							<div sclass="col-xl-4 col-lg-6">
+							<zkbidiv jxId="stm_status"></zkbidiv>
+							<zkbidiv jxId="vd_termtype"></zkbidiv>
+							<zkbidiv jxId="stm_cur"></zkbidiv>
+							<zkbidiv jxId="stm_ctrspec" compWidth="405px"></zkbidiv>
+							</div>
+							<div sclass="col-xl-2 col-lg-6">
+							<zkbidiv jxId="stm_mrg"></zkbidiv>
+							<zkbidiv jxId="stm_cuser"></zkbidiv>
+							<zkbidiv jxId="stm_cdate"></zkbidiv>
+							<zkbidiv jxId="stm_uuser"></zkbidiv>
+							<zkbidiv jxId="stm_udate"></zkbidiv>
+							<zkbidiv jxId="stm_nref1"></zkbidiv>
+							</div>
+						</bs-row>
+	<listbox id="list_erpv4_MoDetG2">
+	   <auxhead>
+        <auxheader zclass="z-listbox-footer" colspan="4">
+        </auxheader>
+        <auxheader zclass="z-listbox-footer" colspan="2">
+        	<div style="text-align:right;padding:4px 5px;">
+				<zkbidiv jxId="stm_totalcnt"></zkbidiv>
+        	</div>
+        </auxheader>
+        <auxheader zclass="z-listbox-footer" colspan="2">
+        	<div style="text-align:right;padding:4px 5px;">
+        	<vlayout sclass="nopadding">
+				<zkbidiv jxId="stm_grosstotal"></zkbidiv>
+				<zkbidiv jxId="stm_discount"></zkbidiv>
+				<zkbidiv jxId="stm_nettotal"></zkbidiv>
+        	</vlayout>
+        	</div>
+        </auxheader>
+	   <!-- 
+        <auxheader id="footer_list_erpv4_QuoDetG2" zclass="z-listbox-footer" colspan="5">
+        </auxheader>
+        <auxheader id="footer_list_erpv4_QuoDetG2" zclass="z-listbox-footer" colspan="1">
+        </auxheader>
+        <auxheader zclass="z-listbox-footer" colspan="2"><div style="text-align:right;padding:4px 5px;"></div>
+        	<div style="text-align:right;padding:4px 5px;">
+        	<vlayout sclass="nopadding">
+				<zkbidiv jxId="stm_grosstotal"></zkbidiv>
+				<zkbidiv jxId="stm_discount"></zkbidiv>
+				<zkbidiv jxId="stm_nettotal"></zkbidiv>
+        	</vlayout>
+        	</div>
+        </auxheader>
+	    -->
+       </auxhead>	
+       <!--  
+	   <listfoot>
+        <listfooter id="footer_list_erpv4_MoDet" zclass="z-listbox-footer" span="5"><div style="text-align:right;padding:4px 5px;"></div></listfooter>
+        <listfooter zclass="z-listbox-footer" span="1">
+				<zkbidiv jxId="stm_totalcnt"></zkbidiv>
+        </listfooter>
+        <listfooter zclass="z-listbox-footer" span="2"><div style="text-align:right;padding:4px 5px;"></div>
+        	<vlayout sclass="nopadding">
+				<zkbidiv jxId="stm_grosstotal"></zkbidiv>
+				<zkbidiv jxId="stm_discount"></zkbidiv>
+				<zkbidiv jxId="stm_nettotal"></zkbidiv>
+        	</vlayout>
+        </listfooter>
+       </listfoot>
+       -->
+	</listbox>
+	
+	<!--
+	<grid id="detail_grid"  sclass="zkbi-detail-grid"> </grid>
+	 -->
+	
+	<template name="template_erpv4_MoDetG2_stmdo_name" twidth="100px">
+		<div>
+			<radiogroup id="stmdo_name" orient="vertical"></radiogroup>
+		</div>
+	</template>	
+	<template name="template_erpv4_MoDetG2_stmd_itemdiv" twidth="300px">
+		<vlayout>
+		<!-- 
+			<hlayout>
+				<label>Item Code</label>
+				<bandbox id="st_icode" use="com.uniinformation.jx.zk.ZkJxPickInput"/>
+			</hlayout>
+		 -->
+		 	<hlayout>
+			<zkbidiv jxId="st_icode" labelPosition="invisible"></zkbidiv>
+			<zkbidiv jxId="mt_tpname" labelPosition="invisible"></zkbidiv>
+			<!-- 
+			<zkbidiv jxId="mt_tpname" labelWidth="60px"></zkbidiv>
+			 -->
+		 	</hlayout>
+			<zkbidiv jxId="st_iname" labelPosition="invisible"></zkbidiv>
+		 	<hlayout>
+			<zkbidiv jxId="st_modelno" labelPosition="invisible"></zkbidiv>
+			<zkbidiv jxId="st_oicode" labelPosition="invisible></zkbidiv>
+			</hlayout>
+			<!-- 
+			<label id="st_iname"></label>
+			 -->
+		</vlayout>
+	</template>	
+	<template name="template_erpv4_MoDetG2_stmd_serialdiv" twidth="300px">
+		<vlayout>
+			<zkbidiv jxId="stmd_ref4" labelPosition="invisible"></zkbidiv>
+		 	<hlayout>
+			<zkbidiv jxId="stmd_exprdate" labelPosition="invisible"></zkbidiv>
+			<zkbidiv jxId="stmd_lotno" labelPosition="invisible"></zkbidiv>
+			</hlayout>
+		</vlayout>
+	</template>
+	<template name="template_erpv4_MoDetG2_stmd_qtydiv" twidth="100px">
+		<vlayout>
+		<!--
+		 	<hlayout>
+		  -->
+			<zkbidiv jxId="stmd_entryqty" labelPosition="invisible"></zkbidiv>
+			<zkbidiv jxId="stmd_entryunit" labelPosition="invisible"></zkbidiv>
+			<!-- 
+			</hlayout>
+			 -->
+		</vlayout>
+	</template>
+	<template name="template_erpv4_MoDetG2_stmd_price" twidth="120px">
+		<vlayout>
+			<zkbidiv jxId="stmd_uprice" labelPosition="invisible"></zkbidiv>
+		</vlayout>
+	</template>
+	<template name="template_erpv4_MoDetG2_stmd_amount" twidth="120px">
+		<vlayout>
+			<zkbidiv jxId="stmd_exprice" labelPosition="invisible"></zkbidiv>
+		</vlayout>
+	</template>
+</zk>

@@ -1,0 +1,50 @@
+<zk>
+	<grid style="text-align:left;" id="detail_grid">
+	<rows id="link_QuoDet">
+		<template name="template_QuoDet">
+			<row id="QuoDet_row">
+			<hbox>
+				<vbox width="20px">
+					<hbox align="center">
+					<!-- 
+						<div width="80px"> No </div>
+						<intbox id="QuoDet_ind_seq" width="50px"></intbox>
+					 -->
+						<label id="QuoDet_ind_seq" width="20px"></label>
+					</hbox>
+				</vbox>
+				<vbox hflex = "1">
+					<hbox align="center">
+						<textbox id="QuoDet_ind_desc" width="300px" rows="5"></textbox>
+					</hbox>
+					<hbox id="QuoDet_pricebox" align="center">
+						<div width="160px">
+						<hbox id="QuoDet_qtybox" align="center">
+							<intbox id="QuoDet_ind_qty" width="50px"></intbox>
+							<label width="5px">@</label>
+							<doublebox id="QuoDet_ind_uprice" width="70px"></doublebox>
+						</hbox>
+						</div>
+						<div width="5px"></div>
+						<doublebox id="QuoDet_ind_amount" width="120px"></doublebox>
+					</hbox>
+				</vbox>
+			</hbox>
+			</row>
+        </template>
+	</rows>
+	</grid>
+	<div height="5px"></div>
+	<hbox align = "center">
+		<div width="10px"></div>
+		<label>Total</label>
+		<doublebox id="inv_grtotal" width="120px"></doublebox>
+		<label>Net</label>
+		<doublebox id="inv_total" width="120px"></doublebox>
+	</hbox>
+	<toolbar id="detail_toolbar" align="end">
+	<!-- 
+		<button id="addPallet" label="增加卡板" disabled="true"></button>
+	 -->
+	</toolbar>
+</zk>

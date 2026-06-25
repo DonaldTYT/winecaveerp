@@ -1,0 +1,619 @@
+<zk>
+<style dynamic="true">
+<!-- cut/hide the vertical borders in the grid rows -->
+.myGridWithNoBorder tr.z-row td.z-row-inner { 
+	border-right: 0px #CCC; 
+}
+.gridLayoutNoBorder tr.z-row td.z-row-inner, 
+.gridLayoutNoBorder tr.z-row .z-cell,
+.gridLayoutNoBorder div.z-grid { 
+	border: none; 
+	<!--   overflow: hidden;  -->
+	<!--   background:#f8f8f8 !important;  --> <!-- remove hover -->
+	background:white !important; <!-- remove hover -->  <!-- use gridClearBackground/gridWhiteBackground  -->
+	border-top: none; 
+	border-left: none; 
+	border-right: none; 
+	border-bottom: none; 
+}
+
+.gridClearBackground,
+.gridClearBackground tr.z-row td.z-row-inner,
+.gridClearBackground tr.z-row .z-cell,
+.gridClearBackground div.z-grid {
+	background:inherit !important;  <!-- remove hover and background -->
+}
+
+.listboxNoSeparator .z-listitem > .z-listcell {
+	border-top: none; 
+	vertical-align: top;
+}
+.listboxNoSeparator > .z-listbox-body {
+	overflow-y: hidden !important;	
+}
+
+<!-- 230224 quick fix detail list background color -->
+.zkbi-linkcomp-listbox > .z-listbox-body .z-listbox-odd .z-listcell {
+    background: #B5C9D4 !important;
+}
+.zkbi-linkcomp-listbox > .z-listbox-body .z-listcell {
+    background: #C3D3DC !important;
+}
+
+</style>
+	<toolbar id="detail_toolbar" align="end">
+		<button id="btConfirmOdr" label="Confirm" visible="true"></button>
+		<button id="btUnConfirmOdr" label="Unconfirm" visible="true"></button>
+		<button id="btVoidOdr" label="Void" visible="true" disabled="true"></button>
+		<button id="btReviseOdr" label="Revise" visible="false" disabled="true"></button>
+		<button id="btGenInvoice" label="Gen Invoice" visible="true" disabled="false"></button>
+		<button id="btPrintWO" label="Print W/O" visible="true" disabled="false"></button>
+		<button id="btPrintDN" label="Print D/N" visible="true" disabled="false"></button>
+		<button id="btCopyOdr" label="Copy" visible="true" disabled="false"></button>
+		<button id="btSavePrint" label="SaveAndPrint" visible="true" disabled="false"></button>
+	</toolbar>
+	<div>
+	<hlayout>
+	<!-- 
+			<image src="images/logo/kh_logo_a.png" height="80px" />
+	 -->
+			<image id="co_logo" height="80px" />
+			<div hflex="1"></div>
+			<div hflex="min">
+	 		<vlayout>
+	 		<label style="font-weight: bold;font-size:30px !important;" value="PROJECT"><custom-attributes tlkey="lb_header1"></custom-attributes></label>
+	 		</vlayout>
+			</div>
+	</hlayout>
+	<tabbox width="100%">
+		<tabs width="100%">
+			<tab id="tabWorkOrder">Work Order</tab>
+			<tab id="tabQuotation">Quotation</tab>
+		</tabs>
+	<tabpanels>
+	<tabpanel id="panelWorkOrder" > 
+	<grid style="text-align:left;border: 1px solid #ececec; border-bottom: none;" id="detail_grid" sclass="gridLayoutNoBorder">
+		<columns>
+			<column hflex="min"></column>
+			<column hflex="min"></column>
+			<column hflex="min"></column>
+			<column hflex="min"></column>
+			<column hflex="min"></column>
+			<column hflex="min"></column>
+		</columns>
+		<rows>
+		<!--
+			<row>
+				<cell colspan="4">
+					<image src="images/logo/kh_logo_a.png" height="80px" />
+				</cell>
+				<cell colspan="1">
+				</cell>
+				<cell>
+	 			<vlayout>
+	 			<label style="font-weight: bold;font-size:30px !important;" value="PROJECT"><custom-attributes tlkey="lb_header1"></custom-attributes></label>
+	 			</vlayout>
+				</cell>
+			</row>
+			-->
+			<row>
+				<cell align="right">
+					<label sclass="zkbi-col-label">Order No.</label>
+				</cell>
+				<cell>
+					<hbox>
+						<hlayout>
+							<label id="inv_invno"></label>
+							<div width="30px"></div>
+							<label>Rev</label>
+							<label id="inv_revisonno"></label>
+						</hlayout>
+						<div width="30px"></div>
+						<label sclass="zkbi-col-label">Status</label>
+						<div width="140px">
+							<combobox id="inv_quostatus"></combobox>
+						</div>
+						<div width="300px">
+						<label id="vd_remark" style="color:red;font-size: 20px !important;"></label>
+						</div>
+					</hbox>
+				</cell>
+				<cell align="right">
+							<label sclass="zkbi-col-label">Assign To</label>
+				</cell>
+				<cell colspan="2">
+					<hlayout>
+					<bandbox id="inv_assignto" use="com.uniinformation.jx.zk.ZkJxPickInput" />
+					<button id="btSetAssignTo" label="Set" style="min-width:0px !important;min-height:0px !important;" width="50px" height="25px"></button>
+					<div width="100px" style="text-align:right;"><label sclass="zkbi-col-label">Assign By</label></div>
+					<combobox id="inv_assignby"></combobox>
+					</hlayout>
+				</cell>
+				<cell>
+					<label sclass="zkbi-col-label">Ref No.:</label>
+					<label id="inv_rg"></label>
+				</cell>
+			</row>
+			<row>
+				<cell align="right">
+					<label sclass="zkbi-col-label">Customer</label>
+				</cell>
+				<cell>
+					<hbox align="middle">
+						<combobox id="vd_vname"></combobox>
+					</hbox>
+				</cell>
+				<cell align="right">
+					<label sclass="zkbi-col-label">Date</label>
+				</cell>
+				<cell colspan="2">
+					<hbox>
+					<datebox id="inv_date" format="yyyy/MM/dd"></datebox>
+					<div width="55px"></div>
+					<label sclass="zkbi-col-label">Customer PO</label>
+					<textbox id="inv_pocode"></textbox>
+					<div width="40px"></div>
+					<label>Rounding</label>
+					<radiogroup id="inv_roundmode"></radiogroup>
+					</hbox>
+				</cell>
+				<cell>
+					<label sclass="zkbi-col-label">Customer Code:</label>
+					<label id="inv_vcode"></label>
+				</cell>
+			</row>
+			<row>
+				<cell align="right">
+					<label sclass="zkbi-col-label">Sell To</label>
+				</cell>
+				<cell>
+					<hbox align="middle">
+						<textbox id="inv_sellto"></textbox>
+					</hbox>
+				</cell>
+				<cell align="right">
+					<label sclass="zkbi-col-label">Delivery Date</label>
+				</cell>
+				<cell colspan="2">
+					<datebox id="inv_delidate" format="yyyy/MM/dd"></datebox>
+					<label>Time</label>
+					<textbox id="inv_delitime"></textbox>
+				</cell>
+				<cell>
+					<label sclass="zkbi-col-label">Create By:</label>
+					<label id="inv_cuser"></label>
+				</cell>
+			</row>
+			<row>
+				<cell align="right">
+					<label sclass="zkbi-col-label">Content</label>
+				</cell>
+				<cell>
+					<textbox id="inv_projecttitle" width="450px" rows="3"></textbox>
+				</cell>
+				<cell align="right">
+					<label sclass="zkbi-col-label">Deliver To</label>
+				</cell>
+				<cell colspan="2">
+						<bandbox id="inv_quodeli" use="com.uniinformation.jx.zk.ZkJxPickInput" />
+				</cell>
+				<cell>
+					<label sclass="zkbi-col-label">Create On:</label>
+					<label id="inv_cdate"></label>
+				</cell>
+			</row>
+			<row>
+				<cell align="right">
+					<label>Hash Tag</label>
+				</cell>
+				<cell rowspan="2">
+					<textbox id="inv_hashtag" width="600px" rows="2"></textbox>
+				</cell>
+				<cell align="right">
+					<label sclass="zkbi-col-label">Remark</label>
+				</cell>
+				<cell rowspan="2" colspan="2">
+					<textbox id="inv_remark" width="600px" rows="2"></textbox>
+				</cell>
+				<cell>
+					<label sclass="zkbi-col-label">Update By:</label>
+					<label id="inv_uuser"></label>
+				</cell>
+			</row>
+			<row>
+			<!-- 
+				<cell align="right">
+					<label sclass="zkbi-col-label">Currency</label>
+				</cell>
+			 -->
+				<cell>
+			<!-- 
+					<hbox align="middle">
+						<div width="200px">
+							<combobox id="inv_cid"></combobox>
+						</div>
+					</hbox>
+			 -->
+				</cell>
+				<cell align="right">
+					<label sclass="zkbi-col-label"></label>
+				</cell>
+				<cell>
+					<label sclass="zkbi-col-label">Update On:</label>
+					<label id="inv_udate"></label>
+				</cell>
+			</row>
+			<row>
+				<cell colspan="6">
+					<listbox id="list_hw_QuoDet" sclass="listboxNoSeparator" emptyMessage="Please Enter Project Detail">
+						<listhead>
+							<listheader width="80px">
+								<toolbarbutton id="btAddPopup" image="images/row_add20.png" onClick='puAddPopup.setAttribute("actionIdx",-1); puAddPopup.open(self)' />
+								<popup id="puAddPopup">
+									<vbox>
+										<div width="140px"></div>
+										<button id="btAddQuoDet_5" width="140px" label="Job" onClick="puAddPopup.close()" visible="false" />
+										<button id="btAddQuoDet_1" width="140px" label="Stock Item" onClick="puAddPopup.close()" visible="false" />
+										<button id="btAddQuoDet_2" width="140px" label="Miscellaneous" onClick="puAddPopup.close()" visible="false" />
+										<button id="btAddQuoDet_3" width="140px" label="Attachment" onClick="puAddPopup.close()" visible="false" />
+										<button id="btAddQuoDet_4" width="140px" label="Header" onClick="puAddPopup.close()" visible="false" />
+										<button id="btAddQuoDet_6" width="140px" label="Line Break" onClick="puAddPopup.close()" visible="false" />
+										<button id="btAddQuoDet_7" width="140px" label="Page Break" onClick="puAddPopup.close()" visible="false" />
+										<button id="btAddQuoDet_8" width="140px" label="Delivery" onClick="puAddPopup.close()" visible="false" />
+										<button id="btAddQuoDet_102" width="140px" label="Printing Item" onClick="puAddPopup.close()" visible="false" />
+									</vbox>
+								</popup>
+							</listheader>
+						</listhead>
+					</listbox>
+				</cell>
+			</row>
+			<row>
+				<cell align="right" colspan="2">
+					<hbox align="middle">
+						<div width="150px"><label sclass="zkbi-col-label">Accounting Remark</label></div>
+						<!--
+						<label id="vd_remark" style="color:red"></label>
+						-->
+					</hbox>
+				</cell>
+				<cell colspan="1" align="top">
+					<hbox align="middle">
+						<div width="150px"><label sclass="zkbi-col-label">Total Area</label></div>
+						<doublebox id="inv_areatotal"></doublebox>
+					</hbox>
+				</cell>
+				<cell align="right" colspan="3">
+					<div align="right">
+					<vbox id="quoamountinfo">
+					<hbox align="middle">
+						<div width="150px"><label sclass="zkbi-col-label">Total Amount</label></div>
+						<doublebox id="inv_grtotal"></doublebox>
+					</hbox>
+					<hbox align="middle">
+						<div width="150px"><label sclass="zkbi-col-label">Less Discount</label><intbox id="inv_discpercent" width="40px"></intbox>%</div>
+						<doublebox id="inv_discount"></doublebox>
+					</hbox>
+					<hbox align="middle">
+						<div width="150px"><label sclass="zkbi-col-label">Net Total</label></div>
+						<doublebox id="inv_total"></doublebox>
+					</hbox>
+					<!--
+					<hbox align="middle">
+						<div width="150px"><label sclass="zkbi-col-label">Un-Invoiced</label></div>
+						<doublebox id="qinv_osiamt"></doublebox>
+					</hbox>
+					-->
+					</vbox>
+					</div>
+				</cell>
+			</row>
+			<row>
+				<cell align="right" colspan="1">
+				<!-- 
+					<label sclass="zkbi-col-label">Terms</label>
+				 -->
+				</cell>
+				<cell colspan="2">
+				</cell>
+				<cell align="right" colspan="3">
+				</cell>
+			</row>
+			<row>
+				<cell align="right">
+				<!-- 
+					<label sclass="zkbi-col-label">Delivery Detail</label>
+				 -->	
+				</cell>
+				<cell colspan="2">
+				</cell>
+				<cell colspan="3">
+					<div align="right">
+					</div>
+				</cell>
+			</row>
+			<row>
+				<cell align="right">
+				</cell>
+				<cell colspan="2">
+				</cell>
+				<cell colspan="3">
+					<div align="right">
+					</div>
+				</cell>
+			</row>
+		</rows>
+	</grid>
+	</tabpanel>
+	<tabpanel id="panelQuotation"> 
+	<vlayout>
+<!--
+	<include src="/zkf/erpv4/quotationHeader.html"/>
+	-->
+<hlayout>
+<vlayout>
+				<hlayout>
+				<div width="50px"></div>
+				<div width="600px">
+				<grid style="text-align:left;border: 1px solid #ececec; border-bottom: none;" sclass="gridLayoutNoBorder">
+				<columns>
+					<column hflex="min"></column>
+					<column hflex="min"></column>
+				</columns>
+				<rows>
+					<row>
+						<label hflex="1" id="lb_inv_vname" value=""><custom-attributes tlkey="lb_inv_vname"></custom-attributes></label>
+						<textbox id="inv_vname"/>
+					</row>
+					<row>
+						<label hflex="1" id="lb_inv_addr0" value=""><custom-attributes tlkey="lb_inv_addr0"></custom-attributes></label>
+						<textbox id="inv_addr0"/>
+					</row>
+					<row>
+						<label hflex="1" id="lb_inv_addr1" value=""><custom-attributes tlkey="lb_inv_addr1"></custom-attributes></label>
+						<textbox id="inv_addr1"/>
+					</row>
+					<row>
+						<label hflex="1" id="lb_inv_addr2" value=""><custom-attributes tlkey="lb_inv_addr2"></custom-attributes></label>
+						<textbox id="inv_addr2"/>
+					</row>
+					<row>
+						<label hflex="1" id="lb_inv_addr3" value=""><custom-attributes tlkey="lb_inv_addr3"></custom-attributes></label>
+						<textbox id="inv_addr3"/>
+					</row>
+					<row>
+						<label hflex="1" id="lb_inv_contact" value=""><custom-attributes tlkey="lb_inv_contact"></custom-attributes></label>
+						<textbox id="inv_contact"/>
+					</row>
+					<row>
+						<label hflex="1" id="lb_inv_tel" value=""><custom-attributes tlkey="lb_inv_tel"></custom-attributes></label>
+						<textbox id="inv_tel"/>
+					</row>
+					<row>
+						<label hflex="1" id="lb_inv_fax" value=""><custom-attributes tlkey="lb_inv_fax"></custom-attributes></label>
+						<textbox width="200px" id="inv_fax"/>
+					</row>
+				</rows>	
+				</grid>
+				</div>
+				<div hflex="1">
+				</div>
+				<div width="400px">
+				<grid style="text-align:left;border: 1px solid #ececec; border-bottom: none;" sclass="gridLayoutNoBorder">
+				<columns>
+					<column hflex="min"></column>
+					<column hflex="min"></column>
+				</columns>
+				<rows>
+					<row>
+					<label hflex="1" id="lb_inv_quonum" value=""><custom-attributes tlkey="lb_inv_quonum"></custom-attributes></label>
+					<textbox width="200px" id="inv_quonum"/>
+					</row>
+					<row>
+					<label hflex="1" id="lb_inv_quodate" value=""><custom-attributes tlkey="lb_inv_quodate"></custom-attributes></label>
+					<datebox id="inv_quodate"/>
+					</row>
+					<row>
+					<label hflex="1" id="lb_inv_ourref" value=""><custom-attributes tlkey="lb_inv_ourref"></custom-attributes></label>
+					<textbox id="inv_ourref"/>
+					</row>
+					<row>
+					<label hflex="1" id="lb_inv_yourref" value=""><custom-attributes tlkey="lb_inv_yourref"></custom-attributes></label>
+					<textbox id="inv_yourref"/>
+					</row>
+					<row>
+					<label hflex="1" id="lb_inv_term" value=""><custom-attributes tlkey="lb_inv_term"></custom-attributes></label>
+					<textbox id="inv_term"/>
+					</row>
+					<row>
+					<label hflex="1" id="lb_inv_quodiscount" value=""><custom-attributes tlkey="lb_inv_quodiscount"></custom-attributes></label>
+					<textbox id="inv_quodiscount"/>
+					</row>
+					<row>
+					<label hflex="1" id="lb_inv_grnettotal" value=""><custom-attributes tlkey="lb_inv_grnettotal"></custom-attributes></label>
+					<textbox id="inv_grnettotal"/>
+					</row>
+				</rows>	
+				</grid>
+				
+				</div>
+				<div>
+					<button id="btPrintQuo" label="Print Quo" visible="true" disabled="false"></button>
+				</div>	
+				<div>
+					<button id="btCopyWo" label="Copy from Project" visible="true" disabled="false"></button>
+				</div>	
+				</hlayout>
+</vlayout>
+</hlayout>
+	<listbox id="list_hw_HwQuoExtra" sclass="listboxNoSeparator" emptyMessage="Please Enter Quotation Detail">
+	</listbox>
+	</vlayout>
+	</tabpanel>
+	</tabpanels>
+	</tabbox>
+	</div>
+	<div height = "100px">
+	</div>
+	<!-- 
+	<grid style="text-align:left;border: 1px solid #ECECEC;border-top:none;" id="gridSummary" sclass="gridLayoutNoBorder">
+		<columns>
+			<column hflex="min"></column>
+			<column hflex="min"></column>
+			<column hflex="min"></column>
+			<column hflex="min"></column>
+			<column hflex="1"></column>
+			<column hflex="min"></column>
+		</columns>
+		<rows>
+		</rows>
+	</grid>
+	 -->
+	<template name="template_HwQuoDet_Printing">
+		<div style="text-align:left">
+			<hlayout>
+					<div width="15px">
+					</div>
+					<div width="185px">
+					<textbox id="ind_ref1" width="170px" tabindex="0" maxlength="160" rows="2"></textbox>
+					</div>
+			<vlayout>
+				<hlayout valign="middle">
+					<div width="80px">
+					</div>
+					<div width="25px">
+					<label>MS:</label>
+					</div>
+					<doublebox id="ind_usize1" width="90px" format="0.00" tabindex="0"> </doublebox>
+					<div width="80px">
+					<label>(W)</label>
+					</div>
+					<label>x</label>
+					<div width="55px">
+					</div>
+					<label>(H)</label>
+					<doublebox id="ind_usize2" width="90px" format="0.00" tabindex="0"> </doublebox>
+					<div width="5px"></div>
+					<div width="80px">
+					<combobox id="ind_unit" width="70px"></combobox>
+					</div>
+					<div width="80px">
+					<doublebox id="ind_qty" width="60px"></doublebox>
+					</div>
+				</hlayout>
+				<hlayout valign="middle">
+					<div width="25px">
+					<label>DS:</label>
+					</div>
+					<div width="80px">
+					<doublebox id="ind_bleed1" width="64px" format="0.00" tabindex="0"></doublebox>
+					<label>+</label>
+					</div>
+					<doublebox id="ind_size1" width="90px" format="0.00" tabindex="0"></doublebox>
+					<div width="80px">
+					<label>+</label>
+					<doublebox id="ind_bleed1r" width="64px" format="0.00" tabindex="0"></doublebox>
+					</div>
+					<label>x</label>
+					<div width="80px">
+					<doublebox id="ind_bleed2" width="64px" format="0.00" tabindex="0"></doublebox>
+					<label>+</label>
+					</div>
+					<doublebox id="ind_size2" width="90px" format="0.00" tabindex="0"></doublebox>
+					<div width="80px">
+					<label>+</label>
+					<doublebox id="ind_bleed2r" width="64px" format="0.00" tabindex="0"></doublebox>
+					</div>
+					<div width="80px" align="center">
+						<label id="ind_areas"></label>
+					</div>
+				</hlayout>
+			</vlayout>
+			</hlayout>
+		</div>
+	</template>
+	<template name="template_HwQuoDet_MessageType">
+		<hlayout valign="middle">
+			<label id="ind_messagetype"></label>
+		</hlayout>
+	</template>
+	<template name="template_HwQuoDet_Job">
+		<!-- 
+			<div style="text-align:center">
+		-->
+		<div style="text-align:left">
+			<textbox id="ind_desc" width="480px"></textbox>
+		</div>
+	</template>
+	<template name="template_AfsQuoDet_LineBreak">
+		<div style="text-align:center">
+			<separator bar="true"></separator>
+		</div>
+	</template>
+	<template name="template_AfsQuoDet_QdstStatus">
+		<vlayout>
+			<div hflex="1">
+				<html id="ind_optdesc"></html>
+			</div>
+			<hlayout valign="middle">
+				<!-- 
+					<div hflex="1"> <label id="qdst_status"></label> </div>
+				-->
+				<hlayout valign="middle">
+					<button id="btQdstUpload" iconSclass="flaticon-ec-box-3" Tooltiptext="Upload Document" style="min-width:0px !important;" width="40px"></button>
+					<button id="btQdstDownload" iconSclass="flaticon-ec-box-2" Tooltiptext="Download Document" style="min-width:0px !important;" width="40px"></button>
+					<button id="btQdstRemove" iconSclass="z-icon-trash" Tooltiptext="Remove Document" style="min-width:0px !important;" width="40px"></button>
+					<button id="btQdstDetail" iconSclass="flaticon-ec-list" Tooltiptext="Detail" style="min-width:0px !important;" width="40px"></button>
+					<div width="200px" id="qdst_status"></div>
+				</hlayout>
+				<!-- 
+					<toolbarbutton id="btQdstUpload" iconSclass="flaticon-ec-box-3" Tooltiptext="Upload Document" width="60px"></toolbarbutton>
+					<toolbarbutton id="btQdstDownload" iconSclass="flaticon-ec-box-2" Tooltiptext="Download Document" width="60px"></toolbarbutton>
+					<toolbarbutton id="btQdstDetail" iconSclass="flaticon-ec-list" Tooltiptext="Detail" width="60px"></toolbarbutton>
+				-->
+			</hlayout>
+		
+		</vlayout>
+	</template>
+	<template name="template_AfsQuoDet_Price">
+		<vlayout>
+		<hlayout valign="middle">
+			<div width="140px">
+			<doublebox id="ind_puprice" width="75px" format="##,##0.00"></doublebox>
+			<combobox id="mur_name" width="60px"></combobox>
+			</div>
+			<!--
+			<doublebox id="ind_sprice" width="80px" format="###,##0.00" readonly="true"></doublebox>
+			-->
+			<doublebox id="ind_sprice" width="80px" format="###,##0.00" ></doublebox>
+		</hlayout>
+			<hlayout>
+			Less 
+			<intbox id="ind_discpercent" width="40px"></intbox>	
+			<div width="8px">%</div>
+			<div width="18px">=</div>
+			<!-- 
+			<hlayout><label>%<label></hlayout>
+			 -->
+			<div width="25px"></div>
+			<doublebox id="ind_uprice" width="80px" format="###,##0.00"></doublebox>
+			</hlayout>
+		</vlayout>
+	</template>
+	<template name="template_SellCode">
+		<hlayout>
+		<label>Sell Code</label>
+		<bandbox id="ind_postano" use="com.uniinformation.jx.zk.ZkJxPickInput" width="100px" />
+		</hlayout>
+	</template>
+	<!-- 
+	<template name="template_AfsQuoDet_Quantity">
+		<div vflex="1">
+		<vlayout >
+			<doublebox id="ind_qty" width="100px"></doublebox>
+			<label id="ind_areas"></label>
+		</vlayout>
+		</div>
+	</template>
+	 -->
+</zk>

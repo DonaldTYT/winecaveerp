@@ -1,0 +1,215 @@
+<zk>
+<style>
+    .meter {
+        font-size: 1px;
+        height: 3px;
+    }
+    .meter-inner {
+        width: 0px;
+        height: 3px;
+    }
+    .meter-red .meter-inner{
+        background: red;
+    }
+    .meter-orange .meter-inner{
+        background: orange;
+    }
+    .meter-green .meter-inner{
+        background: green;
+    }
+</style>
+<zscript>
+<![CDATA[
+	import com.uniinformation.webcore.*;
+	SessionHelper sessionHelper = SessionHelper.getSessionHelper();
+	String gridLeftWidth = sessionHelper.isMobile() ? "120px" : "300px";
+]]>
+</zscript>
+<toolbar id="detail_toolbar" align="end">
+	<button id="btUpdateAttendance" label="Update Attendance" tooltiptext="Update student attendance status"></button>
+	<button id="btGeneratePdf" label="Generate Pdf" tooltiptext="Generate pdf"></button>
+	<button id="btPayment" label="Payment" iconSclass="z-icon-credit-card" tooltiptext="Add payment"></button>
+	<button id="btAddToAsmt" label="Add to Asmt" iconSclass="z-icon-plus-circle" tooltiptext="Add student to assessment session"></button>
+	<button id="btAddToCourse" label="Add to Course" iconSclass="z-icon-plus-circle" tooltiptext="Add student to course"></button>
+	<button id="btRecalTokenBal" label="Recal Token Balance" tooltiptext="Recalculate token balance"></button>
+	<button id="btSetLoginPassword" label="Set Login Password" iconSclass="z-icon-lock" tooltiptext="Set login password"></button>
+	<button id="btCalendar" label="Calendar" iconSclass="z-icon-calendar" tooltiptext="Show student's calendar"></button>
+	<button id="btRegCard" label="Reg Card" iconSclass="z-icon-id-card-o" tooltiptext="Register student card"></button>
+	<button id="btRegCardTest" label="Test Reg Card" iconSclass="z-icon-id-card-o" visible="false"></button>
+	<button id="btCardStatusTest" label="Test CardStatus" iconSclass="z-icon-id-card-o" visible="false"></button>
+	<button id="btAddScanLogTest" label="Test AddScanLog" iconSclass="z-icon-id-card-o" visible="false"></button>
+</toolbar>
+<grid style="text-align:left;" id="detail_grid">
+	<columns>
+		<column align="right" width="${gridLeftWidth}" />
+		<column hflex="1" />
+	</columns>
+	<rows>
+		<row>
+			<label id="lb_essd_sdno" value="Student Code"><custom-attributes tlkey="lb_essd_sdno"></custom-attributes></label>
+			<hlayout>
+			<textbox id="essd_sdno" />
+			<space></space>
+			
+			<label id="lb_essd_cardno" value="Student Card No"><custom-attributes tlkey="lb_essd_cardno"></custom-attributes></label>
+			<textbox id="essd_cardno" width="120px"/>
+			</hlayout>
+		</row>
+		<row>
+			<label id="lb_essd_surname" value="Surname"><custom-attributes tlkey="lb_essd_surname"></custom-attributes></label>
+			<hlayout>
+				<textbox id="essd_surname"/>
+				<space></space>
+				<label id="lb_essd_firstname" value="First Name(s)"><custom-attributes tlkey="lb_essd_firstname"></custom-attributes></label>
+				<textbox id="essd_firstname"/>
+				<space></space>
+				<label id="lb_essd_name" value="Name"><custom-attributes tlkey="lb_essd_name"></custom-attributes></label>
+				<textbox id="essd_name"/>
+			</hlayout>
+		</row>
+		<row>
+			<label id="lb_essd_chnname" value="Chinese Name"><custom-attributes tlkey="lb_essd_chnname"></custom-attributes></label>
+			<textbox id="essd_chnname"/>
+		</row>
+		<row>
+			<label id="lb_essd_status" value="Status"><custom-attributes tlkey="lb_essd_status"></custom-attributes></label>
+			<radiogroup id="essd_status"/>
+		</row>
+		<row id="row_essd_contactby">
+			<label id="lb_essd_contactby" value="Contact Person"><custom-attributes tlkey="lb_essd_contactby"></custom-attributes></label>
+			<textbox id="essd_contactby"/>
+		</row>
+		<row id="row_essd_lastcontime">
+			<label id="lb_essd_lastcontime" value="Last Contact Time"><custom-attributes tlkey="lb_essd_lastcontime"></custom-attributes></label>
+			<datebox id="essd_lastcontime"/>
+		</row>
+		<row>
+			<label id="lb_essd_regdate" value="Registration Date"><custom-attributes tlkey="lb_essd_regdate"></custom-attributes></label>
+			<datebox id="essd_regdate"/>
+		</row>
+		<row id="row_essd_sex">
+			<label id="lb_essd_sex" value="Sex"><custom-attributes tlkey="lb_essd_sex"></custom-attributes></label>
+			<radiogroup id="essd_sex"/>
+		</row>
+		<row id="row_essd_birthdate">
+			<label id="lb_essd_birthdate" value="Birth Date"><custom-attributes tlkey="lb_essd_birthdate"></custom-attributes></label>
+			<hlayout>
+				<datebox id="essd_birthdate"/>
+				<space></space>
+				<label id="lb_essd_age" value="Age"><custom-attributes tlkey="lb_essd_age"></custom-attributes></label>
+				<doublebox id="essd_age"/>
+			</hlayout>
+		</row>
+		<row id="row_essd_motongue">
+			<label id="lb_essd_motongue" value="Mother tongue"><custom-attributes tlkey="lb_essd_motongue"></custom-attributes></label>
+			<hlayout style="white-space:normal">
+				<radiogroup id="essd_motongue"/>
+				<textbox id="essd_omotongue"/>
+			</hlayout>
+		</row>
+		<row id="row_essd_sdemail">
+			<label id="lb_essd_sdemail" value="Email"><custom-attributes tlkey="lb_essd_sdemail"></custom-attributes></label>
+			<textbox id="essd_sdemail"/>
+		</row>
+		<row id="row_essd_sdtel">
+			<label id="lb_essd_sdtel" value="Mobile #1"><custom-attributes tlkey="lb_essd_sdtel"></custom-attributes></label>
+			<hlayout>
+				<textbox id="essd_sdtel"/>
+				<space></space>
+				<label id="lb_essd_sdtel2" value="Mobile #2"><custom-attributes tlkey="lb_essd_sdtel2"></custom-attributes></label>
+				<textbox id="essd_sdtel2"/>
+			</hlayout>
+		</row>
+		<row id="row_essd_hometel">
+			<label id="lb_essd_hometel" value="Tel(Home)"><custom-attributes tlkey="lb_essd_hometel"></custom-attributes></label>
+			<hlayout>
+				<textbox id="essd_hometel"/>
+				<space></space>
+			<label id="lb_essd_officetel" value="Tel(Office)"><custom-attributes tlkey="lb_essd_officetel"></custom-attributes></label>
+				<textbox id="essd_officetel"/>
+			</hlayout>
+		</row>
+		<row id="row_essd_officetel">
+				<label id="lb_essd_homefax" value="Fax(Home)"><custom-attributes tlkey="lb_essd_homefax"></custom-attributes></label>
+			<hlayout>
+				<textbox id="essd_homefax"/>
+				<space></space>
+				<label id="lb_essd_officefax" value="Fax(Office)"><custom-attributes tlkey="lb_essd_officefax"></custom-attributes></label>
+				<textbox id="essd_officefax"/>
+			</hlayout>
+		</row>
+		<row id="row_essd_regreferral">
+			<label id="lb_essd_regreferral" value="Referral"><custom-attributes tlkey="lb_essd_regreferral"></custom-attributes></label>
+			<textbox id="essd_regreferral"/>
+		</row>
+		<row id="row_essd_schatname">
+			<label id="lb_essd_schatname" value="Name of school attending"><custom-attributes tlkey="lb_essd_schatname"></custom-attributes></label>
+			<textbox id="essd_schatname"/>
+		</row>
+		<row id="row_essd_grade">
+			<label id="lb_essd_grade" value="Grade"><custom-attributes tlkey="lb_essd_grade"></custom-attributes></label>
+			<hlayout>
+				<textbox id="essd_grade"/>
+				<space></space>
+				<label id="lb_essd_noofyears" value="No. of Years"><custom-attributes tlkey="lb_essd_noofyears"></custom-attributes></label>
+				<spinner id="essd_noofyears" constraint="no empty,min 0 max 100"/>
+			</hlayout>
+		</row>
+		<row id="row_essd_education">
+			<label id="lb_essd_education" value="Highest Education"><custom-attributes tlkey="lb_essd_education"></custom-attributes></label>
+			<textbox id="essd_education"/>
+		</row>
+		<row id="row_essd_clum">
+			<label id="lb_essd_clum0" value="Apply for"><custom-attributes tlkey="lb_essd_clum0"></custom-attributes></label>
+			<hlayout style="white-space:normal">
+				<checkbox id="essd_clum0" label="PTH"/>
+				<checkbox id="essd_clum3" label="Cantonese"/>
+				<checkbox id="essd_clum4" label="Alludio"/>
+				<checkbox id="essd_clum1" label="English"/>
+				<checkbox id="essd_clum2" label="Mathematics"/>
+			</hlayout>
+		</row>
+		<row id="row_essd_comments">
+			<label id="lb_essd_comments" value="Comments and Remarks"><custom-attributes tlkey="lb_essd_comments"></custom-attributes></label>
+			<textbox rows="6" id="essd_comments"/>
+		</row>
+		<row id="row_essdx_jsonstr">
+			<label id="lb_essdx_jsonstr" value="json string"><custom-attributes tlkey="lb_essdx_jsonstr"></custom-attributes></label>
+			<textbox rows="3" id="essdx_jsonstr"/>
+		</row>
+		<row id="row_essd_asdiv">
+			<label id="lb_essd_asdiv" value="Assessment"><custom-attributes tlkey="lb_essd_asdiv"></custom-attributes></label>
+			<div id="essd_asdiv" style="max-width:800px"/>
+		</row>
+		<row spans="2" id="row_list_edu_StudentCourse">
+			<div align="start">
+				<label id="lb_list_Courses" value="Courses"/>
+				<listbox id="list_edu_StudentCourse" height="300px" nonselectableTags="*">	
+					<custom-attributes composite="map" tttMap="eaav0_numsession='Number of sessions per subscription', eaav0_sessionday='Session Days of the Week', eaav0_sessiontime='Session Start Time', essbsd_status='Subscription Status (New/Confirmed/Cancelled)', essbsd_startdate='Subscription Start Date', essbsd_enddate='Subscription End Date', essbsd_sessremain='Available sessions till subscription end', essbsd_tentatibal='Session Fee x Session Remain', essbsd_balfee=Token Balance of this token type &#247; Session Fee, essbsd_sesscomp='Completed Session(Present/Absent)', eaav0_tokenccy='Token Type', tkbald_outqty='Token Used', tkbal_ostqty='Token Balance of this token type', eaav0_fee='Session Fee'" ></custom-attributes>
+				</listbox>
+			</div>
+		</row>
+		<row spans="2" id="row_list_edu_StudentAttendance">
+			<div align="start">
+				<label id="lb_list_StudentAttendance" value="Student Attendance"/>
+				<listbox id="list_edu_StudentAttendance" height="300px" nonselectableTags="*"/>	
+			</div>
+		</row>
+		<row spans="2" id="row_list_edu_TokenBal">
+			<div align="start">
+				<label id="lb_list_TokenBalance" value="Token Balance"/>
+				<listbox id="list_edu_TokenBal" nonselectableTags="*">	
+					<custom-attributes composite="map" tttMap="tkbal_inqty='Paid Amount', tkbal_outqty='Used Amount', tkbal_ccy='Token Type', tkbal_ostqty='Current Balance', tkbal_tenremainbal='Token Balance - Tentative Balance of subscribed course(s)'" ></custom-attributes>
+				</listbox>
+			</div>
+		</row>
+		<row spans="2" id="row_list_edu_StudentPayment">
+			<div align="start">
+				<label id="lb_list_StudentPayment" value="Payment"/>
+				<listbox id="list_edu_StudentPayment" height="300px"/>	
+			</div>
+		</row>
+	</rows>
+</grid>
+<space></space>
+</zk>

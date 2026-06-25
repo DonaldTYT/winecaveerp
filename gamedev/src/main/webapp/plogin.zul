@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<zk xmlns="http://www.zkoss.org/2005/zul">
+    <window id="loginWin" border="normal" width="220px" position="center" closable="false">
+        <style>
+            .center-box {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                width: 100%;
+            }
+            .label-center {
+                text-align: center;
+                display: block;
+                width: 100%;
+            }
+            .input-field {
+                width: 90%;
+                text-align: center;
+            }
+            .checkbox-left {
+                display: flex;
+                justify-content: flex-start;
+                width: 100%;
+              	/* margin-left: -5px; *//* Move checkbox 50px left */
+            }
+            .button-center {
+                display: flex;
+                justify-content: center;
+                width: 100%;
+            }
+        </style>
+
+        <!-- Outer Vbox for full centering -->
+        <vbox width="100%" height="100%" align="center" pack="center">
+            
+            <!-- Company Logo -->
+            <image src="/img/company-logo.png" width="100px"/>
+
+            <!-- Login Form -->
+            <vbox sclass="center-box" spacing="5px">
+            	<div width="220px"></div>
+                
+                <!-- Login Name -->
+                <label value="Login Name:" class="label-center"/>
+                <textbox id="loginName" sclass="input-field"/>
+                
+                <!-- Password -->
+                <label value="Password:" class="label-center"/>
+                <textbox id="password" type="password" sclass="input-field"/>
+                
+                <!-- Authenticator Code -->
+                <label value="Authenticator Code:" class="label-center"/>
+                <textbox id="authCode" sclass="input-field" maxlength="6" constraint="/^\d{6}$/: Must be 6 digits"/>
+
+                <!-- Stay Logged In Checkbox (moved 50px left) -->
+                <hbox sclass="checkbox-left">
+                    <checkbox id="stayLoggedIn" label="Stay logged in until quit"/>
+                </hbox>
+
+                <!-- Centered Login Button -->
+                <hbox sclass="button-center">
+                    <button label="Login" width="100px" onClick="LoginController.processLogin(loginWin)"/>
+                </hbox>
+
+            </vbox>
+
+        </vbox>
+    </window>
+</zk>

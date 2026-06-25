@@ -1,0 +1,176 @@
+/*
+#E2DDDB - middle grey - disabled field
+#F2F2F2 - light grey - form background
+#779CB1 - dark blue - list header
+#87A8BA - light blue - list header border
+#B5C9D4 - light blue - listbox odd row, listbody
+#C3D3DC - dark blue - listbox even row
+#CAE8F8 - light blue - selected row
+*/
+
+body {
+    background: #F2F2F2;
+    background-image: url("../images/image-from-rawpixel-id-327548-jpeg.jpg");
+}
+
+/* window */
+.z-window {
+    background: #779CB1 !important;
+    background-image: url("../images/image-from-rawpixel-id-327548-jpeg.jpg");
+}
+.z-window-content{
+	background: #F2F2F2 !important;
+    background-image: url("../images/image-from-rawpixel-id-327548-jpeg.jpg");
+}
+.z-window-header{
+    color: #FFF !important;
+}
+
+/* list */
+.z-listheader{
+    background: #779CB1 !important;
+    border: 1px solid #87A8BA !important;
+}
+.z-listheader-content:active{
+    background: #779CB1 !important;
+}
+.z-listheader-button{
+    background: #9EBED0 !important;
+	color:#FFF !important;
+}
+.z-listbox-header{
+    background: #779CB1 !important;
+}
+.z-listbox-header-border {
+    border-bottom: 1px solid #87A8BA !important;
+}
+.z-listhead-bar {
+	border-left: 1px solid #87A8BA !important;
+	border-bottom: 1px solid #87A8BA !important;
+}
+.z-listheader-button {
+	-webkit-box-shadow: inset 1px 0 #87A8BA !important;
+	-moz-box-shadow: inset 1px 0 #87A8BA !important;
+	-o-box-shadow: inset 1px 0 #87A8BA !important;
+	-ms-box-shadow: inset 1px 0 #87A8BA !important;
+	box-shadow: inset 1px 0 #87A8BA !important;
+}
+
+/* list odd event row color, exclude linkcomp */
+:not(.zkbi-linkcomp-listbox) > .z-listbox-body .z-listbox-odd .z-listcell {
+    background: #B5C9D4 !important;
+}
+:not(.zkbi-linkcomp-listbox) > .z-listbox-body .z-listcell {
+    background: #C3D3DC !important;
+}
+:not(.zkbi-linkcomp-listbox) > .z-listbox-body .z-listitem-selected .z-listcell {
+	background: #CAE8F8 !important;
+}
+:not(.zkbi-linkcomp-listbox) > .z-listbox-body, 
+:not(.zkbi-linkcomp-listbox) > .z-listbox-body .z-listbox-emptybody-content {
+    background: #B5C9D4 !important;
+}
+
+.z-button{
+	background: #779CB1 !important;
+}
+.z-button:disabled{
+	background: #E2DDDB !important;
+}
+
+
+/* grid */
+.z-grid .z-auxheader{
+	background: #779CB1 !important;
+}
+
+.z-grid-header-border {
+	border-bottom: 1px solid #87A8BA !important;
+}
+
+.z-grid .z-row-inner {
+    background: #C3D3DC !important;
+}
+.z-grid .z-grid-odd .z-row-inner{
+    background: #B5C9D4 !important;
+}
+/* for data analysis */
+.zkbi-da.z-grid .z-cell {
+    background: #C3D3DC !important;
+    border: 1px solid #d6d6d6 !important;
+}
+.zkbi-da.z-grid .z-grid-odd .z-cell{
+    background: #B5C9D4 !important;
+}
+.zkbi-da.z-grid .z-column {
+	background: #779CB1 !important;
+	border: 1px solid #87A8BA !important;
+}
+.zkbi-da.z-grid .z-grid-header {
+	background: #779CB1 !important;
+}
+.zkbi-da.z-grid .z-auxheader {
+	border: 1px solid #87A8BA !important;
+}
+.zkbi-da.z-grid .z-grid-footer .z-footer {
+	 border-right: 1px solid #d6d6d6;
+}
+.zkbi-da.z-grid .z-footer-content{
+	color: #000 !important;
+}
+
+/*for adv search g2 */
+.zkbi-advsearch-g2 .z-grid .z-column, .zkbi-advsearch-g2 .z-grid .z-columns-bar
+{
+	background: #779CB1 !important;
+	border: 1px solid #87A8BA !important;
+}
+
+.z-grid .z-row .z-row-inner {
+    border-top: none;
+}
+
+/*for calendar grid */
+.zkbi-calendar .z-grid-header table th{  
+	background: #779CB1 !important;
+	border-right: 1px solid #87A8BA !important;
+	text-align: center !important;
+}
+
+
+/* tree */
+.z-toolbar{
+	background: #F2F2F2 !important;
+    background-image: url("../images/image-from-rawpixel-id-327548-jpeg.jpg");
+}
+.z-tree-header-border {
+	border-bottom: 1px solid #87A8BA !important;
+}
+.z-treecols-bar {
+	border-left: 1px solid #87A8BA !important;
+	border-bottom: 1px solid #87A8BA !important;
+}
+.z-treecol {
+	background: #779CB1 !important;
+	border-left: 1px solid #87A8BA !important;
+	border-bottom: 1px solid #87A8BA !important;
+}
+.z-tree-body{
+    background: #B5C9D4 !important;
+}
+.z-toolbarbutton-content{
+	color: #131516 !important;
+}
+
+/* tabbox */
+.z-tabbox {
+	background: #F2F2F2 !important;
+    background-image: url("../images/image-from-rawpixel-id-327548-jpeg.jpg");
+}
+.z-tabs, .z-tab {
+	background: #F2F2F2 !important;
+    background-image: url("../images/image-from-rawpixel-id-327548-jpeg.jpg");
+}
+.z-tab-selected {
+	background: #FFF !important;
+}

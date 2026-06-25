@@ -1,0 +1,29 @@
+<zk xmlns:n="native">
+	<style dynamic="true">
+	div.z-grid.zkbi-detail-grid > div.z-grid-body {
+		height: auto;
+	}
+	div.z-grid.zkbi-detail-grid {
+	   border: 1px solid transparent;
+	}
+	.hidden {
+		visibility: hidden;
+	}
+	</style>
+	<div class="zkbi-detail-toolbar-container">
+		<div class="zkbi-detail-toolbar-leftarea"/>
+		<toolbar id="detail_toolbar" align="end"/>
+	</div>
+	<grid sclass="zkbi-detail-grid" id="detail_grid"/>
+	<div sclass="zkbi-detail-grid z-grid" style="padding:5px">
+		<separator height="10px"/>
+		<listbox id="list_bischema_BiColumn" visible="false"/>
+		<hbox id="hbColumnsContainer" spacing="0" width="100%" style="border:1px solid #D9D9D9">
+			<listbox sclass="lbColumns" hflex="1" sizedByContent="true" height="500px" style="border:0"/>
+			<splitter sclass="sl" collapse="before"/>
+			<div sclass="divColumnProps hidden" hflex="5" style="display:flex;flex-wrap:wrap;padding:10px;margin-left:10px"/>
+		</hbox>
+		<separator spacing="0" height="10px"/>
+		<listbox id="list_bischema_BiOrderby"/>
+	</div>
+</zk>

@@ -1,0 +1,93 @@
+<%@ page language="java" pageEncoding="utf-8" contentType="text/html;charset=utf-8"%>
+<%@ page import="java.util.*, com.uniinformation.utils.*,com.uniinformation.webcore.* " %>
+<%
+response.setHeader("Cache-Control", "no-cache, no-store, must-revalidate"); // HTTP 1.1.
+response.setHeader("Pragma", "no-cache"); // HTTP 1.0.
+response.setHeader("Expires", "0"); // Proxies.
+
+try {	
+
+	//SessionHelper sessionHelper = ZkSessionHelper.getSessionHelper(request, response);   
+	SessionHelper sessionHelper = ZkSessionHelper.getSessionHelper(request, response, true);   //remark: entry point of obtain a new sessionHelper
+%>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<style>
+.wndcontainer {
+    float:right;
+    position:relative;
+    left:-50%;
+    text-align:left;
+}
+
+.wndblk {
+    list-style:none;
+    position:relative;
+    width:auto;
+    left:50%;
+}
+</style>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<jsp:include page="commonInit.jsp" flush="true"/>
+<!-- 
+<div id="Layer1" style="position:absolute; width:100%; height:100%; z-index:-1; left:0px ; top:0px; filter:Alpha(opacity=100); ">
+	<img src="images/bg.jpg" style="position:fixed; width:100%; height:100%; left:0px; top:0px;"/>  
+</div>
+ -->
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title><%=sessionHelper.getWebPageTitle()%></title>
+HAHA in easyquo_login
+</head>
+
+<!-- hide body when loading -->
+<!-- <body style="visibility: hidden;"> -->
+<body>
+<script>
+</script>
+	<div id="container">
+		<div class="nav"></div>
+		<div id="content">
+		</div>
+		
+		<div id="headerls">
+		<div id="logols">
+			<div class="logolsstyle1"><%=sessionHelper.getWebPageCoName()%> </div>
+			<div class = "nav"></div>	
+			<div class="logolsstyle2"><%=sessionHelper.getWebPageName()%></div>
+		</div>
+	</div>
+   <div id="mainwnd" class = "wndcontainer" >
+		<div class = "wndblk">
+<%
+	if(sessionHelper.isMobileDevice()) {
+%>	
+					        <jsp:include page='mlogin.zul' flush="true" />
+<%
+	} else {
+%>
+					        <jsp:include page='login.zul' flush="true" />
+<%
+	}
+%>
+		</div>
+	</div>
+	<div class = "nav"></div>	
+   <div id="bottombar" class = "wndcontainer" >
+   <!-- 
+		<div class = "wndblk">
+			<a href="javascript:history.back(-1)"><img src="images/exit.jpg" ></a>
+		</div>
+    -->
+	</div>
+	<div class = "nav"></div>		
+		<!--<div class="nav"></div>-->
+	</div>
+</body>
+</html>
+<%
+} catch(Exception ex) {
+	UniLog.log(ex);
+	throw(ex);
+} finally {
+}
+%>

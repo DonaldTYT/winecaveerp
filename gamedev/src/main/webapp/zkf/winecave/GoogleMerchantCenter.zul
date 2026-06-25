@@ -1,0 +1,14 @@
+<zk>
+<window width="600px" apply="com.uniinformation.zkf.winecave.GoogleMerchantCentre">
+	<vlayout>
+		<div align="center">Google Merchant Center</div>
+		<hlayout>
+			<div width="100px" align="right">
+			<button id="btDownload">Download</button>
+			</div>
+		</hlayout>
+	</vlayout>
+	<div visible="false">
+	</div>
+</window>
+</zk>

@@ -1,0 +1,306 @@
+<zk>
+<zscript>
+<![CDATA[
+	import com.uniinformation.webcore.*;
+	SessionHelper sessionHelper = SessionHelper.getSessionHelper();
+	String gridLeftWidth = sessionHelper.isMobile() ? "120px" : "300px";
+]]>
+</zscript>
+<toolbar id="detail_toolbar" align="end">
+	<button id="btUpdateAttendance" label="Update Attendance"></button>
+	<button id="btGeneratePdf" label="Generate Pdf"></button>
+	<button id="btPayment" label="Payment" iconSclass="z-icon-credit-card"></button>
+</toolbar>
+<grid style="text-align:left;" id="detail_grid">
+	<columns>
+		<column align="right" width="${gridLeftWidth}" />
+		<column hflex="1" />
+	</columns>
+	<rows>
+		<row>
+			<label hflex="1" id="lb_essd_rg" value="Ref No"><custom-attributes tlkey="lb_essd_rg"></custom-attributes></label>
+			<doublebox id="essd_rg"/>
+		</row>
+		<row>
+			<label id="lb_essd_idno" value="ID Number"><custom-attributes tlkey="lb_essd_idno"></custom-attributes></label>
+			<hlayout>
+				<div>
+					<textbox id="essd_idno"/>
+				</div>
+				<space></space>
+				<radiogroup id="essd_idtype"/>
+			</hlayout>
+		</row>
+		<row>
+			<label id="lb_essd_name" value="Name"><custom-attributes tlkey="lb_essd_name"></custom-attributes></label>
+			<textbox id="essd_name"/>
+		</row>
+		<row>
+			<label id="lb_essd_sdno" value="Student Code"><custom-attributes tlkey="lb_essd_sdno"></custom-attributes></label>
+			<textbox id="essd_sdno"/>
+		</row>
+		<row>
+			<label id="lb_essd_cardno" value="Student Card Number"><custom-attributes tlkey="lb_essd_cardno"></custom-attributes></label>
+			<textbox id="essd_cardno"/>
+		</row>
+		
+		<row>
+			<label id="lb_essd_status" value="Status"><custom-attributes tlkey="lb_essd_status"></custom-attributes></label>
+			<radiogroup id="essd_status"/>
+		</row>
+		<row>
+			<label id="lb_essd_contactby" value="Contact Person"><custom-attributes tlkey="lb_essd_contactby"></custom-attributes></label>
+			<textbox id="essd_contactby"/>
+		</row>
+		<row>
+			<label id="lb_essd_lastcontime" value="Last Contact Time"><custom-attributes tlkey="lb_essd_lastcontime"></custom-attributes></label>
+			<datebox id="essd_lastcontime"/>
+		</row>
+		<row>
+			<label id="lb_essd_lastrpytime" value="Last Reply Time"><custom-attributes tlkey="lb_essd_lastrpytime"></custom-attributes></label>
+			<datebox id="essd_lastrpytime"/>
+		</row>
+		<row>
+			<label id="lb_essd_regdate" value="Registration Date"><custom-attributes tlkey="lb_essd_regdate"></custom-attributes></label>
+			<datebox id="essd_regdate"/>
+		</row>
+		<row>
+			<label id="lb_essd_sex" value="Sex"><custom-attributes tlkey="lb_essd_sex"></custom-attributes></label>
+			<radiogroup id="essd_sex"/>
+		</row>
+		<row>
+			<label id="lb_essd_birthdate" value="Birth Date"><custom-attributes tlkey="lb_essd_birthdate"></custom-attributes></label>
+			<hlayout>
+				<datebox id="essd_birthdate"/>
+				<space></space>
+				<label id="lb_essd_age" value="Age"><custom-attributes tlkey="lb_essd_age"></custom-attributes></label>
+				<doublebox id="essd_age"/>
+			</hlayout>
+		</row>
+		<!-- 
+		<row>
+			<label id="lb_xxxx" value="xxxx"><custom-attributes tlkey="lb_xxxx"></custom-attributes></label>
+			<doublebox id="xxxx"/>
+		</row>
+		 -->
+		<row>
+			<label id="lb_essd_sdemail" value="Email"><custom-attributes tlkey="lb_essd_sdemail"></custom-attributes></label>
+			<textbox id="essd_sdemail"/>
+		</row>
+		<row>
+			<label id="lb_essd_sdtel" value="Mobile"><custom-attributes tlkey="lb_essd_sdtel"></custom-attributes></label>
+			<hlayout>
+			<textbox id="essd_sdtel"/>
+			<space></space>
+			<label id="lb_essd_hometel" value="Home Tel"><custom-attributes tlkey="lb_essd_hometel"></custom-attributes></label>
+			<textbox id="essd_hometel"/>
+			</hlayout>
+		</row>
+		<row>
+			<label id="lb_essd_guardian1" value="Guardian Name #1"><custom-attributes tlkey="lb_essd_guardian1"></custom-attributes></label>
+			<hlayout>
+				<textbox id="essd_guardian1"/>
+				<space></space>
+				<label id="lb_essd_guardiantel1" value="Guardian Tel #1"><custom-attributes tlkey="lb_essd_guardiantel1"></custom-attributes></label>
+				<textbox id="essd_guardiantel1"/>
+			</hlayout>
+		</row>
+		<row>
+			<label id="lb_essd_guardian2" value="Guardian Name #2"><custom-attributes tlkey="lb_essd_guardian2"></custom-attributes></label>
+			<hlayout>
+				<textbox id="essd_guardian2"/>
+				<space></space>
+				<label id="lb_essd_guardiantel2" value="Guardian Tel #2"><custom-attributes tlkey="lb_essd_guardiantel2"></custom-attributes></label>
+				<textbox id="essd_guardiantel2"/>
+			</hlayout>
+		</row>
+		<!-- 
+		<row>
+			<label id="lb_essd_guardianrel" value="Relation With Guardian"><custom-attributes tlkey="lb_essd_guardianrel"></custom-attributes></label>
+			<radiogroup id="essd_guardianrel"/>
+		</row>
+		<row>
+			<label id="lb_essd_gdcallperiod" value="Guardian Call Period"><custom-attributes tlkey="lb_essd_gdcallperiod"></custom-attributes></label>
+			<textbox id="essd_gdcallperiod"/>
+		</row>
+		 -->
+		<row>
+			<label id="lb_essd_regreferral" value="Referral"><custom-attributes tlkey="lb_essd_regreferral"></custom-attributes></label>
+			<textbox id="essd_regreferral"/>
+		</row>
+		<!-- 
+		<row>
+			<label id="lb_essd_regreferby" value="Referred By"><custom-attributes tlkey="lb_essd_regreferby"></custom-attributes></label>
+			<textbox id="essd_regreferby"/>
+		</row>
+		 -->
+		<!-- 
+		<row>
+			<label id="lb_essd_siblings" value="Siblings"><custom-attributes tlkey="lb_essd_siblings"></custom-attributes></label>
+			<textbox id="essd_siblings"/>
+		</row>
+		 -->
+		<row>
+			<label id="lb_essd_education" value="Highest Education"><custom-attributes tlkey="lb_essd_education"></custom-attributes></label>
+			<textbox id="essd_education"/>
+		</row>
+		<!-- 
+		<row>
+			<label id="lb_essd_assessdate" value="Last Assess Date"><custom-attributes tlkey="lb_essd_assessdate"></custom-attributes></label>
+			<datebox id="essd_assessdate"/>
+		</row>
+		 -->
+		<!-- 
+		<row>
+			<label id="lb_essd_character" value="essd_character"><custom-attributes tlkey="lb_essd_character"></custom-attributes></label>
+			<textbox id="essd_character"/>
+		</row>
+		 -->
+		 <!-- 
+		<row>
+			<label id="lb_essd_char0" value="love of learning"><custom-attributes tlkey="lb_essd_char0"></custom-attributes></label>
+			<checkbox id="essd_char0"/>
+		</row>
+		<row>
+			<label id="lb_essd_char1" value="passion for knowledge"><custom-attributes tlkey="lb_essd_char1"></custom-attributes></label>
+			<checkbox id="essd_char1"/>
+		</row>
+		<row>
+			<label id="lb_essd_char2" value="hunger to develop and grow academically"><custom-attributes tlkey="lb_essd_char2"></custom-attributes></label>
+			<checkbox id="essd_char2"/>
+		</row>
+		<row>
+			<label id="lb_essd_char3" value="Self-Awareness"><custom-attributes tlkey="lb_essd_char3"></custom-attributes></label>
+			<checkbox id="essd_char3"/>
+		</row>
+		<row>
+			<label id="lb_essd_char4" value="Self-Motivated"><custom-attributes tlkey="lb_essd_char4"></custom-attributes></label>
+			<checkbox id="essd_char4"/>
+		</row>
+		  -->
+		<!-- 
+		<row>
+			<label id="lb_essd_curriculum" value="essd_curriculum"><custom-attributes tlkey="lb_essd_curriculum"></custom-attributes></label>
+			<textbox id="essd_curriculum"/>
+		</row>
+		<row>
+			<label id="lb_essd_prefertime" value="essd_prefertime"><custom-attributes tlkey="lb_essd_prefertime"></custom-attributes></label>
+			<textbox id="essd_prefertime"/>
+		</row>
+		<row>
+			<label id="lb_essd_schoollevel" value="essd_schoollevel"><custom-attributes tlkey="lb_essd_schoollevel"></custom-attributes></label>
+			<textbox id="essd_schoollevel"/>
+		</row>
+		<row>
+			<label id="lb_essd_assesslevel" value="essd_assesslevel"><custom-attributes tlkey="lb_essd_assesslevel"></custom-attributes></label>
+			<textbox id="essd_assesslevel"/>
+		</row>
+		<row>
+			<label id="lb_essd_targetlevel" value="essd_targetlevel"><custom-attributes tlkey="lb_essd_targetlevel"></custom-attributes></label>
+			<textbox id="essd_targetlevel"/>
+		</row>
+		<row>
+			<label id="lb_essd_time0" value="Prefer Time (Chinese)"><custom-attributes tlkey="lb_essd_time0"></custom-attributes></label>
+			<radiogroup id="essd_time0"/>
+		</row>
+		<row>
+			<label id="lb_essd_slevel0" value="Achieved Level (Chinese)"><custom-attributes tlkey="lb_essd_slevel0"></custom-attributes></label>
+			<radiogroup id="essd_slevel0"/>
+		</row>
+		<row>
+			<label id="lb_essd_alevel0" value="Assessed Level (Chinese)"><custom-attributes tlkey="lb_essd_alevel0"></custom-attributes></label>
+			<radiogroup id="essd_alevel0"/>
+		</row>
+		<row>
+			<label id="lb_essd_tlevel0" value="Target Level (Chinese)"><custom-attributes tlkey="lb_essd_tlevel0"></custom-attributes></label>
+			<radiogroup id="essd_tlevel0"/>
+		</row>
+		 -->
+		<row>
+			<label id="lb_essd_clum0" value="Apply for Chinese"><custom-attributes tlkey="lb_essd_clum0"></custom-attributes></label>
+			<checkbox id="essd_clum0"/>
+		</row>
+		<row>
+			<label id="lb_essd_clum1" value="Apply for English"><custom-attributes tlkey="lb_essd_clum1"></custom-attributes></label>
+			<checkbox id="essd_clum1"/>
+		</row>
+		<!-- 
+		<row>
+			<label id="lb_essd_time1" value="Prefer Time (English)"><custom-attributes tlkey="lb_essd_time1"></custom-attributes></label>
+			<radiogroup id="essd_time1"/>
+		</row>
+		 -->
+		<!-- 
+		<row>
+			<label id="lb_essd_slevel1" value="Achieved Level (English)"><custom-attributes tlkey="lb_essd_slevel1"></custom-attributes></label>
+			<radiogroup id="essd_slevel1"/>
+		</row>
+		<row>
+			<label id="lb_essd_alevel1" value="Assessed Level (English)"><custom-attributes tlkey="lb_essd_alevel1"></custom-attributes></label>
+			<radiogroup id="essd_alevel1"/>
+		</row>
+		<row>
+			<label id="lb_essd_tlevel1" value="Target Level (English)"><custom-attributes tlkey="lb_essd_tlevel1"></custom-attributes></label>
+			<radiogroup id="essd_tlevel1"/>
+		</row>
+		 -->
+		<row>
+			<label id="lb_essd_clum2" value="Apply for Mathematics"><custom-attributes tlkey="lb_essd_clum2"></custom-attributes></label>
+			<checkbox id="essd_clum2"/>
+		</row>
+		<!-- 
+		<row>
+			<label id="lb_essd_time2" value="Prefer Time (Mathematics)"><custom-attributes tlkey="lb_essd_time2"></custom-attributes></label>
+			<radiogroup id="essd_time2"/>
+		</row>
+		<row>
+			<label id="lb_essd_slevel2" value="Target Level (Chinese)"><custom-attributes tlkey="lb_essd_slevel2"></custom-attributes></label>
+			<radiogroup id="essd_slevel2"/>
+		</row>
+		<row>
+			<label id="lb_essd_alevel2" value="Assessed Level (Mathemetics)"><custom-attributes tlkey="lb_essd_alevel2"></custom-attributes></label>
+			<radiogroup id="essd_alevel2"/>
+		</row>
+		<row>
+			<label id="lb_essd_tlevel2" value="Target Level (Mathemetics)"><custom-attributes tlkey="lb_essd_tlevel2"></custom-attributes></label>
+			<radiogroup id="essd_tlevel2"/>
+		</row>
+		 -->
+		 <!-- 
+		<row>
+			<label id="lb_essd_assessment" value="Assessment Comments"><custom-attributes tlkey="lb_essd_assessment"></custom-attributes></label>
+			<textbox rows="2" id="essd_assessment"/>
+		</row>
+		  -->
+		<row>
+			<label id="lb_essd_comments" value="Comments and Remarks"><custom-attributes tlkey="lb_essd_comments"></custom-attributes></label>
+			<textbox rows="6" id="essd_comments"/>
+		</row>
+		<row id="row_essdx_jsonstr">
+			<label id="lb_essdx_jsonstr" value="json string"><custom-attributes tlkey="lb_essdx_jsonstr"></custom-attributes></label>
+			<textbox rows="3" id="essdx_jsonstr"/>
+		</row>
+		<row>
+			<label id="lb_essd_asdiv" value="Assessment"><custom-attributes tlkey="lb_essd_asdiv"></custom-attributes></label>
+			<div id="essd_asdiv" style="max-width:800px"/>
+		</row>
+	<row spans="2">
+		<div>
+		<!-- 
+		<label id="lb_list_Courses" value="Courses"/>
+		 -->
+		<listbox id="list_edu_StudentCourse"/>	
+		</div>
+	</row>
+	<row spans="2">
+		<div>
+		<!-- 
+		<label id="lb_list_Student Attendance" value="Student Attendance"/>
+		 -->
+		<listbox id="list_edu_StudentAttendance"/>	
+		</div>
+	</row>
+	</rows>
+</grid>
+<space></space>
+</zk>

@@ -1,0 +1,49 @@
+<zk>
+<zscript>
+<![CDATA[
+	import com.uniinformation.webcore.*;
+	SessionHelper sessionHelper = SessionHelper.getSessionHelper();
+	String gridLeftWidth = sessionHelper.isMobile() ? "120px" : "300px";
+]]>
+</zscript>
+<grid style="text-align:left;" id="detail_grid">
+	<columns>
+		<column align="right" width="${gridLeftWidth}" />
+		<column hflex="1" />
+	</columns>
+	<rows>
+		<row>
+			<label id="lb_essd_sdno" value="Student Code"><custom-attributes tlkey="lb_essd_sdno"></custom-attributes></label>
+			<combobox id="essd_sdno"/>
+		</row>
+		<row>
+			<label id="lb_essd_name" value="Student Name"><custom-attributes tlkey="lb_essd_name"></custom-attributes></label>
+			<textbox id="essd_name"/>
+		</row>
+		<row>
+			<label id="lb_eqnr_qnrtype" value="Type"><custom-attributes tlkey="lb_eqnr_qnrtype"></custom-attributes></label>
+			<textbox id="eqnr_qnrtype"/>
+		</row>
+		<row>
+			<label id="lb_eqnr_status" value="Status"><custom-attributes tlkey="lb_eqnr_status"></custom-attributes></label>
+			<radiogroup id="eqnr_status"/>
+		</row>
+		<row>
+			<label id="lb_eqnr_ctime" value="Create Time"><custom-attributes tlkey="lb_eqnr_ctime"></custom-attributes></label>
+			<datebox id="eqnr_ctime"/>
+		</row>
+		<row>
+			<label id="lb_eqnr_utime" value="Update Time"><custom-attributes tlkey="lb_eqnr_utime"></custom-attributes></label>
+			<datebox id="eqnr_utime"/>
+		</row>
+		<row id="row_eqnr_jsonstr">
+			<label id="lb_eqnr_jsonstr" value="Json String"><custom-attributes tlkey="lb_eqnr_jsonstr"></custom-attributes></label>
+			<textbox rows="3" id="eqnr_jsonstr"/>
+		</row>
+		<row>
+			<label id="lb_eqnr_asdiv" value="Div"><custom-attributes tlkey="lb_eqnr_asdiv"></custom-attributes></label>
+			<div id="eqnr_asdiv"/>
+		</row>
+	</rows>
+</grid>
+</zk>

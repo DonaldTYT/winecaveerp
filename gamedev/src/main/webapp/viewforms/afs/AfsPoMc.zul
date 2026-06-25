@@ -1,0 +1,246 @@
+<zk>
+	<style dynamic="true">
+		<!-- cut/hide the vertical borders in the grid rows -->
+		
+		.myGridWithNoBorder tr.z-row td.z-row-inner { border-right: 0px
+		#CCC; } .GridLayoutNoBorder tr.z-row td.z-row-inner, tr.z-row
+		.z-cell,div.z-grid { border: none; overflow: hidden; zoom: 1;
+		#background:#f8f8f8 !important;<!-- remove hover -->
+		background:white !important;<!-- remove hover -->
+		border-top: none; border-left: none; border-right: none;
+		border-bottom: none; }
+	</style>
+	<toolbar id="detail_toolbar" align="end">
+		<button id="btConfirmOdr" label="Confirm PO" visible="true"></button>
+		<button id="btUnConfirmOdr" label="UnConfirm PO" visible="true"></button>
+		<button id="btPrint" label="Print PO" visible="true"></button>
+	</toolbar>
+	<grid style="text-align:left;border: 1px solid #000;"
+		id="detail_grid" sclass="GridLayoutNoBorder">
+		<columns>
+			<column width="160px"></column>
+			<column width="600px"></column>
+			<column width="160px"></column>
+			<column width="450px"></column>
+			<column></column>
+			<column width="300px"></column>
+		</columns>
+		<rows>
+			<row>
+				<cell colspan="3">
+					<image id="co_logo" src="images/logo_afs.jpg" height="150px" />
+				</cell>
+				<cell colspan="2">
+					<!-- 
+						<image src="images/progress_sample.png" hflex="1"></image>
+					-->
+				</cell>
+				<cell>
+					<vlayout>
+						<label
+							style="font-weight: bold;font-size:40px !important;">
+							MACHINE
+						</label>
+						<label
+							style="font-weight: bold;font-size:40px !important;">
+							PURCHASE
+						</label>
+						<label
+							style="font-weight: bold;font-size:40px !important;">
+							ORDER
+						</label>
+					</vlayout>
+				</cell>
+			</row>
+			<row>
+				<cell align="right">
+					<label><custom-attributes tlkey="lb_stm_date"></custom-attributes>Date</label>
+				</cell>
+				<cell>
+					<datebox id="stm_date" format="yyyy/MM/dd"></datebox>
+				</cell>
+				<cell align="right">
+					<label><custom-attributes tlkey="lb_stm_ref1"></custom-attributes>Order No.</label>
+				</cell>
+				<cell>
+					<hbox align="middle">
+						<div width="200px">
+							<label id="stm_ref1"></label>
+						</div>
+					</hbox>
+				</cell>
+				<cell></cell>
+				<cell>
+					<label><custom-attributes tlkey="lb_stm_mrg"></custom-attributes>Ref No.:</label>
+					<label id="stm_mrg"></label>
+				</cell>
+			</row>
+			<row>
+				<cell align="right">
+					<label><custom-attributes tlkey="lb_vd_vname"></custom-attributes>Buy From</label>
+				</cell>
+				<cell>
+					<hbox align="middle">
+						<combobox id="vd_vname"></combobox>
+					</hbox>
+				</cell>
+				<cell align="right">
+					<label><custom-attributes tlkey="lb_stm_status"></custom-attributes>Status</label>
+				</cell>
+				<cell>
+					<hbox align="middle">
+						<div width="200px">
+						<!--
+							<combobox id="stm_status"></combobox>
+							-->
+							<listbox id="stm_status" mold="select"></listbox>
+						</div>
+					</hbox>
+				</cell>
+				<cell></cell>
+				<cell>
+					<label><custom-attributes tlkey="lb_stm_ref2"></custom-attributes>Customer Code:</label>
+					<label id="stm_ref2"></label>
+				</cell>
+			</row>
+			<row>
+				<cell align="right">
+					<label id="lb_stm_arrivedate2"><custom-attributes tlkey="lb_stm_arrivedate2"></custom-attributes></label>
+				</cell>
+				<cell>
+					<textbox id="stm_arrivedate2" width="500px"></textbox>
+				</cell>
+				<cell align="right">
+					<label id="lb_stm_ctrspec"><custom-attributes tlkey="lb_stm_ctrspec"></custom-attributes></label>
+				</cell>
+				<cell>
+					<hbox align="middle">
+						<div width="80px">
+						<!--
+							<combobox id="stm_ctrspec" width="150px"></combobox>
+							-->
+							<s2listbox id="stm_ctrspec" width="150px"></s2listbox>
+						</div>
+					</hbox>
+				</cell>
+				<cell></cell>
+				<cell>
+					<label><custom-attributes tlkey="lb_stm_cuser"></custom-attributes>Create By:</label>
+					<label id="stm_cuser"></label>
+				</cell>
+			</row>
+			<row>
+				<cell align="right">
+					<label id="lb_stm_ref5"><custom-attributes tlkey="lb_stm_ref5"></custom-attributes></label>
+				</cell>
+				<cell>
+				<!--
+					<s2listbox id="stm_ref5" width="300px"></s2listbox>
+					-->
+					<combobox id="stm_ref5" width="300px"></combobox>
+				</cell>
+				<cell align="right">
+					<label><custom-attributes tlkey="lb_stm_cur"></custom-attributes>CCY</label>
+				</cell>
+				<cell>
+					<hbox align="middle">
+						<div width="80px">
+							<combobox id="stm_cur"></combobox>
+						</div>
+					</hbox>
+				</cell>
+				<cell></cell>
+				<cell>
+					<label><custom-attributes tlkey="lb_stm_cdate"></custom-attributes>Create On:</label>
+					<label id="stm_cdate"></label>
+				</cell>
+			</row>
+			<row>
+				<cell align="right">
+					<label id="lb_stm_shipname"><custom-attributes tlkey="lb_stm_shipname"></custom-attributes></label>
+				</cell>
+				<cell>
+					<textbox id="stm_shipname"></textbox>
+				</cell>
+				<cell align="right">
+					<label><custom-attributes tlkey="lb_stm_ref3"></custom-attributes>Deposit Invoice</label>
+				</cell>
+				<cell>
+					<textbox id="stm_ref3" width="500px"></textbox>
+				</cell>
+				<cell></cell>
+				<cell>
+					<label><custom-attributes tlkey="lb_stm_uuser"></custom-attributes>Update By:</label>
+					<label id="stm_uuser"></label>
+				</cell>
+			</row>
+			<row>
+				<cell align="right">
+					<label><custom-attributes tlkey="lb_stm_shipagent"></custom-attributes>Special Instruction</label>
+				</cell>
+				<cell>
+					<textbox id="stm_shipagent" width="500px"></textbox>
+				</cell>
+				<cell align="right">
+					<label><custom-attributes tlkey="lb_stm_deposit"></custom-attributes>Deposit Amount</label>
+				</cell>
+				<cell>
+					<doublebox id="stm_deposit"></doublebox>
+				</cell>
+				<cell></cell>
+				<cell>
+					<label><custom-attributes tlkey="lb_stm_udate"></custom-attributes>Update On:</label>
+					<label id="stm_udate"></label>
+				</cell>
+			</row>
+			<!-- 
+			<row>
+				<cell align="right">
+					<label>Country</label>
+				</cell>
+				<cell>
+					<textbox id="vd_country"></textbox>
+				</cell>
+				<cell align="right">
+					<label>Currency</label>
+				</cell>
+				<cell>
+					<hbox align="middle">
+						<div width="200px">
+							<combobox id="inv_cid"></combobox>
+						</div>
+					</hbox>
+				</cell>
+				<cell></cell>
+				<cell>
+					<label>Exchange Rate:</label>
+					<label id="inv_xrate"></label>
+				</cell>
+			</row>
+			 -->
+			<row>
+				<cell colspan="6">
+					<listbox id="list_AfsPoDet"></listbox>
+				</cell>
+			</row>
+			<!-- 
+			<row>
+				<cell align="right">
+					<label>Terms</label>
+				</cell>
+				<cell>
+					<textbox id="inv_term" hflex="1" rows="2"></textbox>
+				</cell>
+				<cell colspan="2"></cell>
+				<cell></cell>
+				<cell>
+					<hbox align="middle">
+						<div width="150px">Total Amount</div>
+						<doublebox id="inv_grtotal"></doublebox>
+					</hbox>
+				</cell>
+			</row>
+			 -->
+		</rows>
+	</grid>
+</zk>

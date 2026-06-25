@@ -1,0 +1,48 @@
+{
+  "intro.tag": "線上選購美酒",
+  "intro.h1": "為你尋找剛剛好的那一瓶",
+  "intro.p": "我們嚴選世界各地的優質酒款，從經典款到隱藏寶石，保障真品、專業庫存與妥善配送，讓你安心選購。",
+  "intro.button": "立即選購",
+
+  "regions.tagline": "氣候、文化與風土，形塑每一瓶酒的風味。",
+  "regions.h2": "探索世界頂級葡萄酒產區",
+  "regions.p": "Wine Cave 為全球客戶提供專業的葡萄酒與烈酒服務；我們結合線上銷售與實體通路，並以 HKQAA 認證設施妥善保存你的佳釀，帶來更安心的品飲體驗。",
+
+  "search.h3": "全部酒款",
+  "search.fullList": "完整酒單",
+  "search.pdf": "📄 PDF 酒單",
+  "search.excel": "🟩 Excel 酒單",
+  "search.filters.wine": "酒名",
+  "search.filters.vintage": "年份",
+  "search.filters.region": "產區",
+  "search.filters.type": "類型",
+  "search.filters.country": "國家",
+  "search.filters.size": "瓶裝容量",
+  "search.filters.points": "最低評分",
+  "search.filters.price": "價格範圍",
+  "search.filters.clear": "清除條件",
+  "search.filters.search": "搜尋",
+  "search.downloadResults": "下載搜尋結果",
+
+  "regions.list": [
+    "阿空加瓜谷","阿爾薩斯","薄酒萊","馬爾堡",
+    "波爾多","布根地","加州","橄欖油",
+    "科爾查瓜谷","杜羅河","汝拉","南澳洲",
+    "朗格多克－露喜龍","羅亞爾河","邁坡谷","托凱",
+    "門多薩","摩澤爾","維多利亞","香檳",
+    "普羅旺斯","蘇格蘭","西開普省","西澳洲",
+    "南法－紅","南法－白","隆河","皮耶蒙特",
+    "托斯卡尼","威尼托","餐酒（Vin de Pays）"
+  ],
+
+  "consent.no": "不同意",
+  "consent.yes": "同意",
+
+  "stats.h3.a": "我們不只關心客戶，",
+  "stats.h3.b.pre": "更重視",
+  "stats.h3.b.hl": "自我成長。",
+  "stats.item1": "近 400,000 瓶成功售出",
+  "stats.item2": "筆交易完成",
+  "stats.item3.unit": "年",
+  "stats.item3": "歷史交易紀錄"
+}

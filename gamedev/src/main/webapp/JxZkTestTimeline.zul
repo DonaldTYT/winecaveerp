@@ -1,0 +1,22 @@
+<?taglib uri="http://www.zkoss.org/dsp/web/core" prefix="c"?>
+<zk>
+ 	<!-- 
+	<style dynamic="true">
+		.timeline-event-tape{
+			height: 30px !important;
+		}
+	</style>
+ 	 -->
+<window border="normal" width="800px" height="500px" title="" id="JxZkTestTimeline" apply="com.uniinformation.jx.zk.ZkJxComposer">
+        	   <timeline id="timeline1" height="90%" width="100%" style="overflow-y:auto">
+        	   </timeline>
+        	   <div>
+        	   		<button id="btAdd">Add</button>
+        	   		<button id="btDel">Del</button>
+        	   		<button id="btClear">Clear</button>
+        	   		<button id="btShow">Show</button>
+        	   		<button id="btHide">Hide</button>
+        	   		<button id="btRefresh">Refresh</button>
+        	   </div>
+</window>
+</zk>

@@ -1,0 +1,89 @@
+<zk>
+    <style>
+    .title {
+        font-weight: bold;
+        font-size: 12px;
+    }
+    .demoTbx .z-tab {
+        margin-right: 2px;
+    }
+    </style>
+    <ckeditor id="ed" width="540px" 
+        filebrowserImageBrowseUrl="/widgets/input/wysiwyg_editor/img"
+        filebrowserFlashBrowseUrl="/widgets/input/wysiwyg_editor/flash"
+        customConfigurationsPath="/widgets/input/wysiwyg_editor/config.js">
+        <attribute name="onChange"><![CDATA[
+            ta.value = self.value;
+            Clients.evalJavaScript("jq('$cntDiv').html('"+ ed.value.replaceAll("\n", "") +"')");
+        ]]></attribute>
+ 
+<attribute name="value"><![CDATA[
+<div style="width: 80%;">
+    <table cellspacing="0" style="width: 461px; height: 112px;">
+        <tbody>
+            <tr>
+                <td>
+                    <img src="${execution.contextPath}/widgets/input/wysiwyg_editor/img/zklogo2.png" style="width: 90px; height: 80px;" /></td>
+                <td>
+                    <h3>This Best Web Framework</h3>
+                    <h6>Are You &quot;Enterprise Ready&quot; ?</h6>
+                </td>
+                <td>
+                    <ul>
+                        <li>ZK Intro</li>
+                        <li>ZK Doc</li>
+                        <li>ZK Architecture</li>
+                        <li>ZK Demo</li>
+                        <li>Who&#39;s Using ZK</li>
+                    </ul>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+]]></attribute>
+ 
+    </ckeditor>
+    <separator height="20px"/>
+    <tabbox width="560px" sclass="demoTbx">
+        <toolbar>
+            You Can Edit The HTML Directly
+        </toolbar>
+        <tabs>
+            <tab label="Browser Result" />
+            <tab label="HTML Source" />
+        </tabs>
+        <tabpanels>
+            <tabpanel>
+                <div id="cntDiv" style="background: #FEFFEB;" width="540px">
+                    <html content="${ed.value}" />
+                </div>
+            </tabpanel>
+            <tabpanel>
+                <textbox id="ta" rows="10" width="540px" value="${ed.value}" onChange="ed.value = ta.value"
+                    style="background: #E7F3FF;border: 0 none;" />
+            </tabpanel>
+        </tabpanels>
+    </tabbox>
+    <grid sizeByContent="true">
+		<columns>
+			<column label="eee" width="100px"/>
+			<column label="eee" width="100px"/>
+		</columns>
+		<rows>
+			<row>	
+				<cell> 
+				<hbox>
+				<div height="50px"></div>
+				<vbox>
+					<label>L1</label>
+					<label>L2</label>
+					<label>L3</label>
+				</vbox>
+				</hbox>
+				</cell>
+				<cell>A2</cell>
+			</row>
+		</rows>
+	</grid>
+</zk>

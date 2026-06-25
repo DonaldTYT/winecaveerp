@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Bump Map Gradient Example</title>
+<style>
+  body {
+    margin: 0;
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: Arial, sans-serif;
+    font-size: 3rem;
+    color: #333;
+
+    /* Base gradient (light blue tones) */
+    background:
+      linear-gradient(135deg, #dce7ec, #f7f9fa),
+      url("images/steel-metallic-texture-background.jpg"); /* Replace with your bump map file path */
+
+    /* Blend texture with gradient */
+    background-blend-mode: multiply;
+    background-size: cover, 100px 100px;
+    background-repeat: no-repeat, repeat;
+  }
+</style>
+</head>
+<body>
+  HELLO
+</body>
+</html>

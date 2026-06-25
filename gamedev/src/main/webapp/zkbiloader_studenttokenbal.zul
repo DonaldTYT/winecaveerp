@@ -1,0 +1,21 @@
+<zk>
+<zscript>
+<![CDATA[
+	String composer = "ZkBiComposerBase";
+	String classPrefix = "com.uniinformation.zkbi.";
+	if (Executions.getCurrent().getParameter("composer") != null){
+		composer = Executions.getCurrent().getParameter("composer").trim();
+	}
+	if (Executions.getCurrent().getParameter("prefix") != null){
+		classPrefix = "com.uniinformation."+Executions.getCurrent().getParameter("prefix").trim()+".";
+	}
+]]></zscript>
+<window id="zkbibrowser" apply="${classPrefix}${composer}" border="none"
+>
+	<custom-attributes listboxHeight="css"/>
+	<listbox id="browser_listbox">
+		<custom-attributes composite="map" tttMap="eaav0_enddate='Course End Date', eaav0_numsession='Number of sessions per subscription', eaav0_sessionday='Session Days of the Week', eaav0_sessiontime='Session Start Time', essbsd_status='Subscription Status (New/Confirmed/Cancelled)', essbsd_startdate='Subscription Start Date', essbsd_enddate='Subscription End Date', essbsd_sessremain='Available sessions till subscription end', essbsd_sessoverdue='Overdue session count', essbsd_tentatibal='Session Fee x Session Remain', essbsd_balfee=Token Balance of this token type &#247; Session Fee, essbsd_sesscomp='Completed Session(Present/Absent)', eaav0_tokenccy='Token Type', tkbal_inqty='Token Paid for this token type', tkbald_outqty='Token Used for this course', tkbal_ostqty='Token Balance of this token type', eaav0_fee='Session Fee', essbsd_tenremainba='Tentative Remaining Balance\nToken Balance - Tentative Balance of subscribed course(s)', essbsd_subsfee='Subscription Fee', essbsd_adjustment='Subscription Fee Adjustment\n 0 - no adjustment\n&lt; 0 - mark down\n&gt; 0 - mark up', essbsd_adjustedfee='Adjusted Subscription Fee\nSubscription Fee + Adjustment', essbsd_allowrem='Allow Reminder', essbsd_lastremdat='Last Reminder Date', essbsd_sessremain='Available sessions till subscription end. It check the course schedule against student subscription', essbsd_sessrebysn='Available sessions of current subscription\n(No of Session - Last Session No)'" ></custom-attributes>
+		
+	</listbox>
+</window>
+</zk>

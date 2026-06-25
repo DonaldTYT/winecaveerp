@@ -1,0 +1,21 @@
+<!-- 
+	<toolbar id="detail_toolbar" orient="vertical" align="center">
+		<button id="btConfirmOdr" label="Confirm" visible="true"></button>
+		<button id="btUnConfirmOdr" label="Unconfirm" visible="true"></button>
+		<button id="btVoidOdr" label="Void" visible="true" disabled="true"></button>
+		<button id="btReviseOdr" label="Revise" visible="true" disabled="true"></button>
+		<button id="btPrintBody" label="Print" visible="true" disabled="true"></button>
+		<button id="btTestModel" label="TestModel" visible="false"></button>
+	</toolbar>
+ -->
+	
+<zk>
+    <div id="content"/> <!-- the long content is displayed here -->
+    <!--
+    <paging id="paging" />
+    <button label="ABC" width="48px"></button>
+    <button image="images/chat.png" width="48px"></button>
+    -->
+    <image src="images/chat.png" width="48px" style="cursor:pointer;"></image>
+     
+</zk>	

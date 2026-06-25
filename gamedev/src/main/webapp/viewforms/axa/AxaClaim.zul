@@ -1,0 +1,264 @@
+<zk xmlns:n="native">
+	<toolbar id="detail_toolbar" align="end"> 
+		<button id="btClaim" label="Claim" visible="true"></button>
+	</toolbar>
+	<div style="background-color:white">
+	<!--40
+	<grid style="text-align:left;border: 1px solid #000;" id="detail_grid" sclass="GridLayoutNoBorder">
+	<grid style="background:red;">
+	<grid style="text-align:left;border: 1px solid #000;" sclass="GridLayoutNoBorder">
+	<grid style="border: 1px solid#000;">
+	 -->
+	 <!-- 
+	<grid style="border:1px solid#000;border-left:1px solid#000;">
+		<columns>
+			<column width="100px"></column>
+			<column width="100px"></column>
+			<column width="100px"></column>
+			<column width="100px"></column>
+			<column width="100px"></column>
+			<column width="100px"></column>
+			<column width="100px"></column>
+			<column width="100px"></column>
+			<column width="100px"></column>
+			<column width="100px"></column>
+		</columns>
+		<rows>
+		<row>
+			<cell colspan="6"> 
+					<hlayout>
+					</hlayout>
+			</cell>
+			<cell colspan="4">HAHA2</cell>
+			<cell style="border-left:1px solid#000;">HAHA 3 </cell>
+		</row>
+		<row>
+			<cell colspan="5">
+			<hlayout>
+					<div width="200px" style="border-right:1px solid#000">HAHA1</div>
+					<div width="200px">HAHA2</div>
+			</hlayout>
+			</cell>
+		</row>
+		<row>
+			<cell>HAHA 3 </cell>
+			<cell>HAHA 3 </cell>
+			<cell>HAHA 3 </cell>
+		</row>
+		</rows>
+	</grid>
+	  -->
+			<bs-row>
+				<bs-col-311>
+					<image id="co_logo" height="100px" />
+				</bs-col-311>
+				<bs-col-311>
+				</bs-col-311>
+				<bs-col-311 align="right">
+	 				<label id="pageTitle" style="font-weight: bold;font-size:30px !important;" value="AXA Insurance Claim"><custom-attributes tlkey="hdr_axa_AxaClaim"></custom-attributes></label>
+				</bs-col-311>
+					
+			</bs-row>
+			<div width="1200px">
+			<tabbox width="100%" sclass="zkbi-detail-tabbox">
+				<tabs width="100%" visible="true">
+					<tab><custom-attributes tlkey="tp_claim_detail"></custom-attributes>Claim Detail</tab>
+					<tab><custom-attributes tlkey="tp_benifit_info"></custom-attributes>Benefit and Statistics</tab>
+					<tab visible="true"><custom-attributes tlkey="tp_emails"></custom-attributes>Related Emails</tab>
+				</tabs>
+				<tabpanels>
+					<tabpanel>
+					
+				<vlayout spacing="0">
+					<hlayout spacing="0">
+					<div hflex="1" style="background-color:#e8e2be;border: solid 1px">
+						<vlayout spacing="0">
+							<hlayout>
+								<zkbidiv jxId="axaclm_date" labelWidth="200px" compWidth="120px"></zkbidiv>
+								<zkbidiv jxId="cldoc_cocode" labelWidth="100px" compWidth="120px"></zkbidiv>
+							</hlayout>
+							<hlayout>
+								<zkbidiv jxId="axaclm_phno" labelWidth="200px" compWidth="120px"></zkbidiv>
+								<zkbidiv jxId="axaclm_certno" labelWidth="100px" compWidth="120px"></zkbidiv>
+								<zkbidiv jxId="axaclm_dependno" labelPosition="invisible" compWidth="40px"></zkbidiv>
+							</hlayout>
+							<zkbidiv jxId="axaphr_phafname" labelWidth="200px" compWidth="353px"></zkbidiv>
+							<hlayout>
+								<zkbidiv jxId="axaclm_poledate" labelWidth="200px" compWidth="120px"></zkbidiv>
+								<zkbidiv jxId="axaclm_phrstdate" labelWidth="100px" compWidth="120px"></zkbidiv>
+								<zkbidiv jxId="axaclm_phrenddate" labelWidth="100px" compWidth="120px"></zkbidiv>
+							</hlayout>
+							<hlayout>
+								<zkbidiv jxId="axacvp_covername" labelWidth="200px" compWidth="353px"></zkbidiv>
+								<zkbidiv jxId="axacvp_birthdate" labelWidth="100px" compWidth="120px"></zkbidiv>
+							</hlayout>
+							<hlayout>
+								<zkbidiv jxId="axacvp_class" labelWidth="200px" compWidth="120px"></zkbidiv>
+								<zkbidiv jxId="axaclm_cvpedate" labelWidth="100px" compWidth="120px"></zkbidiv>
+								<zkbidiv jxId="axacvp_termination" labelWidth="100px" compWidth="120px"></zkbidiv>
+							</hlayout>
+							<hlayout>
+								<zkbidiv jxId="axabfg_group" labelWidth="200px" compWidth="120px"></zkbidiv>
+								<zkbidiv jxId="axabfg_name" labelPosition="invisible" compWidth="300px"></zkbidiv>
+							</hlayout>
+							<hlayout>
+								<zkbidiv jxId="axabfg_agreefee" labelWidth="200px" compWidth="120px"></zkbidiv>
+								<zkbidiv jxId="axaclm_remaining" labelPosition="invisible" compWidth="300px"></zkbidiv>
+								<zkbidiv jxId="axaclm_totalstate" labelWidth="invisible" compWidth="100px"></zkbidiv>
+							</hlayout>
+							<zkbidiv jxId="cldoc_name" labelWidth="200px" compWidth="353px"></zkbidiv>
+							<div height="5px" style="background-color:white" ></div>
+							<hlayout>
+								<zkbidiv jxId="axaclm_diagnosis" labelWidth="200px" compWidth="353px"></zkbidiv>
+								<button id="btMoreIcd" label="More Diagnosis"> </button>
+							</hlayout>
+							<zkbidiv jxId="icdm_organ" labelWidth="200px" compWidth="353px"></zkbidiv>
+							<zkbidiv jxId="axaclm_type" labelWidth="200px" compWidth="353px"></zkbidiv>
+							<zkbidiv jxId="axaclm_voucher" labelWidth="200px" compWidth="120px"></zkbidiv>
+							<zkbidiv jxId="axaclm_consfee" labelWidth="200px" compWidth="120px"></zkbidiv>
+							<zkbidiv jxId="axaclm_medifee" labelWidth="200px" compWidth="120px"></zkbidiv>
+							<hlayout>
+								<zkbidiv jxId="axaclm_xray" labelWidth="200px" compWidth="120px"></zkbidiv>
+								<zkbidiv jxId="axaclm_advxray" labelWidth="100px" compWidth="30px"></zkbidiv>
+							</hlayout>
+							<zkbidiv jxId="axaclm_surg" labelWidth="200px" compWidth="120px"></zkbidiv>
+							<hlayout>
+								<zkbidiv jxId="axaclm_amount" labelWidth="200px" compWidth="120px"></zkbidiv>
+								<zkbidiv jxId="axaclm_totclaim" labelWidth="100px" compWidth="120px"></zkbidiv>
+								<zkbidiv jxId="axaclm_paidamt" labelWidth="100px" compWidth="120px"></zkbidiv>
+							</hlayout>
+							<hlayout>
+								<zkbidiv jxId="axaclm_status" labelWidth="200px" compWidth="120px"></zkbidiv>
+								<zkbidiv jxId="axaclm_submitdate" labelWidth="100px" compWidth="120px"></zkbidiv>
+							</hlayout>
+							<zkbidiv jxId="axaclm_remark2" labelWidth="200px" compWidth="590px"></zkbidiv>
+						</vlayout>
+					</div>
+					<div visible="false" width="400px" vflex="1" style="background-color:#e8e2be;border: solid 1px" align="right">
+						<vlayout spacing="0">
+							<zkbidiv jxId="axaphr_effectdate" labelWidth="200px" compWidth="120px"></zkbidiv>
+							<zkbidiv jxId="axaclm_rg" labelWidth="100px" compWidth="120px"></zkbidiv>
+							<zkbidiv jxId="axaphr_isflexi" labelWidth="100px" compWidth="300px"></zkbidiv>
+							<zkbidiv jxId="axacvp_ohclass" labelWidth="200px" compWidth="120px"></zkbidiv>
+							<zkbidiv jxId="axacvp_occlass" labelWidth="100px" compWidth="120px"></zkbidiv>
+							<zkbidiv jxId="axaphr_lastandate" labelWidth="100px" compWidth="120px"></zkbidiv>
+							<zkbidiv jxId="axaphr_nextandate" labelWidth="100px" compWidth="120px"></zkbidiv>
+							<zkbidiv jxId="axacvp_effectdate" labelWidth="100px" compWidth="120px"></zkbidiv>
+						</vlayout>
+					</div>
+					</hlayout>
+					<div hflex="1" style="background-color:#e8e2be;border: solid 1px">
+						<hlayout>
+							<div width="200px" align="right">Benifit Claimed</div>
+							<listbox hflex="1" id="list_axa_AxaClaimDet" />
+						</hlayout>
+					</div>
+				</vlayout>
+					
+					
+					</tabpanel>
+					<tabpanel>
+
+	<div height="20px"/>
+	<label>Benefits</label>
+	<listbox id="list_axa_ClaimBenefit" />
+	<div height="20px"/>
+	<!-- 
+	<label>Claim Items</label>
+	<listbox id="list_axa_AxaClaimDet" />
+	<div height="20px"/>
+	 -->
+	<label>Claim Statistics</label>
+	<listbox id="list_axa_AxaSTA2" />
+			
+					</tabpanel>
+					<tabpanel>
+					<div height="500px"> 
+					<div>
+						<listbox id="list_axa_PolicyEmail" />
+					</div>
+					</div>
+					</tabpanel>
+				</tabpanels>
+			</tabbox>
+			<div height="50px"></div>
+			</div>
+			
+			<!-- 
+					<hlayout>
+							<zkbidiv jxId="axaclm_date" labelWidth="200px" compWidth="120px"></zkbidiv>
+							<zkbidiv jxId="cldoc_cocode" labelWidth="200px" compWidth="120px"></zkbidiv>
+							<zkbidiv jxId="axaclm_rg" labelWidth="200px" compWidth="120px"></zkbidiv>
+					</hlayout>
+					<hlayout>
+					<zkbidiv jxId="axaclm_phno" labelWidth="200px" compWidth="120px"></zkbidiv>
+					<zkbidiv jxId="axaclm_certno" labelWidth="100px" compWidth="120px"></zkbidiv>
+					<zkbidiv jxId="axaclm_dependno" labelPosition="invisible" compWidth="40px"></zkbidiv>
+					</hlayout>
+					<hlayout>
+					<zkbidiv jxId="axaphr_phafname" labelWidth="200px" compWidth="300px"></zkbidiv>
+					<zkbidiv jxId="axaphr_isflexi" labelWidth="200px" compWidth="300px"></zkbidiv>
+					</hlayout>
+					<hlayout>
+					<zkbidiv jxId="axaphr_effectdate" labelWidth="200px" compWidth="120px"></zkbidiv>
+					<zkbidiv jxId="axaphr_lastandate" labelWidth="200px" compWidth="120px"></zkbidiv>
+					<zkbidiv jxId="axaphr_nextandate" labelWidth="200px" compWidth="120px"></zkbidiv>
+					</hlayout>
+					<hlayout>
+					<zkbidiv jxId="axaphr_effectdate" labelWidth="200px" compWidth="120px"></zkbidiv>
+					<zkbidiv jxId="axaphr_lastandate" labelWidth="200px" compWidth="120px"></zkbidiv>
+					<zkbidiv jxId="axaphr_nextandate" labelWidth="200px" compWidth="120px"></zkbidiv>
+					</hlayout>
+					<hlayout>
+					<zkbidiv jxId="axacvp_covername" labelWidth="200px" compWidth="300px"></zkbidiv>
+					<zkbidiv jxId="axacvp_birthdate" labelWidth="200px" compWidth="120px"></zkbidiv>
+					<zkbidiv jxId="axacvp_ohclass" labelWidth="200px" compWidth="120px"></zkbidiv>
+					<zkbidiv jxId="axacvp_occlass" labelWidth="200px" compWidth="120px"></zkbidiv>
+					</hlayout>
+					<hlayout>
+					<zkbidiv jxId="axacvp_effectdate" labelWidth="200px" compWidth="120px"></zkbidiv>
+					<zkbidiv jxId="axacvp_termination" labelWidth="200px" compWidth="120px"></zkbidiv>
+					</hlayout>
+					<hlayout>
+					<zkbidiv jxId="axabfg_group" labelWidth="200px" compWidth="120px"></zkbidiv>
+					<zkbidiv jxId="axabfg_name" labelWidth="200px" compWidth="300px"></zkbidiv>
+					</hlayout>
+					<hlayout>
+					<zkbidiv jxId="axabfg_agreefee" labelWidth="200px" compWidth="120px"></zkbidiv>
+					<zkbidiv jxId="axaclm_remaining" labelWidth="200px" compWidth="300px"></zkbidiv>
+					<zkbidiv jxId="axaclm_totalstate" labelWidth="200px" compWidth="300px"></zkbidiv>
+					</hlayout>
+					<zkbidiv jxId="cldoc_name" labelWidth="200px" compWidth="300px"></zkbidiv>
+					<zkbidiv jxId="icdm_organ" labelWidth="200px" compWidth="300px"></zkbidiv>
+					<hlayout>
+					<zkbidiv jxId="axaclm_diagnosis" labelWidth="200px" compWidth="300px"></zkbidiv>
+					<button id="btMoreIcd" label="More Diagnosis"> </button>
+					</hlayout>
+					<hlayout>
+					<zkbidiv jxId="axaclm_voucher" labelWidth="200px" compWidth="120px"></zkbidiv>
+					</hlayout>
+					<zkbidiv jxId="axaclm_type" labelWidth="200px" compWidth="300px"></zkbidiv>
+					<zkbidiv jxId="axaclm_consfee" labelWidth="200px" compWidth="120px"></zkbidiv>
+					<zkbidiv jxId="axaclm_medifee" labelWidth="200px" compWidth="120px"></zkbidiv>
+					<hlayout>
+					<zkbidiv jxId="axaclm_xray" labelWidth="200px" compWidth="120px"></zkbidiv>
+					<zkbidiv jxId="axaclm_advxray" labelWidth="200px" compWidth="120px"></zkbidiv>
+					</hlayout>
+					<zkbidiv jxId="axaclm_surg" labelWidth="200px" compWidth="120px"></zkbidiv>
+					<zkbidiv jxId="axaclm_amount" labelWidth="200px" compWidth="120px"></zkbidiv>
+					<zkbidiv jxId="axaclm_totclaim" labelWidth="200px" compWidth="120px"></zkbidiv>
+					<zkbidiv jxId="axaclm_paidamt" labelWidth="200px" compWidth="120px"></zkbidiv>
+					<hlayout>
+					<zkbidiv jxId="axaclm_status" labelWidth="200px" compWidth="120px"></zkbidiv>
+					<zkbidiv jxId="axaclm_submitdate" labelWidth="200px" compWidth="120px"></zkbidiv>
+					</hlayout>
+					<hlayout>
+					<zkbidiv jxId="axaclm_remark2" labelWidth="200px" compWidth="300px"></zkbidiv>
+					<zkbidiv jxId="axaclm_effectdate" labelWidth="200px" compWidth="120px"></zkbidiv>
+					</hlayout>
+			 -->
+	<!--
+	<listbox id="list_axa_ClaimBenefit" sclass="listboxNoSeparator" height="300px"> </listbox>
+	-->
+	</div>
+</zk>

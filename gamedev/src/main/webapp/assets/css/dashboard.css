@@ -1,0 +1,20 @@
+.dashboard span {
+	clear:both;
+    display:block;
+  	text-decoration: none;
+}
+.dashboard a {
+	text-decoration: none;
+	font-family: Arial, "Helvetica Neue", Helvetica, sans-serif;
+	font-size: 18px;
+}
+.dashboard ul li {
+	list-style-type: none;
+	float: none;
+	text-align:center;
+  	display: inline-block;
+  	color:#585858;
+}
+.dashboard ul li:hover {
+  	color:#666666;
+}

@@ -1,0 +1,116 @@
+<zk>
+<grid style="text-align:left;" id="detail_grid">
+	<columns>
+		<column align="right" hflex="min" />
+		<column hflex="1" />
+	</columns>
+	<rows>
+		<row>
+			<label hflex="1" id="lb_st_irg" value="Ref No"><custom-attributes tlkey="lb_st_irg"></custom-attributes></label>
+			<doublebox hflex="1" id="st_irg"/>
+		</row>
+		<row>
+			<label hflex="1" id="lb_sttp_name" value="Type"><custom-attributes tlkey="lb_sttp_name"></custom-attributes></label>
+			<textbox hflex="1" id="sttp_name"/>
+		</row>
+		<row>
+			<label hflex="1" id="lb_mt_tpname" value="Color"><custom-attributes tlkey="lb_mt_tpname"></custom-attributes></label>
+			<textbox hflex="1" id="mt_tpname"/>
+		</row>
+		<row>
+			<label hflex="1" id="lb_mt_tpcname" value="顏色"><custom-attributes tlkey="lb_mt_tpcname"></custom-attributes></label>
+			<textbox hflex="1" id="mt_tpcname"/>
+		</row>
+		<row>
+			<label hflex="1" id="lb_st_icode" value="Stock Code"><custom-attributes tlkey="lb_st_icode"></custom-attributes></label>
+			<textbox hflex="1" id="st_icode"/>
+		</row>
+		<row>
+			<label hflex="1" id="lb_st_iname" value="Stock Name"><custom-attributes tlkey="lb_st_iname"></custom-attributes></label>
+			<textbox hflex="1" id="st_iname"/>
+		</row>
+		<row>
+			<label hflex="1" id="lb_st_msize1" value="Btl/Cs"><custom-attributes tlkey="lb_st_msize1"></custom-attributes></label>
+			<intbox hflex="1" id="st_msize1"/>
+		</row>
+		<row>
+			<label hflex="1" id="lb_st_msize2" value="Volume"><custom-attributes tlkey="lb_st_msize2"></custom-attributes></label>
+			<intbox hflex="1" id="st_msize2"/>
+		</row>
+		<row>
+			<label hflex="1" id="lb_st_mbrand" value="Brand Code"><custom-attributes tlkey="lb_st_mbrand"></custom-attributes></label>
+			<textbox hflex="1" id="st_mbrand"/>
+		</row>
+		<row>
+			<label hflex="1" id="lb_stbd_code" value="stbd_code"><custom-attributes tlkey="lb_stbd_code"></custom-attributes></label>
+			<textbox hflex="1" id="stbd_code"/>
+		</row>
+		<row>
+			<label hflex="1" id="lb_stbd_name" value="Brand Name"><custom-attributes tlkey="lb_stbd_name"></custom-attributes></label>
+			<textbox hflex="1" id="stbd_name"/>
+		</row>
+		<row>
+			<label hflex="1" id="lb_stbd_cname" value="品牌"><custom-attributes tlkey="lb_stbd_cname"></custom-attributes></label>
+			<textbox hflex="1" id="stbd_cname"/>
+		</row>
+		<row>
+			<label hflex="1" id="lb_storg_name" value="Origin"><custom-attributes tlkey="lb_storg_name"></custom-attributes></label>
+			<textbox hflex="1" id="storg_name"/>
+		</row>
+		<row>
+			<label hflex="1" id="lb_storg_cname" value="產地"><custom-attributes tlkey="lb_storg_cname"></custom-attributes></label>
+			<textbox hflex="1" id="storg_cname"/>
+		</row>
+		<row>
+			<label hflex="1" id="lb_st_mszrange" value="Appellation"><custom-attributes tlkey="lb_st_mszrange"></custom-attributes></label>
+			<textbox hflex="1" id="st_mszrange"/>
+		</row>
+		<row>
+			<label hflex="1" id="lb_st_mszrange2" value="產區"><custom-attributes tlkey="lb_st_mszrange2"></custom-attributes></label>
+			<textbox hflex="1" id="st_mszrange2"/>
+		</row>
+		<row>
+			<label hflex="1" id="lb_st_msize3" value="Vintage"><custom-attributes tlkey="lb_st_msize3"></custom-attributes></label>
+			<intbox hflex="1" id="st_msize3"/>
+		</row>
+		<row>
+			<label hflex="1" id="lb_st_maturity" value="Mature"><custom-attributes tlkey="lb_st_maturity"></custom-attributes></label>
+			<textbox hflex="1" id="st_maturity"/>
+		</row>
+		<row>
+			<label hflex="1" id="lb_st_modelno" value="Classification"><custom-attributes tlkey="lb_st_modelno"></custom-attributes></label>
+			<textbox hflex="1" id="st_modelno"/>
+		</row>
+		<row>
+			<label hflex="1" id="lb_st_score0" value="st_score0"><custom-attributes tlkey="lb_st_score0"></custom-attributes></label>
+			<doublebox hflex="1" id="st_score0"/>
+		</row>
+		<row>
+			<label hflex="1" id="lb_st_score1" value="st_score1"><custom-attributes tlkey="lb_st_score1"></custom-attributes></label>
+			<doublebox hflex="1" id="st_score1"/>
+		</row>
+		<row>
+			<label hflex="1" id="lb_st_scorerange" value="Score"><custom-attributes tlkey="lb_st_scorerange"></custom-attributes></label>
+			<textbox hflex="1" id="st_scorerange"/>
+		</row>
+		<row>
+			<label hflex="1" id="lb_st_oicode" value="Alt Stock Code"><custom-attributes tlkey="lb_st_oicode"></custom-attributes></label>
+			<textbox hflex="1" id="st_oicode"/>
+		</row>
+		<row>
+			<label hflex="1" id="lb_st_memo" value="Notes"><custom-attributes tlkey="lb_st_memo"></custom-attributes></label>
+			<textbox hflex="1" id="st_memo"/>
+		</row>
+	<row spans="2">
+	<div>
+		<label id="lb_list_Stock Locations" value="Stock Locations"/>
+		<listbox id="list_wc.locbinstatus"/>	</div>
+	</row>
+	<row spans="2">
+	<div>
+		<label id="lb_list_Notes" value="Notes"/>
+		<listbox id="list_wc.StockMemo"/>	</div>
+	</row>
+	</rows>
+</grid>
+</zk>

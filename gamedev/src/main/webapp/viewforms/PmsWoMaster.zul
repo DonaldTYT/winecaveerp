@@ -1,0 +1,268 @@
+<zk>
+	<grid style="text-align:left;" id="detail_grid"> </grid>
+	<grid style="text-align:left;" width="100%" height="540px"> 
+		<columns visible="false" >
+			<column width="100px" />
+			<column/>
+		</columns>
+	<rows>
+		<row align="center">
+		<label value="type"></label>
+		<hbox align="center">
+			<hbox align = "center">
+				<vbox>
+					<div height="4px"> </div>
+					<radiogroup id="category"><radio/><radio/></radiogroup>
+				</vbox>
+			</hbox>
+			<hbox id="pageScr" align="center">
+				<div width="10px"></div>
+				<label>頁數</label><intbox id="ppage" width="50px"></intbox>
+			</hbox>
+		</hbox>
+		</row>
+		<row align="center">
+			<label> 尺寸 </label>
+		<hbox align="center">
+			<hbox align="center">
+				<vbox>
+					<div height="4px"> </div>
+					<radiogroup id="prtsize"><radio/><radio/></radiogroup>
+				</vbox>
+			</hbox>
+			<hbox id="sizeScr" align="center">
+				<div width="40px"></div>
+				<label>長</label><doublebox id="pdepth" width="70px"></doublebox>
+				<label>x 闊</label><doublebox id="pwidth" width="70px"></doublebox>
+			</hbox>
+		</hbox>
+		</row>
+		<row align="center">
+				<label> 印色 </label>
+		<hbox align="center">
+			<hbox align="center">
+				<vbox>
+					<div height="4px"> </div>
+					<radiogroup id="prtcolor"><radio/><radio/></radiogroup>
+				</vbox>
+			</hbox>
+			<div width="10px"></div>
+			<hbox align="center">
+				<div width="50px">
+				<label> 紙類 </label>
+				</div>
+				<combobox id="papertype"></combobox>
+			</hbox>
+		</hbox>
+		</row>
+		<row align="center" id="cprtScr">
+				<label> 封面印色 </label>
+		<hbox align="center">
+			<hbox align="center">
+				<vbox>
+					<div height="4px"> </div>
+					<radiogroup id="cprtcolor"><radio/><radio/></radiogroup>
+				</vbox>
+			</hbox>
+			<div width="10px"></div>
+			<hbox align="center">
+				<div width="50px">
+				<label> 封面紙類 </label>
+				</div>
+				<combobox id="cpapertype"></combobox>
+			</hbox>
+		</hbox>
+		</row>
+		<row align="center">
+				<label> 加工 </label>
+		<hbox align="center">
+			<hbox align="center" id="bindtypeScr">	
+				<label> 釘裝 </label>
+				<vbox>
+					<div height="4px"> </div>
+					<radiogroup id="bindtype"><radio/><radio/></radiogroup>
+				</vbox>
+				<div width="10px"></div>
+			</hbox>
+			<hbox align="center">
+				<vbox>
+					<div height="4px"> </div>
+					<radiogroup id="fintype"><radio/><radio/></radiogroup>
+				</vbox>
+				<div width="10px"></div>
+				<vbox>
+					<div height="4px"> </div>
+					<checkbox id="folding" label="摺頁"></checkbox>
+				</vbox>
+			</hbox>
+		</hbox>
+		</row>
+		<row align="center">
+		<label> 數量 </label>
+		<hbox align="center">
+			<hbox align="center">
+				<intbox id="quantity"></intbox>
+				<vbox>
+					<div height="4px"> </div>
+					<radiogroup id="shiptype"><radio/><radio/></radiogroup>
+				</vbox>
+			</hbox>
+		</hbox>
+		</row>
+		<row align="center" id="addressScr">
+				<label> 地址 </label>
+		<hbox align="top" >
+				<vbox>
+					<radiogroup id="shipregion"><radio/><radio/></radiogroup>
+					<textbox id="shipaddress" width="600px"></textbox>
+				</vbox>
+		</hbox>
+		</row>
+		<row align="center">
+				<label> 客戶名稱 </label>
+		<hbox align="center">
+			<hbox align="center">
+				<textbox id="custname" width="200px"></textbox>
+				<div width="10px"></div>
+				<label> 聯絡電話 </label>
+				<textbox id="custtel"></textbox>
+			</hbox>
+		</hbox>
+		</row>
+		<row align="center">
+				<label> 單價 </label>
+		<hbox align="center">
+			<hbox align="center">
+				<doublebox id="unitprice" width="80px"></doublebox>
+				<div width="10px"></div>
+				<label> 總數 </label>
+				<doublebox id="totalamt" width="80px"></doublebox>
+				<div width="10px"></div>
+				<label> 付款方法 </label>
+				<vbox>
+					<div height="4px"> </div>
+					<radiogroup id="paytype"><radio/><radio/></radiogroup>
+				</vbox>
+			</hbox>
+		</hbox>
+		</row>
+	</rows>
+	</grid>
+	<vlayout>
+<!-- 
+		<hbox align="center">
+			<hbox align = "center">
+				<label> 類別 </label>
+				<vbox>
+					<div height="4px"> </div>
+					<radiogroup id="category"><radio/><radio/></radiogroup>
+				</vbox>
+			</hbox>
+			<hbox id="pageScr" align="center">
+				<div width="10px"></div>
+				<label>頁數</label><intbox id="ppage" width="50px"></intbox>
+			</hbox>
+		</hbox>
+		<hbox align="center">
+			<hbox align="center">
+				<label> 尺寸 </label>
+				<vbox>
+					<div height="4px"> </div>
+					<radiogroup id="prtsize"><radio/><radio/></radiogroup>
+				</vbox>
+			</hbox>
+			<hbox id="sizeScr" align="center">
+				<div width="10px"></div>
+				<label>長</label><doublebox id="pdepth" width="50px"></doublebox>
+				<label>x 闊</label><doublebox id="pwidth" width="50px"></doublebox>
+			</hbox>
+		</hbox>
+		<hbox align="center">
+			<hbox align="center">
+				<label> 印色 </label>
+				<vbox>
+					<div height="4px"> </div>
+					<radiogroup id="prtcolor"><radio/><radio/></radiogroup>
+				</vbox>
+			</hbox>
+			<div width="10px"></div>
+			<hbox align="center">
+				<label> 紙類 </label>
+				<combobox id="papertype"></combobox>
+			</hbox>
+		</hbox>
+		<hbox align="center" id="cprtScr">
+			<hbox align="center">
+				<label> 封面印色 </label>
+				<vbox>
+					<div height="4px"> </div>
+					<radiogroup id="cprtcolor"><radio/><radio/></radiogroup>
+				</vbox>
+			</hbox>
+			<div width="10px"></div>
+			<hbox align="center">
+				<label> 封面紙類 </label>
+				<combobox id="cpapertype"></combobox>
+			</hbox>
+		</hbox>
+		<hbox align="center">
+			<hbox align="center">
+				<label> 加工 </label>
+			</hbox>	
+			<hbox align="center" id="bindtypeScr">	
+				<vbox>
+					<div height="4px"> </div>
+					<radiogroup id="bindtype"><radio/><radio/></radiogroup>
+				</vbox>
+				<div width="10px"></div>
+			</hbox>
+			<hbox align="center">
+				<vbox>
+					<div height="4px"> </div>
+					<radiogroup id="fintype"><radio/><radio/></radiogroup>
+				</vbox>
+				<div width="10px"></div>
+				<vbox>
+					<div height="4px"> </div>
+					<checkbox id="folding" label="摺頁"></checkbox>
+				</vbox>
+			</hbox>
+		</hbox>
+		<hbox align="center">
+			<hbox align="center">
+				<label> 數量 </label>
+				<intbox id="quantity"></intbox>
+				<vbox>
+					<div height="4px"> </div>
+					<radiogroup id="shiptype"><radio/><radio/></radiogroup>
+				</vbox>
+			</hbox>
+		</hbox>
+		<hbox align="center">
+			<hbox align="center">
+				<label> 客戶名稱 </label>
+				<textbox id="custname"></textbox>
+				<div width="10px"></div>
+				<label> 聯絡電話 </label>
+				<textbox id="custtel"></textbox>
+			</hbox>
+		</hbox>
+		<hbox align="center">
+			<hbox align="center">
+				<doublebox id="unitprice"></doublebox>
+				<div width="10px"></div>
+				<label> 總數 </label>
+				<doublebox id="totalamt"></doublebox>
+				<div width="10px"></div>
+				<label> 付款方法 </label>
+				<vbox>
+					<div height="4px"> </div>
+					<radiogroup id="paytype"><radio/><radio/></radiogroup>
+				</vbox>
+			</hbox>
+		</hbox>
+ -->	
+	</vlayout>
+	<toolbar id="detail_toolbar" align="end">
+	</toolbar>
+</zk>

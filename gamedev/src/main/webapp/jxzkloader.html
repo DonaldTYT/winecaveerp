@@ -1,0 +1,80 @@
+<%@ page language="java" pageEncoding="utf-8" contentType="text/html;charset=utf-8"%>
+<%@ page import="java.util.*, com.uniinformation.utils.*,com.uniinformation.webcore.* " %>
+<%
+response.setHeader("Cache-Control", "no-cache, no-store, must-revalidate"); // HTTP 1.1.
+response.setHeader("Pragma", "no-cache"); // HTTP 1.0.
+response.setHeader("Expires", "0"); // Proxies.
+try {	
+	SessionHelper sessionHelper = ZkSessionHelper.getSessionHelper(request, response);   
+	sessionHelper.validateLogin(request, response);
+%>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<jsp:include page="commonInit.jsp" flush="true"/>
+<script>
+//muLoadCss(null, "css/zkbiloader.css?version=<%=sessionHelper.getVersionId()%>", "cssMobile/zkbiloader.css?version=<%=sessionHelper.getVersionId()%>");
+</script>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title><%=sessionHelper.getWebPageTitle()%></title>
+<style>
+<%
+	if (sessionHelper.getAllowWallpaper()){
+	
+%>
+@media (orientation: landscape) {
+	body{ 
+		background-image: url("<%=sessionHelper.getWallPaperPath(false)%>") !important;
+		background-repeat: no-repeat !important;
+		background-size: cover !important;
+		background-position-x: center !important;
+		background-position-y: center !important;
+		background-attachment: fixed !important;
+	}
+}
+
+@media (orientation: portrait) {
+	body{ 
+		background-image: url("<%=sessionHelper.getWallPaperPath(true)%>") !important;
+		background-repeat: no-repeat !important;
+		background-size: cover !important;
+		background-position-x: center !important;
+		background-position-y: center !important;
+		background-attachment: fixed !important;
+	}
+}
+.sidemenu-container { 
+	background: none !important;
+    border-bottom: none !important;
+}
+.zkbi-main-window {
+	border-radius: 5px !important;
+}
+.zkbi-main-window .z-window-content {
+	background:#dae9f0 !important;
+}
+.zkbi-main-window {
+	border: 1px solid #b4cada !important;
+}
+<%
+	}	
+%>
+
+</style>
+</head>
+
+<body>
+	<jsp:include page="sideMenu.jsp" flush="true"/>
+	<div style="height:5px">&nbsp;</div>
+	<div class="zk-container">
+	   	<jsp:include page='<%=request.getParameter("zul")%>' flush="true" /> 
+	</div>
+</body>
+</html>
+<%
+} catch(Exception ex) {
+	UniLog.log(ex);
+	throw(ex);
+} finally {
+}
+%>

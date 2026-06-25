@@ -1,0 +1,425 @@
+@media only screen and (max-width: 350px) {
+  [class*="zkpdf"] {
+    width: 240px;
+  }
+}
+@media only screen and (min-width: 351px) and (max-width: 400px) {
+  [class*="zkpdf"] {
+    width: 280px;
+  }
+}
+@media only screen and (min-width: 401px) and (max-width: 450px) {
+  [class*="zkpdf"] {
+    width: 320px;
+  }
+}
+@media only screen and (min-width: 451px) and (max-width: 500px) {
+  [class*="zkpdf"] {
+    width: 360px;
+  }
+}
+@media only screen and (min-width: 501px) and (max-width: 550px) {
+  [class*="zkpdf"] {
+    width: 400px;
+  }
+}
+@media only screen and (min-width: 551px) and (max-width: 600px) {
+  [class*="zkpdf"] {
+    width: 440px;
+  }
+}
+@media only screen and (min-width: 601px) and (max-width: 650px) {
+  [class*="zkpdf"] {
+    width: 480px;
+  }
+}
+@media only screen and (min-width: 651px) and (max-width: 700px) {
+  [class*="zkpdf"] {
+    width: 520px;
+  }
+}
+@media only screen and (min-width: 701px) and (max-width: 750px) {
+  [class*="zkpdf"] {
+    width: 560px;
+  }
+}
+@media only screen and (min-width: 751px) and (max-width: 800px) {
+  [class*="zkpdf"] {
+    width: 600px;
+  }
+}
+@media only screen and (min-width: 801px) and (max-width: 850px) {
+  [class*="zkpdf"] {
+    width: 640px;
+  }
+}
+@media only screen and (min-width: 851px) and (max-width: 900px) {
+  [class*="zkpdf"] {
+    width: 680px;
+  }
+}
+@media only screen and (min-width: 901px) and (max-width: 950px) {
+  [class*="zkpdf"] {
+    width: 720px;
+  }
+}
+@media only screen and (min-width: 951px) and (max-width: 1000px) {
+  [class*="zkpdf"] {
+    width: 760px;
+  }
+}
+@media only screen and (min-width: 1001px) and (max-width: 1200px) {
+  [class*="zkpdf"] {
+    width: 800px;
+  }
+}
+@media only screen and (min-width: 1201px) and (max-width: 1400px) {
+  [class*="zkpdf"] {
+    width: 960px;
+  }
+}
+@media only screen and (min-width: 1401px) and (max-width: 1600px) {
+  [class*="zkpdf"] {
+    width: 1120px;
+  }
+}
+@media only screen and (min-width: 1601px) and (max-width: 1800px) {
+  [class*="zkpdf"] {
+    width: 1280px;
+  }
+}
+@media only screen and (min-width: 1801px) and (max-width: 2000px) {
+  [class*="zkpdf"] {
+    width: 1440px;
+  }
+}
+@media only screen and (min-width: 2001px) and (max-width: 2200px) {
+  [class*="zkpdf"] {
+    width: 1600px;
+  }
+}
+@media only screen and (min-width: 2201px) and (max-width: 2400px) {
+  [class*="zkpdf"] {
+    width: 1760px;
+  }
+}
+@media only screen and (min-width: 2401px) and (max-width: 2600px) {
+  [class*="zkpdf"] {
+    width: 1920px;
+  }
+}
+@media only screen and (min-width: 2601px) and (max-width: 2800px) {
+  [class*="zkpdf"] {
+    width: 2080px;
+  }
+}
+@media only screen and (min-width: 2801px) and (max-width: 3000px) {
+  [class*="zkpdf"] {
+    width: 2240px;
+  }
+}
+@media only screen and (min-width: 3001px) and (max-width: 3200px) {
+  [class*="zkpdf"] {
+    width: 2400px;
+  }
+}
+@media only screen and (min-width: 3201px) and (max-width: 3400px) {
+  [class*="zkpdf"] {
+    width: 2560px;
+  }
+}
+@media only screen and (min-width: 3401px) and (max-width: 3600px) {
+  [class*="zkpdf"] {
+    width: 2720px;
+  }
+}
+@media only screen and (min-width: 3601px) and (max-width: 3800px) {
+  [class*="zkpdf"] {
+    width: 2880px;
+  }
+}
+@media only screen and (min-width: 3801px) and (max-width: 4000px) {
+  [class*="zkpdf"] {
+    width: 3040px;
+  }
+}
+@media only screen and (min-width: 4001px) and (max-width: 5000px) {
+  [class*="zkpdf"] {
+    width: 3200px;
+  }
+}
+@media only screen and (min-width: 4201px) and (max-width: 4400px) {
+  [class*="zkpdf"] {
+    width: 3360px;
+  }
+}
+@media only screen and (min-width: 4401px) and (max-width: 4600px) {
+  [class*="zkpdf"] {
+    width: 3520px;
+  }
+}
+@media only screen and (min-width: 4601px) and (max-width: 4800px) {
+  [class*="zkpdf"] {
+    width: 3680px;
+  }
+}
+@media only screen and (min-width: 4801px) and (max-width: 5000px) {
+  [class*="zkpdf"] {
+    width: 3840px;
+  }
+}
+@media only screen and (min-width: 5001px) and (max-width: 5200px) {
+  [class*="zkpdf"] {
+    width: 4000px;
+  }
+}
+@media only screen and (min-width: 5201px) and (max-width: 5400px) {
+  [class*="zkpdf"] {
+    width: 4160px;
+  }
+}
+@media only screen and (min-width: 5401px) and (max-width: 5600px) {
+  [class*="zkpdf"] {
+    width: 4320px;
+  }
+}
+@media only screen and (min-width: 5601px) and (max-width: 5800px) {
+  [class*="zkpdf"] {
+    width: 4480px;
+  }
+}
+@media only screen and (min-width: 5801px) and (max-width: 6000px) {
+  [class*="zkpdf"] {
+    width: 4640px;
+  }
+}
+@media only screen and (min-width: 6001px) and (max-width: 6200px) {
+  [class*="zkpdf"] {
+    width: 4800px;
+  }
+}
+@media only screen and (min-width: 6201px) and (max-width: 6400px) {
+  [class*="zkpdf"] {
+    width: 4960px;
+  }
+}
+@media only screen and (min-width: 6401px) and (max-width: 6600px) {
+  [class*="zkpdf"] {
+    width: 5120px;
+  }
+}
+@media only screen and (min-width: 6601px) and (max-width: 6800px) {
+  [class*="zkpdf"] {
+    width: 5280px;
+  }
+}
+@media only screen and (min-width: 6801px) and (max-width: 7000px) {
+  [class*="zkpdf"] {
+    width: 5440px;
+  }
+}
+@media only screen and (min-width: 7001px) and (max-width: 7200px) {
+  [class*="zkpdf"] {
+    width: 5600px;
+  }
+}
+@media only screen and (min-width: 7201px) and (max-width: 7400px) {
+  [class*="zkpdf"] {
+    width: 5760px;
+  }
+}
+@media only screen and (min-width: 7401px) and (max-width: 7600px) {
+  [class*="zkpdf"] {
+    width: 5920px;
+  }
+}
+@media only screen and (min-width: 7601px) and (max-width: 7800px) {
+  [class*="zkpdf"] {
+    width: 6080px;
+  }
+}
+@media only screen and (min-width: 7801px) and (max-width: 8000px) {
+  [class*="zkpdf"] {
+    width: 6240px;
+  }
+}
+@media only screen and (min-width: 8001px) {
+  [class*="zkpdf"] {
+    width: 6400px;
+  }
+}
+@media only screen and (max-height: 200px) {
+  [class*="zkpdf"] {
+    height: 143px;
+  }
+}
+@media only screen and (min-height: 201px) and (max-height: 250px) {
+  [class*="zkpdf"] {
+    height: 190px;
+  }
+}
+@media only screen and (min-height: 251px) and (max-height: 300px) {
+  [class*="zkpdf"] {
+    height: 238px;
+  }
+}
+@media only screen and (min-height: 301px) and (max-height: 350px) {
+  [class*="zkpdf"] {
+    height: 285px;
+  }
+}
+@media only screen and (min-height: 351px) and (max-height: 400px) {
+  [class*="zkpdf"] {
+    height: 333px;
+  }
+}
+@media only screen and (min-height: 401px) and (max-height: 500px) {
+  [class*="zkpdf"] {
+    height: 380px;
+  }
+}
+@media only screen and (min-height: 501px) and (max-height: 600px) {
+  [class*="zkpdf"] {
+    height: 475px;
+  }
+}
+@media only screen and (min-height: 601px) and (max-height: 700px) {
+  [class*="zkpdf"] {
+    height: 570px;
+  }
+}
+@media only screen and (min-height: 701px) and (max-height: 800px) {
+  [class*="zkpdf"] {
+    height: 665px;
+  }
+}
+@media only screen and (min-height: 801px) and (max-height: 900px) {
+  [class*="zkpdf"] {
+    height: 760px;
+  }
+}
+@media only screen and (min-height: 901px) and (max-height: 1000px) {
+  [class*="zkpdf"] {
+    height: 855px;
+  }
+}
+@media only screen and (min-height: 1001px) and (max-height: 1100px) {
+  [class*="zkpdf"] {
+    height: 950px;
+  }
+}
+@media only screen and (min-height: 1101px) and (max-height: 1200px) {
+  [class*="zkpdf"] {
+    height: 1045px;
+  }
+}
+@media only screen and (min-height: 1201px) and (max-height: 1300px) {
+  [class*="zkpdf"] {
+    height: 1140px;
+  }
+}
+@media only screen and (min-height: 1301px) and (max-height: 1400px) {
+  [class*="zkpdf"] {
+    height: 1235px;
+  }
+}
+@media only screen and (min-height: 1401px) and (max-height: 1500px) {
+  [class*="zkpdf"] {
+    height: 1330px;
+  }
+}
+@media only screen and (min-height: 1501px) and (max-height: 1600px) {
+  [class*="zkpdf"] {
+    height: 1425px;
+  }
+}
+@media only screen and (min-height: 1601px) and (max-height: 1700px) {
+  [class*="zkpdf"] {
+    height: 1520px;
+  }
+}
+@media only screen and (min-height: 1701px) and (max-height: 1800px) {
+  [class*="zkpdf"] {
+    height: 1615px;
+  }
+}
+@media only screen and (min-height: 1801px) and (max-height: 1900px) {
+  [class*="zkpdf"] {
+    height: 1710px;
+  }
+}
+@media only screen and (min-height: 1901px) and (max-height: 2000px) {
+  [class*="zkpdf"] {
+    height: 1805px;
+  }
+}
+@media only screen and (min-height: 2001px) and (max-height: 2200px) {
+  [class*="zkpdf"] {
+    height: 1900px;
+  }
+}
+@media only screen and (min-height: 2201px) and (max-height: 2400px) {
+  [class*="zkpdf"] {
+    height: 2090px;
+  }
+}
+@media only screen and (min-height: 2401px) and (max-height: 2600px) {
+  [class*="zkpdf"] {
+    height: 2280px;
+  }
+}
+@media only screen and (min-height: 2601px) and (max-height: 2800px) {
+  [class*="zkpdf"] {
+    height: 2470px;
+  }
+}
+@media only screen and (min-height: 2801px) and (max-height: 3000px) {
+  [class*="zkpdf"] {
+    height: 2660px;
+  }
+}
+@media only screen and (min-height: 3001px) and (max-height: 3200px) {
+  [class*="zkpdf"] {
+    height: 2850px;
+  }
+}
+@media only screen and (min-height: 3201px) and (max-height: 3400px) {
+  [class*="zkpdf"] {
+    height: 3040px;
+  }
+}
+@media only screen and (min-height: 3401px) and (max-height: 3600px) {
+  [class*="zkpdf"] {
+    height: 3230px;
+  }
+}
+@media only screen and (min-height: 3601px) and (max-height: 3800px) {
+  [class*="zkpdf"] {
+    height: 3420px;
+  }
+}
+@media only screen and (min-height: 3801px) and (max-height: 4000px) {
+  [class*="zkpdf"] {
+    height: 3610px;
+  }
+}
+@media only screen and (min-height: 4001px) and (max-height: 4200px) {
+  [class*="zkpdf"] {
+    height: 3800px;
+  }
+}
+@media only screen and (min-height: 4201px) and (max-height: 4400px) {
+  [class*="zkpdf"] {
+    height: 3990px;
+  }
+}
+@media only screen and (min-height: 4401px) and (max-height: 4600px) {
+  [class*="zkpdf"] {
+    height: 4180px;
+  }
+}
+@media only screen and (min-height: 4601px) {
+  [class*="zkpdf"] {
+    height: 4370px;
+  }
+}

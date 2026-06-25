@@ -1,0 +1,50 @@
+<zk>
+<div>
+	<vlayout>
+<!-- 
+	<hlayout>
+		<div width="120px">
+		<label>Invoice No. </label>		
+		</div>
+		<div width="200px">
+		<label>Outtanding</label>		
+		</div>
+		<div width="60px">
+		<label>CCY</label>		
+		</div>
+		<div width="120px">
+		<label>Ex. Rate</label>		
+		</div>
+		<div width="200px">
+		<label>Base Amount</label>		
+		</div>
+	</hlayout>
+ -->
+	<listbox id="payment_detail">
+	</listbox>
+	<template name="template_paymentdetail">
+	<hlayout>
+		<div width="120px">
+		<textbox id="paydet_sno" width="100px"/>
+		</div>
+		<div width="200px">
+		<doublebox id="paydet_osbal" width="180px"/>
+		</div>
+		<div width="60px">
+		<textbox id="paydet_ccy" width="50px"/>
+		</div>
+		<div width="120px">
+		<doublebox id="paydet_exrate" width="100px"/>
+		</div>
+		<div width="200px">
+		<doublebox id="paydet_losbal" width="180px"/>
+		</div>
+	</hlayout>
+	</template>
+	<hlayout>
+	<button id="btOK" label="OK"></button>
+	<button id="btCancel" label="Cancel"></button>
+	</hlayout>
+	</vlayout>
+</div>
+</zk>

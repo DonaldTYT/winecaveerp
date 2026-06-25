@@ -1,0 +1,27 @@
+<?page title="Auto Generated index.zul"?>
+<zk>
+<script src="js/visUtil.js"></script>
+<window id="zkbibrowser" border="none" apply="com.uniinformation.zkbi.afs.ZkBiComposerAfsServiceJob2" xmlns:h="native">
+	<custom-attributes listboxHeight="css"/>
+	<tabbox id="zkbiListTop" width="100%">
+		<tabs width="100%">
+			<tab label="Detail"><custom-attributes tlkey="tab_detail"/></tab>
+			<tab id="afsCalendarTab" label="Calendar"><custom-attributes tlkey="tab_calendar"/></tab>
+		</tabs>
+		<tabpanels>
+			<tabpanel id="zkbiListPanel" > 
+				<listbox id="browser_listbox"/>
+				<hlayout height="10px" valign="middle"> </hlayout>
+				<vbox id="zkbiBottomPanel" width="100%"></vbox>
+			</tabpanel>
+			<tabpanel id="afsCalendarPanel" > 
+				<vbox>
+				<combobox id="afsCalendarMonth"></combobox>
+				<grid sclass="zkbi-calendar" id="afsCalendar" use="com.uniinformation.jx.zk.ZkJxCalendar">
+				</grid>
+				</vbox>
+			</tabpanel>
+		</tabpanels>
+	</tabbox>
+</window>
+</zk>

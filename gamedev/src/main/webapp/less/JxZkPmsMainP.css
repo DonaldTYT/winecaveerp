@@ -1,0 +1,1162 @@
+[class*="z-"]:not([class*="z-icon-"]) {
+  overflow: none;
+}
+body {
+  padding: 0 0px !important;
+  text-align: left;
+}
+div.z-page {
+  width: 100%;
+  height: 100%;
+}
+.grid-no-border tr.z-row td.z-row-inner,
+tr.z-row z-cell,
+div.z-grid {
+  border: none;
+  overflow: none;
+  zoom: 1;
+  background: white;
+  border-top: none;
+  border-left: none;
+  border-right: none;
+  border-bottom: none;
+}
+.textbox-whitered {
+  background-color: #FFFFFF;
+  color: red;
+  border-style: none;
+  font-weight: bold;
+}
+.z-paging-input {
+  text-align: center !important;
+}
+.grid-max-height table {
+  color: black;
+  height: 100%;
+}
+.z-grid-body {
+  overflow: hidden !important;
+}
+.z-window-content {
+  padding: 0px !important;
+}
+@media only screen and (max-width: 300px) and (orientation: landscape) {
+  [class*="z-"]:not([class*="z-icon-"]) {
+    font-size: 8px;
+  }
+  .pmain-button {
+    font-size: 14px !important;
+  }
+  .z-paging {
+    /*height: round(@w / 30) !important;*/
+    /*height: round(@w / 25, 1) !important;*/
+    height: 200% !important;
+    /*should change to px*/
+  }
+  .z-paging-icon {
+    font-size: 8px !important;
+    line-height: 10px !important;
+  }
+  .z-paging-button {
+    width: 30px !important;
+    height: 12px !important;
+  }
+  .z-paging-input {
+    height: 12px !important;
+    font-size: 6px !important;
+  }
+  .z-paging-text {
+    height: 12px !important;
+    font-size: 6px !important;
+  }
+  .z-paging-info {
+    line-height: 10px !important;
+    font-size: 6px !important;
+  }
+  .z-messagebox-button {
+    width: 45px !important;
+    height: 18px !important;
+    font-size: 12px !important;
+  }
+  /*
+      .z-listcell-content{
+         font-size: round(@w / 50 * @s) !important;
+         height: round(@w / 24 * @s)  !important;
+         line-height: round(@w / 26 * @s) !important;
+      }
+      */
+  .z-listcell-content .z-label {
+    line-height: 12px !important;
+  }
+  /*
+      .z-listheader-content{
+         font-size: round(@w / 55 * @s) !important;
+         height: round(@w / 24 * @s) !important;
+         line-height: round(@w / 26 * @s)  !important;
+      }
+      */
+}
+@media only screen and (min-width: 350px) and (max-width: 400px) and (orientation: landscape) {
+  [class*="z-"]:not([class*="z-icon-"]) {
+    font-size: 9px;
+  }
+  .pmain-button {
+    font-size: 16px !important;
+  }
+  .z-paging {
+    /*height: round(@w / 30) !important;*/
+    /*height: round(@w / 25, 1) !important;*/
+    height: 200% !important;
+    /*should change to px*/
+  }
+  .z-paging-icon {
+    font-size: 9px !important;
+    line-height: 12px !important;
+  }
+  .z-paging-button {
+    width: 35px !important;
+    height: 13px !important;
+  }
+  .z-paging-input {
+    height: 13px !important;
+    font-size: 7px !important;
+  }
+  .z-paging-text {
+    height: 13px !important;
+    font-size: 7px !important;
+  }
+  .z-paging-info {
+    line-height: 12px !important;
+    font-size: 7px !important;
+  }
+  .z-messagebox-button {
+    width: 53px !important;
+    height: 21px !important;
+    font-size: 14px !important;
+  }
+  /*
+      .z-listcell-content{
+         font-size: round(@w / 50 * @s) !important;
+         height: round(@w / 24 * @s)  !important;
+         line-height: round(@w / 26 * @s) !important;
+      }
+      */
+  .z-listcell-content .z-label {
+    line-height: 13px !important;
+  }
+  /*
+      .z-listheader-content{
+         font-size: round(@w / 55 * @s) !important;
+         height: round(@w / 24 * @s) !important;
+         line-height: round(@w / 26 * @s)  !important;
+      }
+      */
+}
+@media only screen and (min-width: 401px) and (max-width: 500px) and (orientation: landscape) {
+  [class*="z-"]:not([class*="z-icon-"]) {
+    font-size: 10px;
+  }
+  .pmain-button {
+    font-size: 18px !important;
+  }
+  .z-paging {
+    /*height: round(@w / 30) !important;*/
+    /*height: round(@w / 25, 1) !important;*/
+    height: 200% !important;
+    /*should change to px*/
+  }
+  .z-paging-icon {
+    font-size: 10px !important;
+    line-height: 13px !important;
+  }
+  .z-paging-button {
+    width: 40px !important;
+    height: 15px !important;
+  }
+  .z-paging-input {
+    height: 15px !important;
+    font-size: 8px !important;
+  }
+  .z-paging-text {
+    height: 15px !important;
+    font-size: 8px !important;
+  }
+  .z-paging-info {
+    line-height: 13px !important;
+    font-size: 8px !important;
+  }
+  .z-messagebox-button {
+    width: 60px !important;
+    height: 24px !important;
+    font-size: 16px !important;
+  }
+  /*
+      .z-listcell-content{
+         font-size: round(@w / 50 * @s) !important;
+         height: round(@w / 24 * @s)  !important;
+         line-height: round(@w / 26 * @s) !important;
+      }
+      */
+  .z-listcell-content .z-label {
+    line-height: 15px !important;
+  }
+  /*
+      .z-listheader-content{
+         font-size: round(@w / 55 * @s) !important;
+         height: round(@w / 24 * @s) !important;
+         line-height: round(@w / 26 * @s)  !important;
+      }
+      */
+}
+@media only screen and (min-width: 501px) and (max-width: 600px) and (orientation: landscape) {
+  [class*="z-"]:not([class*="z-icon-"]) {
+    font-size: 13px;
+  }
+  .pmain-button {
+    font-size: 23px !important;
+  }
+  .z-paging {
+    /*height: round(@w / 30) !important;*/
+    /*height: round(@w / 25, 1) !important;*/
+    height: 200% !important;
+    /*should change to px*/
+  }
+  .z-paging-icon {
+    font-size: 13px !important;
+    line-height: 17px !important;
+  }
+  .z-paging-button {
+    width: 50px !important;
+    height: 19px !important;
+  }
+  .z-paging-input {
+    height: 19px !important;
+    font-size: 10px !important;
+  }
+  .z-paging-text {
+    height: 19px !important;
+    font-size: 10px !important;
+  }
+  .z-paging-info {
+    line-height: 17px !important;
+    font-size: 10px !important;
+  }
+  .z-messagebox-button {
+    width: 75px !important;
+    height: 30px !important;
+    font-size: 20px !important;
+  }
+  /*
+      .z-listcell-content{
+         font-size: round(@w / 50 * @s) !important;
+         height: round(@w / 24 * @s)  !important;
+         line-height: round(@w / 26 * @s) !important;
+      }
+      */
+  .z-listcell-content .z-label {
+    line-height: 19px !important;
+  }
+  /*
+      .z-listheader-content{
+         font-size: round(@w / 55 * @s) !important;
+         height: round(@w / 24 * @s) !important;
+         line-height: round(@w / 26 * @s)  !important;
+      }
+      */
+}
+@media only screen and (min-width: 601px) and (max-width: 800px) and (orientation: landscape) {
+  [class*="z-"]:not([class*="z-icon-"]) {
+    font-size: 15px;
+  }
+  .pmain-button {
+    font-size: 27px !important;
+  }
+  .z-paging {
+    /*height: round(@w / 30) !important;*/
+    /*height: round(@w / 25, 1) !important;*/
+    height: 200% !important;
+    /*should change to px*/
+  }
+  .z-paging-icon {
+    font-size: 15px !important;
+    line-height: 20px !important;
+  }
+  .z-paging-button {
+    width: 60px !important;
+    height: 23px !important;
+  }
+  .z-paging-input {
+    height: 23px !important;
+    font-size: 12px !important;
+  }
+  .z-paging-text {
+    height: 23px !important;
+    font-size: 12px !important;
+  }
+  .z-paging-info {
+    line-height: 20px !important;
+    font-size: 12px !important;
+  }
+  .z-messagebox-button {
+    width: 90px !important;
+    height: 36px !important;
+    font-size: 24px !important;
+  }
+  /*
+      .z-listcell-content{
+         font-size: round(@w / 50 * @s) !important;
+         height: round(@w / 24 * @s)  !important;
+         line-height: round(@w / 26 * @s) !important;
+      }
+      */
+  .z-listcell-content .z-label {
+    line-height: 23px !important;
+  }
+  /*
+      .z-listheader-content{
+         font-size: round(@w / 55 * @s) !important;
+         height: round(@w / 24 * @s) !important;
+         line-height: round(@w / 26 * @s)  !important;
+      }
+      */
+}
+@media only screen and (min-width: 801px) and (max-width: 1000px) and (orientation: landscape) {
+  [class*="z-"]:not([class*="z-icon-"]) {
+    font-size: 20px;
+  }
+  .pmain-button {
+    font-size: 36px !important;
+  }
+  .z-paging {
+    /*height: round(@w / 30) !important;*/
+    /*height: round(@w / 25, 1) !important;*/
+    height: 200% !important;
+    /*should change to px*/
+  }
+  .z-paging-icon {
+    font-size: 20px !important;
+    line-height: 27px !important;
+  }
+  .z-paging-button {
+    width: 80px !important;
+    height: 31px !important;
+  }
+  .z-paging-input {
+    height: 31px !important;
+    font-size: 16px !important;
+  }
+  .z-paging-text {
+    height: 31px !important;
+    font-size: 16px !important;
+  }
+  .z-paging-info {
+    line-height: 27px !important;
+    font-size: 16px !important;
+  }
+  .z-messagebox-button {
+    width: 120px !important;
+    height: 48px !important;
+    font-size: 32px !important;
+  }
+  /*
+      .z-listcell-content{
+         font-size: round(@w / 50 * @s) !important;
+         height: round(@w / 24 * @s)  !important;
+         line-height: round(@w / 26 * @s) !important;
+      }
+      */
+  .z-listcell-content .z-label {
+    line-height: 31px !important;
+  }
+  /*
+      .z-listheader-content{
+         font-size: round(@w / 55 * @s) !important;
+         height: round(@w / 24 * @s) !important;
+         line-height: round(@w / 26 * @s)  !important;
+      }
+      */
+}
+@media only screen and (min-width: 1001px) and (max-width: 1200px) and (orientation: landscape) {
+  [class*="z-"]:not([class*="z-icon-"]) {
+    font-size: 23px;
+  }
+  .pmain-button {
+    font-size: 41px !important;
+  }
+  .z-paging {
+    /*height: round(@w / 30) !important;*/
+    /*height: round(@w / 25, 1) !important;*/
+    height: 200% !important;
+    /*should change to px*/
+  }
+  .z-paging-icon {
+    font-size: 23px !important;
+    line-height: 30px !important;
+  }
+  .z-paging-button {
+    width: 90px !important;
+    height: 35px !important;
+  }
+  .z-paging-input {
+    height: 35px !important;
+    font-size: 18px !important;
+  }
+  .z-paging-text {
+    height: 35px !important;
+    font-size: 18px !important;
+  }
+  .z-paging-info {
+    line-height: 30px !important;
+    font-size: 18px !important;
+  }
+  .z-messagebox-button {
+    width: 135px !important;
+    height: 54px !important;
+    font-size: 36px !important;
+  }
+  /*
+      .z-listcell-content{
+         font-size: round(@w / 50 * @s) !important;
+         height: round(@w / 24 * @s)  !important;
+         line-height: round(@w / 26 * @s) !important;
+      }
+      */
+  .z-listcell-content .z-label {
+    line-height: 35px !important;
+  }
+  /*
+      .z-listheader-content{
+         font-size: round(@w / 55 * @s) !important;
+         height: round(@w / 24 * @s) !important;
+         line-height: round(@w / 26 * @s)  !important;
+      }
+      */
+}
+@media only screen and (min-width: 1201px) and (max-width: 1500px) and (orientation: landscape) {
+  [class*="z-"]:not([class*="z-icon-"]) {
+    font-size: 23px;
+  }
+  .pmain-button {
+    font-size: 41px !important;
+  }
+  .z-paging {
+    /*height: round(@w / 30) !important;*/
+    /*height: round(@w / 25, 1) !important;*/
+    height: 200% !important;
+    /*should change to px*/
+  }
+  .z-paging-icon {
+    font-size: 23px !important;
+    line-height: 30px !important;
+  }
+  .z-paging-button {
+    width: 90px !important;
+    height: 35px !important;
+  }
+  .z-paging-input {
+    height: 35px !important;
+    font-size: 18px !important;
+  }
+  .z-paging-text {
+    height: 35px !important;
+    font-size: 18px !important;
+  }
+  .z-paging-info {
+    line-height: 30px !important;
+    font-size: 18px !important;
+  }
+  .z-messagebox-button {
+    width: 135px !important;
+    height: 54px !important;
+    font-size: 36px !important;
+  }
+  /*
+      .z-listcell-content{
+         font-size: round(@w / 50 * @s) !important;
+         height: round(@w / 24 * @s)  !important;
+         line-height: round(@w / 26 * @s) !important;
+      }
+      */
+  .z-listcell-content .z-label {
+    line-height: 35px !important;
+  }
+  /*
+      .z-listheader-content{
+         font-size: round(@w / 55 * @s) !important;
+         height: round(@w / 24 * @s) !important;
+         line-height: round(@w / 26 * @s)  !important;
+      }
+      */
+}
+@media only screen and (min-width: 1501px) and (max-width: 2000px) and (orientation: landscape) {
+  [class*="z-"]:not([class*="z-icon-"]) {
+    font-size: 23px;
+  }
+  .pmain-button {
+    font-size: 41px !important;
+  }
+  .z-paging {
+    /*height: round(@w / 30) !important;*/
+    /*height: round(@w / 25, 1) !important;*/
+    height: 200% !important;
+    /*should change to px*/
+  }
+  .z-paging-icon {
+    font-size: 23px !important;
+    line-height: 30px !important;
+  }
+  .z-paging-button {
+    width: 90px !important;
+    height: 35px !important;
+  }
+  .z-paging-input {
+    height: 35px !important;
+    font-size: 18px !important;
+  }
+  .z-paging-text {
+    height: 35px !important;
+    font-size: 18px !important;
+  }
+  .z-paging-info {
+    line-height: 30px !important;
+    font-size: 18px !important;
+  }
+  .z-messagebox-button {
+    width: 135px !important;
+    height: 54px !important;
+    font-size: 36px !important;
+  }
+  /*
+      .z-listcell-content{
+         font-size: round(@w / 50 * @s) !important;
+         height: round(@w / 24 * @s)  !important;
+         line-height: round(@w / 26 * @s) !important;
+      }
+      */
+  .z-listcell-content .z-label {
+    line-height: 35px !important;
+  }
+  /*
+      .z-listheader-content{
+         font-size: round(@w / 55 * @s) !important;
+         height: round(@w / 24 * @s) !important;
+         line-height: round(@w / 26 * @s)  !important;
+      }
+      */
+}
+@media only screen and (min-width: 2001px) and (orientation: landscape) {
+  [class*="z-"]:not([class*="z-icon-"]) {
+    font-size: 23px;
+  }
+  .pmain-button {
+    font-size: 41px !important;
+  }
+  .z-paging {
+    /*height: round(@w / 30) !important;*/
+    /*height: round(@w / 25, 1) !important;*/
+    height: 200% !important;
+    /*should change to px*/
+  }
+  .z-paging-icon {
+    font-size: 23px !important;
+    line-height: 30px !important;
+  }
+  .z-paging-button {
+    width: 90px !important;
+    height: 35px !important;
+  }
+  .z-paging-input {
+    height: 35px !important;
+    font-size: 18px !important;
+  }
+  .z-paging-text {
+    height: 35px !important;
+    font-size: 18px !important;
+  }
+  .z-paging-info {
+    line-height: 30px !important;
+    font-size: 18px !important;
+  }
+  .z-messagebox-button {
+    width: 135px !important;
+    height: 54px !important;
+    font-size: 36px !important;
+  }
+  /*
+      .z-listcell-content{
+         font-size: round(@w / 50 * @s) !important;
+         height: round(@w / 24 * @s)  !important;
+         line-height: round(@w / 26 * @s) !important;
+      }
+      */
+  .z-listcell-content .z-label {
+    line-height: 35px !important;
+  }
+  /*
+      .z-listheader-content{
+         font-size: round(@w / 55 * @s) !important;
+         height: round(@w / 24 * @s) !important;
+         line-height: round(@w / 26 * @s)  !important;
+      }
+      */
+}
+@media only screen and (max-width: 300px) and (orientation: portrait) {
+  [class*="z-"]:not([class*="z-icon-"]) {
+    font-size: 8px;
+  }
+  .pmain-button {
+    font-size: 14px !important;
+  }
+  .z-paging {
+    /*height: round(@w / 30) !important;*/
+    /*height: round(@w / 25, 1) !important;*/
+    height: 200% !important;
+    /*should change to px*/
+  }
+  .z-paging-icon {
+    font-size: 8px !important;
+    line-height: 10px !important;
+  }
+  .z-paging-button {
+    width: 30px !important;
+    height: 12px !important;
+  }
+  .z-paging-input {
+    height: 12px !important;
+    font-size: 6px !important;
+  }
+  .z-paging-text {
+    height: 12px !important;
+    font-size: 6px !important;
+  }
+  .z-paging-info {
+    line-height: 10px !important;
+    font-size: 6px !important;
+  }
+  .z-messagebox-button {
+    width: 45px !important;
+    height: 18px !important;
+    font-size: 12px !important;
+  }
+  /*
+      .z-listcell-content{
+         font-size: round(@w / 50 * @s) !important;
+         height: round(@w / 24 * @s)  !important;
+         line-height: round(@w / 26 * @s) !important;
+      }
+      */
+  .z-listcell-content .z-label {
+    line-height: 12px !important;
+  }
+  /*
+      .z-listheader-content{
+         font-size: round(@w / 55 * @s) !important;
+         height: round(@w / 24 * @s) !important;
+         line-height: round(@w / 26 * @s)  !important;
+      }
+      */
+}
+@media only screen and (min-width: 350px) and (max-width: 400px) and (orientation: portrait) {
+  [class*="z-"]:not([class*="z-icon-"]) {
+    font-size: 9px;
+  }
+  .pmain-button {
+    font-size: 16px !important;
+  }
+  .z-paging {
+    /*height: round(@w / 30) !important;*/
+    /*height: round(@w / 25, 1) !important;*/
+    height: 200% !important;
+    /*should change to px*/
+  }
+  .z-paging-icon {
+    font-size: 9px !important;
+    line-height: 12px !important;
+  }
+  .z-paging-button {
+    width: 35px !important;
+    height: 13px !important;
+  }
+  .z-paging-input {
+    height: 13px !important;
+    font-size: 7px !important;
+  }
+  .z-paging-text {
+    height: 13px !important;
+    font-size: 7px !important;
+  }
+  .z-paging-info {
+    line-height: 12px !important;
+    font-size: 7px !important;
+  }
+  .z-messagebox-button {
+    width: 53px !important;
+    height: 21px !important;
+    font-size: 14px !important;
+  }
+  /*
+      .z-listcell-content{
+         font-size: round(@w / 50 * @s) !important;
+         height: round(@w / 24 * @s)  !important;
+         line-height: round(@w / 26 * @s) !important;
+      }
+      */
+  .z-listcell-content .z-label {
+    line-height: 13px !important;
+  }
+  /*
+      .z-listheader-content{
+         font-size: round(@w / 55 * @s) !important;
+         height: round(@w / 24 * @s) !important;
+         line-height: round(@w / 26 * @s)  !important;
+      }
+      */
+}
+@media only screen and (min-width: 401px) and (max-width: 500px) and (orientation: portrait) {
+  [class*="z-"]:not([class*="z-icon-"]) {
+    font-size: 10px;
+  }
+  .pmain-button {
+    font-size: 18px !important;
+  }
+  .z-paging {
+    /*height: round(@w / 30) !important;*/
+    /*height: round(@w / 25, 1) !important;*/
+    height: 200% !important;
+    /*should change to px*/
+  }
+  .z-paging-icon {
+    font-size: 10px !important;
+    line-height: 13px !important;
+  }
+  .z-paging-button {
+    width: 40px !important;
+    height: 15px !important;
+  }
+  .z-paging-input {
+    height: 15px !important;
+    font-size: 8px !important;
+  }
+  .z-paging-text {
+    height: 15px !important;
+    font-size: 8px !important;
+  }
+  .z-paging-info {
+    line-height: 13px !important;
+    font-size: 8px !important;
+  }
+  .z-messagebox-button {
+    width: 60px !important;
+    height: 24px !important;
+    font-size: 16px !important;
+  }
+  /*
+      .z-listcell-content{
+         font-size: round(@w / 50 * @s) !important;
+         height: round(@w / 24 * @s)  !important;
+         line-height: round(@w / 26 * @s) !important;
+      }
+      */
+  .z-listcell-content .z-label {
+    line-height: 15px !important;
+  }
+  /*
+      .z-listheader-content{
+         font-size: round(@w / 55 * @s) !important;
+         height: round(@w / 24 * @s) !important;
+         line-height: round(@w / 26 * @s)  !important;
+      }
+      */
+}
+@media only screen and (min-width: 501px) and (max-width: 600px) and (orientation: portrait) {
+  [class*="z-"]:not([class*="z-icon-"]) {
+    font-size: 13px;
+  }
+  .pmain-button {
+    font-size: 23px !important;
+  }
+  .z-paging {
+    /*height: round(@w / 30) !important;*/
+    /*height: round(@w / 25, 1) !important;*/
+    height: 200% !important;
+    /*should change to px*/
+  }
+  .z-paging-icon {
+    font-size: 13px !important;
+    line-height: 17px !important;
+  }
+  .z-paging-button {
+    width: 50px !important;
+    height: 19px !important;
+  }
+  .z-paging-input {
+    height: 19px !important;
+    font-size: 10px !important;
+  }
+  .z-paging-text {
+    height: 19px !important;
+    font-size: 10px !important;
+  }
+  .z-paging-info {
+    line-height: 17px !important;
+    font-size: 10px !important;
+  }
+  .z-messagebox-button {
+    width: 75px !important;
+    height: 30px !important;
+    font-size: 20px !important;
+  }
+  /*
+      .z-listcell-content{
+         font-size: round(@w / 50 * @s) !important;
+         height: round(@w / 24 * @s)  !important;
+         line-height: round(@w / 26 * @s) !important;
+      }
+      */
+  .z-listcell-content .z-label {
+    line-height: 19px !important;
+  }
+  /*
+      .z-listheader-content{
+         font-size: round(@w / 55 * @s) !important;
+         height: round(@w / 24 * @s) !important;
+         line-height: round(@w / 26 * @s)  !important;
+      }
+      */
+}
+@media only screen and (min-width: 601px) and (max-width: 800px) and (orientation: portrait) {
+  [class*="z-"]:not([class*="z-icon-"]) {
+    font-size: 15px;
+  }
+  .pmain-button {
+    font-size: 27px !important;
+  }
+  .z-paging {
+    /*height: round(@w / 30) !important;*/
+    /*height: round(@w / 25, 1) !important;*/
+    height: 200% !important;
+    /*should change to px*/
+  }
+  .z-paging-icon {
+    font-size: 15px !important;
+    line-height: 20px !important;
+  }
+  .z-paging-button {
+    width: 60px !important;
+    height: 23px !important;
+  }
+  .z-paging-input {
+    height: 23px !important;
+    font-size: 12px !important;
+  }
+  .z-paging-text {
+    height: 23px !important;
+    font-size: 12px !important;
+  }
+  .z-paging-info {
+    line-height: 20px !important;
+    font-size: 12px !important;
+  }
+  .z-messagebox-button {
+    width: 90px !important;
+    height: 36px !important;
+    font-size: 24px !important;
+  }
+  /*
+      .z-listcell-content{
+         font-size: round(@w / 50 * @s) !important;
+         height: round(@w / 24 * @s)  !important;
+         line-height: round(@w / 26 * @s) !important;
+      }
+      */
+  .z-listcell-content .z-label {
+    line-height: 23px !important;
+  }
+  /*
+      .z-listheader-content{
+         font-size: round(@w / 55 * @s) !important;
+         height: round(@w / 24 * @s) !important;
+         line-height: round(@w / 26 * @s)  !important;
+      }
+      */
+}
+@media only screen and (min-width: 801px) and (max-width: 1000px) and (orientation: portrait) {
+  [class*="z-"]:not([class*="z-icon-"]) {
+    font-size: 20px;
+  }
+  .pmain-button {
+    font-size: 36px !important;
+  }
+  .z-paging {
+    /*height: round(@w / 30) !important;*/
+    /*height: round(@w / 25, 1) !important;*/
+    height: 200% !important;
+    /*should change to px*/
+  }
+  .z-paging-icon {
+    font-size: 20px !important;
+    line-height: 27px !important;
+  }
+  .z-paging-button {
+    width: 80px !important;
+    height: 31px !important;
+  }
+  .z-paging-input {
+    height: 31px !important;
+    font-size: 16px !important;
+  }
+  .z-paging-text {
+    height: 31px !important;
+    font-size: 16px !important;
+  }
+  .z-paging-info {
+    line-height: 27px !important;
+    font-size: 16px !important;
+  }
+  .z-messagebox-button {
+    width: 120px !important;
+    height: 48px !important;
+    font-size: 32px !important;
+  }
+  /*
+      .z-listcell-content{
+         font-size: round(@w / 50 * @s) !important;
+         height: round(@w / 24 * @s)  !important;
+         line-height: round(@w / 26 * @s) !important;
+      }
+      */
+  .z-listcell-content .z-label {
+    line-height: 31px !important;
+  }
+  /*
+      .z-listheader-content{
+         font-size: round(@w / 55 * @s) !important;
+         height: round(@w / 24 * @s) !important;
+         line-height: round(@w / 26 * @s)  !important;
+      }
+      */
+}
+@media only screen and (min-width: 1001px) and (max-width: 1200px) and (orientation: portrait) {
+  [class*="z-"]:not([class*="z-icon-"]) {
+    font-size: 20px;
+  }
+  .pmain-button {
+    font-size: 36px !important;
+  }
+  .z-paging {
+    /*height: round(@w / 30) !important;*/
+    /*height: round(@w / 25, 1) !important;*/
+    height: 200% !important;
+    /*should change to px*/
+  }
+  .z-paging-icon {
+    font-size: 20px !important;
+    line-height: 27px !important;
+  }
+  .z-paging-button {
+    width: 80px !important;
+    height: 31px !important;
+  }
+  .z-paging-input {
+    height: 31px !important;
+    font-size: 16px !important;
+  }
+  .z-paging-text {
+    height: 31px !important;
+    font-size: 16px !important;
+  }
+  .z-paging-info {
+    line-height: 27px !important;
+    font-size: 16px !important;
+  }
+  .z-messagebox-button {
+    width: 120px !important;
+    height: 48px !important;
+    font-size: 32px !important;
+  }
+  /*
+      .z-listcell-content{
+         font-size: round(@w / 50 * @s) !important;
+         height: round(@w / 24 * @s)  !important;
+         line-height: round(@w / 26 * @s) !important;
+      }
+      */
+  .z-listcell-content .z-label {
+    line-height: 31px !important;
+  }
+  /*
+      .z-listheader-content{
+         font-size: round(@w / 55 * @s) !important;
+         height: round(@w / 24 * @s) !important;
+         line-height: round(@w / 26 * @s)  !important;
+      }
+      */
+}
+@media only screen and (min-width: 1201px) and (max-width: 1500px) and (orientation: portrait) {
+  [class*="z-"]:not([class*="z-icon-"]) {
+    font-size: 20px;
+  }
+  .pmain-button {
+    font-size: 36px !important;
+  }
+  .z-paging {
+    /*height: round(@w / 30) !important;*/
+    /*height: round(@w / 25, 1) !important;*/
+    height: 200% !important;
+    /*should change to px*/
+  }
+  .z-paging-icon {
+    font-size: 20px !important;
+    line-height: 27px !important;
+  }
+  .z-paging-button {
+    width: 80px !important;
+    height: 31px !important;
+  }
+  .z-paging-input {
+    height: 31px !important;
+    font-size: 16px !important;
+  }
+  .z-paging-text {
+    height: 31px !important;
+    font-size: 16px !important;
+  }
+  .z-paging-info {
+    line-height: 27px !important;
+    font-size: 16px !important;
+  }
+  .z-messagebox-button {
+    width: 120px !important;
+    height: 48px !important;
+    font-size: 32px !important;
+  }
+  /*
+      .z-listcell-content{
+         font-size: round(@w / 50 * @s) !important;
+         height: round(@w / 24 * @s)  !important;
+         line-height: round(@w / 26 * @s) !important;
+      }
+      */
+  .z-listcell-content .z-label {
+    line-height: 31px !important;
+  }
+  /*
+      .z-listheader-content{
+         font-size: round(@w / 55 * @s) !important;
+         height: round(@w / 24 * @s) !important;
+         line-height: round(@w / 26 * @s)  !important;
+      }
+      */
+}
+@media only screen and (min-width: 1501px) and (max-width: 2000px) and (orientation: portrait) {
+  [class*="z-"]:not([class*="z-icon-"]) {
+    font-size: 20px;
+  }
+  .pmain-button {
+    font-size: 36px !important;
+  }
+  .z-paging {
+    /*height: round(@w / 30) !important;*/
+    /*height: round(@w / 25, 1) !important;*/
+    height: 200% !important;
+    /*should change to px*/
+  }
+  .z-paging-icon {
+    font-size: 20px !important;
+    line-height: 27px !important;
+  }
+  .z-paging-button {
+    width: 80px !important;
+    height: 31px !important;
+  }
+  .z-paging-input {
+    height: 31px !important;
+    font-size: 16px !important;
+  }
+  .z-paging-text {
+    height: 31px !important;
+    font-size: 16px !important;
+  }
+  .z-paging-info {
+    line-height: 27px !important;
+    font-size: 16px !important;
+  }
+  .z-messagebox-button {
+    width: 120px !important;
+    height: 48px !important;
+    font-size: 32px !important;
+  }
+  /*
+      .z-listcell-content{
+         font-size: round(@w / 50 * @s) !important;
+         height: round(@w / 24 * @s)  !important;
+         line-height: round(@w / 26 * @s) !important;
+      }
+      */
+  .z-listcell-content .z-label {
+    line-height: 31px !important;
+  }
+  /*
+      .z-listheader-content{
+         font-size: round(@w / 55 * @s) !important;
+         height: round(@w / 24 * @s) !important;
+         line-height: round(@w / 26 * @s)  !important;
+      }
+      */
+}
+@media only screen and (min-width: 2001px) and (orientation: portrait) {
+  [class*="z-"]:not([class*="z-icon-"]) {
+    font-size: 20px;
+  }
+  .pmain-button {
+    font-size: 36px !important;
+  }
+  .z-paging {
+    /*height: round(@w / 30) !important;*/
+    /*height: round(@w / 25, 1) !important;*/
+    height: 200% !important;
+    /*should change to px*/
+  }
+  .z-paging-icon {
+    font-size: 20px !important;
+    line-height: 27px !important;
+  }
+  .z-paging-button {
+    width: 80px !important;
+    height: 31px !important;
+  }
+  .z-paging-input {
+    height: 31px !important;
+    font-size: 16px !important;
+  }
+  .z-paging-text {
+    height: 31px !important;
+    font-size: 16px !important;
+  }
+  .z-paging-info {
+    line-height: 27px !important;
+    font-size: 16px !important;
+  }
+  .z-messagebox-button {
+    width: 120px !important;
+    height: 48px !important;
+    font-size: 32px !important;
+  }
+  /*
+      .z-listcell-content{
+         font-size: round(@w / 50 * @s) !important;
+         height: round(@w / 24 * @s)  !important;
+         line-height: round(@w / 26 * @s) !important;
+      }
+      */
+  .z-listcell-content .z-label {
+    line-height: 31px !important;
+  }
+  /*
+      .z-listheader-content{
+         font-size: round(@w / 55 * @s) !important;
+         height: round(@w / 24 * @s) !important;
+         line-height: round(@w / 26 * @s)  !important;
+      }
+      */
+}

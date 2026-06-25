@@ -1,0 +1,13 @@
+<zk>
+<style dynamic="true">
+.daily-task {
+	background: blue;
+	border-radius: 25px;
+}
+</style>
+<window zclass="none" class="daily-task">
+	<div width="320px" height="200px">
+		<div align="center">HAHA</div>
+	</div>
+</window>
+</zk>

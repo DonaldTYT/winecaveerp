@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Continuous 2D Barcode Scanner</title>
+  <script src="https://unpkg.com/html5-qrcode@2.3.7/html5-qrcode.min.js"></script>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      background: #000;
+      color: #fff;
+      font-family: Arial, sans-serif;
+      text-align: center;
+    }
+    #scanner-container {
+      margin-top: 30px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    #reader {
+      width: 300px;
+      height: 300px;
+      border: 2px solid #0f0;
+      box-sizing: border-box;
+    }
+    #result {
+      margin-top: 20px;
+      font-size: 1.5em;
+      color: #0f0;
+    }
+  </style>
+</head>
+<body>
+
+<h2>Scan a 2D Barcode</h2>
+
+<div id="scanner-container">
+  <div id="reader"></div>
+</div>
+
+<div id="result">Scanned Code: <span id="barcode-data">None</span></div>
+
+<script>
+  const html5QrCode = new Html5Qrcode("reader");
+  
+  function startScanner() {
+	  html5QrCode.start(
+	    { facingMode: "environment" },
+	    {
+	      fps: 10,
+	      qrbox: function(viewfinderWidth, viewfinderHeight) {
+	        let minEdge = Math.min(viewfinderWidth, viewfinderHeight);
+	        return { width: minEdge * 0.8, height: minEdge * 0.8 };
+	      }
+	    },
+	    async (decodedText, decodedResult) => {
+	      onScanSuccess(decodedText, decodedResult);
+	    },
+	    onScanFailure
+	  ).then(() => {
+	    // After scanner starts, wait for video to be ready
+	    const checkVideo = setInterval(() => {
+	      const video = document.querySelector("#reader video");
+	      if (video && video.videoWidth > 0 && video.videoHeight > 0) {
+	        clearInterval(checkVideo);
+	        
+	        const aspectRatio = video.videoWidth / video.videoHeight;
+	        const reader = document.getElementById('reader');
+
+	        // Set height based on width and actual aspect ratio
+	        const width = reader.clientWidth;
+	        reader.style.height = `${width / aspectRatio}px`;
+	      }
+	    }, 100);
+	  }).catch(err => {
+	    console.error("Failed to start scanning:", err);
+	  });
+	}
+ 
+  
+  
+
+
+  function onScanSuccess(decodedText, decodedResult) {
+    console.log(`Code matched = ${decodedText}`, decodedResult);
+    document.getElementById('barcode-data').textContent = decodedText;
+
+    // Pause scanning after successful scan
+    html5QrCode.stop().then(() => {
+      console.log("Scanner stopped after scan. Will restart in 3 seconds...");
+
+      // After 3 seconds, restart scanner
+      setTimeout(() => {
+        document.getElementById('barcode-data').textContent = "None";
+        startScanner();
+      }, 3000);
+
+    }).catch((err) => {
+      console.error("Failed to stop scanner: ", err);
+    });
+  }
+
+  function onScanFailure(error) {
+    // You can log errors if needed
+    // console.warn(`Scan error: ${error}`);
+  }
+
+  // Start the scanner initially
+  startScanner();
+</script>
+
+</body>
+</html>

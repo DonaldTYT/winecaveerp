@@ -1,0 +1,188 @@
+<?page title="test" contentType="text/html;charset=UTF-8"?>
+<zk xmlns:w="client">
+<style src='js/luckysheet-v2.1.13-231011/plugins/css/pluginsCss.css' />
+<style src='js/luckysheet-v2.1.13-231011/plugins/jquery.sPage.css' />
+<style src='js/luckysheet-v2.1.13-231011/plugins/plugins.css' />
+<style src='js/luckysheet-v2.1.13-231011/css/luckysheet.css' />
+<style src='js/luckysheet-v2.1.13-231011/assets/iconfont/iconfont.css' />
+<style>
+.luckysheet_div .luckysheet_info_detail {
+	display: none !important;
+}
+.luckysheet_div .luckysheet-toolbar-combo-button {
+	vertical-align:	top;
+}
+.luckysheet_div .luckysheet-sheet-area div.luckysheet-sheets-item .luckysheet-sheets-item-menu {
+	top: 5px;
+}
+</style>
+<script src="js/luckysheet-v2.1.13-231011/plugins/js/plugin.js"></script>
+<script src="js/luckysheet-v2.1.13-231011/plugins/js/jquery.mousewheel.min.js"></script>
+<script src="js/luckysheet-v2.1.13-231011/plugins/js/jquery.sPage.min.js"></script>
+<script src="js/luckysheet-v2.1.13-231011/luckysheet.umd.js"></script>
+<script><![CDATA[
+	function createSampleSheet(p_containerId, p_data) {
+	    var options = {
+	        container: p_containerId,
+			lang: 'en',
+			allowUpdate: true,
+			data: p_data,
+			showtoolbarConfig: {
+				print: false,
+				exportXlsx: false
+			},
+			plugins: [{ name: 'chart' } ]
+	    }
+		const server = luckysheet.server;
+		const Store = luckysheet.Store;
+		const collaborativeEditBox = server.collaborativeEditBox;
+		const getObjType = server.getObjType;
+		server.websocket = {
+			send: function(msg) {
+				//console.log('send msg:' + msg);
+           		var zkComp = zk.Widget.$('#' + p_containerId);
+				if (zkComp !== null && zAu !== null && zk !== null)
+					zAu.send(new zk.Event(zkComp, "onSendMessage", msg, {toServer:true}));
+				else
+					console.log("comp or zAu is null, skip register event");
+			},
+			onmessage: function(result) {
+				//console.log(result);
+				let {type, id, username, data} = result;
+                let item = data;
+				if (type == 2) { //更新数据
+					server.wsUpdateMsg(item);
+					let chang_data = data;
+					if (chang_data.k == 'columnlen')
+						collaborativeEditBox(chang_data.v, null);
+					else if(chang_data.k == 'rowlen')
+						collaborativeEditBox(null, chang_data.v);
+	            }
+	            else if (type == 3) { //多人操作不同选区("t": "mv")（用不同颜色显示其他人所操作的选区）
+	                let type = item.t, index = item.i, value = item.v;
+	                if (Store.cooperativeEdit.changeCollaborationSize.length === 0) {
+						Store.cooperativeEdit.changeCollaborationSize.push({id:id,v:item.v[0],i:index});
+					}
+					let flag = Store.cooperativeEdit.changeCollaborationSize.some(value1 => {
+						return value1.id == id
+					})
+					if(flag) {
+						Store.cooperativeEdit.changeCollaborationSize.forEach(val => {
+							if(val.id == id) {
+								//val.v = item.v[0] || item.range[0];
+								val.v = item.v[0];
+								if (!val.v && item.range)
+									val.v = item.range[0];
+								val.i = index;
+							}
+						})
+					} else {
+						Store.cooperativeEdit.changeCollaborationSize.push({id:id,v:item.v[0],i:index});
+					}
+					if (getObjType(value) != "array" && getObjType(value) !== "object"){
+	                    value = JSON.parse(value);
+					}
+					let r = 0
+					let c = 0
+					if(index == Store.currentSheetIndex){//发送消息者在当前页面
+
+						if(getObjType(value) === "object" && value.op === 'enterEdit'){
+							r = value.range[value.range.length - 1].row[0];
+							c = value.range[value.range.length - 1].column[0];
+							server.multipleRangeShow(id, username, r, c, value.op);
+
+						}else {
+
+							r = value[value.length - 1].row[0];
+							c = value[value.length - 1].column[0];
+
+							server.multipleRangeShow(id, username, r, c);
+
+						}
+
+					} else {
+						if(getObjType(value) === "object" && value.op === 'enterEdit'){
+							r = value.range[value.range.length - 1].row[0];
+							c = value.range[value.range.length - 1].column[0];
+						}else {
+							r = value[value.length - 1].row[0];
+							c = value[value.length - 1].column[0];
+						}
+					}
+
+					if(Store.cooperativeEdit.checkoutData.length === 0) {
+						if(value.op) {
+							Store.cooperativeEdit.checkoutData.push({id,username,r,c,op:value.op,index})
+						} else {
+							Store.cooperativeEdit.checkoutData.push({id,username,r,c,index})
+						}
+					}
+					let checkoutFlag = Store.cooperativeEdit.checkoutData.some(item => {
+						return item.id == id
+					})
+					if(checkoutFlag) {
+						Store.cooperativeEdit.checkoutData.forEach(item => {
+							if(item.id == id) {
+								item.username = username
+								item.r = r
+								item.c = c
+								item.index = index
+								if (value.op === 'enterEdit') {
+									item.op = value.op
+								}
+							}
+						})
+					} else {
+						if(value.op === 'enterEdit') {
+							Store.cooperativeEdit.checkoutData.push({id,username,r,c,op:value.op,index})
+						} else {
+							Store.cooperativeEdit.checkoutData.push({id,username,r,c,index})
+						}
+					}
+
+					//其他客户端切换页面时
+					Store.cooperativeEdit.checkoutData.forEach(item => {
+						if(item.index != Store.currentSheetIndex) {
+							$("#luckysheet-multipleRange-show-" + item.id).hide();
+							item.op == ''
+						}
+					})
+
+					if($("#luckysheet-multipleRange-show-" + id)[0]) {
+						let change_bottom = $("#luckysheet-multipleRange-show-" + id)[0].offsetHeight - 1
+						$("#luckysheet-multipleRange-show-" + id + ">.username").css({"bottom":change_bottom + 'px'})
+					}
+	            }
+	            else if (type == 999) { //用户连接断开
+	            	$("#luckysheet-multipleRange-show-" + id).hide();
+					Store.cooperativeEdit.changeCollaborationSize = Store.cooperativeEdit.changeCollaborationSize.filter(value => {
+						return value.id != id
+					})
+					Store.cooperativeEdit.checkoutData = Store.cooperativeEdit.checkoutData.filter(value => {
+						return value.id != id
+					})
+	            }
+			}
+		};
+	    luckysheet.create(options)
+	}
+    ]]>
+</script>
+<window class="zkbi-form zkbi-main-window" id="winMain" title="" border="none" apply="com.uniinformation.jx.zk.JxZkWorksheet">
+<label sclass="zkbi-form-header" id="lbHeader" value="Worksheet Test"></label>
+<vlayout sclass="zkbi-form-content">
+	<hlayout>
+		<!--
+		<button id="btSetRangeMerge" label="setRangeMerge"></button>
+		<button id="btSetRangeValue" label="SetRangeValue"></button>
+		<button id="btSetRangeFormat" label="SetRangeFormat"></button>
+		<button id="btSetConfig" label="setConfig"></button>
+		-->
+		<button label="toJson" w:onClick="console.log(luckysheet.toJson());"></button>
+	</hlayout>
+	<div id="divLuckysheet" class="luckysheet_div" style="width:100%; height:80vh; background:orange"></div>
+</vlayout>
+
+
+</window>
+</zk>

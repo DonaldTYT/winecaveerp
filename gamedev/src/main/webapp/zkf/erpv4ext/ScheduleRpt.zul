@@ -1,0 +1,12 @@
+<zk>
+	<separator height="5px"/>
+	<div style="background:white; padding:5px;">
+		<hlayout>
+			<label value="Period"><custom-attributes tlkey="lb_period"/></label>
+			<datebox id="dbStart" format="yyyy/MM/dd"/>
+			<label value="to"><custom-attributes tlkey="lb_to"/></label>
+			<datebox id="dbEnd" format="yyyy/MM/dd"/>
+		</hlayout>
+	</div>
+	<separator height="5px"/>
+</zk>

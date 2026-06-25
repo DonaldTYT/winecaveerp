@@ -1,0 +1,331 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+  <meta name="color-scheme" content="light dark" />
+  <title>PIN Login</title>
+  <style>
+    :root {
+      --bg: #0f172a;        /* slate-900 */
+      --fg: #e2e8f0;        /* slate-200 */
+      --muted: #94a3b8;     /* slate-400 */
+      --accent: #22c55e;    /* green-500 */
+      --danger: #ef4444;    /* red-500 */
+      --key-bg: #1e293b;    /* slate-800 */
+      --key-fg: #f8fafc;    /* slate-50 */
+      --shadow: 0 8px 30px rgba(0,0,0,.25);
+      --radius: 20px;
+      --key-size: 76px;     /* touch target >= 48px */
+      --gap: 14px;
+    }
+
+    html, body { height: 100%; }
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, Apple Color Emoji, Segoe UI Emoji;
+      background: radial-gradient(1200px 800px at 50% -10%, #1f2937 0%, var(--bg) 45%);
+      color: var(--fg);
+      display: grid;
+      place-items: center;
+    }
+
+    .wrap {
+      width: min(480px, 94vw);
+      margin: env(safe-area-inset-top) auto env(safe-area-inset-bottom);
+      padding: 22px 18px 28px;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      background: rgba(255,255,255,.04);
+      backdrop-filter: blur(8px);
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 18px;
+    }
+    header h1 {
+      font-size: 1.1rem;
+      font-weight: 600;
+      margin: 0 0 6px;
+    }
+    header p {
+      margin: 0;
+      color: var(--muted);
+      font-size: .95rem;
+    }
+
+    .screen {
+      display: grid;
+      grid-template-columns: repeat(var(--pin-max, 6), 1fr);
+      gap: 10px;
+      align-items: center;
+      justify-items: center;
+      padding: 14px 10px 10px;
+      margin: 8px auto 18px;
+      width: 86%;
+      border-radius: 16px;
+      background: rgba(255,255,255,.06);
+      border: 1px solid rgba(255,255,255,.08);
+    }
+    .dot {
+      width: 14px; height: 14px;
+      border-radius: 999px;
+      background: transparent;
+      border: 2px solid var(--muted);
+      transition: all .18s ease;
+    }
+    .dot.filled { background: var(--fg); border-color: var(--fg); }
+
+    .keypad {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: var(--gap);
+      justify-items: center;
+      align-items: center;
+      padding: 6px 10px 0;
+    }
+
+    button.key {
+      -webkit-appearance: none;
+      appearance: none;
+      width: var(--key-size);
+      height: var(--key-size);
+      border-radius: 22px;
+      border: 1px solid rgba(255,255,255,.08);
+      background: linear-gradient(180deg, rgba(255,255,255,.10), rgba(255,255,255,.02));
+      color: var(--key-fg);
+      font-size: 1.8rem;
+      font-weight: 600;
+      line-height: 1;
+      display: grid; place-items: center;
+      box-shadow: 0 2px 0 rgba(0,0,0,.35), inset 0 -4px 10px rgba(0,0,0,.25);
+      user-select: none;
+      touch-action: manipulation;
+      transition: transform .04s ease, filter .15s ease;
+    }
+    button.key:active { transform: translateY(1px) scale(.99); }
+
+    button.key.action { font-size: 1.35rem; font-weight: 700; }
+    button.key.primary { background: linear-gradient(180deg, rgba(34,197,94,.85), rgba(34,197,94,.75)); color: #071b0f; border-color: rgba(0,0,0,.2); }
+    button.key.warn { background: linear-gradient(180deg, rgba(239,68,68,.85), rgba(239,68,68,.75)); color: #2b0b0b; border-color: rgba(0,0,0,.25); }
+
+    .controls {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: var(--gap);
+      margin-top: 16px;
+      padding: 0 10px;
+    }
+
+    .alert { text-align: center; min-height: 1.25em; margin-top: 10px; color: var(--muted); font-size: .95rem; }
+    .alert.error { color: var(--danger); }
+
+    /* Shake on error */
+    .shake { animation: shake .35s ease both; }
+    @keyframes shake {
+      10%, 90% { transform: translateX(-1.5%); }
+      20%, 80% { transform: translateX(2%); }
+      30%, 50%, 70% { transform: translateX(-4%); }
+      40%, 60% { transform: translateX(4%); }
+    }
+
+    /* iOS notch safe areas */
+    @supports(padding: max(0px)) {
+      .wrap { padding-bottom: max(28px, env(safe-area-inset-bottom)); }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap" id="card" aria-live="polite">
+    <header>
+      <h1>Enter your PIN</h1>
+      <p>Use the keypad below. Long‑press ⌫ to clear.</p>
+    </header>
+
+    <!-- Hidden real input (kept readonly to suppress soft keyboard) -->
+    <input id="pin-input" type="password" inputmode="none" autocomplete="off" autocorrect="off" autocapitalize="none" spellcheck="false" readonly hidden />
+
+    <!-- PIN indicator -->
+    <div class="screen" id="screen" role="group" aria-label="PIN progress" data-max="6"></div>
+
+    <!-- Keypad -->
+    <div class="keypad" id="keypad" role="group" aria-label="Numeric keypad">
+      <!-- Row 1 -->
+      <button class="key" data-digit="1" aria-label="1">1</button>
+      <button class="key" data-digit="2" aria-label="2">2</button>
+      <button class="key" data-digit="3" aria-label="3">3</button>
+      <!-- Row 2 -->
+      <button class="key" data-digit="4" aria-label="4">4</button>
+      <button class="key" data-digit="5" aria-label="5">5</button>
+      <button class="key" data-digit="6" aria-label="6">6</button>
+      <!-- Row 3 -->
+      <button class="key" data-digit="7" aria-label="7">7</button>
+      <button class="key" data-digit="8" aria-label="8">8</button>
+      <button class="key" data-digit="9" aria-label="9">9</button>
+      <!-- Row 4 -->
+      <button class="key action warn" data-action="clear" aria-label="Clear">C</button>
+      <button class="key" data-digit="0" aria-label="0">0</button>
+      <button class="key action" data-action="backspace" aria-label="Backspace">⌫</button>
+    </div>
+
+    <div class="controls">
+      <button class="key action" id="toggle-visibility" aria-pressed="false" aria-label="Show PIN">•/◦</button>
+      <button class="key primary" id="submit" aria-label="Submit">✓</button>
+    </div>
+
+    <div class="alert" id="alert" role="status" aria-live="polite"></div>
+  </div>
+
+  <script>
+    // --- Config ---
+    const PIN_MAX = 6;         // Max PIN length (min is effectively 1)
+    const AUTO_SUBMIT = false; // true = submit automatically at PIN_MAX
+    const POST_URL = "/login/pin"; // <-- Change to your endpoint
+
+    // Build PIN indicator dots
+    const screen = document.getElementById('screen');
+    screen.style.setProperty('--pin-max', PIN_MAX);
+    for (let i = 0; i < PIN_MAX; i++) {
+      const d = document.createElement('div');
+      d.className = 'dot';
+      d.setAttribute('aria-hidden', 'true');
+      screen.appendChild(d);
+    }
+
+    const dots = () => Array.from(screen.children);
+    const input = document.getElementById('pin-input');
+    const keypad = document.getElementById('keypad');
+    const submitBtn = document.getElementById('submit');
+    const toggleBtn = document.getElementById('toggle-visibility');
+    const alertBox = document.getElementById('alert');
+    const card = document.getElementById('card');
+
+    let attempts = 0;
+
+    function vibrate(ms = 10) { try { navigator.vibrate && navigator.vibrate(ms); } catch(_){} }
+
+    function setAlert(msg = '', isError = false) {
+      alertBox.textContent = msg;
+      alertBox.className = 'alert' + (isError ? ' error' : '');
+    }
+
+    function updateDots() {
+      const val = input.value;
+      dots().forEach((d, i) => d.classList.toggle('filled', i < val.length));
+      submitBtn.disabled = val.length === 0;
+    }
+
+    function onDigit(d) {
+      if (input.value.length >= PIN_MAX) return;
+      input.value += d;
+      vibrate(8);
+      updateDots();
+      if (AUTO_SUBMIT && input.value.length === PIN_MAX) doSubmit();
+    }
+
+    function onBackspace(clearAll = false) {
+      if (clearAll) input.value = '';
+      else input.value = input.value.slice(0, -1);
+      vibrate(8);
+      updateDots();
+    }
+
+    // Long-press backspace → clear all
+    let pressTimer;
+    keypad.addEventListener('touchstart', (e) => {
+      const btn = e.target.closest('button[data-action="backspace"]');
+      if (!btn) return;
+      pressTimer = setTimeout(() => onBackspace(true), 480);
+    }, {passive: true});
+    keypad.addEventListener('touchend', () => clearTimeout(pressTimer), {passive: true});
+
+    keypad.addEventListener('click', (e) => {
+      const key = e.target.closest('button.key');
+      if (!key) return;
+      const d = key.getAttribute('data-digit');
+      const action = key.getAttribute('data-action');
+      if (d) onDigit(d);
+      if (action === 'backspace') onBackspace(false);
+      if (action === 'clear') { input.value = ''; updateDots(); vibrate(12); }
+    });
+
+    toggleBtn.addEventListener('click', () => {
+      const revealed = input.getAttribute('type') === 'text';
+      input.setAttribute('type', revealed ? 'password' : 'text');
+      toggleBtn.setAttribute('aria-pressed', String(!revealed));
+      toggleBtn.setAttribute('aria-label', revealed ? 'Show PIN' : 'Hide PIN');
+      vibrate(6);
+      // Briefly mirror the value for visual feedback
+      setAlert(revealed ? '' : 'PIN temporarily visible', false);
+      if (!revealed) setTimeout(() => setAlert(''), 1200);
+    });
+
+    async function doSubmit() {
+      const pin = input.value;
+      if (!pin) return;
+      setAlert('');
+      submitBtn.disabled = true;
+      submitBtn.textContent = '…';
+      try {
+        // Example POST to your backend (adjust as needed)
+        const resp = await fetch(POST_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include', // include cookies if your auth uses them
+          body: JSON.stringify({ pin })
+        });
+
+        if (resp.ok) {
+          // Optionally read JSON & redirect
+          // const data = await resp.json();
+          setAlert('Success! Redirecting…');
+          window.location.href = '/';
+          return;
+        }
+
+        // Non-200 → treat as error
+        throw new Error('Invalid PIN');
+      } catch (err) {
+        attempts++;
+        card.classList.remove('shake');
+        void card.offsetWidth; // restart animation
+        card.classList.add('shake');
+        setAlert(err.message || 'Login failed', true);
+        vibrate(40);
+        // Optional lockout after N attempts
+        if (attempts >= 5) {
+          setAlert('Too many attempts. Please wait 30s and try again.', true);
+          submitBtn.disabled = true;
+          keypad.querySelectorAll('button').forEach(b => b.disabled = true);
+          setTimeout(() => {
+            attempts = 0;
+            submitBtn.disabled = false;
+            keypad.querySelectorAll('button').forEach(b => b.disabled = false);
+            setAlert('');
+          }, 30000);
+        }
+      } finally {
+        submitBtn.textContent = '✓';
+        updateDots();
+      }
+    }
+
+    submitBtn.addEventListener('click', doSubmit);
+
+    // Block soft keyboard on accidental focus
+    window.addEventListener('touchstart', () => input.blur(), {passive: true});
+
+    // Allow physical keyboard fallback (desktop testing)
+    window.addEventListener('keydown', (e) => {
+      if (e.key >= '0' && e.key <= '9') onDigit(e.key);
+      if (e.key === 'Backspace') onBackspace(false);
+      if (e.key === 'Enter') doSubmit();
+    });
+
+    // Initialize
+    updateDots();
+  </script>
+</body>
+</html>

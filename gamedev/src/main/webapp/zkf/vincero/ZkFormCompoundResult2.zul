@@ -1,0 +1,5 @@
+<zk>
+<window sclass="zkbi-form zkbi-main-window" width="1400px" apply="com.uniinformation.zkf.vincero.ZkCellActionCompoundResult">
+<include src="CompoundResult.zul" />
+</window>
+</zk>

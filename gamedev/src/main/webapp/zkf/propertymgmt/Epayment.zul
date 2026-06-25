@@ -1,0 +1,663 @@
+<zk>
+<script>
+<![CDATA[
+function postQrCodeData(p_str) {
+	var zkComp = zk.Widget.$('$barcodeS1');
+	if (zkComp !== null && zAu !== null)
+		zAu.send(new zk.Event(zkComp, "onPostQrCodeData", p_str, {toServer:true}));
+	else
+		console.log("comp or zAu is null, skip register event");
+}
+const payMonthButtons = (() => {
+	let $btns;
+	let $btnPrev;
+	let $btnNext;
+	const isShow = ($btn) => {
+		const ctrRect = $(".div_paymonth")[0].getBoundingClientRect();
+		const btnRect = $btn[0].getBoundingClientRect();
+		return btnRect.top >= ctrRect.top && btnRect.bottom <= ctrRect.bottom;
+	};
+	const getFirstVisible = () => $btns.filter(":visible").first();
+	const getLastVisible = () => $btns.filter(":visible").last();
+	const getFirstVisibleIndex = () => $btns.index(getFirstVisible());
+	const getLastVisibleIndex = () => $btns.index(getLastVisible());
+	const show = () => {
+		const firstButtonIdx = jq('$div_paymonth').data("first_button_index") | 0;
+		//console.log("firstButtonIdx", firstButtonIdx);
+		let firstShowIdx, lastShowIdx;
+		if (firstButtonIdx < 0)
+			lastShowIdx = -firstButtonIdx;
+		else
+			firstShowIdx = firstButtonIdx;
+		const $eles = $(".div_paymonth button").hide();
+		$btns = $eles.not(".prev,.next");
+		$btnPrev = $eles.filter(".prev");
+		$btnNext = $eles.filter(".next");
+		$.each(lastShowIdx ? $btns.get().slice(0, lastShowIdx + 1).reverse() : $btns.get().slice(firstShowIdx), function(index) {
+			$(this).show();
+			if (!isShow(getLastVisible())) {
+				$(this).hide();
+				return false;
+			}
+		});
+		firstShowIdx = getFirstVisibleIndex();
+		lastShowIdx = getLastVisibleIndex();
+		if (firstShowIdx > 0 && lastShowIdx > 0) {
+			if (!isShow($btnPrev.show())) {
+				if (firstButtonIdx < 0)
+					$($btns[firstShowIdx++]).hide();
+				else
+					$($btns[lastShowIdx--]).hide();
+			}
+		}
+		if (firstShowIdx >= 0 && lastShowIdx >= 0 && lastShowIdx < $btns.length - 1) {
+			if (!isShow($btnNext.show())) {
+				if (firstButtonIdx < 0)
+					$($btns[firstShowIdx++]).hide();
+				else
+					$($btns[lastShowIdx--]).hide();
+			}
+		}
+	};
+	const showPrev = () => {
+		jq('$div_paymonth').data("first_button_index", -(getFirstVisibleIndex() - 1));
+		show();
+	};
+	const showNext = () => {
+		jq('$div_paymonth').data("first_button_index", getLastVisibleIndex() + 1);
+		show();
+	};
+	return { show: show, showPrev: showPrev, showNext: showNext };
+})();
+]]>
+</script>
+<style>
+
+
+.btn_four {
+	width: 600px;
+    height: 212px;
+    background-color: unset;
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center;
+    border: none;
+    padding: 0;
+    box-shadow: unset;
+    -webkit-box-shadow: unset;
+}
+
+.btn_four:hover, .btn_four:focus {
+	background-color: unset;
+	-webkit-box-shadow: unset;
+	box-shadow: unset;
+	}
+
+.btn_Scan {
+	background-image: url('propertymgmt/gra/Scan_QR.png');
+}
+
+.btn_Scan:Hover {
+	background-image: url('propertymgmt/gra/Scan_QR_Hover.png');
+}
+.btn_Residental {
+	background-image: url('propertymgmt/gra/Residental.png');
+}
+
+.btn_Residental:hover {
+	background-image: url('propertymgmt/gra/Residental_Hover.png');
+}
+
+.btn_carpark {
+	background-image: url('propertymgmt/gra/CarPark.png');
+}
+
+.btn_carpark:hover {
+	background-image: url('propertymgmt/gra/CarPark_Hover.png');
+}
+
+.btn_shop {
+	background-image: url('propertymgmt/gra/Shop.png');
+}
+
+.btn_shop:hover {
+	background-image: url('propertymgmt/gra/Shop_Hover.png');
+}
+
+.btn_green {
+	border: 3px solid #92d050;
+	border-radius: 15px;
+	background-color: #c5e0b4;
+	color: black;
+	width: 120px;
+	height: 100px;
+	font-size: 30px;
+	font-weight: bold;
+	box-shadow: 9px 9px 6px #71808e;
+}
+
+.btn_green:hover{
+	background-color: #94E096;
+}
+
+.btn_green:active, .btn_green:focus{
+	background-color: #c5e0b4;
+}
+
+.btn_green4 {
+	border: 3px solid #92d050;
+	border-radius: 15px;
+	background-color: #c5e0b4;
+	color: black;
+	width: 170px;
+	height: 100px;
+	font-size: 30px;
+	font-weight: bold;
+	box-shadow: 9px 9px 6px #71808e;
+	margin: 0 14px;
+}
+
+.btn_green4:not(:disabled):hover{
+	background-color: #94E096;
+}
+
+.btn_green4:not(:disabled):active, .btn_green4:focus{
+	background-color: #c5e0b4;
+}
+
+.btn_green6 {
+	border: 3px solid #92d050;
+	border-radius: 15px;
+	background-color: #c5e0b4;
+	color: black;
+	width: 130px;
+	height: 90px;
+	font-size: 27px;
+	font-weight: bold;
+	box-shadow: 9px 9px 6px #71808e;
+	margin: 0 10px;
+}
+
+.btn_green6:hover{
+	background-color: #94E096;
+}
+
+.btn_green6:active, .btn_green6:focus{
+	background-color: #c5e0b4;
+}
+
+.btn_split{
+	background-color: #FFFFFF;
+	border: 2px solid #b3b3b3;
+	border-radius: 10px;
+	color: black;
+	width: 170px;
+	height: 70px;
+	font-size: 25px;
+	margin: 30px 20px 0px;
+	box-shadow: 9px 9px 6px #71808e;
+}
+
+.btn_split:focus, .btn_split:active{
+	background-color: #4D4D4D;
+	color: white;
+}
+
+.btn_Confirm{
+	border: 3px solid #00af50;
+	border-radius: 15px;
+	background-color: #00af50;
+	color: white;
+	width: 120px;
+	height: 100px;
+	font-size: 30px;
+	font-weight: bold;
+	box-shadow: 9px 9px 6px #71808e;
+}
+
+.btn_Confirm:hover, btn_Confirm:focus {
+	background-color: #007D38;
+	border: 3px solid #007D38;
+}
+
+.btn_Home{
+	border: 3px solid #ff0000;
+	border-radius: 15px;
+	background-color: #ff0000;
+	color: white;
+	width: 120px;
+	height: 100px;
+	font-size: 30px;
+	font-weight: bold;
+	box-shadow: 9px 9px 6px #71808e;
+}
+
+.btn_Home:hover, btn_Home:focus {
+	background-color: #CC0000;
+	border: 3px solid #CC0000;
+}
+
+.row-even {
+    background-color: #b4c6e7;
+}
+
+.row-odd {
+    background-color: #bcd6ed;
+}
+
+.z-listcell-content {
+	padding: 0;
+}
+
+.btn_exit {
+	font-size: 24px;
+	padding: 5px 20px;
+	background-color: #ff0000;
+	color: white;
+	border-radius: 8px;
+	border: none;
+	cursor: pointer;
+}
+.btn_exit:hover {
+	background-color: #CC0000;
+}
+.div_paymonth {
+	display: flex;
+	justify-content: center;
+	align-content: flex-start;
+	column-gap: 10px;
+	row-gap: 34.75px;
+	flex-wrap: wrap;
+	padding: 34.75px 0;
+	overflow-y: auto;
+}
+.div_paymonth button {
+	width: 170px;
+	height: 70px;
+}
+.div_payunit {
+	display: flex;
+	flex-direction: column;
+}
+.div_payunit .z-label {
+	font-size: 32px;
+}
+</style>
+<div apply="com.uniinformation.zkf.propertymgmt.ZkFormEpayment" style="background-color: #bcd6ed;">
+<div>
+	
+		<div align="center" height="260px" style="background-color: #006fc0; justify-content: center;
+    display: flex; flex-direction: column; align-items: center; color: white;">
+			<label id="ldv_cmpname" style="font-size:72px !important; font-family: sans-serif; font-weight: bold;"></label>
+			<label id="ldv_cmpname1" style="font-size:35px !important; font-family: sans-serif; font-weight: bold;"></label>
+		</div>
+	<div align="center" height="80px">
+		<label id="ldv_title" style="font-size:40px !important; display: none;"></label>
+	</div>
+	<div align="center" height="200px" style="background-color: #FFF5CC; color:black; justify-content: center;
+    display: flex; align-items: center; margin-bottom: 0px;">
+		<label id="ldv_locname" style="font-size: 96px !important;  font-family: sans-serif; font-weight: bold;"></label>
+	</div>
+</div>
+<div id="divTempbuf" align="center" height="150px" style="margin-top:50px;color:black">
+	<label id="ldv_tmpbuf" style="font-size:80px !important;">teset</label>
+</div>
+
+<div id="btGroupA" align="center" visible="false" style="margin-top:50px">
+	<vlayout>
+	<button id="btAS" class="btn_four btn_Scan" ></button>
+	<div height="40px"></div>
+	<button id="btA0" ></button>
+	<div height="40px"></div>
+	<button id="btA1" ></button>
+	<div height="40px"></div>
+	<button id="btA2" ></button>
+	<div height="40px"></div>
+	<button id="btA3" ></button>
+
+	<separator height="65px"/>
+	</vlayout>
+</div>
+<div id="btGroupB4" align="center" visible="false">
+	<!-- 4格 -->
+	
+	<vlayout>
+	<hlayout style="height: 120px;">
+		<button id="btB4_0" class="btn_green4">1/F</button>
+		<div id="sbB4_0"></div>
+		<button id="btB4_1" class="btn_green4">2/F</button>
+		<div id="sbB4_1"></div>
+		<button id="btB4_2" class="btn_green4">3/F</button>
+		<div id="sbB4_2"></div>
+		<button id="btB4_3" class="btn_green4">4/F</button>
+		<div id="sbB4_3"></div>
+		
+	</hlayout>
+	<div height="50px"></div>
+	<hlayout style="height: 120px;">
+		<button id="btB4_4" class="btn_green4">5/F</button>
+		<div id="sbB4_4" ></div>
+		<button id="btB4_5" class="btn_green4">6/F</button>
+		<div id="sbB4_5" ></div>
+		<button id="btB4_6" class="btn_green4">7/F</button>
+		<div id="sbB4_6" ></div>
+		<button id="btB4_7" class="btn_green4">8/F</button>
+		<div id="sbB4_7" ></div>
+	</hlayout>
+	<div height="50px"></div>
+	<hlayout style="height: 120px;">
+		<div ></div>
+		<button id="btB4_8" class="btn_green4">9/F</button>
+		<div id="sbB4_8" ></div>
+		<button id="btB4_9" class="btn_green4">10/F</button>
+		<div id="sbB4_9" ></div>
+		<button id="btB4_10" class="btn_green4">11/F</button>
+		<div id="sbB4_10" ></div>
+		<button id="btB4_11" class="btn_green4">12/F</button>
+		<div id="sbB4_11" ></div>
+	</hlayout>
+	<div height="50px"></div>
+	<hlayout style="height: 120px;">
+		<div ></div>
+		<button id="btB4_12" class="btn_green4">13/F</button>
+		<div id="sbB4_12" ></div>
+		<button id="btB4_13" class="btn_green4">14/F</button>
+		<div id="sbB4_13" ></div>
+		<button id="btB4_14" class="btn_green4">15/F</button>
+		<div id="sbB4_14" ></div>
+		<button id="btB4_15" class="btn_green4">16/F</button>
+		<div id="sbB4_15" ></div>
+	</hlayout>
+	<div height="50px"></div>
+	<hlayout style="height: 120px;">
+		<div ></div>
+		<button id="btB4_16" class="btn_green4">17/F</button>
+		<div id="sbB4_16" ></div>
+		<button id="btB4_17" class="btn_green4">18/F</button>
+		<div id="sbB4_17" ></div>
+		<button id="btB4_18" class="btn_green4">19/F</button>
+		<div id="sbB4_18" ></div>
+		<button id="btB4_19" class="btn_green4">20/F</button>
+		<div id="sbB4_19" ></div>
+	</hlayout>
+	<div>
+	<hlayout style="height: 120px;">
+		<button id="pg_btB4_0" class="btn_split">A - BH</button>
+		<div id="pg_sbB4_0" ></div>
+		<button id="pg_btB4_1" class="btn_split">BI - CQ</button>
+		<div id="pg_sbB4_1" ></div>
+		<button id="pg_btB4_2" class="btn_split">CR - EJ</button>
+		<div id="pg_sbB4_2" ></div>
+		<button id="pg_btB4_3" class="btn_split">EK - FU</button>
+		<div id="pg_sbB4_3" ></div>
+	</hlayout>
+</div>
+	<separator height="65px"/>
+	</vlayout>
+	
+	<!-- 4格end -->
+</div>
+<div id="btGroupB6" align="center" visible="false">
+	<!-- 6格 -->
+	<vlayout>
+	<hlayout style="height: 120px;">
+		<button id="btB6_0" class="btn_green6">1/F</button>
+		<div id="sbB6_0" ></div>
+		<button id="btB6_1" class="btn_green6">2/F</button>
+		<div id="sbB6_1" ></div>
+		<button id="btB6_2" class="btn_green6">3/F</button>
+		<div id="sbB6_2" ></div>
+		<button id="btB6_3" class="btn_green6">4/F</button>
+		<div id="sbB6_3" ></div>
+		<button id="btB6_4" class="btn_green6">5/F</button>
+		<div id="sbB6_4" ></div>
+		<button id="btB6_5" class="btn_green6">6/F</button>
+		<div id="sbB6_5" ></div>
+	</hlayout>
+	<hlayout style="height: 120px;">
+		<button id="btB6_6" class="btn_green6">7/F</button>
+		<div id="sbB6_6" ></div>
+		<button id="btB6_7" class="btn_green6">8/F</button>
+		<div id="sbB6_7" ></div>
+		<button id="btB6_8" class="btn_green6">9/F</button>
+		<div id="sbB6_8" ></div>
+		<button id="btB6_9" class="btn_green6">10/F</button>
+		<div id="sbB6_9" ></div>
+		<button id="btB6_10" class="btn_green6">11/F</button>
+		<div id="sbB6_10" ></div>
+		<button id="btB6_11" class="btn_green6">12/F</button>
+		<div id="sbB6_11" ></div>
+	</hlayout>
+	<hlayout style="height: 120px;">
+		<button id="btB6_12" class="btn_green6">13/F</button>
+		<div id="sbB6_12" ></div>
+		<button id="btB6_13" class="btn_green6">14/F</button>
+		<div id="sbB6_13" ></div>
+		<button id="btB6_14" class="btn_green6">15/F</button>
+		<div id="sbB6_14" ></div>
+		<button id="btB6_15" class="btn_green6">16/F</button>
+		<div id="sbB6_15" ></div>
+		<button id="btB6_16" class="btn_green6">17/F</button>
+		<div id="sbB6_16" ></div>
+		<button id="btB6_17" class="btn_green6">18/F</button>
+		<div id="sbB6_17" ></div>
+	</hlayout>
+	<hlayout style="height: 120px;">
+		<button id="btB6_18" class="btn_green6">19/F</button>
+		<div id="sbB6_18" ></div>
+		<button id="btB6_19" class="btn_green6">20/F</button>
+		<div id="sbB6_19" ></div>
+		<button id="btB6_20" class="btn_green6">21/F</button>
+		<div id="sbB6_20" ></div>
+		<button id="btB6_21" class="btn_green6">22/F</button>
+		<div id="sbB6_21" ></div>
+		<button id="btB6_22" class="btn_green6">23/F</button>
+		<div id="sbB6_22" ></div>
+		<button id="btB6_23" class="btn_green6">24/F</button>
+		<div id="sbB6_23" ></div>
+	</hlayout>
+	<hlayout style="height: 120px;">
+		<button id="btB6_24" class="btn_green6">25/F</button>
+		<div id="sbB6_24" ></div>
+		<button id="btB6_25" class="btn_green6">26/F</button>
+		<div id="sbB6_25" ></div>
+		<button id="btB6_26" class="btn_green6">27/F</button>
+		<div id="sbB6_26" ></div>
+		<button id="btB6_27" class="btn_green6">28/F</button>
+		<div id="sbB6_27" ></div>
+		<button id="btB6_28" class="btn_green6">29/F</button>
+		<div id="sbB6_28" ></div>
+		<button id="btB6_29" class="btn_green6">30/F</button>
+		<div id="sbB6_29" ></div>
+	</hlayout>
+	<hlayout style="height: 120px;">
+		<button id="btB6_30" class="btn_green6">31/F</button>
+		<div id="sbB6_30" ></div>
+		<button id="btB6_31" class="btn_green6">32/F</button>
+		<div id="sbB6_31" ></div>
+		<button id="btB6_32" class="btn_green6">33/F</button>
+		<div id="sbB6_32" ></div>
+		<button id="btB6_33" class="btn_green6">34/F</button>
+		<div id="sbB6_33" ></div>
+		<button id="btB6_34" class="btn_green6">35/F</button>
+		<div id="sbB6_34" ></div>
+		<button id="btB6_35" class="btn_green6">36/F</button>
+		<div id="sbB6_35" ></div>
+	</hlayout>
+<div>
+	<hlayout style="height: 120px;">
+		<button id="pg_btB6_0" class="btn_split">A - BH</button>
+		<div id="pg_sbB6_0" ></div>
+		<button id="pg_btB6_1" class="btn_split">BI - CQ</button>
+		<div id="pg_sbB6_1" ></div>
+		<button id="pg_btB6_2" class="btn_split">CR - EJ</button>
+		<div id="pg_sbB6_2" ></div>
+		<button id="pg_btB6_3" class="btn_split">EK - FU</button>
+		<div id="pg_sbB6_3" ></div>
+	</hlayout>
+</div>
+	<separator height="65px"/>
+	</vlayout>
+	<!-- 6格end -->
+
+</div>
+<div id="btGroupDpad" align="center" visible="false">
+	<vlayout>
+		<div align="center" height="150px">
+			<label id="ldv_keybuf" style="font-size:120px !important;"></label>
+		</div>
+		<hlayout>
+		<button id="btN1" width="100px" height="100px" style="font-size:50px !important">1</button>
+		<div width="50px"></div>
+		<button id="btN2" width="100px" height="100px" style="font-size:50px !important">2</button>
+		<div width="50px"></div>
+		<button id="btN3" width="100px" height="100px" style="font-size:50px !important">3</button>
+		</hlayout>
+		<div height="50px"></div>
+		<hlayout>
+		<button id="btN4" width="100px" height="100px" style="font-size:50px !important">4</button>
+		<div width="50px"></div>
+		<button id="btN5" width="100px" height="100px" style="font-size:50px !important">5</button>
+		<div width="50px"></div>
+		<button id="btN6" width="100px" height="100px" style="font-size:50px !important">6</button>
+		</hlayout>
+		<div height="50px"></div>
+		<hlayout>
+		<button id="btN7" width="100px" height="100px" style="font-size:50px !important">7</button>
+		<div width="50px"></div>
+		<button id="btN8" width="100px" height="100px" style="font-size:50px !important">8</button>
+		<div width="50px"></div>
+		<button id="btN9" width="100px" height="100px" style="font-size:50px !important">9</button>
+		</hlayout>
+		<div height="50px"></div>
+		<hlayout>
+		<button id="btaBack" width="100px" height="100px" style="font-size:50px !important">B</button>
+		<div width="50px"></div>
+		<button id="btN0" width="100px" height="100px" style="font-size:50px !important">0</button>
+		<div width="50px"></div>
+		<button id="btaEnter" width="100px" height="100px" style="font-size:50px !important">E</button>
+		</hlayout>
+		<separator height="65px"/>
+	</vlayout>
+	
+
+</div>
+<div id="barcodeS0" align="center" visible="false" style="margin-top:50px;color:black">
+	<vlayout>
+	<label style="font-size:40px !important">Scan This Barcode</label>
+	<div height="30px"></div>
+	<image height="600px" width="600px" src="/propertymgmt/gra/Scanner_QR.png"></image>
+	<div height="30px"></div>
+	
+	</vlayout>
+</div>
+
+<div id="barcodeS1" align="center" visible="false" style="margin-top:50px">
+	<vlayout>
+		<div height="10px"></div>
+		<div style="height: 1000px; background-color: #F5F5F5; margin: 0 50px 50px 50px; box-shadow: 9px 9px #71808e;">
+			<div height="10px"></div>
+			<div style="background-color:#FFFFFF; color:black; margin: 40px 50px 50px; border-radius: 45px; border: 3px solid #afafaf; height: 300px;">
+				<div style="margin: 20px;">
+					<label style="display: block; font-size: 60px; font-weight: bold;">總金額</label>
+					<label style="display: block; font-size: 40px; font-weight: bold;">Amount</label>
+				</div>
+				<!--Set Amount Here-->
+				<label id="lb_epayamount" style="font-size: 90px; font-weight: bold;">$1,300</label>
+			</div>
+			<image id="barcodeImg" height="500px" width="500px" src="/propertymgmt/gra/BarCode_Scan.png"></image>
+		</div>
+	
+		<div height="30px"></div>
+
+		<label id="lbPaymentMsg" style="font-size:32px !important" visible="false">Payment failed, please scan qrcode again</label>
+	</vlayout>
+</div>
+<div id="unitList" align="center" visible="false">
+	<div height="calc(max(100vh, 1450px) - 540px)" style="display:flex;flex-direction:column">
+		<listbox id="lb_unitList" style="flex:auto">
+			<listitem id="li_ask_for_more">
+				<listcell>
+					<div height="100px" align="middle">
+						<label  style="font-size:32px !important" >可增加掃瞄繳費單 Please Scan More Slip</label>
+					</div>
+				</listcell>
+			</listitem>
+		</listbox>
+		<div style="display:flex; align-items: center;padding:10px;color:black;background:white">
+			<label style="font-size: 36px;">繳費至（月份）：</label>
+			<label id="lb_paidto" style="font-size: 36px;"></label>
+			<span style="flex:auto"/>
+			<label style="font-size: 46px;font-weight:bold">總金額：</label>
+			<label id="lb_paidtotal" style="font-size: 46px;font-weight:bold"></label>
+		</div>
+		<hlayout height="350px">
+			<div id="div_paymonth" hflex="1" vflex="1" sclass="div_paymonth">
+				<button id="btPrevPayMnt" sclass="btn_green4 prev" visible="false">&lt;</button>
+				<button id="btNextPayMnt" sclass="btn_green4 next" visible="false">&gt;</button>
+			</div>
+			<hbox pack="start" align="center" width="310px" vflex="1">
+				<button id="btConfirmPay" class="btn_Confirm" style="width: 250px; height: 100px; font-size:50px !important;">支付 Pay</button>
+			</hbox>
+		</hlayout>
+		<separator height="65px"/>
+	</div>
+</div>
+
+<div align="center" class="bottom-div">
+	
+		<div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+			<label id="ldv_comment" style="font-size:40px !important;  margin: 0 auto;">Please Select Building</label>
+			<button id="ldv_exit" class="btn_exit" style="margin-right: 30px;">退出 Exit</button>
+		</div>
+	
+</div>
+<template name="template_payUnit">
+		<div height="calc(max(100vh, 1450px) - 540px - 86px - 350px - 65px)" sclass="div_payunit">
+			<div sclass="row-odd" style="padding:10px;background:#bcd6ed;">
+				<label id="unit_name" style="display: block; font-size: 46px; font-weight: bold;">Unit Name</label>
+			</div>
+			<div sclass="row-even" style="flex:auto;padding:10px">
+				<separator height="10px"/>
+				<div style="display:flex;align-items:center;">
+					<label id="unit_mgtfromlabel">已繳管理費（月份）：</label>
+					<label id="unit_mgtfrom">Mgt from</label>
+					<span style="flex:auto"/>
+					<label id="unit_mgtfeelabel">管理費（每月）：</label>
+					<label id="unit_mgtfee" style="min-width:125px;text-align:right">Mgt Fee</label>
+				</div>
+				<separator height="10px"/>
+				<div style="display:flex;align-items:center">
+					<label id="unit_resfromlabel">已繳儲備金（月份）：</label>
+					<label id="unit_resfrom">Mgt from</label>
+					<span style="flex:auto"/>
+					<label id="unit_resfeelabel">儲備金（每月）：</label>
+					<label id="unit_resfee" style="min-width:125px;text-align:right">Mgt Fee</label>
+				</div>
+			</div>
+			<div sclass="row-odd" style="padding:10px;flex:auto;overflow-y:auto">
+				<separator height="10px"/>
+				<label>本次繳費：</label>
+				<div id="unit_mgtcurdiv">
+					<separator height="10px"/>
+					<div style="display:flex;align-items:center">
+						<label id="unit_mgtcurl">管理費（月份）：</label>
+						<label id="unit_mgtcur">from 至 to（fee * count）</label>
+						<span style="flex:auto"/>
+						<label id="unit_mgtcurfee"></label>
+					</div>
+				</div>
+				<div id="unit_rescurdiv">
+					<separator height="10px"/>
+					<div style="display:flex;align-items:center">
+						<label id="unit_rescurl">儲備金（月份）：</label>
+						<label id="unit_rescur">from 至 to（fee * count）</label>
+						<span style="flex:auto"/>
+						<label id="unit_rescurfee"></label>
+					</div>
+				</div>
+			</div>
+		</div>
+</template>
+</div>
+</zk>

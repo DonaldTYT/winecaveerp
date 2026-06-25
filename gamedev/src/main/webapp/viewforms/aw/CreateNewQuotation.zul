@@ -1,0 +1,26 @@
+<zk>
+<div width="680px">
+<vlayout>
+	<hlayout valign="middle">
+		<div width="150px">Company</div>
+		<radiogroup id="cQuoCoCode"></radiogroup>
+	</hlayout>
+	<hlayout valign="middle">
+		<div width="150px">Customer</div>
+		<bandbox id="cQuoCuCode" width="150px" use="com.uniinformation.jx.zk.ZkJxPickInput"></bandbox>
+	</hlayout>
+	<hlayout valign="middle">
+		<div width="150px">Title</div>
+		<textbox id="cQuoTitle" width="500px"></textbox>
+	</hlayout>
+	<hlayout valign="middle">
+		<div width="150px">Customer PO</div>
+		<textbox id="cQuoCustPo" width="200px"></textbox>
+	</hlayout>
+	<toolbar align="center">
+		<button id="btOK" label="Create"></button>
+		<button id="btCancel" label="Cancel"></button>
+	</toolbar>
+</vlayout>
+</div>
+</zk>

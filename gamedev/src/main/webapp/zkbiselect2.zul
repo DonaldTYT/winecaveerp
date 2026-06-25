@@ -1,0 +1,95 @@
+<zk>
+<zscript>
+<![CDATA[
+	String composer = "ZkBiComposerBase";
+	String classPrefix = "com.uniinformation.zkbi.";
+	if (Executions.getCurrent().getParameter("composer") != null){
+		composer = Executions.getCurrent().getParameter("composer").trim();
+	}
+	if (Executions.getCurrent().getParameter("prefix") != null){
+		classPrefix = "com.uniinformation."+Executions.getCurrent().getParameter("prefix").trim()+".";
+	}
+]]></zscript>
+	<window id="zkbibrowser" apply="${classPrefix}${composer}" style="margin-top:20px;" sizable="true" title="Test Select2" width="1200px" border="narrow" xmlns:h="native">
+		<vbox>
+		
+		<label value="listbox1(zk normal listbox):"></label>
+		<listbox width="200px" id="listbox1" mold="select" rows="1">
+        	<listitem label="haha0 label" value="haha0 value"/>
+        	<listitem label="haha1 label" value="haha1 value"/>
+        	<listitem label="haha2 label" value="haha2 value"/>
+        	<listitem label="haha3 label" value="haha3 value"/>
+        	<listitem label="haha4 label" value="haha4 value"/>
+        	<listitem label="haha5 label" value="haha5 value" selected="true"/>
+        	<listitem label="haha6 label" value="haha6 value"/>
+        	<listitem label="haha7 label" value="haha7 value"/>
+        	<listitem label="haha8 label" value="haha8 value"/>
+        	<listitem label="haha9 label" value="haha9 value"/>
+    	</listbox>
+    	<space></space>
+		<label value="listbox2(select2):"></label>
+		<listbox width="200px" id="listbox2" mold="select" rows="1">
+			<custom-attributes select2-enable="Y" select2-multiple="N" select2-tags="N"></custom-attributes>
+        	<listitem label="haha0 label" value="haha0 value"/>
+        	<listitem label="haha1 label" value="haha1 value"/>
+        	<listitem label="haha2 label" value="haha2 value"/>
+        	<listitem label="haha3 label" value="haha3 value"/>
+        	<listitem label="haha4 label" value="haha4 value"/>
+        	<listitem label="haha5 label" value="haha5 value" selected="true"/>
+        	<listitem label="haha6 label" value="haha6 value"/>
+        	<listitem label="haha7 label" value="haha7 value"/>
+        	<listitem label="haha8 label" value="haha8 value"/>
+        	<listitem label="haha9 label" value="haha9 value"/>
+    	</listbox>
+    	
+    	<space></space>
+		<label value="listbox3(select2,multiple):"></label>
+		<listbox width="500px" id="listbox3" mold="select" rows="1">
+			<custom-attributes select2-enable="Y" select2-multiple="Y" select2-tags="N"></custom-attributes>
+        	<listitem label="haha0 label" value="haha0 value"/>
+        	<listitem label="haha1 label" value="haha1 value"/>
+        	<listitem label="haha2 label" value="haha2 value"/>
+        	<listitem label="haha3 label" value="haha3 value"/>
+        	<listitem label="haha4 label" value="haha4 value"/>
+        	<listitem label="haha5 label" value="haha5 value"/>
+        	<listitem label="haha6 label" value="haha6 value"/>
+        	<listitem label="haha7 label" value="haha7 value"/>
+        	<listitem label="haha8 label" value="haha8 value"/>
+        	<listitem label="haha9 label" value="haha9 value"/>
+    	</listbox>
+    	
+    	<space></space>
+		<label value="listbox4(select2,multiple,tags):"></label>
+		<listbox width="500px" id="listbox4" mold="select" rows="1">
+			<custom-attributes select2-enable="Y" select2-multiple="Y" select2-tags="Y"></custom-attributes>
+        	<listitem label="haha0 label" value="haha0 value"/>
+        	<listitem label="haha1 label" value="haha1 value"/>
+        	<listitem label="haha2 label" value="haha2 value"/>
+        	<listitem label="haha3 label" value="haha3 value"/>
+        	<listitem label="haha4 label" value="haha4 value"/>
+        	<listitem label="haha5 label" value="haha5 value"/>
+        	<listitem label="haha6 label" value="haha6 value"/>
+        	<listitem label="haha7 label" value="haha7 value"/>
+        	<listitem label="haha8 label" value="haha8 value"/>
+        	<listitem label="haha9 label" value="haha9 value"/>
+    	</listbox>
+    	
+		<label value="listbox5(different label value):"></label>
+		<listbox width="200px" id="listbox5" mold="select" rows="1">
+			<custom-attributes select2-enable="Y" select2-multiple="N" select2-tags="N"></custom-attributes>
+        	<listitem label="haha0 label" value="hehe0 value"/>
+        	<listitem label="haha1 label" value="hehe1 value"/>
+        	<listitem label="haha2 label" value="hehe2 value"/>
+        	<listitem label="haha3 label" value="hehe3 value"/>
+        	<listitem label="haha4 label" value="hehe4 value"/>
+        	<listitem label="haha5 label" value="hehe5 value"/>
+        	<listitem label="haha6 label" value="hehe6 value"/>
+        	<listitem label="haha7 label" value="hehe7 value"/>
+        	<listitem label="haha8 label" value="hehe8 value"/>
+        	<listitem label="haha9 label" value="hehe9 value"/>
+    	</listbox>
+    	
+		</vbox>
+    </window>
+
+</zk>

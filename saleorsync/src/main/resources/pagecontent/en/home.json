@@ -1,0 +1,96 @@
+{
+  "hero": {
+    "tag": "The Wine Cave Co.Ltd",
+    "h1": "Experience Premium Wine Storage & Management",
+    "p": "We offer premium storage and management for your fine wines."
+  },
+  "offers": {
+    "title": "Our Best Spirits",
+    "rightLinkText": "Download Full List",
+    "buyButton": "Buy Now"
+  },
+  "featured": {
+    "priceRangePattern": "{min} - {max}",
+    "buyNow": "Buy Now",
+    "currencyFallback": "HKD"
+  },
+  "featuredSlides": [
+    {
+      "id": "sangiovese",
+      "name": "Sangiovese Sierra Folia",
+      "category": "Pinot Noir",
+      "description": "Elegant red with bright cherry, fine tannins, and a long finish.",
+      "priceMin": 35,
+      "priceMax": 200,
+      "ctaHref": "#",
+      "images": { "bg": "/bluberry.png", "bottle": "/QUOWine.png" }
+    }
+  ],
+  "mobileHeader": {
+    "menu": "Menu",
+    "searchPlaceholder": "Search wines, regions, vintages...",
+    "signedInAs": "Signed in as",
+    "myProfile": "My profile",
+    "logout": "Logout",
+    "login": "Login",
+    "register": "Register",
+    "links": {
+      "about": "Wine Cave",
+      "storage": "Storage Service",
+      "buy": "Buy Wine",
+      "consign": "Consignment",
+      "partner": "Partner With Us",
+      "news": "Events & News"
+    }
+  },
+  "services": {
+    "tag": "Preserve Every Pour in Perfect Conditions",
+    "title": "Your Premier Wine Storage Solution Awaits",
+    "p": "Temperature, humidity, light and vibration protection for your collection.",
+    "left": [
+      { "title": "HKQAA Certified Fine Wine", "subtitle": "Storage Facilities", "icon": "/HKQAA-Certified-Fine-Wine.png" },
+      { "title": "Temperature Control", "icon": "/temperature-checker.png" },
+      { "title": "Humidity Regulation", "icon": "/Humidity_Regulation.png" },
+      { "title": "Light Protection", "icon": "/Light_Protection.png" },
+      { "title": "Vibration Supervision", "icon": "/Vibration_Supervision.png" }
+    ],
+    "right": [
+      { "title": "Importation of Wine & Spirit", "desc": "Professional logistics and customs handling.", "icon": "/Importation-of-wine.png" },
+      { "title": "Global Delivery Service", "desc": "Worldwide delivery options.", "icon": "/Global-Delivery.png" },
+      { "title": "Inventory Management", "desc": "Real-time visibility.", "icon": "/Inventory-Management.png" },
+      { "title": "24/7 Monitoring", "desc": "Round-the-clock environment monitoring.", "icon": "/24Monitoring.png" }
+    ],
+    "cta": "Contact us"
+  },
+  "experiences": {
+    "tag": "Where Fine Wines Meet Great Deals",
+    "h2": "Elevate Your Wine Trading Experience with Us",
+    "p": "We bring you exquisite wines and great offers.",
+    "cta": "Become Our Agent",
+    "cards": [
+      { "title": "Wine Tasting", "body": "Curated tasting sessions for connoisseurs and newcomers alike.", "img": "/WineTasting.png", "alt": "Wine tasting barrels courtyard" },
+      { "title": "Trade Fair", "body": "Engage with global traders and explore rare finds.", "img": "/Trade-Fair.png", "alt": "Trade fair people tasting wine" },
+      { "title": "Social Media", "body": "Follow our updates and limited-time promotions.", "img": "/Social-Media.png", "alt": "Wine bottle closeup" },
+      { "title": "Retail Shop Display", "body": "Discover our curated shelf highlights.", "img": "/Retail-Shop.png", "alt": "Retail wine shop display" }
+    ]
+  },
+  "testimonials": {
+    "tag": "Voices of Our Valued Clients",
+    "h1": "Real Stories, Genuine Experiences",
+    "list": [
+      { "name": "Amanda Smith", "role": "Private Collector", "avatar": "/Amanda_Icon.png", "rating": 5, "quote": "Flawless storage conditions and great service. Highly recommended." },
+      { "name": "James Wong", "role": "Sommelier", "avatar": "/Amanda_Icon.png", "rating": 5, "quote": "Their inventory visibility and logistics saved me so much time." }
+    ],
+    "faqTitle": "FAQ",
+    "faqItems": ["Payment & Delivery", "Information", "Find Us on Social Media"],
+    "subscribe": { "title": "Subscribe", "placeholder": "Your Email Address", "button": "Subscribe" }
+  }
+,
+  "video": {
+    "tag": "Experience passion, tradition, and timeless taste",
+    "h1": "Crafting Fine Wines, Sharing Our Story",
+    "p": "From meticulous cellaring to heartfelt service — discover how we care for every bottle.",
+    "poster": "/Video123.png",
+    "videoSrc": ""
+  }
+}

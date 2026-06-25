@@ -1,0 +1,1252 @@
+package com.kikyosoft.wrapper;
+
+import com.fasterxml.jackson.databind.JsonNode;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.kikyosoft.config.SaleorConfig;
+import com.kyoko.common.CoreLog;
+
+import org.springframework.http.*;
+import org.springframework.stereotype.Component;
+import org.springframework.web.client.RestTemplate;
+
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import com.kyoko.common.StringReturnCallback;
+
+
+/**
+ * ProductSyncWrapper (Saleor 3.21.x)
+ *
+ * Methods:
+ *  - exportProducts(start, count) -> "OK  <json>"
+ *  - deleteAllProducts()          -> "OK  "
+ *  - deleteProductRecords(slugs)  -> "OK  Deleted:X Missing:Y Errors:Z"
+ *  - importProducts(json)         -> "OK  Created:X Updated:Y Failed:Z"
+ *  - updateProductAttribute(...)  -> "OK  ..." or error string
+ *
+ * JSON shape for export/import (per product):
+ * {
+ *   "name": "...",
+ *   "slug": "...",
+ *   "productType": "wine",     // slug (resolved to id)
+ *   "category": "red-wine",    // slug (resolved to id) or null
+ *   "description": "... or {\"time\":...}",   // plain text or EditorJS JSON
+ *   "attributes": [
+ *     {"attribute":"maturity","inputType":"PLAIN_TEXT","values":["2025-26"]},
+ *     {"attribute":"owner","inputType":"DROPDOWN","values":["consignee-a"]}
+ *   ],
+ *   "channels": [
+ *     {"slug":"hk","isPublished":true,"visibleInListings":true,"publishedAt":"2025-10-20T00:00:00Z"}
+ *     // Back-compat accepted on import: "publicationDate":"YYYY-MM-DD" (auto → publishedAt T00:00:00Z)
+ *   ]
+ * }
+ */
+@Component
+public class ProductSyncWrapper {
+
+    private final SaleorConfig config;
+    private final RestTemplate rest;
+
+    public ProductSyncWrapper(SaleorConfig config, RestTemplate restTemplate) {
+        this.config = config;
+        this.rest = restTemplate;
+    }
+
+    private ObjectMapper mapper() { return config.getMapper(); }
+
+    // -------- in-memory caches (per JVM run) --------
+    private final Map<String, String> productSlugToId = new ConcurrentHashMap<>();
+
+    private String editorJs(String text) {
+        ObjectNode root = mapper().createObjectNode();
+        root.put("time", 0);
+        root.put("version", "2.26.5");
+        ArrayNode blocks = mapper().createArrayNode();
+
+        ObjectNode para = mapper().createObjectNode();
+        para.put("type", "paragraph");
+        ObjectNode data = mapper().createObjectNode();
+        data.put("text", text == null ? "" : text);
+        para.set("data", data);
+        blocks.add(para);
+
+        root.set("blocks", blocks);
+        try { return mapper().writeValueAsString(root); }
+        catch (Exception e) { return "{\"time\":0,\"blocks\":[]}"; }
+    }
+
+    /** Accept either plain text or EditorJS JSON; wrap plain text, pass-through JSON. */
+    private String normalizeRichText(String value) {
+        if (value == null || value.isBlank()) return editorJs("");
+        try {
+            JsonNode n = mapper().readTree(value);
+            if (n.has("blocks")) return value; // Already EditorJS JSON
+        } catch (Exception ignore) {
+            // Not JSON -> wrap as EditorJS
+        }
+        return editorJs(value);
+    }
+
+    /* ----------------------------- GraphQL helper ----------------------------- */
+    private JsonNode call(String query, Map<String, Object> variables) {
+        ObjectNode body = mapper().createObjectNode();
+        body.put("query", query);
+        body.set("variables", variables == null ? mapper().createObjectNode() : mapper().valueToTree(variables));
+
+        HttpHeaders h = new HttpHeaders();
+        h.setContentType(MediaType.APPLICATION_JSON);
+        h.set("Authorization", config.getAuthHeader());
+
+        ResponseEntity<JsonNode> resp = rest.exchange(
+            config.getApiUrl(), HttpMethod.POST, new HttpEntity<>(body, h), JsonNode.class);
+        return resp.getBody();
+    }
+
+    private static Map<String, Object> vars(Object... kv) {
+        Map<String, Object> m = new HashMap<>();
+        for (int i = 0; i + 1 < kv.length; i += 2) m.put((String) kv[i], kv[i + 1]);
+        return m;
+    }
+
+    private static boolean isChoiceBased(String inputType) {
+        if (inputType == null) return false;
+        switch (inputType.toUpperCase()) {
+            case "DROPDOWN":
+            case "MULTISELECT":
+            case "SWATCH":
+                return true;
+            default:
+                return false;
+        }
+    }
+
+    private static String normalizeInputType(String inputType) {
+        if (inputType == null) return "";
+        String t = inputType.trim().toUpperCase(Locale.ROOT);
+        if ("PLAINTEXT".equals(t)) return "PLAIN_TEXT";
+        return t;
+    }
+
+    private String toSaleorLangEnum(String locale) {
+        if (locale == null) return null;
+        String s = locale.trim();
+        if (s.isEmpty()) return null;
+        // "zh-Hant" -> "ZH_HANT"
+        s = s.replace('-', '_').toUpperCase(Locale.ROOT);
+        return s;
+    }
+
+    private static String valueSlugFrom(JsonNode v) {
+        if (v == null) return null;
+        if (v.isTextual()) return v.asText();
+        if (v.isObject()) return v.path("slug").asText(null);
+        return null;
+    }
+
+    private static String valueNameFrom(JsonNode v) {
+        if (v == null) return null;
+        if (v.isTextual()) return v.asText();
+        if (v.isObject()) {
+            String n = v.path("name").asText(null);
+            if (n != null && !n.isBlank()) return n;
+            return v.path("slug").asText(null);
+        }
+        return null;
+    }
+
+    private String ensureAttributeValueId(AttrInfo ai, String vSlug, String vName) {
+        if (ai == null) return null;
+        if (vSlug == null || vSlug.isBlank()) return null;
+
+        String cached = ai.valueSlugToId.get(vSlug);
+        if (cached != null) return cached;
+
+        String nameToUse = (vName != null && !vName.isBlank()) ? vName : vSlug;
+
+        JsonNode mk = call(M_ATTRIBUTE_VALUE_CREATE,
+            vars("attr", ai.id, "input",
+                mapper().createObjectNode().put("name", nameToUse)));
+
+        JsonNode err = mk.path("data").path("attributeValueCreate").path("errors");
+        if (err.isArray() && err.size() > 0) {
+            System.out.println("⚠️ attributeValueCreate error for " + "/" + vSlug + " : " + err);
+            return null;
+        }
+
+        /*
+        String newId = mk.path("data").path("attributeValueCreate").path("value").path("id").asText(null);
+        */
+        String newId = mk.path("data")
+        	    .path("attributeValueCreate")
+        	    .path("attributeValue") // ✅ CORRECT
+        	    .path("id")
+        	    .asText(null);
+        if (newId != null && !newId.isBlank()) {
+            ai.valueSlugToId.put(vSlug, newId);
+            return newId;
+        }
+        return null;
+    }
+
+    /**
+     * Apply GLOBAL translations for AttributeValues.
+     * Only runs when:
+     *  - inputType is DROPDOWN or PLAIN_TEXT (ERP-provided type, per your requirement)
+     *  - value item is an object containing {"slug","name","translations":{...}}
+     *
+     * For string values (old format), no translation mutation is called.
+     */
+    
+/**
+ * Apply attribute value translations AFTER product is created/updated.
+ *
+ * Rationale (per your requirement):
+ * - For PLAIN_TEXT attributes, Saleor may create distinct value IDs per product even if the text is the same.
+ * - Therefore we must translate the EXACT AttributeValue IDs attached to the product, by querying the product first.
+ *
+ * ERP JSON supported:
+ *  - old format: "values": ["750ml"]                    => no translation
+ *  - new format: "values": [{ "name":"Japan", "translations": { "zh-Hant":"日本" } }]
+ *
+ * Only PLAIN_TEXT and DROPDOWN are considered for translation.
+ */
+
+private String pickDefaultChannelSlug(Map<String, String> channelSlugToId) {
+    if (channelSlugToId == null || channelSlugToId.isEmpty()) return "default-channel";
+    if (channelSlugToId.containsKey("hk")) return "hk";
+    return channelSlugToId.keySet().iterator().next();
+}
+
+private void applyProductValueTranslationsAfterUpsert(String productSlug, String channelSlug, ArrayNode exportAttrs) {
+    if (productSlug == null || productSlug.isBlank()) return;
+    if (channelSlug == null || channelSlug.isBlank()) return;
+    if (exportAttrs == null) return;
+
+    // Collect desired translations from ERP JSON:
+    // desired[langEnum][attrSlug][valueName] = translatedName
+    Map<String, Map<String, Map<String, String>>> desired = new HashMap<>();
+
+    for (JsonNode a : exportAttrs) {
+        String aSlug = a.path("attribute").asText(null);
+        String inputType = normalizeInputType(a.path("inputType").asText(null));
+        if (aSlug == null || aSlug.isBlank()) continue;
+
+        boolean allow = "DROPDOWN".equalsIgnoreCase(inputType) || "PLAIN_TEXT".equalsIgnoreCase(inputType);
+        if (!allow) continue;
+
+        JsonNode valuesNode = a.path("values");
+        if (!valuesNode.isArray()) continue;
+
+        for (JsonNode v : valuesNode) {
+            if (!v.isObject()) continue; // old format string => no translations
+
+            String valueName = valueNameFrom(v); // prefer "name", fallback "slug"
+            if (valueName == null || valueName.isBlank()) continue;
+
+            JsonNode tr = v.path("translations");
+            if (tr == null || !tr.isObject()) continue;
+
+            Iterator<String> fields = tr.fieldNames();
+            while (fields.hasNext()) {
+                String locale = fields.next();
+                String langEnum = toSaleorLangEnum(locale);
+                if (langEnum == null) continue;
+
+                String trName = tr.path(locale).asText(null);
+                if (trName == null || trName.isBlank()) continue;
+
+                desired
+                    .computeIfAbsent(langEnum, k -> new HashMap<>())
+                    .computeIfAbsent(aSlug, k -> new HashMap<>())
+                    .put(valueName.trim(), trName);
+            }
+        }
+    }
+
+    if (desired.isEmpty()) return;
+
+    // For each language, query the product to get the ACTUAL value IDs used by this product
+    for (Map.Entry<String, Map<String, Map<String, String>>> langEntry : desired.entrySet()) {
+        String langEnum = langEntry.getKey();
+        Map<String, Map<String, String>> perAttr = langEntry.getValue();
+
+        JsonNode prod = call(Q_PRODUCT_ATTR_TRANSLATIONS,
+            vars("slug", productSlug, "channel", channelSlug, "lang", langEnum));
+
+        JsonNode attrs = prod.path("data").path("product").path("attributes");
+        if (!attrs.isArray()) continue;
+
+        for (JsonNode pa : attrs) {
+            String paSlug = pa.path("attribute").path("slug").asText(null);
+            if (paSlug == null) continue;
+
+            Map<String, String> wantValues = perAttr.get(paSlug);
+            if (wantValues == null || wantValues.isEmpty()) continue;
+
+            JsonNode vals = pa.path("values");
+            if (!vals.isArray()) continue;
+
+            // Build a quick lookup from displayed value -> node
+            for (Map.Entry<String, String> want : wantValues.entrySet()) {
+                String wantValueName = want.getKey();
+                String wantTrName = want.getValue();
+
+                JsonNode matched = null;
+                for (JsonNode vv : vals) {
+                    String n = vv.path("name").asText(null);
+                    String pt = vv.path("plainText").asText(null);
+                    String actual = (n != null && !n.isBlank()) ? n : pt;
+                    if (actual == null) continue;
+                    if (actual.trim().equals(wantValueName)) {
+                        matched = vv;
+                        break;
+                    }
+                }
+
+                if (matched == null) {
+                    System.out.println("⚠️ Cannot find value on product for translation: product=" + productSlug
+                        + " attr=" + paSlug + " value=" + wantValueName + " lang=" + langEnum);
+                    continue;
+                }
+
+                String valueId = matched.path("id").asText(null);
+                if (valueId == null || valueId.isBlank()) {
+                    System.out.println("⚠️ Missing value id on product for translation: product=" + productSlug
+                        + " attr=" + paSlug + " value=" + wantValueName + " lang=" + langEnum);
+                    continue;
+                }
+
+                String curTr = matched.path("translation").path("name").asText(null);
+                if (wantTrName.equals(curTr)) {
+                    continue; // already matches
+                }
+
+                ObjectNode input = mapper().createObjectNode().put("name", wantTrName);
+                JsonNode resp = call(M_ATTRIBUTE_VALUE_TRANSLATE,
+                    vars("id", valueId, "lang", langEnum, "input", input));
+
+                JsonNode errs = resp.path("data").path("attributeValueTranslate").path("errors");
+                if (errs.isArray() && errs.size() > 0) {
+                    System.out.println("⚠️ attributeValueTranslate errors for product=" + productSlug
+                        + " attr=" + paSlug + " value=" + wantValueName + " id=" + valueId + " lang=" + langEnum + ": " + errs);
+                }
+            }
+        }
+    }
+}
+
+
+/* ------------------------ GraphQL (Saleor 3.21.x) ------------------------ */
+
+    private static final String Q_PRODUCT_BY_SLUG =
+        "query($slug:String!){\n" +
+        "  products(first:1, filter:{ slugs: [$slug] }){\n" +
+        "    edges{ node{ id slug name } }\n" +
+        "  }\n" +
+        "}";
+ 
+// Query product attributes + attribute value translations for a given language
+private static final String Q_PRODUCT_ATTR_TRANSLATIONS =
+    "query($slug: String!, $channel: String!, $lang: LanguageCodeEnum!) { " +
+    "  product(slug: $slug, channel: $channel) { " +
+    "    attributes { " +
+    "      attribute { slug } " +
+    "      values { id name slug plainText translation(languageCode: $lang) { name } } " +
+    "    } " +
+    "  } " +
+    "}";
+
+   
+    private static final String Q_PRODUCTS_BY_SLUGS =
+    	    "query($slugs:[String!]!){\n" +
+    	    "  products(first:100, filter:{ slugs: $slugs }){\n" +
+    	    "    edges{ node{\n" +
+    	    "      id name slug description productType{ slug } category{ slug }\n" +
+    	    "      metadata{ key value }\n" +
+    	    "      attributes{ attribute{ slug inputType } values{ name slug plainText richText} }\n" +
+    	    "      channelListings{ channel{ id slug } isPublished visibleInListings publishedAt }\n" +
+    	    "    } }\n" +
+    	    "  }\n" +
+    	    "}";
+
+
+    private static final String Q_PRODUCT_SLUGS_PAGE =
+        "query($after:String){\n" +
+        "  products(first:250, after:$after){\n" +
+        "    pageInfo{ hasNextPage endCursor }\n" +
+        "    edges{ node{ id slug } }\n" +
+        "  }\n" +
+        "}";
+
+    private static final String Q_PRODUCT_TYPE_BY_SLUG =
+        "query($slug:String!){\n" +
+        "  productTypes(first:1, filter:{ slugs: [$slug] }){\n" +
+        "    edges{ node{ id slug } }\n" +
+        "  }\n" +
+        "}";
+
+    private static final String Q_CATEGORY_BY_SLUG =
+        "query($slug:String!){\n" +
+        "  categories(first:1, filter:{ slugs: [$slug] }){\n" +
+        "    edges{ node{ id slug } }\n" +
+        "  }\n" +
+        "}";
+
+    private static final String Q_ATTRS_PAGE =
+        "query($after:String){\n" +
+        "  attributes(first:100, after:$after){\n" +
+        "    pageInfo{ hasNextPage endCursor }\n" +
+        "    edges{ node{ id slug type inputType\n" +
+        "      choices(first:100){ edges{ node{ id slug name } } }\n" +
+        "    } }\n" +
+        "  }\n" +
+        "}";
+
+    /*
+    private static final String M_ATTRIBUTE_VALUE_CREATE =
+        "mutation($attr:ID!, $input: AttributeValueCreateInput!){\n" +
+        "  attributeValueCreate(attribute:$attr, input:$input){\n" +
+        "    value{ id slug }\n" +
+        "    errors{ field message code }\n" +
+        "  }\n" +
+        "}";
+    */
+    
+    private static final String M_ATTRIBUTE_VALUE_CREATE =
+    	    "mutation($attr: ID!, $input: AttributeValueCreateInput!) { " +
+    	    "  attributeValueCreate(attribute: $attr, input: $input) { " +
+    	    "    attributeValue { id } " +
+    	    "    errors { field message code } " +
+    	    "  } " +
+    	    "}";
+
+
+    /*
+    private static final String M_ATTRIBUTE_VALUE_TRANSLATE =
+        "mutation($id:ID!, $lang: LanguageCodeEnum!, $input: NameTranslationInput!){\n" +
+        "  attributeValueTranslate(id:$id, languageCode:$lang, input:$input){\n" +
+        "    attributeValue{ id }\n" +
+        "    errors{ field message code }\n" +
+        "  }\n" +
+        "}";
+	*/
+    private static final String M_ATTRIBUTE_VALUE_TRANSLATE =
+    	    "mutation($id: ID!, $lang: LanguageCodeEnum!, $input: AttributeValueTranslationInput!) { " +
+    	    "  attributeValueTranslate(id: $id, languageCode: $lang, input: $input) { " +
+    	    "    attributeValue { id name } " +
+    	    "    errors { field message code } " +
+    	    "  } " +
+    	    "}";
+ 
+    
+    private static final String M_PRODUCT_CREATE =
+        "mutation($input: ProductCreateInput!){\n" +
+        "  productCreate(input:$input){ product{ id slug } errors{ field message code } }\n" +
+        "}";
+
+    private static final String M_PRODUCT_UPDATE =
+        "mutation($id:ID!, $input: ProductInput!){\n" +
+        "  productUpdate(id:$id, input:$input){ product{ id slug } errors{ field message code } }\n" +
+        "}";
+
+    private static final String M_PRODUCT_DELETE =
+        "mutation($id:ID!){ productDelete(id:$id){ errors{ field message code } } }";
+
+    private static final String Q_CHANNELS =
+        "query{ channels{ id slug name } }";
+
+    // Uses publishedAt (Saleor 3.21); publicationDate is deprecated
+    private static final String Q_PRODUCTS_PAGE =
+        "query($after:String){\n" +
+        "  products(first:100, after:$after){\n" +
+        "    pageInfo{ hasNextPage endCursor }\n" +
+        "    edges{ node{\n" +
+        "      id name slug description productType{ slug } category{ slug }\n" +
+        "      metadata{ key value }\n" +
+        "      attributes{ attribute{ slug inputType } values{ name slug plainText richText} }\n" +
+        "      channelListings{\n" +
+        "        channel{ id slug }\n" +
+        "        isPublished\n" +
+        "        visibleInListings\n" +
+        "        publishedAt\n" +
+        "      }\n" +
+        "    } }\n" +
+        "  }\n" +
+        "}";
+
+    private static final String M_PRODUCT_CHANNEL_LISTING_UPDATE =
+        "mutation($id:ID!, $input: ProductChannelListingUpdateInput!){\n" +
+        "  productChannelListingUpdate(id:$id, input:$input){\n" +
+        "    errors{ field message code }\n" +
+        "    product{ id }\n" +
+        "  }\n" +
+        "}";
+
+    private static final String Q_PRODUCT_CHANNELS_BY_ID =
+        "query($id:ID!){\n" +
+        "  product(id:$id){\n" +
+        "    channelListings{ channel{ id slug } }\n" +
+        "  }\n" +
+        "}";
+
+    /* ------------------------------- Lookups & preload ------------------------------- */
+
+    // Preload all product slugs -> ids once (paged)
+    private void preloadAllProductSlugs() {
+        String after = null;
+        do {
+            JsonNode r = call(Q_PRODUCT_SLUGS_PAGE, vars("after", after));
+            JsonNode conn = r.path("data").path("products");
+            for (JsonNode e : conn.path("edges")) {
+                JsonNode n = e.path("node");
+                String slug = n.path("slug").asText();
+                String id = n.path("id").asText();
+                if (!slug.isBlank() && !id.isBlank()) productSlugToId.put(slug, id);
+            }
+            boolean hasNext = conn.path("pageInfo").path("hasNextPage").asBoolean(false);
+            after = hasNext ? conn.path("pageInfo").path("endCursor").asText(null) : null;
+        } while (after != null);
+    }
+
+    public void clearProductSlugCache() {
+        productSlugToId.clear();
+    }
+
+    public String productIdBySlug(String slug) {
+        if (slug == null || slug.isBlank()) return null;
+        String cached = productSlugToId.get(slug);
+        if (cached != null) return cached;
+
+        // Fallback (should be rare after preload)
+        JsonNode r = call(Q_PRODUCT_BY_SLUG, vars("slug", slug));
+        JsonNode edges = r.path("data").path("products").path("edges");
+        String id = edges.isArray() && edges.size() > 0 ? edges.get(0).path("node").path("id").asText() : null;
+        if (id != null) productSlugToId.put(slug, id);
+        return id;
+    }
+
+    private String productTypeIdBySlug(String slug) {
+        JsonNode r = call(Q_PRODUCT_TYPE_BY_SLUG, vars("slug", slug));
+        JsonNode edges = r.path("data").path("productTypes").path("edges");
+        return edges.isArray() && edges.size() > 0 ? edges.get(0).path("node").path("id").asText() : null;
+    }
+
+    private String categoryIdBySlug(String slug) {
+        JsonNode r = call(Q_CATEGORY_BY_SLUG, vars("slug", slug));
+        JsonNode edges = r.path("data").path("categories").path("edges");
+        return edges.isArray() && edges.size() > 0 ? edges.get(0).path("node").path("id").asText() : null;
+    }
+
+    private Map<String, AttrInfo> loadProductAttributes() {
+        Map<String, AttrInfo> map = new HashMap<>();
+        String after = null;
+        do {
+            JsonNode r = call(Q_ATTRS_PAGE, vars("after", after));
+            JsonNode conn = r.path("data").path("attributes");
+            for (JsonNode e : conn.path("edges")) {
+                JsonNode n = e.path("node");
+                if (!"PRODUCT_TYPE".equals(n.path("type").asText())) continue;
+                AttrInfo ai = new AttrInfo();
+                ai.id = n.path("id").asText();
+                ai.inputType = n.path("inputType").asText();
+                ai.valueSlugToId = new HashMap<>();
+                JsonNode choices = n.path("choices").path("edges");
+                if (choices.isArray()) {
+                    for (JsonNode ce : choices) {
+                        String vs = ce.path("node").path("slug").asText();
+                        String vid = ce.path("node").path("id").asText();
+                        if (!vs.isBlank() && !vid.isBlank()) ai.valueSlugToId.put(vs, vid);
+                    }
+                }
+                map.put(n.path("slug").asText(), ai);
+            }
+            boolean hasNext = conn.path("pageInfo").path("hasNextPage").asBoolean(false);
+            after = hasNext ? conn.path("pageInfo").path("endCursor").asText(null) : null;
+        } while (after != null);
+        return map;
+    }
+
+    private Map<String, String> loadChannelSlugToId() {
+        Map<String, String> out = new HashMap<>();
+        JsonNode resp = call(Q_CHANNELS, null);
+        for (JsonNode ch : resp.path("data").path("channels")) {
+            String slug = ch.path("slug").asText();
+            String id = ch.path("id").asText();
+            if (!slug.isEmpty() && !id.isEmpty()) out.put(slug, id);
+        }
+        return out;
+    }
+
+    private static class AttrInfo {
+        String id;
+        String inputType;
+        Map<String, String> valueSlugToId;
+    }
+    
+    private ObjectNode buildExportProductRow(JsonNode p) {
+        ObjectNode row = mapper().createObjectNode();
+        row.put("name", p.path("name").asText());
+        row.put("slug", p.path("slug").asText());
+        row.put("productType", p.path("productType").path("slug").asText(null));
+        row.put("category", p.path("category").isNull() ? null : p.path("category").path("slug").asText(null));
+        if (!p.path("description").isNull()) row.put("description", p.path("description").asText());
+        else row.putNull("description");
+
+        ArrayNode metaArr = mapper().createArrayNode();
+        for (JsonNode m : p.path("metadata")) {
+            ObjectNode one = mapper().createObjectNode();
+            one.put("key", m.path("key").asText());
+            one.put("value", m.path("value").asText());
+            metaArr.add(one);
+        }
+        row.set("metadata", metaArr);
+
+        ArrayNode attrs = mapper().createArrayNode();
+        for (JsonNode av : p.path("attributes")) {
+            String aSlug = av.path("attribute").path("slug").asText();
+            String inputType = av.path("attribute").path("inputType").asText();
+            ArrayNode values = mapper().createArrayNode();
+
+            if (isChoiceBased(inputType)) {
+                for (JsonNode v : av.path("values")) {
+                    values.add(v.path("slug").asText());
+                }
+            } else if ("RICH_TEXT".equalsIgnoreCase(inputType)) {
+                for (JsonNode v : av.path("values")) {
+                    String rich = v.path("richText").asText(null);
+
+                    // fallback only, in case Saleor returns null for old/empty values
+                    if (rich == null || rich.isBlank()) {
+                        rich = v.path("plainText").asText(null);
+                    }
+                    if (rich == null || rich.isBlank()) {
+                        rich = v.path("name").asText("");
+                    }
+
+                    values.add(rich);
+                }
+            } else if ("PLAIN_TEXT".equalsIgnoreCase(inputType)) {
+                for (JsonNode v : av.path("values")) {
+                    String txt = v.path("plainText").asText(null);
+                    if (txt == null || txt.isBlank()) {
+                        txt = v.path("name").asText("");
+                    }
+                    values.add(txt);
+                }
+            } else {
+                for (JsonNode v : av.path("values")) {
+                    values.add(v.path("name").asText());
+                }
+            }
+
+            ObjectNode one = mapper().createObjectNode();
+            one.put("attribute", aSlug);
+            one.put("inputType", inputType);
+            one.set("values", values);
+            attrs.add(one);
+        }
+        row.set("attributes", attrs);
+
+        ArrayNode channels = mapper().createArrayNode();
+        for (JsonNode cl : p.path("channelListings")) {
+            ObjectNode ch = mapper().createObjectNode();
+            ch.put("slug", cl.path("channel").path("slug").asText());
+            ch.put("isPublished", cl.path("isPublished").asBoolean(false));
+            ch.put("visibleInListings", cl.path("visibleInListings").asBoolean(false));
+            if (!cl.path("publishedAt").isNull()) ch.put("publishedAt", cl.path("publishedAt").asText());
+            channels.add(ch);
+        }
+        row.set("channels", channels);
+
+        return row;
+    }
+
+    /* --------------------------- 1) EXPORT to JSON --------------------------- */
+    /** Zero-based windowed export. Returns "OK  [ ... ]" */
+    
+    public String exportProducts(
+    	    int start,
+    	    int count,
+    	    List<String> productSlugs,
+    	    StringReturnCallback cb
+    	) throws Exception {
+    	    if (start < 0) start = 0;
+    	    if (count < 0) count = 0;
+
+    	    final int endExclusive = (count == 0) ? Integer.MAX_VALUE : start + count;
+
+    	    int index = 0;          // global “row index” when scanning all products
+    	    int totalSent = 0;      // how many rows we actually emitted to callback
+
+    	    boolean aborted = false;
+    	    String abortReason = null;
+
+    	    // Helper: wraps payload into {"meta":..., "data":...} and calls callback.
+    	    // Callback may return {"action":"abort","reason":"..."} to stop.
+    	    java.util.function.BiFunction<ObjectNode, ArrayNode, String> emitPage = (meta, dataArr) -> {
+    	        try {
+    	            if (cb == null) return null;
+
+    	            ObjectNode wrapper = mapper().createObjectNode();
+    	            wrapper.set("meta", meta);
+    	            wrapper.set("data", dataArr);
+
+    	            String cbResp = cb.returnCallback(mapper().writeValueAsString(wrapper));
+    	            return cbResp;
+    	        } catch (Exception ex) {
+    	            // Let exception propagate so caller knows callback failed
+    	            throw new RuntimeException(ex);
+    	        }
+    	    };
+
+    	    // If productSlugs provided -> use server-side filter and avoid scanning all.
+    	    if (productSlugs != null && !productSlugs.isEmpty()) {
+    	        // chunk to be safe (Saleor might not like huge arrays)
+    	        final int CHUNK = 100;
+
+    	        int sentFromFiltered = 0;
+    	        int pageNo = 0;
+
+    	        for (int i = 0; i < productSlugs.size(); i += CHUNK) {
+    	            if (sentFromFiltered >= endExclusive) break;
+
+    	            List<String> sub = productSlugs.subList(i, Math.min(i + CHUNK, productSlugs.size()));
+    	            JsonNode r = call(Q_PRODUCTS_BY_SLUGS, vars("slugs", sub));
+    	            JsonNode edges = r.path("data").path("products").path("edges");
+
+    	            ArrayNode pageOut = mapper().createArrayNode();
+    	            for (JsonNode e : edges) {
+    	                if (sentFromFiltered >= endExclusive) break;
+
+    	                // Here "index" semantics are not meaningful vs global list,
+    	                // but we still support start/count for consistency:
+    	                if (sentFromFiltered >= start) {
+    	                    JsonNode p = e.path("node");
+    	                    pageOut.add(buildExportProductRow(p));
+    	                    totalSent++;
+    	                }
+    	                sentFromFiltered++;
+    	            }
+
+    	            ObjectNode meta = mapper().createObjectNode();
+    	            meta.put("mode", "filterBySlugs");
+    	            meta.put("pageNo", pageNo++);
+    	            meta.put("slugChunkStart", i);
+    	            meta.put("slugChunkSize", sub.size());
+    	            meta.put("start", start);
+    	            meta.put("count", count);
+    	            meta.put("sentSoFar", totalSent);
+
+    	            if (pageOut.size() > 0) {
+    	                String cbResp = emitPage.apply(meta, pageOut);
+    	                if (cbResp != null && !cbResp.isBlank()) {
+    	                    JsonNode respNode = mapper().readTree(cbResp);
+    	                    String action = respNode.path("action").asText(null);
+    	                    if ("abort".equalsIgnoreCase(action)) {
+    	                        aborted = true;
+    	                        abortReason = respNode.path("reason").asText(null);
+    	                        break;
+    	                    }
+    	                }
+    	            }
+
+    	            if (aborted) break;
+    	        }
+    	    } else {
+    	        // productSlugs not provided -> scan all products with cursor paging (your current behavior),
+    	        // but stream each page's selected rows instead of accumulating all in memory.
+    	        String after = null;
+    	        int pageNo = 0;
+
+    	        outer:
+    	        do {
+    	            JsonNode r = call(Q_PRODUCTS_PAGE, vars("after", after));
+    	            JsonNode conn = r.path("data").path("products");
+
+    	            ArrayNode pageOut = mapper().createArrayNode();
+
+    	            for (JsonNode e : conn.path("edges")) {
+    	                if (index >= endExclusive) break outer;
+
+    	                JsonNode p = e.path("node");
+
+    	                if (index >= start) {
+    	                    pageOut.add(buildExportProductRow(p));
+    	                    totalSent++;
+    	                }
+    	                index++;
+    	            }
+
+    	            ObjectNode meta = mapper().createObjectNode();
+    	            meta.put("mode", "scanAll");
+    	            meta.put("pageNo", pageNo++);
+    	            meta.put("start", start);
+    	            meta.put("count", count);
+    	            meta.put("scanIndexNow", index);
+    	            meta.put("sentSoFar", totalSent);
+    	            if (after != null) meta.put("after", after);
+
+    	            if (pageOut.size() > 0) {
+    	                String cbResp = emitPage.apply(meta, pageOut);
+    	                if (cbResp != null && !cbResp.isBlank()) {
+    	                    JsonNode respNode = mapper().readTree(cbResp);
+    	                    String action = respNode.path("action").asText(null);
+    	                    if ("abort".equalsIgnoreCase(action)) {
+    	                        aborted = true;
+    	                        abortReason = respNode.path("reason").asText(null);
+    	                        break;
+    	                    }
+    	                }
+    	            }
+
+    	            boolean hasNext = conn.path("pageInfo").path("hasNextPage").asBoolean(false);
+    	            after = hasNext ? conn.path("pageInfo").path("endCursor").asText(null) : null;
+    	        } while (after != null && !aborted);
+    	    }
+
+    	    // Final return: only totals, wrapped in ReturnJson
+    	    ObjectNode finalMeta = mapper().createObjectNode();
+    	    finalMeta.put("mode", (productSlugs != null && !productSlugs.isEmpty()) ? "filterBySlugs" : "scanAll");
+    	    finalMeta.put("aborted", aborted);
+    	    if (abortReason != null) finalMeta.put("abortReason", abortReason);
+
+    	    ObjectNode finalData = mapper().createObjectNode();
+    	    finalData.put("totalFetched", totalSent);
+
+    	    ObjectNode finalWrapper = mapper().createObjectNode();
+    	    finalWrapper.set("meta", finalMeta);
+    	    finalWrapper.set("data", finalData);
+
+    	    return "OK  " + mapper().writeValueAsString(finalWrapper);
+    	}
+    
+    /** Backward compatible: collects all and returns "OK  [ ... ]" */
+    public String exportProducts(int start, int count) throws Exception {
+        ArrayNode all = mapper().createArrayNode();
+
+        StringReturnCallback collector = (String rtn) -> {
+            // rtn is {"meta":..., "data":[...]}
+            JsonNode n = mapper().readTree(rtn);
+            JsonNode data = n.path("data");
+            if (data.isArray()) {
+                for (JsonNode one : data) all.add(one);
+            }
+            return null; // continue
+        };
+
+        String resp = exportProducts(start, count, null, collector);
+        // keep the final return style identical to old method:
+        return "OK  " + mapper().writeValueAsString(all);
+    }
+
+
+    
+
+    /* --------------------------- 2) DELETE ALL ------------------------------- */
+    public String deleteAllProducts() {
+        int deleted = 0, errors = 0;
+        String after = null;
+        while (true) {
+            JsonNode r = call(Q_PRODUCTS_PAGE, vars("after", after));
+            JsonNode conn = r.path("data").path("products");
+            List<JsonNode> nodes = new ArrayList<>();
+            for (JsonNode e : conn.path("edges")) nodes.add(e.path("node"));
+
+            if (nodes.isEmpty()) break;
+
+            for (JsonNode p : nodes) {
+                String id = p.path("id").asText();
+                String slug = p.path("slug").asText();
+                JsonNode d = call(M_PRODUCT_DELETE, vars("id", id));
+                JsonNode errs = d.path("data").path("productDelete").path("errors");
+                if (errs.isArray() && errs.size() > 0) {
+                    System.out.println("⚠️ productDelete error for slug=" + slug + " : " + errs);
+                    errors++;
+                } else {
+                    deleted++;
+                    productSlugToId.remove(slug); // keep cache in sync
+                }
+            }
+
+            boolean hasNext = conn.path("pageInfo").path("hasNextPage").asBoolean(false);
+            if (!hasNext) break;
+            after = conn.path("pageInfo").path("endCursor").asText(null);
+        }
+        return "OK  ";
+    }
+
+    /** Delete selected products by slug. Returns "OK  Deleted:X Missing:Y Errors:Z" */
+    public String deleteProductRecords(java.util.List<String> slugs) {
+        if (slugs == null || slugs.isEmpty()) return "OK  Deleted:0 Missing:0 Errors:0";
+
+        int deleted = 0, missing = 0, errors = 0;
+
+        for (String slug : slugs) {
+            if (slug == null || slug.isBlank()) { missing++; continue; }
+
+            String id = productIdBySlug(slug);
+            if (id == null) { missing++; continue; }
+
+            try {
+                JsonNode d = call(M_PRODUCT_DELETE, vars("id", id));
+                JsonNode errs = d.path("data").path("productDelete").path("errors");
+                if (errs.isArray() && errs.size() > 0) {
+                    System.out.println("⚠️ productDelete error for slug=" + slug + " : " + errs);
+                    errors++;
+                } else {
+                    deleted++;
+                    productSlugToId.remove(slug);
+                }
+            } catch (Exception ex) {
+                System.out.println("⚠️ productDelete exception for slug=" + slug + " : " + ex.getMessage());
+                errors++;
+            }
+        }
+
+        return String.format("OK  Deleted:%d Missing:%d Errors:%d", deleted, missing, errors);
+    }
+
+    /* --------------------------- Attributes payload -------------------------- */
+    private ArrayNode buildAttributesPayload(ArrayNode exportAttrs, Map<String, AttrInfo> attrMap) {
+        ArrayNode out = mapper().createArrayNode();
+        if (exportAttrs == null) return out;
+
+        for (JsonNode a : exportAttrs) {
+            String aSlug = a.path("attribute").asText();
+            String inputType = normalizeInputType(a.path("inputType").asText(null));
+
+            JsonNode valuesNode = a.path("values");
+            ArrayNode exportedValues = valuesNode.isArray() ? (ArrayNode) valuesNode : mapper().createArrayNode();
+
+            AttrInfo ai = attrMap.get(aSlug);
+            if (ai == null) {
+                System.out.println("⚠️ Missing attribute in server: " + aSlug);
+                continue;
+            }
+
+            ObjectNode entry = mapper().createObjectNode();
+            entry.put("id", ai.id);
+
+            if (isChoiceBased(inputType)) {
+                if ("DROPDOWN".equalsIgnoreCase(inputType)) {
+                    JsonNode first = exportedValues.size() > 0 ? exportedValues.get(0) : null;
+                    String vSlug = valueSlugFrom(first);
+                    String vName = valueNameFrom(first);
+
+                    if (vSlug != null && !vSlug.isBlank()) {
+                        String vId = ensureAttributeValueId(ai, vSlug, vName);
+                        if (vId != null) entry.put("dropdown", vId);
+                    }
+                } else {
+                    ArrayNode ids = mapper().createArrayNode();
+                    for (JsonNode v : exportedValues) {
+                        String vSlug = valueSlugFrom(v);
+                        String vName = valueNameFrom(v);
+                        if (vSlug == null || vSlug.isBlank()) continue;
+
+                        String vId = ensureAttributeValueId(ai, vSlug, vName);
+                        if (vId != null) ids.add(vId);
+                    }
+                    entry.set("multiselect", ids);
+                }
+            } else {
+                if ("RICH_TEXT".equalsIgnoreCase(inputType)) {
+                    String raw = (exportedValues != null && exportedValues.size() > 0)
+                            ? exportedValues.get(0).asText()
+                            : null;
+                    entry.put("richText", normalizeRichText(raw));
+                } else if ("PLAIN_TEXT".equalsIgnoreCase(inputType)) {
+                    JsonNode first = exportedValues.size() > 0 ? exportedValues.get(0) : null;
+                    String v = valueNameFrom(first);
+                    if (v != null) entry.put("plainText", v);
+                } else if ("NUMERIC".equalsIgnoreCase(inputType)) {
+                    String v = exportedValues.size() > 0 ? exportedValues.get(0).asText() : null;
+                    if (v != null) entry.put("numeric", v);
+                } else if ("BOOLEAN".equalsIgnoreCase(inputType)) {
+                    String v = exportedValues.size() > 0 ? exportedValues.get(0).asText() : null;
+                    if (v != null) entry.put("boolean", Boolean.parseBoolean(v));
+                } else if ("DATE".equalsIgnoreCase(inputType)) {
+                    String v = exportedValues.size() > 0 ? exportedValues.get(0).asText() : null;
+                    if (v != null) entry.put("date", v);
+                } else if ("DATE_TIME".equalsIgnoreCase(inputType)) {
+                    String v = exportedValues.size() > 0 ? exportedValues.get(0).asText() : null;
+                    if (v != null) entry.put("dateTime", v);
+                } else if ("FILE".equalsIgnoreCase(inputType)) {
+                    String v = exportedValues.size() > 0 ? exportedValues.get(0).asText() : null;
+                    if (v != null) entry.put("file", v);
+                } else if ("REFERENCE".equalsIgnoreCase(inputType)) {
+                    // Not supported in this wrapper; ignore silently
+                } else {
+                    // Unknown inputType - ignore
+                }
+            }
+
+            out.add(entry);
+        }
+
+        return out;
+    }
+
+    /* --------------------------- 3) IMPORT from JSON ------------------------- */
+    public String importProducts(String json) throws Exception {
+        if (json == null || json.isBlank()) return "OK  ";
+
+        ArrayNode products = (ArrayNode) mapper().readTree(json);
+
+        // Warm caches (attributes, channels, product slugs)
+        Map<String, AttrInfo> attrMap = loadProductAttributes();
+        Map<String, String> channelSlugToId = loadChannelSlugToId();
+        preloadAllProductSlugs();
+
+        int created = 0, updated = 0, failed = 0;
+
+        for (JsonNode p : products) {
+            String name = p.path("name").asText();
+            String slug = p.path("slug").asText();
+            String ptSlug = p.path("productType").asText(null);
+            String catSlug = p.path("category").asText(null);
+
+            String description = p.path("description").isNull() ? null : p.path("description").asText(null);
+            if (description != null) description = normalizeRichText(description);
+
+            String ptId = ptSlug == null ? null : productTypeIdBySlug(ptSlug);
+            if (ptId == null) {
+                System.out.println("❌ Missing productType: " + ptSlug + " (skip " + slug + ")");
+                failed++;
+                continue;
+            }
+
+            String catId = null;
+            if (catSlug != null && !catSlug.isBlank()) {
+                catId = categoryIdBySlug(catSlug);
+                if (catId == null) {
+                    System.out.println("⚠️ category slug not found: " + catSlug + " (product " + slug + " will be created without category)");
+                }
+            }
+
+            ArrayNode attrsPayload = buildAttributesPayload((ArrayNode) p.path("attributes"), attrMap);
+            String productId = productIdBySlug(slug);
+            boolean isCreate = (productId == null);
+
+            JsonNode metaNode = p.path("metadata");
+            ArrayNode metadata = mapper().createArrayNode();
+            if (metaNode.isArray()) {
+                for (JsonNode m : metaNode) {
+                    ObjectNode one = mapper().createObjectNode();
+                    one.put("key", m.path("key").asText());
+                    one.put("value", m.path("value").asText());
+                    metadata.add(one);
+                }
+            }
+
+            if (isCreate) {
+                ObjectNode input = mapper().createObjectNode();
+                input.put("name", name);
+                input.put("slug", slug);
+                input.put("productType", ptId);
+                if (catId != null) input.put("category", catId);
+                if (description != null) input.put("description", description);
+                input.set("attributes", attrsPayload);
+
+                if (metadata.size() > 0) {
+                    input.set("metadata", metadata); // public
+                    // or input.set("privateMetadata", metadata);
+                }
+
+                JsonNode resp = call(M_PRODUCT_CREATE, vars("input", input));
+                JsonNode errs = resp.path("data").path("productCreate").path("errors");
+                if (errs.isArray() && errs.size() > 0) {
+                    System.out.println("❌ productCreate errors for " + slug + ": " + errs);
+                    failed++;
+                    continue;
+                }
+                productId = resp.path("data").path("productCreate").path("product").path("id").asText();
+                if (productId != null) productSlugToId.put(slug, productId);
+                
+                // Apply value translations AFTER upsert (do NOT create AttributeValue IDs upfront for PLAIN_TEXT)
+                applyProductValueTranslationsAfterUpsert(slug, pickDefaultChannelSlug(channelSlugToId), (ArrayNode) p.path("attributes"));
+
+created++;
+            } else {
+                ObjectNode input = mapper().createObjectNode();
+                input.put("name", name);
+                if (catId != null) input.put("category", catId);
+                if (description != null) input.put("description", description);
+                input.set("attributes", attrsPayload);
+                
+                if (metadata.size() > 0) {
+                    input.set("metadata", metadata);
+                }
+                CoreLog.log("call graphql to update product");
+                
+                JsonNode resp = call(M_PRODUCT_UPDATE, vars("id", productId, "input", input));
+                JsonNode errs = resp.path("data").path("productUpdate").path("errors");
+                if (errs.isArray() && errs.size() > 0) {
+                    System.out.println("❌ productUpdate errors for " + slug + ": " + errs);
+                    failed++;
+                    continue;
+                }
+                
+                // Apply value translations AFTER upsert (do NOT create AttributeValue IDs upfront for PLAIN_TEXT)
+                applyProductValueTranslationsAfterUpsert(slug, pickDefaultChannelSlug(channelSlugToId), (ArrayNode) p.path("attributes"));
+
+updated++;
+            }
+
+            // Channels (override semantics: remove unlisted channels)
+            JsonNode chArr = p.path("channels");
+            if (chArr.isArray()) {
+                ArrayNode updateChannels = mapper().createArrayNode();
+                Set<String> providedChannelIds = new HashSet<>();
+
+                for (JsonNode ch : chArr) {
+                    String chSlug = ch.path("slug").asText();
+                    String chId = channelSlugToId.get(chSlug);
+                    if (chId == null) {
+                        System.out.println("⚠️ Unknown channel slug: " + chSlug + " (skip)");
+                        continue;
+                    }
+                    providedChannelIds.add(chId);
+
+                    ObjectNode row = mapper().createObjectNode();
+                    row.put("channelId", chId);
+                    row.put("isPublished", ch.path("isPublished").asBoolean(false));
+                    row.put("visibleInListings", ch.path("visibleInListings").asBoolean(false));
+                    row.put("isAvailableForPurchase",true);
+
+                    String sentPublishedAt = null;
+                    if (ch.hasNonNull("publishedAt")) {
+                        sentPublishedAt = ch.path("publishedAt").asText();
+                    } else if (ch.hasNonNull("publicationDate")) {
+                        sentPublishedAt = ch.path("publicationDate").asText() + "T00:00:00Z";
+                    }
+                    if (sentPublishedAt != null) row.put("publishedAt", sentPublishedAt);
+
+                    updateChannels.add(row);
+                }
+
+                ArrayNode removeChannels = mapper().createArrayNode();
+                try {
+                    JsonNode cur = call(Q_PRODUCT_CHANNELS_BY_ID, vars("id", productId));
+                    JsonNode listings = cur.path("data").path("product").path("channelListings");
+                    for (JsonNode cl : listings) {
+                        String existingId = cl.path("channel").path("id").asText();
+                        if (!providedChannelIds.contains(existingId)) {
+                            removeChannels.add(existingId);
+                        }
+                    }
+                } catch (Exception ex) {
+                    System.out.println("⚠️ Could not load current channel listings for override: " + ex.getMessage());
+                }
+
+                if (updateChannels.size() > 0 || removeChannels.size() > 0) {
+                    ObjectNode inputCh = mapper().createObjectNode();
+                    if (updateChannels.size() > 0) inputCh.set("updateChannels", updateChannels);
+                    if (removeChannels.size() > 0) inputCh.set("removeChannels", removeChannels);
+
+                    JsonNode chResp = call(M_PRODUCT_CHANNEL_LISTING_UPDATE, vars("id", productId, "input", inputCh));
+                    JsonNode chErr = chResp.path("data").path("productChannelListingUpdate").path("errors");
+                    if (chErr.isArray() && chErr.size() > 0) {
+                        System.out.println("⚠️ productChannelListingUpdate errors for " + slug + " : " + chErr);
+                    }
+                }
+            }
+        }
+
+        return String.format("OK  Created:%d Updated:%d Failed:%d", created, updated, failed);
+    }
+
+    /* --------------------- 4) Update single product attribute ---------------- */
+    public String updateProductAttribute(
+        String productSlug,
+        String attributeSlug,
+        String plainText,
+        String richText,
+        String numeric,
+        Boolean bool,
+        String dropdownSlug,
+        String multiselectSlugs // pipe-separated
+    ) {
+        String productId = productIdBySlug(productSlug);
+        if (productId == null) return "Product not found: " + productSlug;
+
+        Map<String, AttrInfo> attrMap = loadProductAttributes();
+        AttrInfo ai = attrMap.get(attributeSlug);
+        if (ai == null) return "Attribute not found (PRODUCT_TYPE): " + attributeSlug;
+
+        ObjectNode input = mapper().createObjectNode();
+        ArrayNode attrs = mapper().createArrayNode();
+        ObjectNode one = mapper().createObjectNode();
+        one.put("id", ai.id);
+
+        String it = ai.inputType;
+
+        try {
+            if (isChoiceBased(it)) {
+                if (dropdownSlug != null && !dropdownSlug.isBlank()) {
+                    String vId = ai.valueSlugToId.get(dropdownSlug);
+                    if (vId == null) {
+                        JsonNode mk = call(M_ATTRIBUTE_VALUE_CREATE,
+                            vars("attr", ai.id, "input",
+                                mapper().createObjectNode().put("name", dropdownSlug).put("slug", dropdownSlug)));
+                        JsonNode err = mk.path("data").path("attributeValueCreate").path("errors");
+                        if (err.isArray() && err.size() > 0) return "Failed to create dropdown value: " + err;
+                        vId = mk.path("data").path("attributeValueCreate").path("value").path("id").asText();
+                    }
+                    one.put("dropdown", vId);
+                } else if (multiselectSlugs != null && !multiselectSlugs.isBlank()) {
+                    ArrayNode ids = mapper().createArrayNode();
+                    for (String s : multiselectSlugs.split("\\|")) {
+                        s = s.trim();
+                        if (s.isEmpty()) continue;
+                        String vId = ai.valueSlugToId.get(s);
+                        if (vId == null) {
+                            JsonNode mk = call(M_ATTRIBUTE_VALUE_CREATE,
+                                vars("attr", ai.id, "input",
+                                    mapper().createObjectNode().put("name", s).put("slug", s)));
+                            JsonNode err = mk.path("data").path("attributeValueCreate").path("errors");
+                            if (err.isArray() && err.size() > 0) return "Failed to create multiselect value '" + s + "': " + err;
+                            vId = mk.path("data").path("attributeValueCreate").path("value").path("id").asText();
+                        }
+                        ids.add(vId);
+                    }
+                    one.set("multiselect", ids);
+                } else {
+                    return "Choice-based attribute requires 'dropdown' or 'multiselect' parameter.";
+                }
+            } else {
+                if ("RICH_TEXT".equalsIgnoreCase(it)) {
+                    if (richText == null && plainText != null) richText = plainText; // allow plainText passthrough
+                    if (richText == null) return "Missing 'richText' for RICH_TEXT.";
+                    one.put("richText", normalizeRichText(richText));
+                } else if ("PLAIN_TEXT".equalsIgnoreCase(it)) {
+                    if (plainText == null) return "Missing 'plainText' for PLAIN_TEXT.";
+                    one.put("plainText", plainText);
+                } else if ("NUMERIC".equalsIgnoreCase(it)) {
+                    if (numeric == null) return "Missing 'numeric' for NUMERIC.";
+                    one.put("numeric", numeric);
+                } else if ("BOOLEAN".equalsIgnoreCase(it)) {
+                    if (bool == null) return "Missing 'bool' for BOOLEAN.";
+                    one.put("boolean", bool);
+                } else {
+                    if (plainText == null) return "Provide 'plainText' for attribute type " + it;
+                    one.put("plainText", plainText);
+                }
+            }
+        } catch (Exception ex) {
+            return "Failed to build attribute payload: " + ex.getMessage();
+        }
+
+        attrs.add(one);
+        input.set("attributes", attrs);
+
+        JsonNode resp = call(M_PRODUCT_UPDATE, vars("id", productId, "input", input));
+        JsonNode errs = resp.path("data").path("productUpdate").path("errors");
+        if (errs.isArray() && errs.size() > 0) return "Update failed: " + errs.toString();
+
+        return "OK  Updated product attribute: product=" + productSlug + ", attribute=" + attributeSlug;
+    }
+}

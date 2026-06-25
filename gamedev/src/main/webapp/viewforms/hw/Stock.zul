@@ -1,0 +1,407 @@
+<zk>
+<style dynamic="true">
+
+<!-- cut/hide the vertical borders in the grid rows -->
+.myGridWithNoBorder tr.z-row td.z-row-inner { border-right: 0px #CCC; }
+.GridLayoutNoBorder tr.z-row td.z-row-inner, tr.z-row .z-cell,div.z-grid 
+{ 
+border: none; 
+overflow: hidden; 
+zoom: 1; 
+#background:#f8f8f8 !important;  <!-- remove hover -->
+background:white !important;  <!-- remove hover -->
+border-top: none; 
+border-left: none; 
+border-right: none; 
+border-bottom: none; 
+} 
+</style>
+	<grid style="text-align:left;border: 1px solid #000;" id="detail_grid"  sclass="GridLayoutNoBorder" >
+	<columns>
+		<column width="160px"></column>
+		<column width="600px"></column>
+		<column width="160px"></column>
+		<column width="450px"></column>
+		<column></column>
+		<column width="300px"></column>
+	</columns>
+	<rows>
+		<row>
+			<cell align="right"><label value="Category"><custom-attributes tlkey="lb_mt_tpname"></custom-attributes></label> </cell>
+			<cell>
+			<hlayout>
+				<combobox id="mt_tpname" width="400px"></combobox>
+			</hlayout>
+			</cell>
+			<cell align="right"><label></label></cell>
+			<cell>
+			</cell>
+			<cell></cell>
+			<cell>
+				<label value="Ref No.:"><custom-attributes tlkey="lb_st_irg"></custom-attributes></label>
+				<label id="st_irg"></label>
+			</cell>
+		</row>
+		<row>
+			<cell align="right"><label value="Item Code"><custom-attributes tlkey="lb_st_icode"></custom-attributes></label> </cell>
+			<cell>
+				<hbox align="middle">
+				<combobox id="st_icode"></combobox> 
+				<div width="50px"></div>
+				<label>Barcode</label>
+				<textbox id="st_barcode"></textbox>
+				</hbox>
+			</cell>
+			<cell align="right"><label value="Obsoleted"><custom-attributes tlkey="lb_st_obsolete"></custom-attributes></label></cell>
+			<cell>
+				<checkbox id="st_obsolete"></checkbox>
+			</cell>
+			<cell></cell>
+			<cell>
+				<label value="Customer Code:"><custom-attributes tlkey="lb_inv_vcode"></custom-attributes></label>
+				<label id="inv_vcode"></label>
+			</cell>
+		</row>
+		<row>
+			<cell align="right"><label value="Item Name"><custom-attributes tlkey="lb_st_iname"></custom-attributes></label> </cell>
+			<cell>
+				<textbox id="st_iname" width="560px"></textbox>
+			</cell>
+			<cell align="right"><label value="Net Weight"><custom-attributes tlkey="lb_st_netweight"></custom-attributes></label> </cell>
+			<cell>
+					<doublebox id="st_netweight"></doublebox>
+			</cell>
+			<cell></cell>
+			<cell>
+				<label value="Create By:"><custom-attributes tlkey="lb_st_cuser"></custom-attributes></label>
+				<label id="st_cuser"></label>
+			</cell>
+		</row>
+		<row>
+			<cell align="right"><label value="Chinese Name"><custom-attributes tlkey="lb_st_einame"></custom-attributes></label> </cell>
+			<cell>
+				<textbox id="st_einame" width="560px"></textbox>
+			</cell>
+			<cell align="right"><label value="Reorder Level"><custom-attributes tlkey="lb_st_lowmark"></custom-attributes></label> </cell>
+			<cell>
+				<hlayout valign="middle">
+				<doublebox id="st_lowmark" width="100px"></doublebox>
+				<label>-</label>
+				<doublebox id="st_highmark" width="100px"></doublebox>
+				</hlayout>
+			</cell>
+			<cell></cell>
+			<cell>
+				<label value="Create On:"><custom-attributes tlkey="lb_st_cdate"></custom-attributes></label>
+				<label id="st_cdate"></label>
+			</cell>
+		</row>
+		<row>
+			<cell align="right"><label value="Remark"><custom-attributes tlkey="lb_st_remark"></custom-attributes></label> </cell>
+			<cell>
+				<textbox id="st_remark" width="500px" rows="2"></textbox>
+			</cell>
+			<cell align="right"><label value="Stock Unit"><custom-attributes tlkey="lb_st_unit"></custom-attributes></label> </cell>
+			<cell>
+				<combobox id="st_unit" width="100px"></combobox>
+			</cell>
+			<cell></cell>
+			<cell>
+				<label value="Update By:"><custom-attributes tlkey="lb_st_uuser"></custom-attributes></label>
+				<label id="st_uuser"></label>
+			</cell>
+		</row>
+		<row>
+			<cell colspan="2" rowspan="5">
+				<div id="stockPricePanel">
+					<vlayout>
+				<hlayout valign="middle">
+				<div width="160px" align="right"><label value="Cost"><custom-attributes tlkey="lb_st_standardcost"></custom-attributes></label> </div>
+				<doublebox id="st_standardcost"></doublebox>
+				<combobox id="st_standardcostcur" width="100px"></combobox>
+				<div style="text-align:right" width="100px"><label value="Last Purchase"><custom-attributes tlkey="lb_st_lastpcost"></custom-attributes></label> </div>
+				<label id="st_lastpcost"></label>
+				</hlayout>
+				<hlayout valign="middle">
+				<div width="160px" align="right"><label value="List Price"><custom-attributes tlkey="lb_st_standardprice"></custom-attributes></label> </div>
+				<doublebox id="st_standardprice"></doublebox>
+				<combobox id="st_standardcur" width="100px"></combobox>
+				<div style="text-align:right" width="100px"><label value="Last Sell"><custom-attributes tlkey="lb_st_lastsprice"></custom-attributes></label> </div>
+				<label id="st_lastsprice"></label>
+				</hlayout>
+				<hlayout valign="middle">
+					<div width="160px" align="right"><label value="Discount 1"><custom-attributes tlkey="lb_st_price1"></custom-attributes></label> </div>
+					<doublebox width="100px" id="st_price1"></doublebox>
+					<label>or</label>
+					<doublebox width="40px" id="st_disc1"></doublebox>
+					<label>%</label>
+				</hlayout>
+				<hlayout valign="middle">
+					<div width="160px" align="right"><label value="Discount 2"><custom-attributes tlkey="lb_st_price2"></custom-attributes></label> </div>
+					<doublebox width="100px" id="st_price2"></doublebox>
+					<label>or</label>
+					<doublebox width="40px" id="st_disc2"></doublebox>
+					<label>%</label>
+				</hlayout>
+				<hlayout valign="middle">
+					<div width="160px" align="right"><label value="Discount 3"><custom-attributes tlkey="lb_st_price3"></custom-attributes></label> </div>
+					<doublebox width="100px" id="st_price3"></doublebox>
+					<label>or</label>
+					<doublebox width="40px" id="st_disc3"></doublebox>
+					<label>%</label>
+				</hlayout>
+					</vlayout>
+				</div>
+			</cell>
+			<!-- 
+			<cell align="right"><label value="Cost"><custom-attributes tlkey="lb_st_standardcost"></custom-attributes></label> </cell>
+			<cell>
+				<hlayout valign="middle">
+				<doublebox id="st_standardcost"></doublebox>
+				<combobox id="st_standardcostcur" width="100px"></combobox>
+				<div style="text-align:right" width="100px"><label value="Last Purchase"><custom-attributes tlkey="lb_st_lastpcost"></custom-attributes></label> </div>
+				<label id="st_lastpcost"></label>
+				</hlayout>
+			</cell>
+			 -->
+			<cell align="right"><label value="Composite Unit 1"><custom-attributes tlkey="lb_st_munit1"></custom-attributes></label> </cell>
+			<cell>
+				<hlayout valign="middle">
+				<textbox width="60px" id="st_munit1"/>
+				<label>=</label>
+				<doublebox width="40px" id="st_msize1"></doublebox>
+				<textbox width="60px" id="st_dunit1"/>
+				</hlayout>
+			</cell>
+			<cell></cell>
+			<cell>
+				<label value="Update On:"><custom-attributes tlkey="lb_st_udate"></custom-attributes></label>
+				<label id="st_udate"></label>
+			</cell>
+		</row>
+		<row>
+			<!-- 
+			<cell colspan="2"></cell>
+			<cell align="right"><label value="List Price"><custom-attributes tlkey="lb_st_standardprice"></custom-attributes></label> </cell>
+			<cell>
+				<hlayout valign="middle">
+				<doublebox id="st_standardprice"></doublebox>
+				<combobox id="st_standardcur" width="100px"></combobox>
+				<div style="text-align:right" width="100px"><label value="Last Sell"><custom-attributes tlkey="lb_st_lastsprice"></custom-attributes></label> </div>
+				<label id="st_lastsprice"></label>
+				</hlayout>
+			</cell>
+			 -->
+			<cell align="right"><label value="Composite Unit 1"><custom-attributes tlkey="lb_st_munit2"></custom-attributes></label> </cell>
+			<cell>
+				<hlayout valign="middle">
+				<textbox width="60px" id="st_munit2"/>
+				<label>=</label>
+				<doublebox width="40px" id="st_msize2"></doublebox>
+				<textbox width="60px" id="st_dunit2"/>
+				</hlayout>
+			</cell>
+			<cell>
+			</cell>
+		</row>
+		<row>
+			<!-- 
+			<cell colspan="2"></cell>
+			<cell align="right"><label value="Discount 1"><custom-attributes tlkey="lb_st_price1"></custom-attributes></label> </cell>
+			<cell>
+				<hlayout valign="middle">
+					<doublebox width="100px" id="st_price1"></doublebox>
+					<label>or</label>
+					<doublebox width="40px" id="st_disc1"></doublebox>
+					<label>%</label>
+				</hlayout>
+			</cell>
+			 -->
+			<cell align="right"><label value="Composite Unit 1"><custom-attributes tlkey="lb_st_munit3"></custom-attributes></label> </cell>
+			<cell>
+				<hlayout valign="middle">
+				<textbox width="60px" id="st_munit3"/>
+				<label>=</label>
+				<doublebox width="40px" id="st_msize3"></doublebox>
+				<textbox width="60px" id="st_dunit3"/>
+				</hlayout>
+			</cell>
+			<cell></cell>
+			<cell>
+			</cell>
+		</row>
+		<row>
+			<!-- 
+			<cell colspan="2"></cell>
+			<cell align="right"><label value="Discount 2"><custom-attributes tlkey="lb_st_price2"></custom-attributes></label> </cell>
+			<cell>
+				<hlayout valign="middle">
+					<doublebox width="100px" id="st_price2"></doublebox>
+					<label>or</label>
+					<doublebox width="40px" id="st_disc2"></doublebox>
+					<label>%</label>
+				</hlayout>
+			</cell>
+			 -->
+			<cell align="right"><label>Dimension</label> </cell>
+			<cell>
+				<hlayout valign="middle">
+					<combobox id="st_dimensionunit" width="115px"></combobox>
+					<div width="10px"></div>
+					<label>Width</label>
+					<doublebox id="st_dimensionw" width="80px"></doublebox>
+					<div width="10px"></div>
+					<label>Length</label>
+					<doublebox id="st_dimensionl" width="80px"></doublebox>
+					<div width="10px"></div>
+				</hlayout>
+			</cell>
+			<cell>
+			</cell>
+			<cell>
+			</cell>
+		</row>
+		<row>
+			<!-- 
+			<cell colspan="2"></cell>
+			<cell align="right"><label value="Discount 3"><custom-attributes tlkey="lb_st_price3"></custom-attributes></label> </cell>
+			<cell>
+				<hlayout valign="middle">
+					<doublebox width="100px" id="st_price3"></doublebox>
+					<label>or</label>
+					<doublebox width="40px" id="st_disc3"></doublebox>
+					<label>%</label>
+				</hlayout>
+			</cell>
+			 -->
+			<cell align="right"><label>Size/Spec</label> </cell>
+			<cell>
+				<hlayout valign="middle">
+					<textbox id="st_mszrange" width="150px"></textbox>
+					<div width="20px"></div>
+					<label>Area</label>
+					<doublebox id="st_dimension" width="80"></doublebox>
+					<label>sqm</label>
+				</hlayout>
+			</cell>
+			<cell></cell>
+			<cell>
+			</cell>
+		</row>
+		<!-- 
+		<row>
+			<cell align="right"><label>Dimension</label> </cell>
+			<cell colspan="4">
+				<hlayout>
+				<vlayout width="180px">
+					<label>Length</label>
+					<intbox id="st_dimensionl"></intbox>
+				</vlayout>
+				<vlayout width="180px">
+					<label>Width</label>
+					<intbox id="st_dimensionw"></intbox>
+				</vlayout>
+				<vlayout width="180px">
+					<label>Height</label>
+					<intbox id="st_dimensionh"></intbox>
+				</vlayout>
+				<vlayout width="180px">
+					<label>Net Weight</label>
+					<intbox id="st_netweight"></intbox>
+				</vlayout>
+				<vlayout width="180px">
+					<label>Packing (L)</label>
+					<intbox id="st_packd"></intbox>
+				</vlayout>
+				<vlayout width="180px">
+					<label>Packing (W)</label>
+					<intbox id="st_packw"></intbox>
+				</vlayout>
+				<vlayout width="180px">
+					<label>Packing (H)</label>
+					<intbox id="st_packh"></intbox>
+				</vlayout>
+				<vlayout width="180px">
+					<label>Gross Weight</label>
+					<intbox id="st_grossweight"></intbox>
+				</vlayout>
+				</hlayout>
+			</cell>
+			<cell>
+			</cell>
+		</row>
+		-->
+		<row>
+			<cell colspan="2">
+			Transaction Details :-
+			</cell>
+		</row>
+		<row>
+			<cell colspan="6">
+			<listbox id="list_erpv4_StockMove">
+			</listbox>
+			</cell>
+		</row>
+		
+		<row>
+			<cell align="right"><label></label> </cell>
+			<cell> </cell>
+			<cell colspan="2"></cell>
+			<cell></cell>
+			<cell>
+				<hbox align="middle">
+				<div width="50px"><label value="Sold"><custom-attributes tlkey="lb_stg_allocated"></custom-attributes></label></div>
+				<doublebox id="stg_allocated"></doublebox>
+				<doublebox id="stg_rdytodeli"></doublebox>
+				<!-- 
+				 -->
+				</hbox>
+			</cell>
+		</row>
+		<row>
+			<cell align="right"><label></label> </cell>
+			<cell> </cell>
+			<cell colspan="2"></cell>
+			<cell></cell>
+			<cell>
+				<hbox align="middle">
+				<div width="50px"><label value="Free"><custom-attributes tlkey="lb_stg_onorder"></custom-attributes></label></div>
+				<doublebox id="stg_onorder"></doublebox>
+				<doublebox id="stg_freestock"></doublebox>
+				</hbox>
+			</cell>
+		</row>
+		<row>
+			<cell align="right"><label></label> </cell>
+			<cell> </cell>
+			<cell colspan="2"></cell>
+			<cell></cell>
+			<cell>
+				<hbox align="middle">
+				<div width="50px">Adjustment</div>
+				<div width="80px"></div>
+				<doublebox id="st_adjustment"></doublebox>
+				</hbox>
+			</cell>
+		</row>
+		<row>
+			<cell align="right"><label></label> </cell>
+			<cell> </cell>
+			<cell colspan="2"></cell>
+			<cell></cell>
+			<cell>
+			<!-- 
+			
+				<hbox align="middle">
+				<div width="50px">On Hand</div>
+				<div width="100px"></div>
+				<doublebox id="st_onhand"></doublebox>
+				</hbox>
+			 -->
+			</cell>
+		</row>
+	</rows>
+	</grid>
+	<toolbar id="detail_toolbar" align="end">
+	</toolbar>
+</zk>

@@ -1,0 +1,11 @@
+<zk>
+<window width="600px" apply="com.uniinformation.zkf.erpv4.ZkComposerCustomerStatement">
+	<vlayout>
+		<div align="center">Access Denied, Please contact System Administrator</div>
+		<div align="center">
+			<button width="100px" id="btOK" label="Back">
+			</button>
+		</div>
+	</vlayout>
+</window>
+</zk>

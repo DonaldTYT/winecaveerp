@@ -1,0 +1,14 @@
+<zk>
+<window width="600px" apply="com.uniinformation.zkf.ZkCellActionForm">
+	<vlayout>
+		<div align="center">Load Stock Movements from Excel</div>
+		<div align="center">
+			<button width="100px" id="btOK" label="Proceed">
+				<custom-attributes actionHandler="com.uniinformation.erpv4.PerfJsonRpcCall" actionId="erpv4ImportStmov" uploadType="tsv"></custom-attributes>
+			</button>
+		</div>
+	</vlayout>
+	<div visible="false">
+	</div>
+</window>
+</zk>

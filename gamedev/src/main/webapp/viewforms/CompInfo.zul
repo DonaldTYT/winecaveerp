@@ -1,0 +1,35 @@
+<zk xmlns:n="native">
+<style dynamic="true">
+</style>
+	<div class="zkbi-detail-toolbar-container">
+		<div class="zkbi-detail-toolbar-leftarea">
+			<button id="btUploadLogo" label="Upload Logo" visible="true">
+			<custom-attributes tlkey="pb_upload_logo"></custom-attributes>
+			</button>
+		</div>
+		<toolbar id="detail_toolbar" align="end">
+		</toolbar>
+	</div>
+	<grid id="detail_grid"  sclass="zkbi-detail-grid">
+		<rows>
+			<row>
+			<cell>
+				<div align="center">
+				<image id="co_logo" height="100px" />
+				</div>
+			</cell>
+			</row>
+		</rows>
+	<!-- 
+		<rows>
+			<row>
+				<label>
+				<custom-attributes tlkey="lb_company_logo"></custom-attributes>
+				Logo
+				</label>
+				<image id="co_logo" height="100px" />
+			</row>
+		</rows>
+	 -->
+	</grid>
+</zk>

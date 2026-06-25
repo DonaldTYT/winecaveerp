@@ -1,0 +1,144 @@
+<zk>
+<window sclass="zkbi-form zkbi-main-window" width="100%" apply="com.uniinformation.zkf.vincero.ZkComposerCompoundReturn">
+<div>
+	<vlayout sclass="zkbi-form-content">
+		<div align="left">
+			<label style="font-size:30px!important;font-weight:bold!important">Compounding Returns(100 trades)</label>	
+		</div>
+		<hlayout>
+		<div width="100px"></div>
+		<vlayout>
+		<!-- 
+			<div width="50px"> </div>
+		 -->
+			<vlayout style="background-color:#ffffff">
+				<div align="right" style="background-color:#FFFFFF;color:red">
+					<hlayout>
+						<label style="font-size:20px!important;"> Fill in the yellow boxes </label>
+						<div width="50px"></div>
+					</hlayout>
+				</div>
+				<hlayout>
+					<div style="background-color:#305496;color:white;" width="200px" align="right"><label>Capital (USD)</label></div>
+					<doublebox width="300px" id="cprtn_capital" style="background-color:#ffff00"></doublebox>
+				</hlayout>
+				<hlayout>
+					<div style="background-color:#305496;color:white;" width="200px" align="right"><label>Win Rate (%)</label></div>
+					<doublebox width="300px" id="cprtn_winrate" style="background-color:#ffff00"></doublebox>
+					<div align="left" width="50px">(+/-2%)</div>
+				</hlayout>
+				<hlayout>
+					<div style="background-color:#305496;color:white" width="200px" align="right"><label>Risk Reward Ratio</label></div>
+					<doublebox width="300px" id="cprtn_rewardratio" style="background-color:#ffff00"></doublebox>
+				</hlayout>
+				<hlayout>
+					<div style="background-color:#305496;color:white" width="200px" align="right"><label>Risk Per Trade (%)</label></div>
+					<doublebox width="300px" id="cprtn_riskpertrade" style="background-color:#ffff00"></doublebox>
+				</hlayout>
+			</vlayout>
+			<div height="50px"> </div>
+			<vlayout style="background-color:#fff8f8">
+				<div style="background-color:#304496;color:white;" align="center">Result After 100 Trades</div>
+				<hlayout>
+					<div width="200px" align="right" >Win</div>
+					<div width="250px" align="right" ><label>0</label></div>
+					<div width="10px"></div>
+					<div ><label>trades</label></div>
+					<!-- 
+					<intbox width="300px" id="cprtn_wincount" readonly="true" style="background-color:#ffffff;border-color:black;border-style:solid;border-width:1px;">
+						<custom-attributes postformula="excelCOUNTIFS([cprtn_result[0]:cprtn_result[]],'Win')"></custom-attributes>
+					</intbox>
+					<label>trades</label>
+					 -->
+				</hlayout>
+				<hlayout>
+					<div width="200px" align="right"><label>Loss</label></div>
+					<div width="250px" align="right"><label>0</label></div>
+					<div width="10px"></div>
+					<div><label>trades</label></div>
+					<!-- 
+					<div width="200px" align="right"><label>Loss</label></div>
+					<intbox width="300px" id="cprtn_losscount" readonly="true" style="background-color:#ffffff"></intbox>
+					<label>trades</label>
+					 -->	
+				</hlayout>
+				<hlayout>
+					<div width="200px" align="right"><label>Balance after 100 trades</label></div>
+					<div width="250px" align="right"><label>100.00</label></div>
+					<div width="10px"></div>
+					<div><label>USD</label></div>
+					<!-- 
+					<div width="200px" align="right"><label>Balance after 100 trades</label></div>
+					<intbox width="300px" id="cprtn_pl100trade" readonly="true" style="background-color:#ffffff"></intbox>
+					<label>USD</label>
+					 -->	
+				</hlayout>
+				<hlayout>
+					<div width="200px" align="right"><label>Total Gain/(Loss)</label></div>
+					<div width="250px" align="right"><label>100.00</label></div>
+					<div width="10px"></div>
+					<div><label>USD</label></div>
+					<!-- 
+					<div width="200px" align="right"><label>Total Gain/(Loss)</label></div>
+					<intbox width="300px" id="cprtn_totalpl" readonly="true" style="background-color:#ffffff"></intbox>
+					<label>USD</label>
+					 -->	
+				</hlayout>
+				<hlayout>
+					<div width="200px" align="right"><label>Return Rate</label></div>
+					<div width="250px" align="right"><label>15.0</label></div>
+					<div width="10px"></div>
+					<div><label>%</label></div>
+					<!-- 
+					<div width="200px" align="right"><label>Return Rate</label></div>
+					<intbox width="300px" id="cprtn_rtnrate" readonly="true" style="background-color:#ffffff"></intbox>
+					<label>%</label>
+					 -->	
+				</hlayout>
+			</vlayout>
+			<div height="50px"> </div>
+			<div align="center">
+				<button width="200px" id="btRecal" label="Click to Re-calculate"></button>
+			</div>
+		</vlayout>
+		<div width="150px"></div>
+		<vlayout>
+		<div align="center" style="color:red;"><label style="font-size:20px!important">Simulated Track Records</label></div>
+		<div align="center">
+			<listbox id="list_compoundretnrn" height="600px">
+			<!-- 
+			<auxhead>
+			<auxheader label="Date"/>
+			<auxheader label="Invoice No." />
+			<auxheader label="Amount" colspan="2"/>
+			</auxhead>
+			 -->
+				<listhead>
+					<listheader width="50px">Trade</listheader>
+					<listheader width="100px">Result</listheader>
+					<listheader width="100px">Risk</listheader>
+					<listheader width="100px">Gain/Loss</listheader>
+					<listheader width="100px">Balance</listheader>
+				</listhead>
+				<listitem>
+					<listcell label="1"/>
+					<listcell label="Win"/>
+					<listcell label="60"/>
+					<listcell label="90"/>
+					<listcell label="3090"/>
+				</listitem>
+				<listitem>
+					<listcell label="2"/>
+					<listcell label="Loss"/>
+					<listcell label="65"/>
+					<listcell label="-65" style="color:red!important"/>
+					<listcell label="3025"/>
+				</listitem>
+			</listbox>
+		</div>
+		</vlayout>
+		</hlayout>
+	</vlayout>
+</div>
+</window>
+</zk>

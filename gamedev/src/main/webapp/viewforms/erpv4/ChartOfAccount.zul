@@ -1,0 +1,31 @@
+<zk>
+<style dynamic="true">
+<!-- cut/hide the vertical borders in the grid rows -->
+.gridLayoutNoBorder tr.z-row td.z-row-inner, tr.z-row .z-cell,div.z-grid { 
+	border: none; 
+	<!--   overflow: hidden;  -->
+	<!--   zoom: 1;  --> <!-- andrew remark: do not use zoom -->
+	<!--   background:#f8f8f8 !important;  --> <!-- remove hover -->
+	background:white !important;  <!-- remove hover -->
+	border-top: none; 
+	border-left: none; 
+	border-right: none; 
+	border-bottom: none; 
+} 
+</style>
+
+	<toolbar id="detail_toolbar" align="end"> </toolbar>
+	<div height="20px"/>
+	<grid style="text-align:left;border: 1px solid #ececec; border-bottom: none;" id="detail_grid" sclass="gridLayoutNoBorder">
+	</grid>
+	<listbox id="list_erpv4_ControlAccount" height="650px">
+	</listbox>
+<template name="template_erpv4_ControlAccount_ca_aname">
+		<div style="text-align:left">
+			<hlayout>
+				<div id="ca_anspacer"></div>
+				<textbox id="ca_aname" width="300px"/>
+			</hlayout>
+		</div>
+</template>	
+</zk>

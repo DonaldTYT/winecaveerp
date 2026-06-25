@@ -1,0 +1,53 @@
+package com.uniinformation.bicore;
+import java.io.*;
+import java.util.*;
+import com.uniinformation.utils.*;
+import com.uniinformation.cell.*;
+
+public class BiTableRec {
+	TableRec rec[];
+	Hashtable tablehash;
+	public BiTableRec(Hashtable p_tablehash,TableRec p_rec[])
+	{
+			rec = p_rec;
+			tablehash = p_tablehash;
+	}
+	public java.util.Date getFieldDate(int p_tabidx,String p_fieldname)
+	{
+		try {
+			return(rec[p_tabidx].getFieldDate(p_fieldname,0));
+		} catch (Exception ex) {
+			UniLog.log(ex);
+			return(null);
+		}
+	}
+	public Object getFieldObject(int p_tabidx,String p_fieldname)
+	{
+		try {
+			return(rec[p_tabidx].getField(p_fieldname,0));
+		} catch (Exception ex) {
+			UniLog.log(ex);
+			return(null);
+		}
+	}
+	public String getFieldString (BiField p_field)
+	{
+		try {
+			int idx = ((Integer) tablehash.get(p_field.getTable())).intValue();
+			return(rec[idx].getFieldString(p_field.getName(),0));
+		} catch (Exception ex) {
+			UniLog.log(ex);
+			return(null);
+		}
+	}
+	public Object getFieldObejct (BiField p_field)
+	{
+		try {
+			int idx = ((Integer) tablehash.get(p_field.getTable())).intValue();
+			return(rec[idx].getField(p_field.getName(),0));
+		} catch (Exception ex) {
+			UniLog.log(ex);
+			return(null);
+		}
+	}
+}

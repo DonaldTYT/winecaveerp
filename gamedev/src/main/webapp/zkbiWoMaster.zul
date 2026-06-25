@@ -1,0 +1,6 @@
+<?page title="Auto Generated index.zul"?>
+<zk>
+<window id="zkbibrowser" border="none" apply="com.uniinformation.zkbi.ZkBiComposerWoMaster">
+	<custom-attributes listboxHeight="css"/>
+</window>
+</zk>

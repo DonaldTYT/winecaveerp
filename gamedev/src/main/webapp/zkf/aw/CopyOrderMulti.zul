@@ -1,0 +1,29 @@
+<zk>
+<div width="400px" align="center">
+	<vlayout>
+		<hlayout>
+			<label>
+				Copy to Quotation(Blank for New) :
+			</label>
+			<textbox id="copyquo">
+			</textbox>
+		</hlayout>
+		<hlayout>
+        	<label>Company:</label>
+   			<radiogroup id="copycocode">
+            	<radio label="Copied"/>
+            	<radio label="Artway" />
+            	<radio label="Power" />
+        	</radiogroup>
+		</hlayout>
+		<hlayout>
+        	<label>Customer Code:</label>
+        	<textbox id="copyvcode"></textbox>
+		</hlayout>
+		<hlayout>
+			<button id="btOK" label="OK"></button>
+			<button id="btCancel" label="Cancel"></button>
+		</hlayout>
+	</vlayout>
+</div>
+</zk>

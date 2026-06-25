@@ -1,0 +1,5 @@
+<zk>
+	<toolbar id="detail_toolbar" align="end">
+		<button id="btPrintPoNew" label="Print PO" visible="true"><custom-attributes tlkey="bt_printponew"/></button>
+	</toolbar>
+</zk>

@@ -1,0 +1,214 @@
+
+
+<zk>
+	<div apply="com.uniinformation.jxapp.JxZkQuoteDemo">
+	<vlayout sclass="main-items">
+		<hlayout sclass="main-item">
+			<div sclass="main-item-label">
+				<label value="This is textbox1"></label>
+			</div>
+			<div sclass="main-item-content">
+				<textbox id="textbox1" placeholder="please input sth"></textbox>
+			</div>
+		</hlayout>
+		<hlayout sclass="main-item">
+			<div sclass="main-item-label">
+				<label value="This is radiogroup1"></label>
+			</div>
+			<div sclass="main-item-content">
+   				<radiogroup id="radiogroup1">
+            		<radio label="Apple" />
+            		<radio label="Orange" />
+            		<radio label="Banana" />
+        		</radiogroup>
+			</div>
+		</hlayout>
+		<hlayout sclass="main-item">
+			<div sclass="main-item-label">
+				<label value="This is checkbox[1,2,3]"></label>
+			</div>
+			<div sclass="main-item-content">
+				<checkbox id="checkbox1" label="Apple"></checkbox>
+				<checkbox id="checkbox2" label="Orange"></checkbox>
+				<checkbox id="checkbox3" label="Banana"></checkbox>
+			</div>
+		</hlayout>
+		
+		<hlayout sclass="main-item">
+			<div sclass="main-item-label">
+				<label value="This is textbox"></label>
+			</div>
+			<div sclass="main-item-content">
+				<textbox></textbox>
+			</div>
+		</hlayout>
+		<hlayout sclass="main-item">
+			<div sclass="main-item-label">
+				<label value="This is textbox"></label>
+			</div>
+			<div sclass="main-item-content">
+				<textbox></textbox>
+			</div>
+		</hlayout>
+		<hlayout sclass="main-item">
+			<div sclass="main-item-label">
+				<label value="This is textbox"></label>
+			</div>
+			<div sclass="main-item-content">
+				<textbox></textbox>
+			</div>
+		</hlayout>
+		<hlayout sclass="main-item">
+			<div sclass="main-item-label">
+				<label value="This is textbox"></label>
+			</div>
+			<div sclass="main-item-content">
+				<textbox></textbox>
+			</div>
+		</hlayout>
+		<hlayout sclass="main-item">
+			<div sclass="main-item-label">
+				<label value="This is textbox"></label>
+			</div>
+			<div sclass="main-item-content">
+				<textbox></textbox>
+			</div>
+		</hlayout>
+		<hlayout sclass="main-item">
+			<div sclass="main-item-label">
+				<label value="This is textbox"></label>
+			</div>
+			<div sclass="main-item-content">
+				<textbox></textbox>
+			</div>
+		</hlayout>
+		<hlayout sclass="main-item">
+			<div sclass="main-item-label">
+				<label value="This is textbox"></label>
+			</div>
+			<div sclass="main-item-content">
+				<textbox></textbox>
+			</div>
+		</hlayout>
+		<hlayout sclass="main-item">
+			<div sclass="main-item-label">
+				<label value="This is textbox"></label>
+			</div>
+			<div sclass="main-item-content">
+				<textbox></textbox>
+			</div>
+		</hlayout>
+		<hlayout sclass="main-item">
+			<div sclass="main-item-label">
+				<label value="This is textbox"></label>
+			</div>
+			<div sclass="main-item-content">
+				<textbox></textbox>
+			</div>
+		</hlayout>
+		<hlayout sclass="main-item">
+			<div sclass="main-item-label">
+				<label value="This is textbox"></label>
+			</div>
+			<div sclass="main-item-content">
+				<textbox></textbox>
+			</div>
+		</hlayout>
+		<hlayout sclass="main-item">
+			<div sclass="main-item-label">
+				<label value="This is textbox"></label>
+			</div>
+			<div sclass="main-item-content">
+				<textbox></textbox>
+			</div>
+		</hlayout>
+		<hlayout sclass="main-item">
+			<div sclass="main-item-label">
+				<label value="This is textbox"></label>
+			</div>
+			<div sclass="main-item-content">
+				<textbox></textbox>
+			</div>
+		</hlayout>
+		<hlayout sclass="main-item">
+			<div sclass="main-item-label">
+				<label value="This is textbox"></label>
+			</div>
+			<div sclass="main-item-content">
+				<textbox></textbox>
+			</div>
+		</hlayout>
+		<hlayout sclass="main-item">
+			<div sclass="main-item-label">
+				<label value="This is textbox"></label>
+			</div>
+			<div sclass="main-item-content">
+				<textbox></textbox>
+			</div>
+		</hlayout>
+		<hlayout sclass="main-item">
+			<div sclass="main-item-label">
+				<label value="This is textbox"></label>
+			</div>
+			<div sclass="main-item-content">
+				<textbox></textbox>
+			</div>
+		</hlayout>
+		<hlayout sclass="main-item">
+			<div sclass="main-item-label">
+				<label value="This is textbox"></label>
+			</div>
+			<div sclass="main-item-content">
+				<textbox></textbox>
+			</div>
+		</hlayout>
+		<hlayout sclass="main-item">
+			<div sclass="main-item-label">
+				<label value="This is textbox"></label>
+			</div>
+			<div sclass="main-item-content">
+				<textbox></textbox>
+			</div>
+		</hlayout>
+		<hlayout sclass="main-item">
+			<div sclass="main-item-label">
+				<label value="This is textbox"></label>
+			</div>
+			<div sclass="main-item-content">
+				<textbox></textbox>
+			</div>
+		</hlayout>
+		<hlayout sclass="main-item">
+			<div sclass="main-item-label">
+				<label value="This is textbox"></label>
+			</div>
+			<div sclass="main-item-content">
+				<textbox></textbox>
+			</div>
+		</hlayout>
+	</vlayout>
+	<vlayout sclass="summary-items">
+		<hlayout sclass="summary-item">
+			<textbox id="textbox2" placeholder="here will show your input" readonly="true" hflex="1"></textbox>
+		</hlayout>
+		<hlayout sclass="summary-item">
+			<label value="this is label"></label>
+		</hlayout>
+		<hlayout sclass="summary-item">
+			<label value="this is label"></label>
+		</hlayout>
+		<hlayout sclass="summary-item">
+			<label value="this is label"></label>
+		</hlayout>
+		<hlayout sclass="summary-item">
+			<label value="this is label"></label>
+		</hlayout>
+		<hlayout sclass="summary-item">
+			<label value="this is label"></label>
+		</hlayout>
+		<hlayout sclass="summary-item">
+			<label value="this is label"></label>
+		</hlayout>
+	</vlayout>	
+	</div>
+</zk>

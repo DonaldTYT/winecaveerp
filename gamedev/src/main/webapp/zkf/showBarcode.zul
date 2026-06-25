@@ -1,0 +1,9 @@
+<zk>
+<div align="center">
+	<vlayout>
+	<label>Scan This Barcode</label>
+	<image id="barcodeImg" height="200px" src="images/sampleQrcode.gif"></image>
+	<button id="btCancel" label="Cancel"></button>
+	</vlayout>
+</div>
+</zk>

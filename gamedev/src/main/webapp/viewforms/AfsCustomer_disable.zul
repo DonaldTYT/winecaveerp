@@ -1,0 +1,37 @@
+<zk>
+	<grid style="text-align:left;" id="detail_grid">
+	<rows id="link_cudet">
+		<template name="template_cudet">
+			<row id="cudet_row">
+			<cell></cell>
+			<cell colspan="1">
+			<vbox hflex="1">
+			<hbox align="left" hflex="1">
+				<label value="Address" hflex="1"/>
+				<vbox hflex="9">
+						<hbox>
+							<textbox id="cudet_custd_addr1" width="300px" placeholder="Address 1"></textbox>
+							<textbox id="cudet_custd_addr2" width="300px" placeholder="Address 2"></textbox>
+							<textbox id="cudet_custd_addr3" width="300px" placeholder="Address 3"></textbox>
+							<textbox id="cudet_custd_addr4" width="300px" placeholder="Address 4"></textbox>
+						</hbox>
+				</vbox>
+			</hbox>
+			
+			<hbox align="center" hflex="1">
+				<label value="Phone" hflex="1"/>
+				<vbox hflex="9">
+						<hbox>
+							<textbox id="cudet_custd_phone1" width="150px" placeholder="Phone 1"></textbox>
+							<textbox id="cudet_custd_phone2" width="150px" placeholder="Phone 2"></textbox>
+							<textbox id="cudet_custd_phone3" width="150px" placeholder="Phone 3"></textbox>
+						</hbox>
+				</vbox>
+			</hbox>
+			</vbox>
+			</cell>
+			</row>
+        </template>
+	</rows>
+	</grid>
+</zk>

@@ -1,0 +1,31 @@
+<zk>
+<style dynamic="true">
+.jxselopt .z-listcell-content, .jxselopt .z-listheader-content { 
+    line-height: initial !important;
+    min-height: initial !important;
+}
+.jxselopt .z-listbox-header {
+	display: none !important;
+}
+</style>
+<div id="formArea" hflex="1" vflex="1">
+<vlayout vflex="1">
+<!--
+	<toolbar align="center">
+	-->
+	<toolbar hflex="1" vflex="min" style="padding:2px 2px;">
+ 		<label>Filter:</label>
+ 		<textbox placeholder="Please input any keyword" id="ipk_filter"></textbox>
+		<button id="btAdd" label="Add New Item"></button>
+	</toolbar>
+	<listbox id="ipk_list" width="100%" height="280px" sclass="jxselopt" style="overflow-wrap:break-word;">
+	<listhead>
+		<listheader width="250px" label="Item Code" />
+		<listheader label="Item Name" />
+		<listheader label="PO Number" />
+		<listheader label="Available Qty" />
+	</listhead>
+</listbox>
+</vlayout>
+</div>
+</zk>

@@ -1,0 +1,43 @@
+<zk>
+<separator height="5px"/>
+<div style="background:white; padding:5px;">
+	<hlayout>
+		<div width="50px">
+		</div>
+		<label style="display:none; color:#2980b9;font-family:Comic Sans MS,cursive;" >
+			Closing Stock Report
+		</label>
+	<vlayout>
+		<hlayout>
+			<div width="120px" align="right">
+				<label>Closing Date</label>
+			</div>
+			<datebox id="edate" format="yyyy/MM/dd"></datebox>
+		</hlayout>
+		<hlayout>
+			<div width="120px" align="right">
+				<label>Fifo Aging</label>
+			</div>
+			<checkbox id="useFifoAging"></checkbox>
+		</hlayout>
+	</vlayout>
+		<hlayout>
+			<div width="120px" align="right">
+				<label value="Criteria" width="300px"></label>
+			</div>
+			<div>
+				<label id="rptCondition"></label>
+			</div>
+		</hlayout>
+	</hlayout>
+	<!-- 
+	     <html><![CDATA[
+	     <p><span style="color:#2980b9"><span style="font-family:Comic Sans MS,cursive"><em><span style="font-size:48px">Stock Aging Report</span></em></span></span></p>
+	     
+     ]]></html>
+     	<div width="500px" height="200px" style="background-color:red;border-radius: 25px;">
+     	</div>
+	 -->
+</div>
+<separator height="5px"/>
+</zk>

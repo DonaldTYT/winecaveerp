@@ -1,0 +1,27 @@
+<zk>
+	<div align="left">
+		<vlayout>
+			<div height="10px"/>
+			<div>
+				<hlayout>
+					<label id="lb_mdDepartment" visible="false">Department</label>
+					<combobox id="mdDepartment" visible="true"></combobox>
+					<label>Date Range </label>
+					<combobox id="sdate">
+						<custom-attributes listView="erpv4.PeriodControl" listColumn="pc_pstart"></custom-attributes>
+					</combobox>
+					<label>-</label>
+					<datebox id="edate">
+					</datebox>
+					<!--
+					<combobox id="edate">
+						<custom-attributes listView="erpv4.PeriodControl" listColumn="pc_pend"></custom-attributes>
+					</combobox>
+					<button id="btReloadBalance">Reload</button>
+					-->
+				</hlayout>
+			</div>
+			<div height="10px"/>
+		</vlayout>
+	</div>
+</zk>

@@ -1,0 +1,6 @@
+<zk>
+<window sclass="zkbi-form zkbi-main-window" apply="com.uniinformation.zkf.ZkCellActionForm">
+	<div width="320px" height="200px">
+	</div>
+</window>
+</zk>

@@ -1,0 +1,13 @@
+<zk>
+<vlayout>
+	<hlayout>
+		<div width="80px">Expiry Date</div>
+		<datebox id="inp_expdate" format="yyyy/MM/dd"/>
+	</hlayout>
+	<hlayout>
+		<div width="80px">Lot No</div>
+		<textbox id="inp_lotno" width="140px"/>
+	</hlayout>
+	<div><button id="inp_ok" label="OK"/></div>
+</vlayout>
+</zk>

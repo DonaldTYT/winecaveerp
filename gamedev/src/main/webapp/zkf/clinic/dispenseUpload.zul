@@ -1,0 +1,30 @@
+<zk>
+<div height="680px" width="500px">
+	<vlayout >
+		<div align="center">
+			<label>Drug Dispense Excel Upload (version 1.1)</label>
+			<div height="30px"/>
+			<hlayout>
+				<label>Number of Transaction :</label>
+				<intbox id="trcount" disabled="true"></intbox>
+			</hlayout>
+			<div height="30px"/>
+			<label id="resultSummary"/>
+			<div height="30px"/>
+			<listbox id="resultList" height="400px" width="500px">
+        			<listhead>
+            			<listheader label="Trx No" width="100px"/>
+            			<listheader label="Date" width="100px"/>
+            			<listheader label="Result" width="100px"/>
+            			<listheader label="Reason" hflex="1"/>
+        			</listhead>
+    		</listbox>
+			<div height="30px"/>
+			<hlayout>
+			<button id="btOK" label="Proceed"></button>
+			<button id="btClose" label="Close"></button>
+			</hlayout>
+		</div>
+	</vlayout>
+</div>
+</zk>

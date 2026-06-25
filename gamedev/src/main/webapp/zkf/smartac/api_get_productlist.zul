@@ -1,0 +1,24 @@
+<zk>
+<window sclass="zkbi-form zkbi-main-window" width="600px" apply="com.uniinformation.zkf.smartac.ShopifyGetProduct">
+	<label sclass="zkbi-form-header" value="Shopify API"></label>
+	<vlayout sclass="zkbi-form-content">
+		<div align="center">
+			<vlayout>
+			<button width="150px" id="btApiGetProducts" label="Get Products"> </button>
+			<button width="150px" id="btApiGetLocations" label="Get Locations"> </button>
+			<button width="150px" id="btApiGetInventoryId" label="Get Id"> </button>
+			<button width="150px" id="btApiGetInventoryLevel" label="Get Level"> </button>
+			<button width="150px" id="btApiAdjustInventoryLevel" label="Adjust Level"> </button>
+			</vlayout>
+		</div>
+	</vlayout>
+	<div visible="false">
+	<!--
+		<textbox id="localccy" text="MOP"></textbox>
+		<textbox id="cocode" text="AFS"></textbox>
+		-->
+		<textbox id="module" text="AP"></textbox>
+		<textbox id="orderby" text="1"></textbox>
+	</div>
+</window>
+</zk>

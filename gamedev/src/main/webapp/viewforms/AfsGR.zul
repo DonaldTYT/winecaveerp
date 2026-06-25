@@ -1,0 +1,39 @@
+<zk>
+	<toolbar id="detail_toolbar" align="end">
+		<button id="btCustom" label="Custom Report" visible="true"></button>
+	</toolbar>
+	<grid style="text-align:left;" id="detail_grid">
+	</grid>
+	<listbox id="list_AfsGrDet">
+	   <listfoot>
+        <listfooter id="footer_list_AfsGrDet" zclass="z-listbox-footer" span="6"><div style="text-align:right;padding:4px 5px;"></div></listfooter>
+        <listfooter zclass="z-listbox-footer" span="3"><div style="text-align:right;padding:4px 5px;">
+        		<vlayout>
+        		<label>Gross Total</label>
+        		<label>Less Discount </label>
+        		<label>Less Deposit</label>
+        		<combobox id="stm_salescode1" width="300px"> </combobox>
+        		<combobox id="stm_salescode2" width="300px"> </combobox>
+				<!-- 
+        		<listbox id="stm_salescode1" mold="select" width="120px"> </listbox>
+        		<listbox id="stm_salescode2" mold="select" width="120px"> </listbox>
+				 -->
+        		<label>Net Total</label>
+        		</vlayout>
+        	</div></listfooter>
+        <listfooter zclass="z-listbox-footer" span="1"><div style="text-align:right;padding:4px 5px;">
+        		<vlayout>
+        		<label id="stm_gtotal"></label>
+        		<doublebox id="stm_discount" width="120px"></doublebox>
+        		<doublebox id="stm_deposit" width="120px"></doublebox>
+        		<doublebox id="stm_fref1" width="120px"></doublebox>
+        		<doublebox id="stm_fref2" width="120px"></doublebox>
+        		<label id="stm_nettotal"></label>
+        		</vlayout>
+        	</div></listfooter>
+        <listfooter zclass="z-listbox-footer" span="3"><div style="text-align:right;padding:4px 5px;"></div></listfooter>
+        
+       </listfoot>
+	</listbox>	
+	<div height="40px"/>
+</zk>

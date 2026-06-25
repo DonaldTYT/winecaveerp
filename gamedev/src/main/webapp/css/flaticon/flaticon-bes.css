@@ -1,0 +1,104 @@
+	/*
+  	Flaticon icon font: Flaticon
+  	Creation date: 22/06/2016 15:43
+  	*/
+
+@font-face {
+  font-family: "Flaticon-bes";
+  src: url("./Flaticon-bes.eot");
+  src: url("./Flaticon-bes.eot?#iefix") format("embedded-opentype"),
+       url("./Flaticon-bes.woff") format("woff"),
+       url("./Flaticon-bes.ttf") format("truetype"),
+       url("./Flaticon-bes.svg#Flaticon") format("svg");
+  font-weight: normal;
+  font-style: normal;
+}
+
+@media screen and (-webkit-min-device-pixel-ratio:0) {
+  @font-face {
+    font-family: "Flaticon-bes";
+    src: url("./Flaticon-bes.svg#Flaticon") format("svg");
+  }
+}
+
+[class^="flaticon-bes-"]:before, [class*=" flaticon-bes-"]:before,
+[class^="flaticon-bes-"]:after, [class*=" flaticon-bes-"]:after {   
+  font-family: Flaticon-bes;
+/*        font-size: 20px;*/
+font-style: normal;
+/*margin-left: 20px;*/
+}
+
+.flaticon-bes-abacus:before { content: "\f100"; }
+.flaticon-bes-achievement:before { content: "\f101"; }
+.flaticon-bes-agenda:before { content: "\f102"; }
+.flaticon-bes-agenda-1:before { content: "\f103"; }
+.flaticon-bes-balance:before { content: "\f104"; }
+.flaticon-bes-bank:before { content: "\f105"; }
+.flaticon-bes-bar-chart:before { content: "\f106"; }
+.flaticon-bes-bar-chart-1:before { content: "\f107"; }
+.flaticon-bes-bar-chart-2:before { content: "\f108"; }
+.flaticon-bes-bill:before { content: "\f109"; }
+.flaticon-bes-bills:before { content: "\f10a"; }
+.flaticon-bes-blinder:before { content: "\f10b"; }
+.flaticon-bes-book:before { content: "\f10c"; }
+.flaticon-bes-briefcase:before { content: "\f10d"; }
+.flaticon-bes-business-card:before { content: "\f10e"; }
+.flaticon-bes-cabinet:before { content: "\f10f"; }
+.flaticon-bes-cart:before { content: "\f110"; }
+.flaticon-bes-circular-diagram:before { content: "\f111"; }
+.flaticon-bes-clip:before { content: "\f112"; }
+.flaticon-bes-clipboard:before { content: "\f113"; }
+.flaticon-bes-collaboration:before { content: "\f114"; }
+.flaticon-bes-conference:before { content: "\f115"; }
+.flaticon-bes-deal:before { content: "\f116"; }
+.flaticon-bes-decrease:before { content: "\f117"; }
+.flaticon-bes-desk-lamp:before { content: "\f118"; }
+.flaticon-bes-devaluation:before { content: "\f119"; }
+.flaticon-bes-dollar:before { content: "\f11a"; }
+.flaticon-bes-employees:before { content: "\f11b"; }
+.flaticon-bes-exchange:before { content: "\f11c"; }
+.flaticon-bes-graph:before { content: "\f11d"; }
+.flaticon-bes-growth:before { content: "\f11e"; }
+.flaticon-bes-growth-1:before { content: "\f11f"; }
+.flaticon-bes-hand:before { content: "\f120"; }
+.flaticon-bes-human-resources:before { content: "\f121"; }
+.flaticon-bes-id-card:before { content: "\f122"; }
+.flaticon-bes-insurance:before { content: "\f123"; }
+.flaticon-bes-invest:before { content: "\f124"; }
+.flaticon-bes-key:before { content: "\f125"; }
+.flaticon-bes-light-bulb:before { content: "\f126"; }
+.flaticon-bes-loss:before { content: "\f127"; }
+.flaticon-bes-medal:before { content: "\f128"; }
+.flaticon-bes-meeting:before { content: "\f129"; }
+.flaticon-bes-money:before { content: "\f12a"; }
+.flaticon-bes-money-1:before { content: "\f12b"; }
+.flaticon-bes-money-bag:before { content: "\f12c"; }
+.flaticon-bes-office-chair:before { content: "\f12d"; }
+.flaticon-bes-open-book:before { content: "\f12e"; }
+.flaticon-bes-organization:before { content: "\f12f"; }
+.flaticon-bes-panel:before { content: "\f130"; }
+.flaticon-bes-panel-1:before { content: "\f131"; }
+.flaticon-bes-panel-2:before { content: "\f132"; }
+.flaticon-bes-pen:before { content: "\f133"; }
+.flaticon-bes-pencil:before { content: "\f134"; }
+.flaticon-bes-pie-chart:before { content: "\f135"; }
+.flaticon-bes-pie-chart-1:before { content: "\f136"; }
+.flaticon-bes-pie-chart-2:before { content: "\f137"; }
+.flaticon-bes-post-it:before { content: "\f138"; }
+.flaticon-bes-profit:before { content: "\f139"; }
+.flaticon-bes-profit-1:before { content: "\f13a"; }
+.flaticon-bes-push-pin:before { content: "\f13b"; }
+.flaticon-bes-pyramidal:before { content: "\f13c"; }
+.flaticon-bes-retirement:before { content: "\f13d"; }
+.flaticon-bes-rocket:before { content: "\f13e"; }
+.flaticon-bes-safebox:before { content: "\f13f"; }
+.flaticon-bes-scheme:before { content: "\f140"; }
+.flaticon-bes-skills:before { content: "\f141"; }
+.flaticon-bes-strategy:before { content: "\f142"; }
+.flaticon-bes-tie:before { content: "\f143"; }
+.flaticon-bes-time:before { content: "\f144"; }
+.flaticon-bes-tools:before { content: "\f145"; }
+.flaticon-bes-users:before { content: "\f146"; }
+.flaticon-bes-users-1:before { content: "\f147"; }
+.flaticon-bes-wallet:before { content: "\f148"; }

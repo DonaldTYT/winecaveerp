@@ -1,0 +1,340 @@
+<zk>
+	<style dynamic="true">
+		<!-- cut/hide the vertical borders in the grid rows -->
+		.myGridWithNoBorder tr.z-row td.z-row-inner { border-right: 0px
+		#CCC; } .GridLayoutNoBorder tr.z-row td.z-row-inner, tr.z-row
+		.z-cell,div.z-grid { border: none; overflow: hidden; zoom: 1;
+		#background:#f8f8f8 !important;<!-- remove hover -->
+		background:white !important;<!-- remove hover -->
+		border-top: none; border-left: none; border-right: none;
+		border-bottom: none; }
+	</style>
+	<toolbar id="detail_toolbar" align="end">
+		<button id="btCustom" label="Custom Report" visible="true"></button>
+		<button id="btPrint" label="Print D/N" visible="true"></button>
+		<button id="btPrintDnNew" label="Print D/N(new)" visible="true"></button>
+		<button id="btPrintCInv" label="Print Commerical Invoice" visible="true"> </button>
+		<button id="btPrintInv" label="Print Invoice(Old)" visible="false"></button>
+		<button id="btPrintInvNew" label="Print Invoice" visible="true"></button>
+	</toolbar>
+	<grid style="text-align:left;border: 1px solid #000;"
+		id="detail_grid" sclass="GridLayoutNoBorder">
+		<columns>
+			<column width="160px"></column>
+			<column width="550px"></column>
+			<column width="160px"></column>
+			<column width="450px"></column>
+			<column></column>
+			<column width="350px"></column>
+		</columns>
+		<rows>
+			<row>
+				<cell colspan="3">
+					<image id="co_logo" src="images/logo_afs.jpg" height="150px" />
+				</cell>
+				<cell colspan="2">
+					<!-- 
+						<image src="images/progress_sample.png" hflex="1"></image>
+					-->
+				</cell>
+				<cell>
+					<vlayout>
+						<label
+							style="font-weight: bold;font-size:30px !important;">
+							PARTS
+						</label>
+						<label
+							style="font-weight: bold;font-size:30px !important;">
+							DELIVERY
+						</label>
+						<label
+							style="font-weight: bold;font-size:30px !important;">
+							ORDER
+						</label>
+					</vlayout>
+				</cell>
+			</row>
+			<row>
+				<cell align="right">
+					<label><custom-attributes tlkey="lb_stm_date"></custom-attributes>Date</label>
+				</cell>
+				<cell>
+					<datebox id="stm_date" format="yyyy/MM/dd"></datebox>
+				</cell>
+				<cell align="right">
+					<label><custom-attributes tlkey="lb_stm_ref1"></custom-attributes>Order No.</label>
+				</cell>
+				<cell>
+					<hbox align="middle">
+						<div width="200px">
+							<label id="stm_ref1"></label>
+						</div>
+					</hbox>
+				</cell>
+				<cell></cell>
+				<cell>
+					<label><custom-attributes tlkey="lb_stm_mrg"></custom-attributes>Ref No.:</label>
+					<label id="stm_mrg"></label>
+				</cell>
+			</row>
+			<row>
+				<cell align="right">
+					<label><custom-attributes tlkey="lb_vd_vname"></custom-attributes>Sold To</label>
+				</cell>
+				<cell>
+					<hbox align="middle">
+						<combobox id="vd_vname"></combobox>
+					</hbox>
+				</cell>
+				<cell align="right">
+					<label><custom-attributes tlkey="lb_stm_status"></custom-attributes>Status</label>
+				</cell>
+				<cell>
+					<hbox align="middle">
+						<div width="200px">
+							<combobox id="stm_status"></combobox>
+						</div>
+					</hbox>
+				</cell>
+				<cell></cell>
+				<cell>
+					<label><custom-attributes tlkey="lb_stm_ref2"></custom-attributes>Customer Code:</label>
+					<label id="stm_ref2"></label>
+				</cell>
+			</row>
+			<row>
+				<cell align="right">
+					<label><custom-attributes tlkey="lb_svloc_desp"></custom-attributes>Deliver To</label>
+				</cell>
+				<cell>
+					<combobox id="svloc_desp" width="500px"></combobox>
+				</cell>
+				<cell align="right">
+					<label><custom-attributes tlkey="lb_stm_ref3"></custom-attributes>Invoice No.</label>
+				</cell>
+				<cell>
+					<textbox id="stm_ref3"></textbox>
+					<textbox id="stm_cur" width="50px"></textbox>
+					<!-- 
+					<textbox id="inv_pocode"></textbox>
+					 -->
+				</cell>
+				<cell></cell>
+				<cell>
+					<label><custom-attributes tlkey="lb_stm_cuser"></custom-attributes>Create By:</label>
+					<label id="stm_cuser"></label>
+				</cell>
+			</row>
+			<row>
+				<cell align="right">
+					<label><custom-attributes tlkey="lb_svloc_addr1"></custom-attributes>Address</label>
+				</cell>
+				<cell>
+					<textbox id="svloc_addr1"></textbox>
+				</cell>
+				<cell align="right">
+					<label><custom-attributes tlkey="lb_stm_contact"></custom-attributes>Contact Person</label>
+				</cell>
+				<cell>
+					<textbox id="stm_contact"></textbox>
+				</cell>
+				<cell></cell>
+				<cell>
+					<label><custom-attributes tlkey="lb_stm_cdate"></custom-attributes>Create On:</label>
+					<label id="stm_cdate"></label>
+				</cell>
+			</row>
+			<row>
+				<cell align="right">
+					<label></label>
+				</cell>
+				<cell>
+					<textbox id="svloc_addr2"></textbox>
+				</cell>
+				<cell align="right">
+					<label><custom-attributes tlkey="lb_stm_tel"></custom-attributes>Telephone</label>
+				</cell>
+				<cell>
+					<textbox id="stm_tel"></textbox>
+				</cell>
+				<cell></cell>
+				<cell>
+					<label><custom-attributes tlkey="lb_stm_uuser"></custom-attributes>Update By:</label>
+					<label id="stm_uuser"></label>
+				</cell>
+			</row>
+			<row>
+				<cell align="right">
+					<label><custom-attributes tlkey="lb_svloc_city"></custom-attributes>City</label>
+				</cell>
+				<cell>
+					<textbox id="svloc_city"></textbox>
+				</cell>
+				<cell align="right">
+				<label>Due Date</label>
+				</cell>
+				<cell>
+					<datebox id="sih_duedate"></datebox>
+				</cell>
+				<cell></cell>
+				<cell>
+					<label><custom-attributes tlkey="lb_stm_udate"></custom-attributes>Update On:</label>
+					<label id="stm_udate"></label>
+				</cell>
+			</row>
+			<!-- 
+			<row>
+				<cell align="right">
+					<label>Country</label>
+				</cell>
+				<cell>
+					<textbox id="vd_country"></textbox>
+				</cell>
+				<cell align="right">
+					<label>Currency</label>
+				</cell>
+				<cell>
+					<hbox align="middle">
+						<div width="200px">
+							<combobox id="inv_cid"></combobox>
+						</div>
+					</hbox>
+				</cell>
+				<cell></cell>
+				<cell>
+					<label>Exchange Rate:</label>
+					<label id="inv_xrate"></label>
+				</cell>
+			</row>
+			 -->
+			<row>
+				<cell colspan="6">
+					<listbox id="list_AfsDoDet"></listbox>
+				</cell>
+			</row>
+			<!-- 
+			<row>
+				<cell align="right">
+					<label>Terms</label>
+				</cell>
+				<cell>
+					<textbox id="inv_term" hflex="1" rows="2"></textbox>
+				</cell>
+				<cell colspan="2"></cell>
+				<cell></cell>
+				<cell>
+					<hbox align="middle">
+						<div width="150px">Total Amount</div>
+						<doublebox id="inv_grtotal"></doublebox>
+					</hbox>
+				</cell>
+			</row>
+			 -->
+			<row>
+				<cell align="right">
+					<label><custom-attributes tlkey="lb_stm_shipname"></custom-attributes>Delivery</label>
+				</cell>
+				<cell>
+					<textbox id="stm_shipname" hflex="1" rows="1"></textbox>
+				</cell>
+				<cell colspan="2"></cell>
+				<cell colspan="2" rowspan="2">
+				<!-- 
+					<hbox align="middle">
+						<div width="150px">Less Discount</div>
+						<doublebox id="inv_discount"></doublebox>
+					</hbox>
+				 -->
+					<vlayout>
+					<hlayout>
+					<div width="150px"><label>Gross Total</label></div>
+					<doublebox id="stm_grosstotal"/>
+					</hlayout>
+					<hlayout>
+					<div width="150px"><label>Less Discount</label></div>
+					<doublebox id="stm_discount"/>
+					</hlayout>
+					<label>Extra charges</label>
+					<hlayout>
+					<combobox id="stm_prdano1" width="150px"/>
+					<doublebox id="stm_fref1"/>
+					<combobox id="stm_salescode1" width="100px"/>
+					</hlayout>
+					<hlayout>
+					<combobox id="stm_prdano2" width="150px"/>
+					<doublebox id="stm_fref2"/>
+					<combobox id="stm_salescode2" width="100px"/>
+					</hlayout>
+					<!--
+					<hlayout>
+					<combobox id="stm_salescode3" width="150px"/>
+					<doublebox id="stm_fref3"/>
+					</hlayout>
+					<hlayout>
+					<combobox id="stm_salescode4" width="150px"/>
+					<doublebox id="stm_fref4"/>
+					</hlayout>
+					-->
+					<hlayout>
+					<div width="150px"><label>Net Total</label></div>
+					<doublebox id="stm_nettotal"/>
+					</hlayout>
+					<hlayout>
+					<div width="150px"><label>Less Deposit</label></div>
+					<doublebox id="stm_deposit"/>
+					</hlayout>
+					<hlayout>
+					<div width="150px"><label>Invoice Amount</label></div>
+					<doublebox id="stm_invamount"/>
+					</hlayout>
+					<hlayout>
+					<div width="150px"><label>Outstanding Balance</label></div>
+					<doublebox id="sih_osbal"/>
+					</hlayout>
+					
+					</vlayout>
+				</cell>
+			</row>
+			<row>
+				<cell align="right">
+					<label><custom-attributes tlkey="lb_stm_shipagent"></custom-attributes>Remark</label>
+				</cell>
+				<cell>
+					<textbox id="stm_shipagent" hflex="1" rows="2"></textbox>
+				</cell>
+				<cell colspan="2"></cell>
+				<cell></cell>
+				<cell>
+				<!-- 
+					<hbox align="middle">
+						<div width="150px">Net Total</div>
+						<doublebox id="inv_total"></doublebox>
+					</hbox>
+				 -->
+				</cell>
+			</row>
+			<row>
+				<cell align="right">
+					<label><custom-attributes tlkey="lb_stm_remark"></custom-attributes>Payment</label>
+				</cell>
+				<cell>
+					<textbox id="stm_remark" hflex="1" rows="3"></textbox>
+				</cell>
+				<cell colspan="2"></cell>
+				<cell></cell>
+				<cell>
+				</cell>
+			</row>
+			<row>
+				<cell align="right">
+				</cell>
+				<cell>
+				</cell>
+				<cell colspan="2"></cell>
+				<cell></cell>
+				<cell>
+				</cell>
+			</row>
+		</rows>
+	</grid>
+</zk>

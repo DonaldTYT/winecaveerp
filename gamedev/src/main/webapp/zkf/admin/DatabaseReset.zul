@@ -1,0 +1,22 @@
+<zk>
+<window sclass="zkbi-form zkbi-main-window" width="700px" apply="com.uniinformation.zkf.ZkCellActionForm">
+<div align="center">
+	<vlayout>
+	<div height="50px"></div>
+	<label style="font-size:30px !important;" value="Database Reset"><custom-attributes tlkey="lb_dbreset"/></label>
+	<div height="50px"></div>
+	<checkbox mold="toggle" id="cbresetall" label="Reset Both Initial and Running Data" style="font-size:20px !important;"><custom-attributes tlkey="cb_resetboth"/></checkbox>
+	<div height="20px"></div>
+	<checkbox mold="toggle" id="cbresetrg" label="Reset Running Number to Zero" style="font-size:20px !important;"><custom-attributes tlkey="cb_resetrunning"/></checkbox>
+	<div height="50px"></div>
+	<hlayout>
+	<button id="btProceed" label="Proceed">
+		<custom-attributes actionHandler="com.uniinformation.erpv4.PerfJsonRpcCall" needResponse="Y"  actionId="erpv4_database_reset"></custom-attributes>
+		<custom-attributes tlkey="bt_proceed"/>
+	</button>
+	</hlayout>
+	<div height="50px"></div>
+	</vlayout>
+</div>
+</window>
+</zk>

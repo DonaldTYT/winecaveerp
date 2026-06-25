@@ -1,0 +1,148 @@
+<zk>
+<script type="text/javascript" src="js/pdfobject-2.0.min.js" />
+<script>
+<![CDATA[
+function zkDisplayPdf(p_link, p_container, p_downloadBtId) {
+	if (! jq('$' + p_container).length){
+		console.log("not exist:" + p_container);
+		return;
+	}
+	var $pdf = $('#' + jq('$' + p_container).attr('id')); //TODO: this statement very strange, rewrite it later!
+	var options = {
+		pdfOpenParams: {
+    		pageMode: 'none',
+    		scaleValue: 'page-fit',
+    		disableFullscreen: true,
+			disableOpenFile: true,
+			disableViewBookmark: true,
+		    disableDownload: true,
+		    disablePrinting: true,
+			downloadFun: 'zkDownloadPdf("'+ p_downloadBtId+'")'
+		},
+		forcePDFJS: true,
+		PDFJS_URL: "js/pdfjs/web/viewer.html",
+		fallbackLink: '<p>This browser does not support inline PDFs, please click this <a href="' + p_link + '">link</a> to download</p>'
+	};
+	PDFObject.embed(p_link, $pdf, options);
+}
+function zkDownloadPdf(p_btId) {
+	//var zkComp = zk.Widget.$('$btDownloadPdf');
+	var zkComp = zk.Widget.$('$' + p_btId);
+	if (zkComp !== null && zAu !== null && zk !== null)
+		zAu.send(new zk.Event(zkComp, "onClick", null, {toServer:true}));
+	else
+		console.log("comp or zAu is null, skip register event");
+}
+]]>
+</script>
+
+
+<toolbar id="detail_toolbar" align="end">
+</toolbar>
+<grid style="text-align:left;" id="detail_grid">
+	<columns>
+		<column align="right" hflex="min" />
+		<column hflex="1" />
+	</columns>
+	<rows>
+		<row>
+			<label id="lb_st_irg" value="Ref No"><custom-attributes tlkey="lb_st_irg"></custom-attributes></label>
+			<doublebox id="st_irg"/>
+		</row>
+		<row>
+			<label id="lb_sttp_name"><custom-attributes tlkey="lb_sttp_name"></custom-attributes></label>
+			<textbox id="sttp_name"/>
+		</row>
+		<row>
+			<label id="lb_mt_tpname"><custom-attributes tlkey="lb_mt_tpname"></custom-attributes></label>
+			<combobox id="mt_tpname"/>
+		</row>
+		<row>
+			<label id="lb_st_icode" value="Stock Code"><custom-attributes tlkey="lb_st_icode"></custom-attributes></label>
+			<textbox id="st_icode"/>
+		</row>
+		<row>
+			<label id="lb_st_iname" value="Stock Name"><custom-attributes tlkey="lb_st_iname"></custom-attributes></label>
+			<textbox id="st_iname"/>
+		</row>
+		<row>
+			<label id="lb_stbd_name" value="Brand"><custom-attributes tlkey="lb_stbd_name"></custom-attributes></label>
+			<bandbox id="stbd_name" use="com.uniinformation.jx.zk.ZkJxPickInput"/>
+		</row>
+		<row>
+			<label id="lb_st_msize1" value="Btl/Cs"><custom-attributes tlkey="lb_st_msize1"></custom-attributes></label>
+			<intbox id="st_msize1"/>
+		</row>
+		<row>
+			<label id="lb_st_msize2" value="Volume"><custom-attributes tlkey="lb_st_msize2"></custom-attributes></label>
+			<intbox id="st_msize2"/>
+		</row>
+		<row>
+			<label id="lb_st_msize3" value="Vintage"><custom-attributes tlkey="lb_st_msize3"></custom-attributes></label>
+			<intbox id="st_msize3"/>
+		</row>
+		<row>
+			<label id="lb_st_maturity" value="Mature"><custom-attributes tlkey="lb_st_maturity"></custom-attributes></label>
+			<textbox id="st_maturity"/>
+		</row>
+		<row>
+			<label id="lb_st_score0" value="Low Score"><custom-attributes tlkey="lb_st_score0"></custom-attributes></label>
+			<intbox id="st_score0"/>
+		</row>
+		<row>
+			<label id="lb_st_score1" value="High Score"><custom-attributes tlkey="lb_st_score1"></custom-attributes></label>
+			<intbox id="st_score1"/>
+		</row>
+		<row>
+			<label id="lb_stnd_note" value="Notes"><custom-attributes tlkey="lb_st_note"></custom-attributes></label>
+			<textbox id="stnd_note" rows="5"/>
+		</row>
+	<!--
+	<row spans="2">
+	<div>
+		<div align="left">
+		<label id="lb_list_wc_locbinstatus" value="Stock Locations"/>
+		</div>
+		<listbox id="list_wc_locbinstatus"/>
+	</div>
+	</row>
+	<row spans="2">
+	<div>
+		<div align="left">
+		<label id="lb_list_wc_StockImgs" value="Extra Images"/>
+		</div>
+		<listbox id="list_wc_StockImgs"/>
+	</div>
+	</row>
+	-->
+	</rows>
+</grid>
+<div>
+	<div>
+		<div align="left">
+		<label id="lb_list_wc_locbinstatus" value="Stock Locations"/>
+		</div>
+		<listbox id="list_wc_locbinstatus"/>
+	</div>
+	<div>
+		<div align="left">
+		<label id="lb_list_wc_StockImgs" value="Extra Images"/>
+		</div>
+		<listbox id="list_wc_StockImgs"/>
+	</div>
+</div>
+	<div id="pdfview" visible="false">
+	<div width="100%" sclass="zkpdf" id="pdfcontent"></div>
+	<separator spacing="5px" />	
+	<hbox id="zkPdfActionBar" pack="center" width="100%">
+	<!-- 
+		<button visible="true" style="" id="btDownloadPdf" label="Download"/>
+		<button visible="true" style="" id="btPrintPdf" label="Print"/>
+	 -->
+		<button visible="true" style="" id="btClosePdf" label="Close Viewer"/>
+	</hbox>
+	</div>
+    <div id="photoview"></div>
+	<div height="100px">
+	</div>
+</zk>

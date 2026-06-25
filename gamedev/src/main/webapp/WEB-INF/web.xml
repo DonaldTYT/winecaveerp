@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app
+    xmlns="http://xmlns.jcp.org/xml/ns/javaee"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee http://xmlns.jcp.org/xml/ns/javaee/web-app_4_0.xsd"
+    version="4.0">
+	<display-name>Hellovoice Asia Business Intelligence</display-name>
+	
+  	<welcome-file-list>
+    	<welcome-file>index.jsp</welcome-file>
+    	<welcome-file>index.html</welcome-file>
+  	</welcome-file-list>
+  	<servlet>
+    	<servlet-name>loginPage</servlet-name>
+    	<jsp-file>/login.html</jsp-file> 
+	</servlet>
+	<servlet-mapping>
+	    <servlet-name>loginPage</servlet-name>
+	    <url-pattern>/login</url-pattern>
+	</servlet-mapping>
+  	
+  	<servlet-mapping>
+        <servlet-name>jsp</servlet-name>
+       	<url-pattern>/bio_login.html</url-pattern>
+	<url-pattern>/continuebarcode.html</url-pattern>
+	<url-pattern>/continuebarcode2.html</url-pattern>
+	<url-pattern>/custom_menu.html</url-pattern>
+	<url-pattern>/devredir.html</url-pattern>
+	<url-pattern>/dlogin.html</url-pattern>
+	<url-pattern>/dualscreen.html</url-pattern>
+	<url-pattern>/email_content.html</url-pattern>
+	<url-pattern>/homesample.html</url-pattern>
+	<url-pattern>/index.html</url-pattern>
+	<url-pattern>/jxzkloader.html</url-pattern>
+	<url-pattern>/jxzkloader_nolayout.html</url-pattern>
+	<url-pattern>/keypad_login.html</url-pattern>
+	<url-pattern>/login.html</url-pattern>
+	<url-pattern>/logout.html</url-pattern>
+	<url-pattern>/menu.html</url-pattern>
+	<url-pattern>/mlogin.html</url-pattern>
+	<url-pattern>/mlogin2.html</url-pattern>
+	<url-pattern>/propmgmt_epayment.html</url-pattern>
+	<url-pattern>/quotedemo.html</url-pattern>
+	<url-pattern>/redirect.html</url-pattern>
+	<url-pattern>/side_menu.html</url-pattern>
+	<url-pattern>/te310printer.html</url-pattern>
+	<url-pattern>/themeInit.html</url-pattern>
+	<url-pattern>/unity_loader.html</url-pattern>
+	<url-pattern>/vincero_compound_result.html</url-pattern>
+	<url-pattern>/vincero_forex_trade.html</url-pattern>
+	<url-pattern>/vincero_forextrade.html</url-pattern>
+	<url-pattern>/vustimeline.html</url-pattern>
+	<url-pattern>/wfmtaskg2ext.html</url-pattern>
+	<url-pattern>/zkstart.html</url-pattern>
+	<url-pattern>/zkstart2.html</url-pattern> 
+    <url-pattern>*.jsp</url-pattern>
+    <url-pattern>*.jspx</url-pattern>
+    <url-pattern>*.jspf</url-pattern>
+    </servlet-mapping>
+  
+	<servlet>
+    <servlet-name>zkbiloader</servlet-name>
+    <jsp-file>/zkbiloader.jsp</jsp-file>
+	</servlet>
+
+	<servlet-mapping>
+    <servlet-name>zkbiloader</servlet-name>
+    <url-pattern>/zkbiloader.html</url-pattern>
+	</servlet-mapping> 
+  	
+  	
+  <!-- ZK servlets -->
+	<listener>
+		<description>
+		Used to cleanup when a session is destroyed</description>
+		<display-name>ZK Session cleaner</display-name>
+		<listener-class>org.zkoss.zk.ui.http.HttpSessionListener</listener-class>
+	</listener>
+	<servlet>
+    <description>The ZK loader for ZUML pages</description>
+    <servlet-name>zkLoader</servlet-name>
+    <servlet-class>org.zkoss.zk.ui.http.DHtmlLayoutServlet</servlet-class>
+    <init-param>
+	<param-name>update-uri</param-name>
+	<param-value>/zkau</param-value>
+    </init-param>
+    <load-on-startup>1</load-on-startup>
+	</servlet>
+	<servlet>
+    <description>The asynchronous update engine for ZK</description>
+    <servlet-name>auEngine</servlet-name>
+    <servlet-class>org.zkoss.zk.au.http.DHtmlUpdateServlet</servlet-class>
+	</servlet>
+  
+	<servlet-mapping>
+    <servlet-name>zkLoader</servlet-name>
+    <url-pattern>*.zul</url-pattern>
+	</servlet-mapping> 
+	<servlet-mapping>
+    <servlet-name>zkLoader</servlet-name>
+    <url-pattern>*.zhtml</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+    <servlet-name>auEngine</servlet-name>
+    <url-pattern>/zkau/*</url-pattern>
+	</servlet-mapping>
+
+  <!-- zuljsp integration -->
+	<listener>
+    <description>ZK JSP Tags environment initiation </description>
+    <display-name>ZK JSP Initiator</display-name>
+    <listener-class>org.zkoss.jsp.spec.JspFactoryContextListener</listener-class>
+	</listener>
+
+  <!-- JxZk WebCore -->
+	<listener>
+		<description>
+		Used to cleanup when a webcore Session</description>
+		<display-name>WebCore Session cleaner</display-name>
+		<listener-class>com.uniinformation.webcore.SessionListener</listener-class>
+	</listener>
+
+<!-- 
+ 	<servlet>
+		<description>
+		Control RpcServer Running under Tomcat
+		</description>
+		<servlet-name>RpcServer</servlet-name>
+		<servlet-class>com.uniinformation.webcore.WebRpcStarter</servlet-class>
+		<load-on-startup>1</load-on-startup>
+	</servlet>	
+	<servlet>
+		<description>
+		Control CronServer Running under Tomcat
+		</description>
+		<servlet-name>CronServer</servlet-name>
+		<servlet-class>com.uniinformation.webcore.CronServeletStarter</servlet-class>
+		<load-on-startup>1</load-on-startup>
+	</servlet>	
+ -->
+  
+  	
+</web-app>

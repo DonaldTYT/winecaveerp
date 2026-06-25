@@ -1,0 +1,51 @@
+<zk>
+<style dynamic="true">
+<!-- cut/hide the vertical borders in the grid rows -->
+.myGridWithNoBorder tr.z-row td.z-row-inner { 
+	border-right: 0px #CCC; 
+}
+.gridLayoutNoBorder tr.z-row td.z-row-inner, tr.z-row .z-cell,div.z-grid { 
+	border: none; 
+	<!--   overflow: hidden;  -->
+	<!--   zoom: 1;  --> <!-- andrew remark: do not use zoom -->
+	<!--   background:#f8f8f8 !important;  --> <!-- remove hover -->
+	background:white !important;  <!-- remove hover -->
+	border-top: none; 
+	border-left: none; 
+	border-right: none; 
+	border-bottom: none; 
+} 
+.listboxNoSeparator .z-listitem > .z-listcell {
+	border-top: none; 
+	vertical-align: top;
+}
+.listboxNoSeparator > .z-listbox-body {
+	overflow-y: hidden !important;	
+}
+</style>
+	<toolbar id="detail_toolbar" align="end"> </toolbar>
+	<div height="20px"/>
+	<grid style="text-align:left;border: 1px solid #ececec; border-bottom: none;" id="detail_grid" sclass="gridLayoutNoBorder">
+	</grid>
+	<div height = "100px">
+	</div>
+	<!--
+	-->	
+	<template name="template_erpv4_MoDetPosTfr">
+			<bs-row>
+				<bs-col-221>
+					<zkbipickinput jxId="st_icode" labelWidth="30%" compWidth="70%" > </zkbipickinput>
+					<zkbipickinput jxId="stmd_ref4" labelWidth="30%" compWidth="70%"> </zkbipickinput>
+					<zkbilabel jxId="st_iname" labelWidth="30%" compWidth="70%"></zkbilabel>
+				</bs-col-221>
+				<bs-col-221>
+					<zkbilistbox jxId="stmd_entryunit" labelWidth="30%" compWidth="70%" template="t01"> 
+						<template name="t01">
+							<doublebox style="padding-left:5px" id="stmd_entryqty" width="120px"></doublebox>
+						</template>
+					</zkbilistbox>
+					<zkbiradiogroup jxId="stmd_nref4" labelWidth="30%" compWidth="70%"> </zkbiradiogroup>
+				</bs-col-221>
+			</bs-row>
+	</template>	
+</zk>

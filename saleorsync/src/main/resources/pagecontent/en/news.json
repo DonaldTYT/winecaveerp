@@ -1,0 +1,89 @@
+{
+  "intro": {
+    "tag": "Latest Events & Wine News",
+    "title": "Wine Events & Insights",
+    "desc": "Stay in the loop with highlights from our tastings, masterclasses, and community stories—plus practical tips for exploring wines with confidence.",
+    "cta": "Buy Wine"
+  },
+  "s1": {
+    "tag": "Discover tasting notes, wine regions, and expert tips.",
+    "title": "Exploring Wines Worldwide Today",
+    "desc": "At Wine Cave, we provide exceptional wine & spirits consignment services tailored for traders and private clients around the globe. Our state-of-the-art HKQAA Certified facilities, combined."
+  },
+  "grid": {
+    "cards": [
+      {
+        "title": "Wine Events & Insights",
+        "date": "2025. 09. 04",
+        "category": "Events & News",
+        "excerpt": "At Wine Cave, we provide exceptional wine & spirits consignment services tailored for traders and private clients around the globe. Our state-of-the-art HKQAA Certified facilities.",
+        "img": "/Grid1.png",
+        "cta": "Read More"
+      },
+      {
+        "title": "Wine Events & Insights",
+        "date": "2025. 08. 28",
+        "category": "Events & News",
+        "excerpt": "At Wine Cave, we provide exceptional wine & spirits consignment services tailored for traders and private clients around the globe. Our state-of-the-art HKQAA Certified facilities.",
+        "img": "/Grid2.png",
+        "cta": "Read More"
+      },
+      {
+        "title": "Wine Events & Insights",
+        "date": "2025. 09. 01",
+        "category": "Events & News",
+        "excerpt": "At Wine Cave, we provide exceptional wine & spirits consignment services tailored for traders and private clients around the globe. Our state-of-the-art HKQAA Certified facilities.",
+        "img": "/Grid3.png",
+        "cta": "Read More"
+      },
+      {
+        "title": "Wine Events & Insights",
+        "date": "2025. 07. 19",
+        "category": "Events & News",
+        "excerpt": "At Wine Cave, we provide exceptional wine & spirits consignment services tailored for traders and private clients around the globe. Our state-of-the-art HKQAA Certified facilities.",
+        "img": "/Grid4.png",
+        "cta": "Read More"
+      },
+      {
+        "title": "Wine Events & Insights",
+        "date": "2025. 06. 30",
+        "category": "Events & News",
+        "excerpt": "At Wine Cave, we provide exceptional wine & spirits consignment services tailored for traders and private clients around the globe. Our state-of-the-art HKQAA Certified facilities.",
+        "img": "/Grid5.png",
+        "cta": "Read More"
+      },
+      {
+        "title": "Wine Events & Insights",
+        "date": "2025. 09. 03",
+        "category": "Events & News",
+        "excerpt": "At Wine Cave, we provide exceptional wine & spirits consignment services tailored for traders and private clients around the globe. Our state-of-the-art HKQAA Certified facilities.",
+        "img": "/Grid6.png",
+        "cta": "Read More"
+      },
+      {
+        "title": "Wine Events & Insights",
+        "date": "2025. 08. 11",
+        "category": "Events & News",
+        "excerpt": "At Wine Cave, we provide exceptional wine & spirits consignment services tailored for traders and private clients around the globe. Our state-of-the-art HKQAA Certified facilities.",
+        "img": "/Grid7.png",
+        "cta": "Read More"
+      },
+      {
+        "title": "Wine Events & Insights",
+        "date": "2025. 07. 25",
+        "category": "Events & News",
+        "excerpt": "At Wine Cave, we provide exceptional wine & spirits consignment services tailored for traders and private clients around the globe. Our state-of-the-art HKQAA Certified facilities.",
+        "img": "/Grid8.png",
+        "cta": "Read More"
+      },
+      {
+        "title": "Wine Events & Insights",
+        "date": "2025. 09. 04",
+        "category": "Events & News",
+        "excerpt": "At Wine Cave, we provide exceptional wine & spirits consignment services tailored for traders and private clients around the globe. Our state-of-the-art HKQAA Certified facilities.",
+        "img": "/Grid9.png",
+        "cta": "Read More"
+      }
+    ]
+  }
+}

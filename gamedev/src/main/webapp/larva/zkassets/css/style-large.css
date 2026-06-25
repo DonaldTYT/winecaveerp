@@ -1,0 +1,309 @@
+button.z-button {
+    /*width: 130px;*/
+    min-width: 110px;
+    height: 60px;
+    font-size: 30px !important;
+    /*color: red !important;*/
+}
+a.z-toolbarbutton {
+    font-size: 20px !important;
+}
+div.z-listcell-content {
+	line-height:50px;
+	font-size: 20px !important;	
+}
+tr.z-listhead-menupopup div.z-listheader-content {
+	line-height:50px;
+	font-size: 20px !important;	
+}
+/*
+221108 duplicated
+.z-window-header, .z-paging-input, .z-paging-text, .z-paging-info, .z-combobox-input, input.z-bandbox-input, .z-datebox-input, .z-timebox-input, .z-spinner-input, .z-doublespinner-input, .z-textbox, .z-decimalbox, .z-intbox, .z-longbox, .z-doublebox, .z-tab, .z-treecol-content, .z-treecell-content, .z-treefooter-content {
+	font-size:18px !important;
+	height: 30px !important;
+}
+*/
+.z-datebox-button, .z-bandbox-button, .z-combobox-button{
+	min-height: 30px;
+}
+span.z-doublespinner-button {
+	height: 40px;
+}
+.z-textbox, .z-label, .z-listheader-content, .z-listcell-content, .z-listgroup-content, .z-listgroupfoot-content, .z-listfooter-content {
+    font-size: 20px !important;
+}
+.sidr ul li ul li {
+    line-height: 14px;
+    font-size: 18px;
+}
+.sidr ul li ul li:hover, .sidr ul li ul li.active, .sidr ul li ul li.sidr-class-active {
+    line-height: 14px;
+    font-size: 18px;
+}
+.sidr {
+    font-size: 18px;
+}
+.grid-stack{
+    font-size: 16px;
+}
+.form-control.z-select {
+	height: 40px;
+}
+div.input-group.z-div {
+	height: 40px !important;
+	
+}
+div.input-group.z-div  > span{
+	height: 40px !important;
+}
+span.z-toolbarbutton-content > img {
+	height:40px;
+}
+span.z-listitem-checkable.z-listitem-checkbox {
+	width:50px;
+	height:50px;
+}
+span.z-listitem-checkable.z-listitem-checkbox  > i.z-listitem-icon {
+	font-size: xxx-large;
+	line-height:40px !important;
+}
+tr.z-listitem > td.z-listcell {
+	padding-left:0px !important;
+}
+.z-datebox-button, .z-bandbox-button, .z-combobox-button {
+	min-height: 30px !important;
+}
+
+/*
+221108 duplicated 
+.z-textbox, .z-decimalbox, .z-intbox, .z-longbox, .z-doublebox {
+	height: 40px !important;
+}
+*/
+.z-datebox {
+	height: 40px !important;
+}
+.z-datebox-input {
+	height: 40px !important;
+	
+}
+.z-datebox-button {
+	height: 40px !important;
+}
+.z-label, .z-radio-content, .z-checkbox-content, .z-loading {
+	font-size: 20px !important;
+}
+.z-column-content, .z-row-content, .z-group-content, .z-groupfoot-content, .z-footer-content {
+	line-height: 40px !important;
+}
+.z-window-header, .z-paging-input, .z-paging-text, .z-paging-info, .z-combobox-input, input.z-bandbox-input, .z-datebox-input, .z-timebox-input, .z-spinner-input, .z-doublespinner-input, input.z-textbox, .z-decimalbox, .z-intbox, .z-longbox, .z-doublebox, .z-tab, .z-treecol-content, .z-treecell-content, .z-treefooter-content{
+    font-size: 20px !important;
+    height: 40px !important;	
+}
+textarea.z-textbox{
+	min-height: 40px;
+	line-height: 20px;
+}
+
+.z-select{
+    font-size: 20px !important;
+    height: 40px !important;	
+}
+
+.zkbi-advs-condition .z-windoow .z-caption-content, .zkbi-advs-condition .z-window div.z-window-header{
+    height: 40px !important;	
+    line-height: 40px !important;
+    font-size: 20px !important;
+}
+button.zkbi-small-button.z-button, button.zkbi-small-button.z-button, button.zkbi-small-button.z-messagebox-button {
+	font-size: 18px !important;
+}
+.zkbi-advs-condition .z-groupbox-3d>.z-groupbox-header .z-caption-content {
+	line-height: 40px !important;
+}
+.zkbi-advs-condition .z-tab {
+	font-size: 20px !important;
+}
+.z-groupbox-3d>.z-groupbox-header .z-caption-content, .z-groupbox-3d>.z-groupbox-header .z-groupbox-title-content {
+	font-size: 20px !important;
+}
+.z-datebox-button, .z-bandbox-button, .z-combobox-button{
+    height: 40px !important;	
+}
+[class^="z-icon-"], [class*=" z-icon-"]{
+    line-height: 30px !important;	
+}
+
+.zkbi-main-listbox .z-listbox-body {
+    min-height: 200px;
+    height: 65vh;
+}
+.z-paging{
+	height: 45px !important;
+}
+.select2-container .select2-results > .select2-results__options {
+    line-height: 22px !important;	
+    font-size: 20px !important;
+}
+.select2-container .select2-selection--single {
+	height: 40px !important;
+	
+}
+.select2-container .select2-selection--single .select2-selection__rendered{
+    line-height: 40px !important;	
+    font-size: 20px !important;
+}
+.select2-container.select2-container--open {
+    line-height: 40px !important;	
+    font-size: 20px !important;
+}
+.select2-container .select2-selection--multiple .select2-selection__rendered .select2-search--inline .select2-search__field {
+    font-size: 20px !important;
+}
+
+.zkbi-presetbox-select2 .select2-container {
+	height: 40px !important;
+}
+.zkbi-presetbox-select2 .select2-container .select2-selection--single {
+	height: 40px !important;
+}
+.zkbi-presetbox-select2 .select2-container .select2-selection--single .select2-selection__rendered {
+	line-height:40px !important;
+}
+.zkbi-presetbox-select2 .select2-container--default .select2-selection--single .select2-selection__arrow {
+    height: 38px;
+}
+
+.zkbi-advsearch-select2 .select2-container .select2-selection--single {
+	height: 40px !important;
+}
+.zkbi-advsearch-select2 .select2-container .select2-selection--single .select2-selection__rendered {
+	line-height:40px !important;
+}
+.zkbi-advsearch-select2 .select2-container--default .select2-selection--single .select2-selection__arrow {
+    height: 38px;
+}
+.zkbi-advsearch-select2 .select2-container .select2-selection--multiple .select2-selection__rendered {
+	line-height: 37px !important;
+}
+.zkbi-advsearch-select2 .select2-container span.select2-selection.select2-selection--multiple {
+	min-height: 40px !important;
+}
+.zkbi-advsearch-select2 .select2-container.select2-container--below.select2-container--open span.select2-selection.select2-selection--multiple {
+	border-top: none !important;
+	border-left: none !important;
+	border-right: none !important;
+}
+.zkbi-advsearch-select2 .select2-container.select2-container--above.select2-container--open span.select2-selection.select2-selection--multiple {
+	border-bottom: none !important;
+	border-left: none !important;
+	border-right: none !important;
+}
+
+.z-combobox, .z-spinner-button, .z-bandbox {
+	height: 40px !important;
+}
+.z-timebox-button>a, .z-spinner-button>a, .z-doublespinner-button>a {
+	height: 19px !important;
+}
+input[type="checkbox"] {
+	width: 25px !important;
+	height: 25px !important;
+	font-size: 25px !important;
+	
+}
+button.z-window-icon {
+	width: 25px !important;
+    height: 25px !important;
+    font-size: 25px !important;
+    line-height: 35px !important
+}
+div.z-messagebox-window > div.z-window-header{
+	line-height: 35px !important;
+}
+span.z-tab-text {
+	line-height: 35px;
+}
+.zkbi-form-header, .zkbi-form-header .z-toolbarbutton-content {
+	font-size: 22px !important;
+}
+.zkbi-header-icon {
+	font-size: 22px !important;
+}
+.z-window-header {
+	line-height: 35px !important;
+}
+.z-listheader-button {
+	height:60px !important;
+}
+.z-listbox-body .z-listbox-emptybody td {
+	font-size: 25px !important;
+}
+span.z-toolbarbutton-content>i {
+	font-size: 22px;
+}
+tr.z-listhead-menupopup.z-listhead > th.z-listheader {
+	padding-left: 0px !important;
+}
+
+tr.z-listhead-menupopup.z-listhead > th span.z-listheader-checkable {
+	width: 50px;
+	height:50px;
+}
+span.z-listheader-checkable.z-listheader-checked i.z-listheader-icon.z-icon-check{
+	font-size: xxx-large;
+	line-height:40px !important;
+}
+/*
+div.zkbi-advsearch-g2.z-window + div.z-separator{
+	height: 0px !important;
+}
+*/
+.z-button-image {
+	max-height: 40px;
+	height: 30px;
+}
+.z-menupopup-content span.z-menuitem-text {
+	font-size: 20px;
+	line-height: 30px;
+}
+div.zkbi-messageboxdlg > div.z-window-content > div.z-separator.z-separator-horizontal {
+	height: 0px !important;
+}
+div.zkbi-messageboxdlg > div.z-window-content div.zkbi-messagebox-button-container {
+	padding: 0 5px 0 0 !important;
+}
+div.zkbi-messageboxdlg > div.z-window-content button.zkbi-messagebox-button {
+    height: 50px;
+    font-size: 26px !important;
+}
+div.z-popup-content {
+	line-height: 30px;
+}
+li.z-comboitem > span.z-comboitem-text {
+	font-size: 20px;
+	line-height: 22px;
+}
+.ui-tooltip {
+    font-size: 20px !important;
+}
+i.z-bandbox-icon, i.z-datebox-icon {
+	font-size: 30px !important;
+}
+
+div[contenteditable=true] {
+	height: 38px;
+	line-height: 22px;
+}
+
+/* 221130 fix line height of common component */
+span.z-label,
+span.z-radiogroup,
+span.z-checkbox {
+	line-height: 40px !important;
+}
+
+/* 221209 adjust listbox-mobile item line height */
+.zkbi-main-listbox-mobile > .z-listbox-body span.z-label {
+	line-height: initial !important;
+}

@@ -1,0 +1,10 @@
+<zk>
+<div>
+	<hlayout>
+	<label>Assign TO:</label>
+	<textbox id="tbsetassignto"></textbox>
+	<button id="btOK" label="OK"></button>
+	<button id="btCancel" label="Cancel"></button>
+	</hlayout>
+</div>
+</zk>

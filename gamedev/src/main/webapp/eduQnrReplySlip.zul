@@ -1,0 +1,18 @@
+<zk xmlns:h='http://www.w3.org/1999/xhtml'>
+<zscript>
+<![CDATA[
+	String composer = "ZkBiComposerBase";
+	String classPrefix = "com.uniinformation.zkbi.";
+	if (Executions.getCurrent().getParameter("composer") != null){
+		composer = Executions.getCurrent().getParameter("composer").trim();
+	}
+	if (Executions.getCurrent().getParameter("prefix") != null){
+		classPrefix = "com.uniinformation."+Executions.getCurrent().getParameter("prefix").trim()+".";
+	}
+]]></zscript>
+	<window class="zkbi-form zkbi-main-window" id="winMain" title="" border="none" apply="com.uniinformation.jxapp.edu.EduQnrReplySlip">
+		<label sclass="zkbi-form-header" id="lbHeader" value="Scheduling Reply Slip"></label>
+		<include id="asPage" src="zkf/edu/eduQnrReplySlipAs.zul"/>
+		<div class="zkbi-editing-msg" style="display:none;position:fixed;top:0;right:0;">Editing Record</div>
+	</window>
+</zk>

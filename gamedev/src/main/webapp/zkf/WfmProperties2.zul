@@ -1,0 +1,86 @@
+<zk xmlns:h="native">
+    <style>
+        .myListBox {
+            background: black;
+        }
+        .myalign_right {
+        	border-radius: 20px;
+			margin: 0 0 auto auto;
+			background: black;
+			padding: 20px;
+			color: white;
+        }
+        
+		.myalign_center {
+        	border-radius: 20px;
+			margin: 0 auto;
+			background: black;
+			padding: 20px;
+			color: white;
+		}
+
+		.myalign_left {
+        	border-radius: 20px;
+			margin: 0 0 0 0;
+			background: black;
+			padding: 20px;
+			color: white;
+		}
+		.myVisArea {
+        	border-radius: 20px;
+			background: black;
+		}
+		
+    </style>
+
+
+<div>
+	<vlayout>
+       	<div align="middle" id="taskDetailEmptyPage" visible="false">Please Select Record</div>
+		<div id="taskDetailPage" visible="true">
+		<div align="middle">
+			<vlayout height="100px">
+    		<label id="nodeprop_id"></label>
+    		<label id="nodeprop_title"></label>
+    		<label id="nodeprop_task"></label>
+    		<label id="nodeprop_status"></label>
+    		<label id="nodeprop_start"></label>
+    		<label id="nodeprop_end"></label>
+			</vlayout>
+		</div>
+		<!--
+		<div height="50px"></div>
+		-->
+		<div id="visNwEventDiv"> 
+			<h:div style="width:100%; height:90%;" id="visNwContentDiv" class="myVisArea"></h:div>
+		</div>
+		<div align="middle">
+		<label>New Status</label>
+	 	<hlayout>
+		  		<vlayout width="100px">
+			  	<label>Start</label>
+	    		<checkbox id="nodeprop_switchstart" mold="switch"/>
+		  		</vlayout>
+		  		<vlayout width="100px">
+			  	<label>Complete</label>
+	    		<checkbox id="nodeprop_switchend" mold="switch"/>
+		  		</vlayout>
+		  		<!-- 
+		  		<vlayout width="100px">
+			  	<label>End</label>
+	    		<checkbox id="nodeprop_abort" mold="switch"/>
+		  		</vlayout>
+		  		 -->
+   		</hlayout>	
+		</div>
+		<div height="30px"></div>
+		<div align="middle">
+   		<button id="btSubmitChange">Submit</button>
+   		<button id="btBackToList" visible="false">Back</button>
+		</div>
+		 <listbox id="wfmActivity" height="150px" class="myListBox">
+		</listbox>
+		</div>
+	</vlayout>
+</div>
+</zk>

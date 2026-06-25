@@ -1,0 +1,253 @@
+<zk>
+	<toolbar id="detail_toolbar" align="end">
+		<button id="btConfirmOdr" label="Confirm" visible="true"></button>
+		<button id="btUnConfirmOdr" label="Unconfirm" visible="true"></button>
+		<button id="btVoidOdr" label="Void" visible="true" disabled="true"></button>
+		<button id="btReviseOdr" label="Revise" visible="false" disabled="true"></button>
+		<button id="btGenInvoice" label="Gen Invoice" visible="true" disabled="false"></button>
+		<button id="btPrintWO" label="Print W/O" visible="true" disabled="false"></button>
+		<button id="btPrintDN" label="Print D/N" visible="true" disabled="false"></button>
+		<button id="btCopyOdr" label="Copy" visible="true" disabled="false"></button>
+		<button id="btSavePrint" label="SaveAndPrint" visible="true" disabled="false"></button>
+	</toolbar>
+	<grid style="text-align:left;border: 1px solid #ececec; border-bottom: none;" id="detail_grid" sclass="gridLayoutNoBorder">
+	</grid>
+	<tabbox id="zkbiListTop" width="100%" sclass="zkbi-detail-tabbox" height="55vh">
+		<tabs width="100%" visible="true">
+			<tab><custom-attributes tlkey="tp_project"></custom-attributes>Project Detail</tab>
+			<tab><custom-attributes tlkey="tp_workorder"></custom-attributes>Quotation</tab>
+			<tab><custom-attributes tlkey="tp_invoices"></custom-attributes>Invoice</tab>
+		</tabs>
+		<tabpanels>
+			<tabpanel> 
+				<vlayout>
+					<bs-row style="background:white">
+						<div sclass="col-xl-6 col-lg-12">
+							<zkbidiv jxId="inv_projecttitle"></zkbidiv>
+							<zkbidiv jxId="inv_quodeli"></zkbidiv>
+							<hlayout>
+							<zkbidiv jxId="inv_assignto"></zkbidiv>
+							<zkbidiv jxId="inv_assignby"></zkbidiv>
+							</hlayout>
+							<zkbidiv jxId="inv_hashtag"></zkbidiv>
+							<hlayout>
+							<zkbidiv jxId="inv_popt0"></zkbidiv>
+							<zkbidiv jxId="inv_popt1"></zkbidiv>
+							<zkbidiv jxId="inv_popt2"></zkbidiv>
+							</hlayout>
+						</div>
+					</bs-row>
+					<listbox id="list_hw_QuoDet" sclass="listboxNoSeparator" emptyMessage="Please Enter Project Detail">
+						<listhead>
+							<listheader width="80px">
+								<toolbarbutton id="btAddPopup" image="images/row_add20.png" onClick='puAddPopup.setAttribute("actionIdx",-1); puAddPopup.open(self)' />
+								<popup id="puAddPopup">
+									<vbox>
+										<div width="140px"></div>
+										<button id="btAddQuoDet_5" width="140px" label="Job" onClick="puAddPopup.close()" visible="false" />
+										<button id="btAddQuoDet_1" width="140px" label="Stock Item" onClick="puAddPopup.close()" visible="false" />
+										<button id="btAddQuoDet_2" width="140px" label="Miscellaneous" onClick="puAddPopup.close()" visible="false" />
+										<button id="btAddQuoDet_3" width="140px" label="Attachment" onClick="puAddPopup.close()" visible="false" />
+										<button id="btAddQuoDet_4" width="140px" label="Header" onClick="puAddPopup.close()" visible="false" />
+										<button id="btAddQuoDet_6" width="140px" label="Line Break" onClick="puAddPopup.close()" visible="false" />
+										<button id="btAddQuoDet_7" width="140px" label="Page Break" onClick="puAddPopup.close()" visible="false" />
+										<button id="btAddQuoDet_8" width="140px" label="Delivery" onClick="puAddPopup.close()" visible="false" />
+										<button id="btAddQuoDet_102" width="140px" label="Printing Item" onClick="puAddPopup.close()" visible="false" />
+									</vbox>
+								</popup>
+							</listheader>
+						</listhead>
+					</listbox>
+				</vlayout>
+			</tabpanel>
+			<tabpanel> 
+				<vlayout>
+					<bs-row style="background:white">
+						<div sclass="col-xl-6 col-lg-12">
+							<hlayout>
+							<zkbidiv jxId="inv_quodate"></zkbidiv>
+							<zkbidiv jxId="inv_vname"></zkbidiv>
+							<zkbidiv jxId="inv_quonum"></zkbidiv>
+							</hlayout>
+							<hlayout>
+							<zkbidiv jxId="inv_quototal"></zkbidiv>
+							<zkbidiv jxId="inv_discpercent"></zkbidiv>
+							<zkbidiv jxId="inv_quodiscount"></zkbidiv>
+							<zkbidiv jxId="inv_grnettotal"></zkbidiv>
+							</hlayout>
+							<zkbidiv jxId="inv_term" labelWidth="150px"></zkbidiv>
+							<hlayout>
+							<zkbidiv jxId="inv_areatotal"></zkbidiv>
+							<zkbidiv jxId="inv_roundmode"></zkbidiv>
+							</hlayout>
+							<hlayout>
+							<zkbidiv jxId="inv_ourref"></zkbidiv>
+							<zkbidiv jxId="inv_yourref"></zkbidiv>
+							</hlayout>
+						</div>
+				<div>
+					<button id="btPrintQuo" label="Print Quo" visible="true" disabled="false"></button>
+				</div>	
+				<div>
+					<button id="btCopyWo" label="Copy from Project" visible="true" disabled="false"></button>
+				</div>	
+					</bs-row>
+					<listbox id="list_hw_HwQuoExtra" sclass="listboxNoSeparator" emptyMessage="Please Enter Project Detail">
+					</listbox>
+				</vlayout>
+			</tabpanel>
+			<tabpanel> 
+				<vlayout>
+					<bs-row style="background:white">
+						<div sclass="col-xl-6 col-lg-12">
+							<zkbidiv jxId="inv_sellto"></zkbidiv>
+							<zkbidiv jxId="inv_grtotal"></zkbidiv>
+							<zkbidiv jxId="inv_discount"></zkbidiv>
+							<zkbidiv jxId="inv_total"></zkbidiv>
+							<zkbidiv jxId="inv_pocode"></zkbidiv>
+							<zkbidiv jxId="vd_remark"></zkbidiv>
+						</div>
+					</bs-row>
+				</vlayout>
+			</tabpanel>
+		</tabpanels>
+	</tabbox>
+	
+	<template name="template_HwQuoDet_Printing">
+		<div style="text-align:left">
+			<hlayout>
+					<div width="15px">
+					</div>
+					<div width="185px">
+					<textbox id="ind_ref1" width="170px" tabindex="0" maxlength="160" rows="2"></textbox>
+					</div>
+			<vlayout>
+				<hlayout valign="middle">
+					<div width="80px">
+					</div>
+					<div width="25px">
+					<label>MS:</label>
+					</div>
+					<doublebox id="ind_usize1" width="90px" format="0.00" tabindex="0"> </doublebox>
+					<div width="80px">
+					<label>(W)</label>
+					</div>
+					<label>x</label>
+					<div width="55px">
+					</div>
+					<label>(H)</label>
+					<doublebox id="ind_usize2" width="90px" format="0.00" tabindex="0"> </doublebox>
+					<div width="5px"></div>
+					<div width="80px">
+					<combobox id="ind_unit" width="70px"></combobox>
+					</div>
+					<div width="80px">
+					<doublebox id="ind_qty" width="60px"></doublebox>
+					</div>
+				</hlayout>
+				<hlayout valign="middle">
+					<div width="25px">
+					<label>DS:</label>
+					</div>
+					<div width="80px">
+					<doublebox id="ind_bleed1" width="64px" format="0.00" tabindex="0"></doublebox>
+					<label>+</label>
+					</div>
+					<doublebox id="ind_size1" width="90px" format="0.00" tabindex="0"></doublebox>
+					<div width="80px">
+					<label>+</label>
+					<doublebox id="ind_bleed1r" width="64px" format="0.00" tabindex="0"></doublebox>
+					</div>
+					<label>x</label>
+					<div width="80px">
+					<doublebox id="ind_bleed2" width="64px" format="0.00" tabindex="0"></doublebox>
+					<label>+</label>
+					</div>
+					<doublebox id="ind_size2" width="90px" format="0.00" tabindex="0"></doublebox>
+					<div width="80px">
+					<label>+</label>
+					<doublebox id="ind_bleed2r" width="64px" format="0.00" tabindex="0"></doublebox>
+					</div>
+					<div width="80px" align="center">
+						<label id="ind_areas"></label>
+					</div>
+				</hlayout>
+			</vlayout>
+			</hlayout>
+		</div>
+	</template>
+	<template name="template_HwQuoDet_MessageType">
+		<hlayout valign="middle">
+			<label id="ind_messagetype"></label>
+		</hlayout>
+	</template>
+	<template name="template_HwQuoDet_Job">
+		<!-- 
+			<div style="text-align:center">
+		-->
+		<div style="text-align:left">
+			<textbox id="ind_desc" width="480px"></textbox>
+		</div>
+	</template>
+	<template name="template_AfsQuoDet_LineBreak">
+		<div style="text-align:center">
+			<separator bar="true"></separator>
+		</div>
+	</template>
+	<template name="template_AfsQuoDet_QdstStatus">
+		<vlayout>
+			<div hflex="1">
+				<html id="ind_optdesc"></html>
+			</div>
+			<hlayout valign="middle">
+				<!-- 
+					<div hflex="1"> <label id="qdst_status"></label> </div>
+				-->
+				<hlayout valign="middle">
+					<button id="btQdstUpload" iconSclass="flaticon-ec-box-3" Tooltiptext="Upload Document" style="min-width:0px !important;" width="40px"></button>
+					<button id="btQdstDownload" iconSclass="flaticon-ec-box-2" Tooltiptext="Download Document" style="min-width:0px !important;" width="40px"></button>
+					<button id="btQdstRemove" iconSclass="z-icon-trash" Tooltiptext="Remove Document" style="min-width:0px !important;" width="40px"></button>
+					<button id="btQdstDetail" iconSclass="flaticon-ec-list" Tooltiptext="Detail" style="min-width:0px !important;" width="40px"></button>
+					<div width="200px" id="qdst_status"></div>
+				</hlayout>
+				<!-- 
+					<toolbarbutton id="btQdstUpload" iconSclass="flaticon-ec-box-3" Tooltiptext="Upload Document" width="60px"></toolbarbutton>
+					<toolbarbutton id="btQdstDownload" iconSclass="flaticon-ec-box-2" Tooltiptext="Download Document" width="60px"></toolbarbutton>
+					<toolbarbutton id="btQdstDetail" iconSclass="flaticon-ec-list" Tooltiptext="Detail" width="60px"></toolbarbutton>
+				-->
+			</hlayout>
+		
+		</vlayout>
+	</template>
+	<template name="template_AfsQuoDet_Price">
+		<vlayout>
+		<hlayout valign="middle">
+			<div width="140px">
+			<doublebox id="ind_puprice" width="75px" format="##,##0.00"></doublebox>
+			<combobox id="mur_name" width="60px"></combobox>
+			</div>
+			<!--
+			<doublebox id="ind_sprice" width="80px" format="###,##0.00" readonly="true"></doublebox>
+			-->
+			<doublebox id="ind_sprice" width="80px" format="###,##0.00" ></doublebox>
+		</hlayout>
+			<hlayout>
+			Less 
+			<intbox id="ind_discpercent" width="40px"></intbox>	
+			<div width="8px">%</div>
+			<div width="18px">=</div>
+			<!-- 
+			<hlayout><label>%<label></hlayout>
+			 -->
+			<div width="25px"></div>
+			<doublebox id="ind_uprice" width="80px" format="###,##0.00"></doublebox>
+			</hlayout>
+		</vlayout>
+	</template>
+	<template name="template_SellCode">
+		<hlayout>
+		<label>Sell Code</label>
+		<bandbox id="ind_postano" use="com.uniinformation.jx.zk.ZkJxPickInput" width="100px" />
+		</hlayout>
+	</template>
+</zk>

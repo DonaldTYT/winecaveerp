@@ -1,0 +1,56 @@
+package com.uniinformation.webcore;
+
+import java.util.Date;
+import java.util.Hashtable;
+
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.apache.commons.codec.digest.DigestUtils;
+
+import com.uniinformation.utils.UniLog;
+
+public class OffsiteRedirect extends HttpServlet {
+	static int seq = 0;
+	static Hashtable<String ,OsrRec> osrHash = new Hashtable<String,OsrRec>();
+	static private class OsrRec {
+		public OsrRec(String p_url) {
+			realUrl = p_url;
+			ctime = new Date();
+		}
+		String realUrl;
+		Date ctime;
+	}
+	static private String genKey(String p_str) {
+		String md5 = DigestUtils.md5Hex(p_str+(new Date()).toString()+seq+Math.random());
+		return(md5);
+	}
+	static public String getUrl(String p_key) {
+		UniLog.log("Offsite Redirect get " + p_key);
+		synchronized(osrHash) {
+			OsrRec osr = osrHash.get(p_key);
+			if(osr != null) {
+				osrHash.remove(p_key);
+				return(osr.realUrl);
+			} else {
+				return("http://www.hellovoice.com");
+			}
+		}
+	}
+	static public String createOffsiteRedirect(String p_url) {
+		OsrRec osr = new OsrRec(p_url);
+		String key = genKey(p_url);
+		synchronized(osrHash) {
+			osrHash.put(key, osr);
+			return(key);
+		}
+	}
+	
+	public static void main(String args[]){
+		for(int i=0;i<5;i++) {
+			UniLog.log("Test Gen Key got : " + genKey("www.hellovoice.com"));
+		}
+	}
+	
+}

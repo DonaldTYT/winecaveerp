@@ -1,0 +1,210 @@
+<language-addon>
+	<addon-name>zkbi-addon</addon-name>
+	<version>1.0</version>
+	<language-name>xul/html</language-name>
+	<!-- 
+	<depends>zuti</depends>
+	 -->
+
+	<!-- bootstrap row-->
+	<component>
+		<component-name>bs-row</component-name>
+		<extends>div</extends>
+		<property>
+			<property-name>sclass</property-name>
+			<property-value>bs-row row py-1</property-value>
+		</property>
+	</component>
+	
+	<!-- 2 col -->
+	<component>
+		<component-name>bs-col-2</component-name>
+		<extends>div</extends>
+		<property>
+			<property-name>sclass</property-name>
+			<property-value>col-2</property-value>
+		</property>
+	</component>
+	
+	<!--  3 col -->
+	<component>
+		<component-name>bs-col-3</component-name>
+		<extends>div</extends>
+		<property>
+			<property-name>sclass</property-name>
+			<property-value>col-3</property-value>
+		</property>
+	</component>
+	
+	
+	<!-- large,middle 2 col, small 1 col -->
+	<component>
+		<component-name>bs-col-221</component-name>
+		<extends>div</extends>
+		<property>
+			<property-name>sclass</property-name>
+			<property-value>col-lg-6 col-md-6</property-value>
+		</property>
+	</component>
+	
+	<!-- large 2 col, small/middle 1 col -->
+	<component>
+		<component-name>bs-col-211</component-name>
+		<extends>div</extends>
+		<property>
+			<property-name>sclass</property-name>
+			<property-value>col-lg-6 col-md-12</property-value>
+		</property>
+	</component>
+	
+	
+	<!-- large 3 col, middle 2 col, small 1 col -->
+	<component>
+		<component-name>bs-col-321</component-name>
+		<extends>div</extends>
+		<property>
+			<property-name>sclass</property-name>
+			<property-value>col-lg-4 col-md-6</property-value>
+		</property>
+	</component>
+	
+	
+	<!-- large 3 col, middle 1 col, small 1 col -->
+	<component>
+		<component-name>bs-col-311</component-name>
+		<extends>div</extends>
+		<property>
+			<property-name>sclass</property-name>
+			<property-value>col-lg-4 col-md-12</property-value>
+		</property>
+	</component>
+	
+	
+
+	<!-- zkbitextbox -->
+	<component>
+		<component-name>zkbitextbox</component-name>
+		<extends>nodom</extends>
+		<component-class>com.uniinformation.zkcomp.ZkBiTextbox</component-class>
+	</component>
+	<component>
+		<component-name>zkbicombobox</component-name>
+		<extends>nodom</extends>
+		<component-class>com.uniinformation.zkcomp.ZkBiCombobox</component-class>
+	</component>
+	<component>
+		<component-name>zkbipickinput</component-name>
+		<extends>nodom</extends>
+		<component-class>com.uniinformation.zkcomp.ZkBiPickinput</component-class>
+	</component>
+	<component>
+		<component-name>zkbilabel</component-name>
+		<extends>nodom</extends>
+		<component-class>com.uniinformation.zkcomp.ZkBiLabel</component-class>
+	</component>
+	<component>
+		<component-name>zkbidiv</component-name>
+		<extends>nodom</extends>
+		<component-class>com.uniinformation.zkcomp.ZkBiDiv</component-class>
+	</component>
+	<component>
+		<component-name>zkbifdiv</component-name>
+		<extends>nodom</extends>
+		<component-class>com.uniinformation.zkcomp.ZkBiFdiv</component-class>
+	</component>
+	<component>
+		<component-name>zkbicheckbox</component-name>
+		<extends>nodom</extends>
+		<component-class>com.uniinformation.zkcomp.ZkBiCheckbox</component-class>
+	</component>
+	<component>
+		<component-name>zkbiintbox</component-name>
+		<extends>nodom</extends>
+		<component-class>com.uniinformation.zkcomp.ZkBiIntbox</component-class>
+	</component>
+	<component>
+		<component-name>zkbidatebox</component-name>
+		<extends>nodom</extends>
+		<component-class>com.uniinformation.zkcomp.ZkBiDatebox</component-class>
+	</component>
+	<component>
+		<component-name>zkbitimebox</component-name>
+		<extends>nodom</extends>
+		<component-class>com.uniinformation.zkcomp.ZkBiTimebox</component-class>
+	</component>
+	<component>
+		<component-name>zkbidoublebox</component-name>
+		<extends>nodom</extends>
+		<component-class>com.uniinformation.zkcomp.ZkBiDoublebox</component-class>
+	</component>
+	<component>
+		<component-name>zkbilistbox</component-name>
+		<extends>nodom</extends>
+		<component-class>com.uniinformation.zkcomp.ZkBiListbox</component-class>
+	</component>
+	<component>
+		<component-name>zkbiradiogroup</component-name>
+		<extends>nodom</extends>
+		<component-class>com.uniinformation.zkcomp.ZkBiRadiogroup</component-class>
+	</component>
+	<component>
+		<component-name>zkbis2listbox</component-name>
+		<extends>nodom</extends>
+		<component-class>com.uniinformation.zkcomp.ZkBiS2Listbox</component-class>
+	</component>
+	
+	<component>
+		<component-name>zkbi-form</component-name>
+		<extends>window</extends>
+		<property>
+			<property-name>class</property-name>
+			<property-value>zkbi-form zkbi-main-window</property-value>
+		</property>
+		<property>
+			<property-name>width</property-name>
+			<property-value>100%</property-value>
+		</property>
+		<property>
+			<property-name>title</property-name>
+			<property-value></property-value>
+		</property>
+		<property>
+			<property-name>border</property-name>
+			<property-value>none</property-value>
+		</property>
+	</component>
+	
+	<component>
+		<component-name>zkbi-form-header</component-name>
+		<extends>label</extends>
+		<property>
+			<property-name>sclass</property-name>
+			<property-value>zkbi-form-header</property-value>
+		</property>
+		<property>
+			<property-name>id</property-name>
+			<property-value>lbHeader</property-value>
+		</property>
+	</component>
+	
+	<component>
+		<component-name>zkbi-form-content</component-name>
+		<extends>vlayout</extends>
+		<property>
+			<property-name>sclass</property-name>
+			<property-value>zkbi-form-content</property-value>
+		</property>
+	</component>
+	
+	<component>
+		<component-name>s2listbox</component-name>
+		<extends>nodom</extends>
+		<component-class>com.uniinformation.zkcomp.S2Listbox</component-class>
+	</component>
+	
+	<component>
+		<component-name>zkbibutton</component-name>
+		<extends>button</extends>
+		<component-class>com.uniinformation.zkcomp.ZkBiButton</component-class>
+	</component>
+</language-addon>

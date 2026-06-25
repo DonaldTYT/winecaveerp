@@ -1,0 +1,78 @@
+<zk>
+	<style dynamic="true">
+		<!-- cut/hide the vertical borders in the grid rows -->
+		.myGridWithNoBorder tr.z-row td.z-row-inner { border-right: 0px
+		#CCC; } .GridLayoutNoBorder tr.z-row td.z-row-inner, tr.z-row
+		.z-cell,div.z-grid { border: none; overflow: hidden; zoom: 1;
+		#background:#f8f8f8 !important;<!-- remove hover -->
+		background:white !important;<!-- remove hover -->
+		border-top: none; border-left: none; border-right: none;
+		border-bottom: none; }
+
+		div.list_erpv4_DoDet td.z-listcell {
+		vertical-align: top;
+		}
+	</style>
+	<toolbar id="detail_toolbar" align="end">
+	<!--
+		<button id="btCustom" label="Custom Report" visible="true"></button>
+		<button id="btPrint" label="Print D/N" visible="true"></button>
+		<button id="btPrintCInv" label="Print Commerical Invoice" visible="true"> </button>
+		-->
+		<!-- 
+		<button id="btPrintDnNew" label="Print D/N" visible="true"><custom-attributes tlkey="bt_print_dnnew"></custom-attributes></button>
+		<button id="btPrintInvNew" label="Print Invoice" visible="true"><custom-attributes tlkey="bt_print_invnew"></custom-attributes></button>
+		 -->
+	</toolbar>
+	<grid style="text-align:left;border: 1px solid #000;"
+		id="detail_grid" sclass="GridLayoutNoBorder">
+	</grid>
+	<!-- 
+	<template name="template_erpv4_DoDet_stmd_pickdiv"  twidth="hflex=min">
+	 -->
+	<template name="template_erpv4_DoDet_stmd_pickdiv"  twidth="200px">
+		<vlayout>
+			<zkbidiv jxId="inv_invno" labelPosition="invisible" CompWidth="300px"/>
+			<zkbidiv jxId="inv_pocode" labelWidth="50px" CompWidth="300px"/>
+		</vlayout>
+	</template>
+	<template name="template_erpv4_DoDet_stmd_itemdiv"  twidth="hflex=min">
+		<vlayout>
+			<zkbidiv jxId="inv_projecttitle" labelPosition="invisible" CompWidth="300px"/>
+			<zkbidiv jxId="ind_desc" labelPosition="invisible" CompWidth="300px"/>
+		</vlayout>
+		<!-- 
+		<div width="300px">
+			HAHA
+		</div>
+		 -->
+	</template>
+	<template name="template_erpv4_DoDet_stmd_printdiv"  twidth="hflex=min">
+		<vlayout>
+			<zkbidiv jxId="stmd_pf1" labelWidth="100px" CompWidth="50px"/>
+			<zkbidiv jxId="stmd_pf2" labelWidth="100px" CompWidth="50px"/>
+		</vlayout>
+		<!-- 
+		<div width="300px">
+			HAHA
+		</div>
+		 -->
+	</template>
+	<template name="template_erpv4_DoDet_stmd_picdiv"  twidth="hflex=min">
+		<vlayout>
+				<div hflex="1">
+					<html id="stmd_picture"></html>
+				</div>
+				<hlayout valign="middle">
+					<button id="btDpicUpload" iconSclass="flaticon-ec-box-3" Tooltiptext="Upload Picture" style="min-width:0px !important;" width="40px"></button>
+					<button id="btDpicDownload" iconSclass="flaticon-ec-box-2" Tooltiptext="Download Picture" style="min-width:0px !important;" width="40px"></button>
+					<button id="btDpicRemove" iconSclass="z-icon-trash" Tooltiptext="Remove Picture" style="min-width:0px !important;" width="40px"></button>
+				</hlayout>
+		</vlayout>
+		<!-- 
+		<div width="300px">
+			HAHA
+		</div>
+		 -->
+	</template>
+</zk>

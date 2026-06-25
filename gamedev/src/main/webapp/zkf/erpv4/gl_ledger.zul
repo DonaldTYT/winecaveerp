@@ -1,0 +1,43 @@
+<zk>
+<window width="600px" apply="com.uniinformation.zkf.erpv4.ZkComposerCustomerStatement">
+	<vlayout>
+		<div align="center">General Ledger</div>
+		<!--
+		<hlayout>
+			<div width="100px" align="right">
+			<label>Customer </label>
+			</div>
+			<combobox id="cust1">
+				<custom-attributes listView="erpv4.Customer" listColumn="vd_vcode"></custom-attributes>
+			</combobox>
+			<label>-</label>
+			<combobox id="cust2">
+				<custom-attributes listView="erpv4.Customer" listColumn="vd_vcode"></custom-attributes>
+			</combobox>
+		</hlayout>
+		-->
+		<hlayout>
+			<div width="100px" align="right">
+			<label>Date </label>
+			</div>
+			<datebox id="sdate"></datebox>
+			<label>-</label>
+			<datebox id="edate"></datebox>
+		</hlayout>
+		<div align="center">
+			<button width="100px" id="btOK" label="Print">
+			<!-- 
+				<custom-attributes actionHandler="com.uniinformation.erpv4.PerfJsonRpcCall" actionId="erpv4TestJsonRpc"></custom-attributes>
+			 -->
+				<custom-attributes actionHandler="com.uniinformation.erpv4.PerfJsonRpcReportA4L" actionId="erpv4PrintLedger" actionData="{'fileName':'ledger.pdf'}"></custom-attributes>
+			</button>
+		</div>
+	</vlayout>
+	<div visible="false">
+		<textbox id="localccy" text="MOP"></textbox>
+		<textbox id="cocode" text="AFS"></textbox>
+		<textbox id="module" text="AR"></textbox>
+		<textbox id="orderby" text="1"></textbox>
+	</div>
+</window>
+</zk>

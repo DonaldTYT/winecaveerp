@@ -1,0 +1,3 @@
+. ./profile.yacc
+l calc.flex
+y calc.y

@@ -1,0 +1,60 @@
+<zk>
+	<style dynamic="true">
+		<!-- cut/hide the vertical borders in the grid rows -->
+		.myGridWithNoBorder tr.z-row td.z-row-inner { border-right: 0px
+		#CCC; } .GridLayoutNoBorder tr.z-row td.z-row-inner, tr.z-row
+		.z-cell,div.z-grid { border: none; overflow: hidden; zoom: 1;
+		#background:#f8f8f8 !important;<!-- remove hover -->
+		background:white !important;<!-- remove hover -->
+		border-top: none; border-left: none; border-right: none;
+		border-bottom: none; }
+	</style>
+	<toolbar id="detail_toolbar" align="end">
+	<!--
+		<button id="btCustom" label="Custom Report" visible="true"></button>
+		<button id="btPrint" label="Print D/N" visible="true"></button>
+		<button id="btPrintCInv" label="Print Commerical Invoice" visible="true"> </button>
+		-->
+		<!-- 
+		<button id="btPrintDnNew" label="Print D/N 1" visible="true"><custom-attributes tlkey="bt_print_dnnew"></custom-attributes></button>
+		<button id="btPrintInvNew" label="Print D/N 2" visible="true"><custom-attributes tlkey="bt_print_invnew"></custom-attributes></button>
+		 -->
+		 <!--
+		<button id="btPrintG2_A" label="Print D/N A" visible="true">
+			<custom-attributes actionHandler="com.uniinformation.erpv4.ZkfActionPrtdoc" actionId="com.uniinformation.dynamic.afs.AfscnPartsDn" actionData="{'paperType':'A4P','docCode':'AFSDNPT01'}"></custom-attributes>
+			<custom-attributes tlkey="bt_printg2_a"></custom-attributes>
+		</button>
+		   -->
+		<button id="btPrintG2_A" label="Print D/N" visible="true">
+			<custom-attributes actionHandler="com.uniinformation.erpv4.ZkfActionPrtdoc" actionId="com.uniinformation.dynamic.afs.AfscnPartsDn" actionData="{'paperType':'A4P','docCode':'AFSDNPT01'}"></custom-attributes>
+			<custom-attributes tlkey="bt_printg2_a"></custom-attributes>
+		</button>
+	</toolbar>
+	<grid style="text-align:left;border: 1px solid #000;" id="detail_grid" sclass="GridLayoutNoBorder">
+	</grid>
+	<listbox id="list_erpv4_DoDet">
+	   <listfoot>
+        <listfooter id="footer_list_erpv4_MoDet" zclass="z-listbox-footer" span="6"><div style="text-align:right;padding:4px 5px;"></div></listfooter>
+        <listfooter zclass="z-listbox-footer" span="2"><div style="text-align:right;padding:4px 5px;">
+        		<vlayout>
+        		<label value="Gross Total"><custom-attributes tlkey="lb_grosstotal"></custom-attributes></label>
+        		<label value="Less Discount"><custom-attributes tlkey="lb_lessdiscount"></custom-attributes></label>
+        		<combobox id="stm_salescode1"/>
+        		<label value="Net Total"><custom-attributes tlkey="lb_nettotal"></custom-attributes></label>
+        		<label value="Less Deposit"><custom-attributes tlkey="lb_lessdeposit"></custom-attributes></label>
+        		<label value="Invoice Amount"><custom-attributes tlkey="lb_invoiceamount"></custom-attributes></label>
+        		</vlayout>
+        		</div></listfooter>
+        <listfooter zclass="z-listbox-footer" span="1"><div style="text-align:right;padding:4px 5px;">
+        		<vlayout>
+        		<label id="stm_grosstotal"></label>
+        		<doublebox id="stm_discount"></doublebox>
+        		<doublebox id="stm_fref1"></doublebox>
+        		<label id="stm_nettotal"></label>
+        		<label id="stm_deposit"></label>
+        		<label id="stm_invamount"></label>
+        		</vlayout>
+        	</div></listfooter>
+       </listfoot>
+	</listbox>	
+</zk>

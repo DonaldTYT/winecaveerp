@@ -1,0 +1,98 @@
+<zk>
+<zscript><![CDATA[  
+	public void doResize() { 
+        visNwEventDivDet.invalidate();
+        Events.sendEvent(new Event("onSize", visNwEventDivDet, null));
+	};
+]]></zscript>
+<style dynamic="true">
+	div.viscolorbox {
+    	border: 1px solid #a0a0a080;
+    	margin: 2px;
+    	padding: 4px;
+		min-width: 40px; 
+     	font-size: 12px;
+     	line-height: 16px;
+     	border-radius: 5px;
+    }
+    div.viscolorbox.waiting {
+		background: #E0E0E0;
+    }
+    div.viscolorbox.awaked {
+		background: #FFB749;
+    }
+    div.viscolorbox.started {
+		background: #8EEEC7;
+    }
+    div.viscolorbox.completed {
+		background: #20cdff;
+    }
+    div.viscolorbox.aborted {
+		background: #ff5f5f;
+    }
+    div.viscolorbox.locked {
+		background: #e8ff00;
+    }
+	span.proppanel_title {
+		opacity: 0.8;
+	}
+	span.proppanel_title >.z-label {
+		font-size: 16px !important;
+	}
+	span.proppanel_hint >.z-label {
+		position: absolute;
+		font-size: 12px !important;
+		color: #888888;
+	}
+</style>
+<vlayout xmlns:h="native">
+<grid style="text-align:left;" id="detail_grid">
+	<columns visible="false" >
+		<column width="200px" />
+		<column/>
+	</columns>
+</grid>
+<listbox id="list_wip_WfmJobTask"> </listbox>
+<!--
+<hlayout style="background-color:#D9D9D9;overflow-x:auto">
+	<toolbarbutton id="btAddLink" label="Add Dependency" disabled="true" mode="toggle" width="100px"></toolbarbutton>
+    <toolbarbutton id="btDelLink" label="Delete Dependency" disabled="true" width="130px"></toolbarbutton>
+    <toolbarbutton id="btUpdLink" label="Update Dependency" disabled="true" width="130px"></toolbarbutton>
+    <toolbarbutton id="btRedraw" label="Redraw" width="100px"></toolbarbutton>
+</hlayout>
+-->
+<!--
+<panel height="100px" id="ABC" sizable="true" border="true" onSize="doResize()">
+-->
+<panel height="150px" id="p1" sizable="true" border="true">
+<panelchildren>
+	<vlayout vflex="1">
+		<div id="visNwEventDivDet" hflex="1" vflex="1"> 
+			<h:div style="width:100%; height:100%;" id="visNwContentDivDet"></h:div>
+		</div>
+		<hlayout hflex="1" style="overflow-x:auto">
+	   		<h:div class="viscolorbox waiting">Waiting</h:div>
+	   		<h:div class="viscolorbox awaked">Ready</h:div>
+	   		<h:div class="viscolorbox started">Progress</h:div>
+	   		<h:div class="viscolorbox completed">Completed</h:div>
+	   		<h:div class="viscolorbox aborted">Aborted</h:div>
+	   		<h:div class="viscolorbox locked">Locked</h:div>
+		</hlayout>
+	</vlayout>
+</panelchildren>
+</panel>
+<vlayout id="v1" hflex="1" height="500px">
+	<hlayout>
+		<span hflex="1" sclass="proppanel_title">Properties Panel</span>
+		<toolbarbutton id="jobTaskViewLink" iconSclass="z-icon-link" sclass="narrowtoolbarbutton" tooltiptext="Show external access link"/>
+	</hlayout>
+	<div id="propertyPanel" vflex="1">
+		<span sclass="proppanel_hint">*Click task symbol to show task activity</span>
+	</div>
+</vlayout>
+
+<!--
+<div height="100px"></div>
+ -->
+</vlayout>
+</zk>

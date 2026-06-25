@@ -1,0 +1,14 @@
+<zk xmlns:n="native">
+	<toolbar id="detail_toolbar" align="end"> 
+		<button id="btDownload" label="Download" visible="true"></button>
+		<button id="btUpdHashtag" label="Update Hashtag" visible="true"></button>
+	</toolbar>
+	<!-- 
+	<grid border: 1px solid #000;" id="detail_grid"  sclass="GridLayoutNoBorder" ></grid>
+	 -->
+	<grid id="detail_grid"></grid>
+	<div id="email_content" style="background-color:white" height="600px">
+    	<iframe id="ifrmContent" width="100%;"  vflex="true" scrolling="yes">
+		</iframe>
+	</div>
+</zk>

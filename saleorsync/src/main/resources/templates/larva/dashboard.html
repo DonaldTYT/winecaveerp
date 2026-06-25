@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <title th:text="${pageTitle}">Home | Mantis (Thymeleaf)</title>
+
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=0, minimal-ui">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="description" th:content="${meta.description}">
+  <meta name="keywords" th:content="${meta.keywords}">
+  <meta name="author" th:content="${meta.author}">
+
+  <link rel="icon" th:href="@{/larva/assets/images/favicon.svg}" type="image/svg+xml">
+
+  <!-- Fonts & CSS from larva assets -->
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@300;400;500;600;700&display=swap" id="main-font-link">
+  <link rel="stylesheet" th:href="@{/larva/assets/fonts/tabler-icons.min.css}">
+  <link rel="stylesheet" th:href="@{/larva/assets/fonts/feather.css}">
+  <link rel="stylesheet" th:href="@{/larva/assets/fonts/fontawesome.css}">
+  <link rel="stylesheet" th:href="@{/larva/assets/fonts/material.css}">
+  <link rel="stylesheet" id="main-style-link" th:href="@{/larva/assets/css/style.css}">
+  <link rel="stylesheet" th:href="@{/larva/assets/css/style-preset.css}">
+</head>
+
+<body th:attr="data-pc-preset=${layout.preset}, data-pc-direction=${layout.direction}, data-pc-theme=${layout.theme}">
+
+  <!-- Preloader -->
+  <div class="loader-bg" th:if="${features == null or features.showPreloader}">
+    <div class="loader-track"><div class="loader-fill"></div></div>
+  </div>
+
+  <!-- Sidebar -->
+  <nav class="pc-sidebar" th:if="${features == null or features.showSidebar}">
+    <div class="navbar-wrapper">
+      <div class="m-header">
+        <a th:href="@{/dashboard}" class="b-brand text-primary">
+          <img th:src="@{/larva/assets/images/logo-dark.svg}" class="img-fluid logo-lg" alt="logo">
+        </a>
+      </div>
+
+      <div class="navbar-content">
+        <ul class="pc-navbar">
+          <li class="pc-item" th:each="nav : ${navItems}">
+            <a class="pc-link" th:href="@{${nav.href}}">
+              <span class="pc-micon"><i th:class="${nav.icon}"></i></span>
+              <span class="pc-mtext" th:text="${nav.text}">Item</span>
+            </a>
+          </li>
+
+          <li class="pc-item pc-caption" th:each="cap : ${navCaptions}">
+            <label th:text="${cap.label}">Caption</label>
+            <i th:class="${cap.icon}"></i>
+          </li>
+
+          <!-- Optional static menu demo -->
+          <li class="pc-item pc-hasmenu" th:if="${menuLevels}">
+            <a href="#!" class="pc-link">
+              <span class="pc-micon"><i class="ti ti-menu"></i></span>
+              <span class="pc-mtext">Menu levels</span>
+              <span class="pc-arrow"><i data-feather="chevron-right"></i></span>
+            </a>
+          </li>
+
+          <li class="pc-item">
+            <a th:href="@{/sample}" class="pc-link">
+              <span class="pc-micon"><i class="ti ti-brand-chrome"></i></span>
+              <span class="pc-mtext">Sample page</span>
+            </a>
+          </li>
+        </ul>
+
+        <div class="card text-center" th:if="${promo != null}">
+          <div class="card-body">
+            <img th:src="@{/larva/assets/images/img-navbar-card.png}" alt="images" class="img-fluid mb-2">
+            <h5 th:text="${promo.title}">Upgrade To Pro</h5>
+            <p th:text="${promo.subtitle}">To get more features and components</p>
+            <a th:href="${promo.url}" target="_blank" class="btn btn-success" th:text="${promo.cta}">Buy Now</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Header -->
+  <header class="pc-header">
+    <div class="header-wrapper">
+      <div class="me-auto pc-mob-drp">
+        <ul class="list-unstyled">
+          <li class="pc-h-item pc-sidebar-collapse">
+            <a href="#" class="pc-head-link ms-0" id="sidebar-hide"><i class="ti ti-menu-2"></i></a>
+          </li>
+          <li class="pc-h-item d-none d-md-inline-flex">
+            <form class="header-search">
+              <i data-feather="search" class="icon-search"></i>
+              <input type="search" class="form-control" placeholder="Search here. . .">
+            </form>
+          </li>
+        </ul>
+      </div>
+
+      <div class="ms-auto">
+        <ul class="list-unstyled">
+          <!-- Messages -->
+          <li class="dropdown pc-h-item" th:if="${messages != null and !#lists.isEmpty(messages)}">
+            <a class="pc-head-link dropdown-toggle arrow-none me-0" data-bs-toggle="dropdown" href="#" role="button">
+              <i class="ti ti-mail"></i>
+            </a>
+            <div class="dropdown-menu dropdown-notification dropdown-menu-end pc-h-dropdown">
+              <div class="dropdown-header d-flex align-items-center justify-content-between">
+                <h5 class="m-0">Message</h5>
+                <a href="#!" class="pc-head-link bg-transparent"><i class="ti ti-x text-danger"></i></a>
+              </div>
+              <div class="dropdown-divider"></div>
+              <div class="dropdown-header px-0 text-wrap header-notification-scroll position-relative" style="max-height: calc(100vh - 215px)">
+                <div class="list-group list-group-flush w-100">
+                  <a class="list-group-item list-group-item-action" th:each="m : ${messages}">
+                    <div class="d-flex">
+                      <div class="flex-shrink-0">
+                        <img th:src="${m.avatar}" alt="user-image" class="user-avtar">
+                      </div>
+                      <div class="flex-grow-1 ms-1">
+                        <span class="float-end text-muted" th:text="${m.time}">3:00 AM</span>
+                        <p class="text-body mb-1" th:utext="${m.html}">Message</p>
+                        <span class="text-muted" th:text="${m.meta}">2 min ago</span>
+                      </div>
+                    </div>
+                  </a>
+                </div>
+              </div>
+              <div class="dropdown-divider"></div>
+              <div class="text-center py-2">
+                <a href="#!" class="link-primary">View all</a>
+              </div>
+            </div>
+          </li>
+
+          <!-- User -->
+          <li class="dropdown pc-h-item header-user-profile" th:if="${user != null}">
+            <a class="pc-head-link dropdown-toggle arrow-none me-0" data-bs-toggle="dropdown" href="#" role="button" data-bs-auto-close="outside">
+              <img th:src="${user.avatar}" alt="user-image" class="user-avtar">
+              <span th:text="${user.name}">User</span>
+            </a>
+            <div class="dropdown-menu dropdown-user-profile dropdown-menu-end pc-h-dropdown">
+              <div class="dropdown-header">
+                <div class="d-flex mb-1">
+                  <div class="flex-shrink-0">
+                    <img th:src="${user.avatar}" alt="user-image" class="user-avtar wid-35">
+                  </div>
+                  <div class="flex-grow-1 ms-3">
+                    <h6 class="mb-1" th:text="${user.name}">Name</h6>
+                    <span th:text="${user.title}">Role</span>
+                  </div>
+                  <a th:href="@{/logout}" class="pc-head-link bg-transparent"><i class="ti ti-power text-danger"></i></a>
+                </div>
+              </div>
+              <a th:href="@{/profile}" class="dropdown-item"><i class="ti ti-user"></i><span>Profile</span></a>
+              <a th:href="@{/billing}" class="dropdown-item"><i class="ti ti-wallet"></i><span>Billing</span></a>
+              <a th:href="@{/logout}" class="dropdown-item"><i class="ti ti-power"></i><span>Logout</span></a>
+            </div>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main -->
+  <div class="pc-container">
+    <div class="pc-content">
+
+      <!-- Breadcrumb -->
+      <div class="page-header">
+        <div class="page-block">
+          <div class="row align-items-center">
+            <div class="col-md-12">
+              <div class="page-header-title">
+                <h5 class="m-b-10" th:text="${pageHeading}">Home</h5>
+              </div>
+              <ul class="breadcrumb">
+                <li class="breadcrumb-item" th:each="b, iter : ${breadcrumbs}">
+                  <a th:if="${!iter.last}" th:href="@{${b.href}}" th:text="${b.label}">Home</a>
+                  <span th:if="${iter.last}" th:text="${b.label}">Current</span>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Content rows -->
+      <div class="row">
+
+        <!-- KPIs -->
+        <div class="col-md-6 col-xl-3" th:each="k : ${kpis}">
+          <div class="card">
+            <div class="card-body">
+              <h6 class="mb-2 f-w-400 text-muted" th:text="${k.label}">Label</h6>
+              <h4 class="mb-3">
+                <span th:text="${k.value}">0</span>
+                <span class="badge"
+                      th:classappend="${' bg-light-' + k.trendColor + ' border border-' + k.trendColor}">
+                  <i th:class="${k.trendIcon}"></i>
+                  <span th:text="${k.trendPct}">0%</span>
+                </span>
+              </h4>
+              <p class="mb-0 text-muted text-sm">
+                You made an extra
+                <span th:classappend="${' text-' + k.trendColor}" th:text="${k.extra}">0</span> this year
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Unique Visitor -->
+        <div class="col-md-12 col-xl-8" th:if="${features == null or features.showUniqueVisitor}">
+          <div class="d-flex align-items-center justify-content-between mb-3">
+            <h5 class="mb-0">Unique Visitor</h5>
+            <ul class="nav nav-pills justify-content-end mb-0" role="tablist">
+              <li class="nav-item"><button class="nav-link" data-bs-toggle="pill" data-bs-target="#chart-tab-home" type="button">Month</button></li>
+              <li class="nav-item"><button class="nav-link active" data-bs-toggle="pill" data-bs-target="#chart-tab-profile" type="button">Week</button></li>
+            </ul>
+          </div>
+          <div class="card">
+            <div class="card-body">
+              <div class="tab-content">
+                <div class="tab-pane" id="chart-tab-home"><div id="visitor-chart-1"></div></div>
+                <div class="tab-pane show active" id="chart-tab-profile"><div id="visitor-chart"></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Income Overview -->
+        <div class="col-md-12 col-xl-4" th:if="${features == null or features.showIncomeOverview}">
+          <h5 class="mb-3">Income Overview</h5>
+          <div class="card">
+            <div class="card-body">
+              <h6 class="mb-2 f-w-400 text-muted">This Week Statistics</h6>
+              <h3 class="mb-3" th:text="${income.amount}">$0</h3>
+              <div id="income-overview-chart"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Recent Orders -->
+        <div class="col-md-12 col-xl-8" th:if="${features == null or features.showRecentOrders}">
+          <h5 class="mb-3">Recent Orders</h5>
+          <div class="card tbl-card">
+            <div class="card-body">
+              <div class="table-responsive">
+                <table class="table table-hover table-borderless mb-0">
+                  <thead>
+                    <tr>
+                      <th>TRACKING NO.</th>
+                      <th>PRODUCT NAME</th>
+                      <th>TOTAL ORDER</th>
+                      <th>STATUS</th>
+                      <th class="text-end">TOTAL AMOUNT</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr th:each="o : ${orders}">
+                      <td><a href="#" class="text-muted" th:text="${o.trackingNo}">0000</a></td>
+                      <td th:text="${o.product}">Product</td>
+                      <td th:text="${o.qty}">0</td>
+                      <td>
+                        <span class="d-flex align-items-center gap-2">
+                          <i class="fas fa-circle f-10 m-r-5"
+                             th:classappend="${o.status == 'Rejected'} ? ' text-danger'
+                                              : (${o.status == 'Pending'} ? ' text-warning' : ' text-success')"></i>
+                          <span th:text="${o.status}">Status</span>
+                        </span>
+                      </td>
+                      <td class="text-end" th:text="${o.amount}">$0</td>
+                    </tr>
+                    <tr th:if="${orders == null or #lists.isEmpty(orders)}">
+                      <td colspan="5" class="text-center text-muted">No recent orders.</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Analytics Report -->
+        <div class="col-md-12 col-xl-4" th:if="${features == null or features.showAnalytics}">
+          <h5 class="mb-3">Analytics Report</h5>
+          <div class="card">
+            <div class="list-group list-group-flush">
+              <a href="#" class="list-group-item list-group-item-action d-flex align-items-center justify-content-between" th:each="a : ${analytics}">
+                <span th:text="${a.title}">Metric</span>
+                <span class="h5 mb-0" th:text="${a.value}">0%</span>
+              </a>
+            </div>
+            <div class="card-body px-2">
+              <div id="analytics-report-chart"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Sales Report -->
+        <div class="col-md-12 col-xl-8" th:if="${features == null or features.showSalesReport}">
+          <h5 class="mb-3">Sales Report</h5>
+          <div class="card">
+            <div class="card-body">
+              <h6 class="mb-2 f-w-400 text-muted">This Week Statistics</h6>
+              <h3 class="mb-0" th:text="${sales.amount}">$0</h3>
+              <div id="sales-report-chart"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Transaction History -->
+        <div class="col-md-12 col-xl-4" th:if="${features == null or features.showTransactions}">
+          <h5 class="mb-3">Transaction History</h5>
+          <div class="card">
+            <div class="list-group list-group-flush">
+              <a href="#" class="list-group-item list-group-item-action" th:each="t : ${transactions}">
+                <div class="d-flex">
+                  <div class="flex-shrink-0">
+                    <div class="avtar avtar-s rounded-circle"
+                         th:classappend="${' text-' + t.color + ' bg-light-' + t.color}">
+                      <i th:class="${t.icon + ' f-18'}"></i>
+                    </div>
+                  </div>
+                  <div class="flex-grow-1 ms-3">
+                    <h6 class="mb-1" th:text="${t.title}">Order #000000</h6>
+                    <p class="mb-0 text-muted" th:text="${t.time}">Now</p>
+                  </div>
+                  <div class="flex-shrink-0 text-end">
+                    <h6 class="mb-1" th:text="${t.amount}">$0</h6>
+                    <p class="mb-0 text-muted" th:text="${t.percent}">0%</p>
+                  </div>
+                </div>
+              </a>
+              <div th:if="${transactions == null or #lists.isEmpty(transactions)}" class="p-3 text-muted">No transactions.</div>
+            </div>
+          </div>
+        </div>
+
+      </div> <!-- /.row -->
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="pc-footer">
+    <div class="footer-wrapper container-fluid">
+      <div class="row">
+        <div class="col-sm my-1">
+          <p class="m-0" th:utext="${footerHtml}">
+            Mantis ♥ crafted by Team <a href="https://themeforest.net/user/codedthemes" target="_blank">Codedthemes</a>.
+          </p>
+        </div>
+        <div class="col-auto my-1">
+          <ul class="list-inline footer-link mb-0">
+            <li class="list-inline-item"><a th:href="@{/}">Home</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- JS (only include charts if any chart section is visible) -->
+  <th:block th:if="${features == null or (features.showUniqueVisitor or features.showIncomeOverview or features.showSalesReport or features.showAnalytics)}">
+    <script th:src="@{/larva/assets/js/plugins/apexcharts.min.js}"></script>
+    <script th:src="@{/larva/assets/js/pages/dashboard-default.js}"></script>
+  </th:block>
+
+  <script th:src="@{/larva/assets/js/plugins/popper.min.js}"></script>
+  <script th:src="@{/larva/assets/js/plugins/simplebar.min.js}"></script>
+  <script th:src="@{/larva/assets/js/plugins/bootstrap.min.js}"></script>
+  <script th:src="@{/larva/assets/js/fonts/custom-font.js}"></script>
+  <script th:src="@{/larva/assets/js/pcoded.js}"></script>
+  <script th:src="@{/larva/assets/js/plugins/feather.min.js}"></script>
+
+  <!-- Layout flags -->
+  <script th:inline="javascript">
+    /*<![CDATA[*/
+    layout_change(/*[[${layout.theme}]]*/ 'light');
+    change_box_container(/*[[${layout.boxed}]]*/ 'false');
+    layout_rtl_change(/*[[${layout.rtl}]]*/ 'false');
+    preset_change(/*[[${layout.preset}]]*/ 'preset-1');
+    font_change(/*[[${layout.font}]]*/ 'Public-Sans');
+    /*]]>*/
+  </script>
+</body>
+</html>

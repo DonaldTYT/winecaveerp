@@ -1,0 +1,106 @@
+<%@ page language="java" pageEncoding="utf-8" contentType="text/html;charset=utf-8"%>
+<%@ page import="java.util.*, com.uniinformation.utils.*,com.uniinformation.webcore.* " %>
+<%
+response.setHeader("Cache-Control", "no-cache, no-store, must-revalidate"); // HTTP 1.1.
+response.setHeader("Pragma", "no-cache"); // HTTP 1.0.
+response.setHeader("Expires", "0"); // Proxies.
+try {	
+	SessionHelper sessionHelper = ZkSessionHelper.getSessionHelper(request, response);   
+	sessionHelper.validateLogin(request, response);
+%>
+<!DOCTYPE html>
+<html>
+
+<head>
+<script type="text/javascript" src="js/jquery-3.1.1.min.js"></script>
+<script type="text/javascript" src="js/goldenlayout-1.5.8.min.js"></script>
+<link type="text/css" rel="stylesheet" href="css/goldenlayout-base-1.5.8.css" />
+<link type="text/css" rel="stylesheet" href="css/goldenlayout-dark-theme-1.5.8.css" />
+<script>
+	function adjustScreenCount(win, adj){
+		if (win.parent != win) {
+			return adjustScreenCount(win.parent, adj);
+		}
+		if (typeof win.gcounter !== 'undefined') {
+			win.gcounter=win.gcounter+adj;
+		}
+		else {
+			win.gcounter = 1;
+		}
+	}
+	function getScreenCount(win){
+		if (win.parent != win) {
+			return getScreenCount(win.parent);
+		}
+		//console.log("gcounter: " + win.gcounter);
+		return(win.gcounter);
+	}
+	
+	if (typeof getScreenCount(window) !== 'undefined'){
+		alert("Do not allow open child window.");
+   		window.location.href="<%=sessionHelper.getLandingPage()%>";
+	}
+
+	var config = {
+		settings : {
+			showPopoutIcon : false,
+			reorderEnabled : false,
+			showCloseIcon : false,
+			showMaximiseIcon : true,
+		},
+		content : [ {
+			type : 'row',
+			content : [ 
+	            {
+					width : 80,
+					title : 'Screen 1',
+					isClosable : true,
+					type : 'component',
+					componentName : 'screen1',
+				},
+	            {
+					width : 80,
+					title : 'Screen 2',
+					isClosable : true,
+					type : 'component',
+					componentName : 'screen2',
+				},
+			]
+		} ]
+	};
+
+	var myLayout = new GoldenLayout(config);
+	myLayout.registerComponent( 'screen1', function(container, state) {
+		container.getElement().html('<iframe src="<%=sessionHelper.getLandingPage()%>" style="width:100%; height:100%;"></iframe>'); 
+	});
+	myLayout.registerComponent( 'screen2', function(container, state) {
+		container.getElement().html('<iframe src="<%=sessionHelper.getLandingPage()%>" style="width:100%; height:100%;"></iframe>'); 
+	});
+	myLayout.on('tabCreated', function(tab){
+		   adjustScreenCount(window,1);
+		   getScreenCount(window);
+		   tab.closeElement.off( 'click' ).click(function(){
+			   adjustScreenCount(window,-1);
+			   getScreenCount(window);
+			   tab.contentItem.remove();
+			   if (getScreenCount(window) <= 0){
+			   		top.window.location.href="<%=request.getContextPath()%>";
+			   }
+		   })
+		});
+
+	myLayout.init();
+</script>
+</head>
+
+<body>
+
+</body>
+
+</html>
+<%
+} catch(Exception ex) {
+	UniLog.log(ex);
+	throw(ex);
+} 
+%>

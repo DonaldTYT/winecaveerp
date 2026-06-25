@@ -1,0 +1,15 @@
+#com.uniinformation.jx.cbuilder.JxCbuilderGadgetProvider 0
+#com.uniinformation.jx.cbuilder.JxCbuilderSecondRpc 0
+#com.uniinformation.utils.WxUserRpcServer
+com.uniinformation.utils.RpcServerBase
+#com.uniinformation.fileconvert.EstimationToWordRpcServer
+#com.uniinformation.utils.TsvUtil
+#com.uniinformation.account.ExportNamedCell
+com.uniinformation.estimation.printing.EstApi
+#com.uniinformation.utils.ExcelUtilRpcServer
+#com.uniinformation.lgtc.CardReaderDaemon
+#com.uniinformation.jx.JxExcelUtil
+#com.uniinformation.gbp.DiceSheetRpcServer
+com.uniinformation.jdbcbridge.JdbcBridge
+com.uniinformation.utils.ChnftrRpcServlet
+com.uniinformation.winecave.MajorApi

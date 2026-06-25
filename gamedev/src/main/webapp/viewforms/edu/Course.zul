@@ -1,0 +1,191 @@
+<zk xmlns:w="http://www.zkoss.org/2005/zk/client" xmlns:h="xhtml">
+<zscript>
+<![CDATA[
+	import com.uniinformation.webcore.*;
+	SessionHelper sessionHelper = SessionHelper.getSessionHelper();
+	String gridLeftWidth = sessionHelper.isMobile() ? "120px" : "300px";
+]]>
+</zscript>
+<toolbar id="detail_toolbar" align="end">
+	<button id="btGenSchedule" label="Generate schedule" visible="true"></button>
+	<button id="btDelSchedule" label="Delete schedule" visible="true"></button>
+	<button id="btAddRecCourse" label="Add new recurring course" visible="false"></button>
+	<button id="btTodayAttendance" label="Today attendance" visible="true"></button>
+</toolbar>
+<grid style="text-align:left;" id="detail_grid">
+	<columns>
+		<column align="right" width="${gridLeftWidth}" />
+		<column hflex="1" />
+	</columns>
+	<rows>
+		<row>
+			<label hflex="1" id="lb_eaav0_rg" value="Ref No"><custom-attributes tlkey="lb_eaav0_rg"></custom-attributes></label>
+			<intbox id="eaav0_rg"/>
+		</row>
+		<row>
+			<label hflex="1" id="lb_eaav0_code" value="Code"><custom-attributes tlkey="lb_eaav0_code"></custom-attributes></label>
+			<textbox id="eaav0_code"/>
+		</row>
+		<row>
+			<label hflex="1" id="lb_eaav0_name" value="Name"><custom-attributes tlkey="lb_eaav0_name"></custom-attributes></label>
+			<textbox id="eaav0_name"/>
+		</row>
+		<row>
+			<label hflex="1" id="lb_eaav0_status" value="Status"><custom-attributes tlkey="lb_eaav0_status"></custom-attributes></label>
+			<radiogroup id="eaav0_status"/>
+		</row>
+		<row>
+			<label hflex="1" id="lb_eaav0_startdate" value="Start Date"><custom-attributes tlkey="lb_eaav0_startdate"></custom-attributes></label>
+			<hbox> 
+				<datebox id="eaav0_startdate"/>
+				<space></space>
+				<label id="lb_eaav0_enddate" value="End Date"><custom-attributes tlkey="lb_eaav0_enddate"></custom-attributes></label>
+				<datebox id="eaav0_enddate" tooltiptext="leave it blank for no limit" placeholder="No Limit"/>
+				<label style="font-size:8px !important; color:grey;" value="*Session generation will be stopped when enddate reached. blank: forever"/>
+			</hbox>
+		</row>
+		<row>
+			<label hflex="1" id="lb_eaav0_numsession" value="Number of Session"><custom-attributes tlkey="lb_eaav0_numsession"></custom-attributes></label>
+			<hbox>
+				<spinner id="eaav0_numsession" constraint="no empty,min 0 max 100"/>
+				<space></space>
+				<label id="lb_eaav0_alertth"><custom-attributes tlkey="lb_eaav0_alertth"></custom-attributes></label>
+				<spinner id="eaav0_alertth" constraint="no empty,min 0 max 10"/>
+			</hbox>
+		</row>
+		<row>
+			<label hflex="1" id="lb_eaav0_sessionday" value="Days"><custom-attributes tlkey="lb_eaav0_sessionday"></custom-attributes></label>
+			<div>
+				<textbox style="display:none" id="eaav0_sessionday"/>
+				<hbox id="eaav0_sessionday_cbc">
+					<checkbox label="Mon"/>
+					<checkbox label="Tue"/>
+					<checkbox label="Wed"/>
+					<checkbox label="Thu"/>
+					<checkbox label="Fri"/>
+					<checkbox label="Sat"/>
+					<checkbox label="Sun"/>
+				</hbox>
+			</div>
+		</row>
+		<!-- 
+		<row>
+			<label hflex="1" id="lb_esav0_dayset" value="dayset"><custom-attributes tlkey="lb_esav0_dayset"></custom-attributes></label>
+			<textbox id="esav0_dayset"/>
+		</row>
+		<row>
+			<label hflex="1" id="lb_esav0_incdayset" value="Include (dateset)"><custom-attributes tlkey="lb_esav0_incdayset"></custom-attributes></label>
+			<checkbox id="esav0_incdayset"/>
+		</row>
+		 -->
+		<row>
+			<label hflex="1" id="lb_eaav0_sessiontime" value="Time"><custom-attributes tlkey="lb_eaav0_sessiontime"></custom-attributes></label>
+			<!-- <combobox id="eaav0_sessiontime" use="com.uniinformation.jx.zk.ZkJxTimePicker"/> -->
+			<combobox startTime="08:00" endTime="21:00" stepMin="15" id="eaav0_sessiontime" use="com.uniinformation.jx.zk.ZkJxTimePicker"/>
+		</row>
+		<row>
+			<label hflex="1" id="lb_eaav0_sessionlen" value="Duratin(Min)"><custom-attributes tlkey="lb_eaav0_sessionlen"></custom-attributes></label>
+			<intbox id="eaav0_sessionlen"/>
+		</row>
+		<row>
+			<label hflex="1" id="lb_eaav0_fee" value="Fee/Session"><custom-attributes tlkey="lb_eaav0_fee"></custom-attributes></label>
+			<hbox>
+				<doublebox id="eaav0_fee"/>
+				<space></space>
+				<label hflex="1" id="lb_eaav0_coursefee" value="Fee/Sessions"><custom-attributes tlkey="lb_eaav0_coursefee"></custom-attributes></label>
+				<doublebox id="eaav0_coursefee"/>
+			</hbox>
+			
+		</row>
+		<row>
+			<label hflex="1" id="lb_tkccy_name" value="Token Name"><custom-attributes tlkey="lb_tkccy_name"></custom-attributes></label>
+			<hbox>
+				<combobox width="200px" id="tkccy_name"></combobox>
+				<space></space>
+				<textbox id="eaav0_tokenccy"/>
+			</hbox>
+		</row>
+		
+		
+		<row visible="false">
+			<label hflex="1" id="lb_eaav0_esfcrg" value="eaav0_esfcrg"><custom-attributes tlkey="lb_eaav0_esfcrg"></custom-attributes></label>
+			<intbox id="eaav0_esfcrg"/>
+		</row>
+		<row>
+			<label hflex="1" id="lb_esfc_name" value="Facility"><custom-attributes tlkey="lb_esfc_name"></custom-attributes></label>
+			<!-- <s2listbox id="esfc_name"/> -->
+			<combobox id="esfc_name"/>
+		</row>
+		<row visible="false">
+			<label hflex="1" id="lb_eaav0_esttrg" value="eaav0_esttrg"><custom-attributes tlkey="lb_eaav0_esttrg"></custom-attributes></label>
+			<intbox id="eaav0_esttrg"/>
+		</row>
+		<row>
+			<label hflex="1" id="lb_estt_name" value="Tutor"><custom-attributes tlkey="lb_estt_name"></custom-attributes></label>
+			<!-- <s2listbox id="estt_name"/> -->
+			<combobox id="estt_name"/>
+		</row>
+		<row>
+			<label hflex="1" id="lb_eaav0_coursetype" value="Course Type"><custom-attributes tlkey="lb_eaav0_coursetype"></custom-attributes></label>
+			<combobox id="eaav0_coursetype"/>
+		</row>
+		<row>
+			<label hflex="1" id="lb_eaav0_allowrem" value="Payment Reminder"><custom-attributes tlkey="lb_eaav0_allowrem"></custom-attributes></label>
+			<radiogroup id="eaav0_allowrem"/>
+		</row>
+		<row>
+			<label hflex="1" id="lb_eaav0_comments" value="Comments"><custom-attributes tlkey="lb_eaav0_comments"></custom-attributes></label>
+			<textbox id="eaav0_comments" rows="3"/>
+		</row>
+		<!--
+		<row spans="2">
+			<div>
+				<listbox id="list_edu_CourseSessionDet"/>	
+			</div>
+		</row>
+		<row spans="2">
+			<div>
+				<listbox id="list_edu_CourseStudent"/>	
+			</div>
+		</row>
+		-->
+	</rows>
+</grid>
+<separator spacing="10px"></separator>
+<tabbox>
+    <tabs>
+        <tab id="tab1" label="Session and Student" />
+        <tab id="tab2" label="Documents" />
+    </tabs>
+    <tabpanels>
+        <tabpanel>
+			<div>
+				<listbox id="list_edu_CourseSessionDet" height="200px"/>
+			</div>
+			<separator spacing="10px"></separator>
+			<div>
+				<listbox id="list_edu_CourseStudent">	
+					<custom-attributes composite="map" tttMap="essbsd_sessoffset='Initial Session Number adjustment'" ></custom-attributes>
+				</listbox>
+			</div>
+        </tabpanel>
+        <tabpanel>
+			<div>
+				<listbox id="list_edu_CourseDoc"/>	
+			</div>
+			<separator spacing="2px"></separator>
+			<div id="zkDropzone" style="border: dashed 2px #beefbe; background:#f3fff6;">
+				<h:div id="jsDropzone" class="dropzone" style="border:none;background:inherit;">
+					<h:div class="dz-message data-dz-message"><h:span>Drop files here or click to upload</h:span><h:br/><h:span style="font-style: italic;color:red;">*Do not detect QR code</h:span></h:div>
+				</h:div>
+			</div>       
+        </tabpanel>
+    </tabpanels>
+</tabbox>
+<template name="template_MarkAttendance">
+	<toolbarbutton id="btMarkAttendance" iconSclass="z-icon-pencil-square-o" sclass="narrowtoolbarbutton" Tooltiptext="Mark Attendance" />
+</template>
+<template name="template_CourseStudent_SessionNoOffset">
+	<spinner id="essbsd_sessoffset" constraint="no empty,min 0 max 100" instant="true" />
+</template>
+</zk>

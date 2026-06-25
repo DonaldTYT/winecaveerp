@@ -1,0 +1,112 @@
+<%@ page language="java" pageEncoding="utf-8" contentType="text/html;charset=utf-8"%>
+<%@ page import="java.util.*, com.uniinformation.utils.*, com.uniinformation.webcore.*" %>
+
+<%!
+  // Helper to safely inject strings into JavaScript
+  private String jsEscape(String s) {
+    if (s == null) return "";
+    return s.replace("\\", "\\\\")
+            .replace("\"", "\\\"")
+            .replace("\n", "\\n")
+            .replace("\r", "");
+  }
+%>
+
+<%
+  // ---- Headers ----
+  response.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
+  response.setHeader("Pragma", "no-cache");
+  response.setHeader("Expires", "0");
+  response.setHeader("Vary", "Accept-Language, User-Agent");
+
+  // Language
+  Locale reqLocale = request.getLocale();
+  String pageLang = (reqLocale != null ? reqLocale.toLanguageTag() : "en");
+  if (pageLang == null || pageLang.isEmpty()) pageLang = "en";
+  response.setHeader("Content-Language", pageLang);
+
+  // Server-side hints
+  String ip   = request.getRemoteAddr();
+  String xff  = request.getHeader("X-Forwarded-For");
+  String cfIP = request.getHeader("CF-Connecting-IP");
+
+  // Session logic
+  SessionHelper sessionHelper = ZkSessionHelper.getSessionHelper(request, response);
+  String homePage  = sessionHelper.getWebPageHome();
+  boolean isLogged = sessionHelper.isLogin();
+  String loginPage = sessionHelper.getWebPageLogin();
+  if (loginPage == null || loginPage.trim().isEmpty()) loginPage = "login.html";
+
+  // Decide target
+  String targetUrl;
+  if (homePage != null && !homePage.isEmpty() && !isLogged) {
+    targetUrl = homePage;
+  } else {
+    targetUrl = loginPage;
+  }
+
+  // Preserve original query string
+  String originalQS = request.getQueryString();
+  String qsPrefix = (targetUrl.contains("?") ? "&" : "?");
+  String qs = (originalQS != null && !originalQS.isEmpty()) ? (qsPrefix + originalQS) : "";
+
+  // Context path for telemetry
+  String ctx = request.getContextPath(); // "" if ROOT, else "/gamedev" etc.
+%>
+
+<!DOCTYPE html>
+<html lang="<%= pageLang %>">
+<head>
+  <meta charset="utf-8" />
+  <meta http-equiv="Content-Language" content="<%= pageLang %>">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
+  <title><%= jsEscape(sessionHelper.getWebPageTitle()) %></title>
+</head>
+<body>
+<script>
+(function () {
+  var telemetry = {
+    ts: new Date().toISOString(),
+    currentUrl: location.href,
+    referrer: document.referrer || null,
+    pageLang: document.documentElement.lang || null,
+    uiLanguage: navigator.language || null,
+    userAgent: navigator.userAgent,
+    ipHint: "<%= jsEscape(ip) %>",
+    forwardedFor: "<%= jsEscape(xff) %>",
+    cfConnectingIP: "<%= jsEscape(cfIP) %>"
+  };
+
+  var payload = JSON.stringify(telemetry);
+  var blob = new Blob([payload], { type: 'application/json' });
+
+  var telemetryUrl = "<%= jsEscape(ctx) %>/telemetry";  // dynamic context path
+
+  var sent = false;
+  if (navigator.sendBeacon) {
+    sent = navigator.sendBeacon(telemetryUrl, blob);
+  }
+  if (!sent) {
+    try {
+      fetch(telemetryUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: payload,
+        keepalive: true
+      });
+    } catch (e) {}
+  }
+
+  // Redirect
+  var target = "<%= jsEscape(targetUrl) %>";
+  var qs = "<%= jsEscape(qs) %>";
+  window.location.replace(target + qs);
+})();
+</script>
+
+<noscript>
+  <meta http-equiv="refresh" content="0;url=<%= jsEscape(targetUrl) %><%= jsEscape(qs) %>">
+</noscript>
+</body>
+</html>

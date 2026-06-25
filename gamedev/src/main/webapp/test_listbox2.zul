@@ -1,0 +1,13 @@
+<zk>
+<div width="500px">
+	<listbox id="listbox" mold="select" width="200px">
+		<listitem image="images/Add_24x24.png" label="Item 1" style="color:red;"/>
+		<listitem image="images/Add_24x24.png" label="Item 2" />
+		<listitem>
+			<listcell>
+				<label>Item 3</label>
+			</listcell>
+		</listitem>
+	</listbox>
+</div>
+</zk>

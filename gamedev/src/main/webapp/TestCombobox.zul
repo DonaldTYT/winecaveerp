@@ -1,0 +1,37 @@
+<zk>
+<style src="css/font-awesome-4.7.0/css/font-awesome.min.css"/>
+<window xmlns:w="http://www.zkoss.org/2005/zk/client" >
+<zscript>
+void doSave1(){ 
+	Messagebox.show("doSave1"); 
+	alert("doSave1"); 
+}
+</zscript>
+
+<script type="text/javascript"><![CDATA[
+	function doSave2() {
+	   alert('doSave2');
+	}
+]]></script>
+
+<vbox>
+<combobox readonly="true">
+    <comboitem label="Simple and Rich"/>
+    <comboitem label="Cool!"/>
+    <comboitem label="Ajax and RIA"/>
+</combobox>
+
+<button width="200px" height="100px" label="HAHA1" sclass="fa fa-sign-in fa-4x"/>
+<button width="200px" height="100px" label="HAHA2" sclass="fa fa-sign-in fa-4x" style="font-size:50px"/>
+<button width="200px" height="100px" label="HAHA3" iconSclass="z-icon-sign-in fa-4x" style="font-size:50px"/>
+
+<button iconSclass="z-icon-home fa-1x fa-rotate-90" />
+<button iconSclass="z-icon-home fa-2x fa-rotate-90" />
+
+<button label="doSave1" iconSclass="z-icon-reorder" onClick="doSave1()"/>
+<button label="doSave2" iconSclass="z-icon-reorder" w:onClick="doSave2()"/>
+<button label="alert" iconSclass="z-icon-reorder" w:onClick="alert('haha');window.location='http://www.google.com'"/>
+
+</vbox>
+</window>
+</zk>

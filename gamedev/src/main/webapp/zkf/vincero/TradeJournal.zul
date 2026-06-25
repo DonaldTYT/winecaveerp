@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<zk>
+    <style>
+        /* Align text to the top for the second column */
+        .custom-listbox .z-listcell {
+            vertical-align: top !important;
+        }
+    </style>
+
+
+    <window title="Monthly Trading Journal" border="normal" width="1500px">
+        <hlayout width="1500px" spacing="10px">
+            
+            <!-- Left: Month Trading Statistics -->
+            <vlayout width="350px" style="border:2px solid black; background-color:#FF8C00; padding:10px;">
+                <label value="Month Trading Statistics" 
+                       style="font-weight:bold; font-size:16px; color:black;"/>
+
+                <grid width="100%" style="background-color:#FFA500;">
+                    <rows>
+                        <row>
+                            <label value="Starting Balance:"/>
+                            <doublebox value="10000.00" readonly="true" width="100px"/>
+                        </row>
+                        <row>
+                            <label value="Current Balance:"/>
+                            <doublebox value="10100.00" readonly="true" width="100px"/>
+                        </row>
+                        <row>
+                            <label value="Profit / Loss:"/>
+                            <doublebox value="100.00" readonly="true" width="100px"/>
+                        </row>
+                        <row>
+                            <label value="% Gain:"/>
+                            <doublebox value="1.00" readonly="true" width="100px"/>
+                        </row>
+                        <row>
+                        <separator/>
+                        </row>
+                        <row>
+                            <label value="Total Trades:"/>
+                            <intbox value="2" readonly="true" width="100px"/>
+                        </row>
+                        <row>
+                            <label value="Winning Trades:"/>
+                            <intbox value="1" readonly="true" width="100px"/>
+                        </row>
+                        <row>
+                            <label value="Losing Trades:"/>
+                            <intbox value="1" readonly="true" width="100px"/>
+                        </row>
+                        <row>
+                            <label value="Breakeven Trades:"/>
+                            <intbox value="0" readonly="true" width="100px"/>
+                        </row>
+                        <row>
+                        <separator/>
+                        </row>
+                        <row>
+                            <label value="% Winning Trades:"/>
+                            <doublebox value="50.00" readonly="true" width="100px"/>
+                        </row>
+                        <row>
+                            <label value="Average Win:"/>
+                            <doublebox value="350.00" readonly="true" width="100px"/>
+                        </row>
+                        <row>
+                            <label value="Average Loss:"/>
+                            <doublebox value="-250.00" readonly="true" width="100px"/>
+                        </row>
+                    </rows>
+                </grid>
+            </vlayout>
+            
+            <!-- Right: Trade Details Table -->
+            <vlayout width="1100px">
+                <label value="Trade Details" 
+                       style="font-weight:bold; font-size:16px; background-color:#FF8C00; color:black; padding:5px; display:block; text-align:center;"/>
+
+                <listbox class="custom-listbox" width="1100px" mold="paging" pageSize="5">
+                    <listhead>
+                        <listheader label="Date" width="100px"/>
+                        <listheader label="Pair" width="100px"/>
+                        <listheader label="Entry" width="100px"/>
+                        <listheader label="Exit" width="100px"/>
+                        <listheader label="Buy/Sell" width="100px"/>
+                        <listheader label="$ P/L" width="100px"/>
+                        <listheader label="Setup Timeframe" width="100px"/>
+                        <listheader label="Time Taken" width="100px"/>
+                        <listheader label="Reason for Trade" width="200px"/>
+                        <listheader label="Comments" width="200px"/>
+                    </listhead>
+                    <listitem>
+                        <listcell><textbox value="1-Jan-20" width="100px"/></listcell>
+                        <listcell><textbox value="GBPUSD" style="color:red; font-weight:bold;" width="100px"/></listcell>
+                        <listcell><doublebox value="1.2850" width="100px"/></listcell>
+                        <listcell><doublebox value="1.3000" width="100px"/></listcell>
+                        <listcell><textbox value="Buy" width="100px"/></listcell>
+                        <listcell><label value="$350.00" style="color:green;" width="100px"/></listcell>
+                        <listcell><textbox value="Daily" width="100px"/></listcell>
+                        <listcell><textbox value="9am HKT" width="100px"/></listcell>
+                        <listcell>
+                            <textbox value="EXAMPLE ONLY. Fundamentals: UK economy recovering from COVID. GDP growth trending upwards and unemployment is reducing. BOE signaling no further rate cuts. Technicals: Uptrend, bouncing off daily horizontal zone with bullish confluence." 
+                                      width="200px" rows="3" multiline="true"/>
+                        </listcell>
+                        <listcell>
+                            <textbox value="EXAMPLE ONLY. Winning Trade. I remained calm to let profits run. I moved SL to entry at 1:1 which protected my profits. I can improve by not constantly checking on the chart throughout the day." 
+                                      width="200px" rows="3" multiline="true"/>
+                        </listcell>
+                    </listitem>
+                    <listitem>
+                        <listcell><textbox value="1-Jan-20" width="100px"/></listcell>
+                        <listcell><textbox value="AUDUSD" style="color:red; font-weight:bold;" width="100px"/></listcell>
+                        <listcell><doublebox value="0.7300" width="100px"/></listcell>
+                        <listcell><doublebox value="0.7250" width="100px"/></listcell>
+                        <listcell><textbox value="Buy" width="100px"/></listcell>
+                        <listcell><label value="-$250.00" style="color:red;" width="100px"/></listcell>
+                        <listcell><textbox value="Daily" width="100px"/></listcell>
+                        <listcell><textbox value="10.30am HKT" width="100px"/></listcell>
+                        <listcell>
+                            <textbox value="EXAMPLE ONLY. Fundamentals: AU economy improving as inflation is growing and unemployment is trending lower. Stock market is moving higher which shows risk-on sentiment. Technicals: Bouncing from daily zone with bullish confluence." 
+                                      width="200px" rows="3" multiline="true"/>
+                        </listcell>
+                        <listcell>
+                            <textbox value="EXAMPLE ONLY. Losing Trade. I was scared and let emotions take over when my trade was losing money. I must follow the strategy and not let emotions dictate my actions." 
+                                      width="200px" rows="3" multiline="true"/>
+                        </listcell>
+                    </listitem>
+                </listbox>
+            </vlayout>
+        </hlayout>
+
+        <separator/>
+
+        <!-- Monthly Summary and Notes -->
+        <vlayout width="1500px" style="border:2px solid black; background-color:#FF8C00; padding:10px;">
+            <label value="Monthly Summary and Notes" 
+                   style="font-weight:bold; font-size:16px; color:black;"/>
+            <textbox width="100%" rows="4" multiline="true" 
+                     value="Write a summary of how the month went... mistakes made and what you can improve on."/>
+        </vlayout>
+    </window>
+</zk>

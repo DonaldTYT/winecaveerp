@@ -1,0 +1,4 @@
+<?page title="Auto Generated index.zul"?>
+<zk>
+<window id="zkbibrowser" border="none" apply="com.uniinformation.zkbi.ZkBiComposerBiTable"/>
+</zk>

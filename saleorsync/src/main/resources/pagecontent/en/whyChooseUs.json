@@ -1,0 +1,32 @@
+{
+  "intro": {
+    "tag": "The Story Behind Every Pour",
+    "title": "Why Choose Our Cellar",
+    "desc": "Lorem ipsum dolor sit amet, ut essent ornatus antiopam eum, ex oblique mnesarchum reprimique has. No vel prima offendit.",
+    "cta": "Buy Wine"
+  },
+  "s1": {
+    "tag": "Best Quality",
+    "title": "Why Choose Our Wine<br />Management Solutions?",
+    "paras": [
+      "At Wine Cave, we provide comprehensive and professional wine management services designed to  preservethe value of every bottle and to assist our clients with ease.",
+      "Our commitment to excellence ensures that each collection is handled with care, precision, and passion.",
+      ""
+    ],
+    "ctaLearnMore": "Learn More",
+    "ctaContact": "Contact Wine Cave"
+  },
+  "s2": {
+    "tag": "Crafted Strategies for Timeless Tastes",
+    "title": "Why Choose Us",
+    "desc": "Established since 2011, we are a trusted and comprehensive solution for wine collectors, investors, and enthusiasts in Hong Kong and beyond.",
+    "features": [
+      "Certified Warehouse & Trusted Storage",
+      "24/7 Online Consignment Platform",
+      "Global Delivery & Logistics",
+      "Personalized Customer Support",
+      "Active Industry Engagement",
+      "Backed by a Public Listed Company"
+    ]
+  }
+}

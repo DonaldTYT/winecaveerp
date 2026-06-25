@@ -1,0 +1,102 @@
+<zk xmlns:n="native">
+<style dynamic="true">
+	button.z-button.hasrecord {
+		background: MediumSeaGreen !important;
+	}
+	button.z-button.content {
+	    width: 50px;
+   		height: 50px;
+   		min-width: 50px !important;
+   		border-radius: 8px !important;
+	    background: white !important;
+	    border: 2px solid black;
+	    padding: 6px;
+	    color: black;
+   		font-size: 18pt !important;
+	}
+	button.z-button.content img.z-button-image  {
+		width: 100%;
+		height: 100%;
+		max-width: initial;
+		max-height: initial;
+	}
+	.input_mbvl span.z-label,
+	.input_mbvl input.z-textbox,
+	.input_mbvl textarea.z-textbox {
+		font-size: 12pt !important;
+	}
+</style>
+<script>
+<![CDATA[
+	const textArea = (() => {
+		let $textarea;
+		let lastCursorPosition;
+		const init = (p_uuid) => {
+			lastCursorPosition = [0, 0];
+			$textarea = $("#" + p_uuid);
+			$textarea.on("blur", (event) => {
+				lastCursorPosition = [event.target.selectionStart, event.target.selectionEnd];
+				//console.log("blur", lastCursorPosition);
+			});
+		};
+		const insertText = (text) => {
+			const currentValue = $textarea.val();
+        	const beforeText = currentValue.substring(0, lastCursorPosition[0]);
+        	const afterText = currentValue.substring(lastCursorPosition[1]);
+                
+        	$textarea.val(beforeText + text + afterText);
+               
+        	const newPosition = lastCursorPosition[0] + text.length;
+        	$textarea[0].setSelectionRange(newPosition, newPosition);
+                
+        	$textarea.focus();
+     	}
+		return {init: init, insertText: insertText};
+	})();
+]]>
+</script>
+<template name="inputTemplate">
+	<vlayout width="calc(100% - 20px)" height="calc(100vh - 120px)" style="margin-left:10px" sclass="input_mbvl">
+		<hlayout>
+			<label>議程標題：</label>
+			<label id="lbTopicTitle"/>
+		</hlayout>
+		<hlayout valign="bottom" hflex="1">
+			<label>內容：</label>
+			<space hflex="1"/>
+			<hlayout>
+				<button id="btVoteYNA" sclass="content" image="images/icons/propmgmtpro/vote_yna.svg"/>
+				<space width="10px"/>
+				<button id="btVoteMY" sclass="content" image="images/icons/propmgmtpro/vote_my.svg"/>
+				<space width="10px"/>
+				<button id="btVoteSY" sclass="content" image="images/icons/propmgmtpro/vote_sy.svg"/>
+				<space width="10px"/>
+				<button id="btVoteNA" sclass="content" image="images/icons/propmgmtpro/vote_na.svg"/>
+				<space width="50px"/>
+				<button id="btVoteLine" sclass="content" label="--"/>
+			</hlayout>
+		</hlayout>
+		<textbox id="tbContent" multiline="true" hflex="1" vflex="1" style="max-width:800px;resize:none;line-height:18pt" />
+		<separator height="5px"/>
+		<hlayout hflex="1">
+			<label>備註：</label>
+			<textbox id="tbRemark" hflex="1"/>
+		</hlayout>
+		<separator height="5px"/>
+		<hlayout hflex="1">
+			<label>說明：</label>
+			<button sclass="content" image="images/icons/propmgmtpro/vote_yna.svg" style="pointer-events: none"/>
+			<label hflex="1" style="display:inline-block;margin-top:10px;margin-left:10px">□贊成　反對　□棄權</label>
+			<button sclass="content" image="images/icons/propmgmtpro/vote_my.svg" style="pointer-events: none"/>
+			<label hflex="1" style="display:inline-block;margin-top:10px;margin-left:10px">□多選贊成</label>
+		</hlayout>
+		<hlayout hflex="1">
+			<label style="opacity:0">說明：</label>
+			<button sclass="content" image="images/icons/propmgmtpro/vote_sy.svg" style="pointer-events: none"/>
+			<label hflex="1" style="display:inline-block;margin-top:10px;margin-left:10px">□單選贊成</label>
+			<button sclass="content" image="images/icons/propmgmtpro/vote_na.svg" style="pointer-events: none"/>
+			<label hflex="1" style="display:inline-block;margin-top:10px;margin-left:10px">□統一反對　□統一棄權</label>
+		</hlayout>
+	</vlayout>
+</template>
+</zk>

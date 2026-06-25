@@ -1,0 +1,29 @@
+<zk>
+<grid style="text-align:left;" id="detail_grid">
+	<columns>
+		<column align="right" width="250px"/>
+		<column hflex="1"/>
+	</columns>
+	<rows>
+		<row>
+			<label sclass="zkbi-col-label" hflex="1" id="lb_bitl_key" value="Key"><custom-attributes tlkey="bitl_key"></custom-attributes></label>
+			<textbox id="bitl_key"/>
+		</row>
+		<row>
+			<label sclass="zkbi-col-label" hflex="1" id="lb_bitl_type" value="Type"><custom-attributes tlkey="bitl_type"></custom-attributes></label>
+			<!-- <combobox width="200px" id="bitl_type"/> -->
+			<!-- <listbox mold="select" and rows="1" width="200px" id="bitl_type"/> -->
+			<s2listbox id="bitl_type" width="200px"/>	
+		</row>
+		<row>
+			<label sclass="zkbi-col-label" hflex="1" id="lb_bitl_lang" value="Language"><custom-attributes tlkey="bitl_lang"></custom-attributes></label>
+			<!-- <combobox width="200px" id="bitl_lang"/> -->
+			<s2listbox width="200px" id="bitl_lang"/>
+		</row>
+		<row>
+			<label sclass="zkbi-col-label" hflex="1" id="lb_bitl_labelstr" value="Content"><custom-attributes tlkey="bitl_labelstr"></custom-attributes></label>
+			<textbox id="bitl_labelstr" placeholder="Leave blank for default"/>
+		</row>
+	</rows>
+</grid>
+</zk>

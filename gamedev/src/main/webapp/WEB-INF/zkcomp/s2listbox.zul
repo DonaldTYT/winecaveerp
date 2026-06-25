@@ -1,0 +1,3 @@
+<zk xmlns:n="native">
+	<listbox id="comp" mold="select"> <custom-attributes select2-enable="Y"></custom-attributes> </listbox>
+</zk>

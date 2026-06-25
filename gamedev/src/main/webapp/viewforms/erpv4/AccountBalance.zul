@@ -1,0 +1,48 @@
+<zk>
+<style dynamic="true">
+<!-- cut/hide the vertical borders in the grid rows -->
+.gridLayoutNoBorder tr.z-row td.z-row-inner, tr.z-row .z-cell,div.z-grid { 
+	border: none; 
+	<!--   overflow: hidden;  -->
+	<!--   zoom: 1;  --> <!-- andrew remark: do not use zoom -->
+	<!--   background:#f8f8f8 !important;  --> <!-- remove hover -->
+	background:white !important;  <!-- remove hover -->
+	border-top: none; 
+	border-left: none; 
+	border-right: none; 
+	border-bottom: none; 
+} 
+</style>
+	<listbox sclass="zkbi-linkcomp-listbox">
+	</listbox>
+	<toolbar id="detail_toolbar" align="end"> </toolbar>
+	<div height="20px"/>
+	<grid style="text-align:left;border: 1px solid #ececec; border-bottom: none;" id="detail_grid" sclass="gridLayoutNoBorder">
+	</grid>
+	<listbox id="list_erpv4_JnDetail" height="550px">
+		<listhead>
+		</listhead>
+    	<auxhead zclass="z-listbox-footer">
+        	<auxheader zclass="z-listbox-footer" colspan="4"><div style="text-align:right;padding:4px 5px;">B/F</div></auxheader>
+        	<auxheader zclass="z-listbox-footer" colspan="1"></auxheader>
+        	<auxheader zclass="z-listbox-footer" colspan="2"></auxheader>
+        	<auxheader zclass="z-listbox-footer"><div style="text-align:right;padding:4px 5px;"><label id="bls_begbal"></label></div></auxheader>
+        	<auxheader zclass="z-listbox-footer" colspan="2"></auxheader>
+        	<auxheader zclass="z-listbox-footer"><div style="text-align:right;padding:4px 5px;"><label id="bls_lbegbal"></label></div></auxheader>
+    	</auxhead>
+	   <listfoot>
+        <listfooter zclass="z-listbox-footer" span="4"><div style="text-align:right;padding:4px 5px;">C/F</div></listfooter>
+        <listfooter zclass="z-listbox-footer"><div style="text-align:right;padding:4px 5px;"></div></listfooter>
+        <listfooter zclass="z-listbox-footer"><div style="text-align:right;padding:4px 5px;"><label id="bl_debitamt"/></div></listfooter>
+        <listfooter zclass="z-listbox-footer"><div style="text-align:right;padding:4px 5px;"><label id="bl_creditamt"/></div></listfooter>
+        <listfooter zclass="z-listbox-footer"><div style="text-align:right;padding:4px 5px;"><label id="bl_endbal"/></div></listfooter>
+        <listfooter zclass="z-listbox-footer"><div style="text-align:right;padding:4px 5px;"><label id="bl_ldebitamt"/></div></listfooter>
+        <listfooter zclass="z-listbox-footer"><div style="text-align:right;padding:4px 5px;"><label id="bl_lcreditamt"/></div></listfooter>
+        <listfooter zclass="z-listbox-footer"><div style="text-align:right;padding:4px 5px;"><label id="bl_lendbal"/></div></listfooter>
+       </listfoot>
+	</listbox>
+	<!--
+	<div height = "100px">
+	</div>
+	-->
+</zk>

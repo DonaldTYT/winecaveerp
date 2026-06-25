@@ -1,0 +1,108 @@
+<zk>
+<style>
+.econtainer {
+	display: flex;
+	display: -webkit-flex;
+	flex-direction: column;
+	-webkit-flex-direction: column;
+}
+.buttonrow {
+	display: inline-flex;
+	display: -webkit-inline-flex;
+	justify-content: flex-end;
+	-webkit-justify-content: flex-end;
+}
+.itemrow {
+	display: inline-flex;
+	display: -webkit-inline-flex;
+	flex-direction: row;
+	-webkit-flex-direction: row;
+}
+.itemrow .textlabel {
+	width: 60px;
+	flex-shrink: 0;
+	-webkit-flex-shrink: 0;
+}
+.itemrow .inputelement,
+.itemrow .select2 {
+	flex-grow: 1;
+	-webkit-flex-grow: 1;
+}
+</style>
+<window class="zkbi-form zkbi-main-window" id="winMain" title="" border="none" apply="com.uniinformation.jxapp.edu.JxZkNoticeEmail">
+	<label sclass="zkbi-form-header" id="lbHeader" value="Notice Email"></label>
+	<div class="econtainer">
+
+		<div class="buttonrow">
+			<button id="btEmail" label="Send Email"/>
+		</div>
+		<space height="10px"/>
+
+		<div class="itemrow">
+			<label class="textlabel" value="From:"/>
+			<textbox class="inputelement" style="max-width:300px" id="tbEmailFrom" readonly="true" />
+			<checkbox id="cbEmailTo" label="To" mold="switch" style="margin-left:10px"/>
+			<checkbox id="cbEmailCc" label="Cc" mold="switch" style="margin-left:10px"/>
+			<checkbox id="cbEmailBcc" label="Bcc" mold="switch" style="margin-left:10px"/>
+		</div>
+		<space height="10px"/>
+
+		<div class="itemrow" id="divEmailTo" style="margin-bottom:5px">
+			<label class="textlabel" value="To:"/>
+			<textbox class="inputelement" id="tbEmailTo" placeholder="Please input recipient address" multiline="true" rows="3" />
+		</div>
+		<div class="itemrow" id="divEmailTo1" style="margin-bottom:10px">
+			<space class="textlabel"/>
+			<s2listbox id="s2EmailTo"/>
+		</div>
+		
+		<div class="itemrow" id="divEmailCc" style="margin-bottom:5px">
+			<label class="textlabel" value="Cc:"/>
+			<textbox class="inputelement" id="tbEmailCc" placeholder="Please input recipient address" multiline="true" rows="3" />
+		</div>
+		<div class="itemrow" id="divEmailCc1" style="margin-bottom:10px">
+			<space class="textlabel"/>
+			<s2listbox id="s2EmailCc"/>
+		</div>
+
+		<div class="itemrow" id="divEmailBcc" style="margin-bottom:5px">
+			<label class="textlabel" value="Bcc:"/>
+			<textbox class="inputelement" id="tbEmailBcc" placeholder="Please input recipient address" multiline="true" rows="3" />
+		</div>
+		<div class="itemrow" id="divEmailBcc1" style="margin-bottom:10px">
+			<space class="textlabel"/>
+			<s2listbox id="s2EmailBcc"/>
+		</div>
+
+		<div class="itemrow" style="margin-bottom:10px">
+			<space class="textlabel"/>
+			<checkbox id="cbOnlyUseFirstAddr" label="Use primary email address only" tooltiptext="When student has more that one email address, only send to first email address." mold="switch"/>
+		</div>
+
+		<div class="itemrow">
+			<label class="textlabel" value="Subject:"/>
+			<textbox class="inputelement" id="tbEmailSubject" placeholder="Please input subject" />
+		</div>
+		<space height="10px"/>
+
+		<ckeditor id="ckEmailContent" height="300px" width="100%" customConfigurationsPath="/js/zkckeditor_config.js" toolbar="Simple1" />
+		<space height="10px"/>
+		
+		<vbox id="vbAttachment">
+		</vbox>
+		<space height="10px"/>
+
+		<hbox width="100%">
+			<label value="Attachment"/>
+			<toolbarbutton id="btAttachment" iconSclass="z-icon-paperclip" sclass="narrowtoolbarbutton" style="color:#444!important" tooltiptext="Add attachment"/>
+			<space/>
+			<label id="lbAddLoginLink" value="Add Login Link"/>
+			<toolbarbutton id="btAddLoginLink" iconSclass="z-icon-link" sclass="narrowtoolbarbutton" style="color:#444!important" tooltiptext="Add Login Link"/>
+			<space/>
+			<label id="lbAddReplySlipLink" value="Add ReplySlip Link"/>
+			<toolbarbutton id="btAddReplySlipLink" iconSclass="z-icon-link" sclass="narrowtoolbarbutton" style="color:#444!important" tooltiptext="Add ReplySlip Link"/>
+		</hbox>
+	</div>
+	<div class="zkbi-editing-msg" style="display:none;position:fixed;top:0;right:0;">Editing Record</div>
+</window>
+</zk>

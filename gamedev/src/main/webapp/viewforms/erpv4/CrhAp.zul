@@ -1,0 +1,115 @@
+<zk>
+<style dynamic="true">
+<!-- cut/hide the vertical borders in the grid rows -->
+.gridLayoutNoBorder tr.z-row td.z-row-inner, tr.z-row .z-cell,div.z-grid { 
+	border: none; 
+	<!--   overflow: hidden;  -->
+	<!--   zoom: 1;  --> <!-- andrew remark: do not use zoom -->
+	<!--   background:#f8f8f8 !important;  --> <!-- remove hover -->
+	background:white !important;  <!-- remove hover -->
+	border-top: none; 
+	border-left: none; 
+	border-right: none; 
+	border-bottom: none; 
+} 
+</style>
+	<toolbar id="detail_toolbar" align="end"> </toolbar>
+	<div height="20px"/>
+	<grid style="text-align:left;border: 1px solid #ececec; border-bottom: none;" id="detail_grid" sclass="gridLayoutNoBorder">
+	</grid>
+	<div height="30px">
+	</div>
+	<listbox id="list_erpv4_CrdAr">
+	   <listfoot>
+        	<listfooter zclass="z-listbox-footer" span="8"><div style="text-align:right;padding:4px 5px;">
+				<label id="lb_crh_liamount"><custom-attributes tlkey="crh_liamount"></custom-attributes></label>
+        	</div></listfooter>
+        	<listfooter zclass="z-listbox-footer">
+        		<div style="text-align:right;padding:4px 5px;">
+        			<label id="crh_liamount"></label>
+        		</div>
+       		</listfooter>
+       </listfoot>
+	</listbox>
+	<div height="30px">
+	</div>
+	<listbox id="list_erpv4_CrdArAc">
+		<listhead>
+		</listhead>
+    	<auxhead zclass="z-listbox-footer" height="50px">
+        	<auxheader zclass="z-listbox-footer" colspan="1"><div style="text-align:right;padding:4px 5px;"></div></auxheader>
+        	<auxheader zclass="z-listbox-footer">
+        		<div style="padding:4px 5px;">
+        		<!--
+        		<combobox id="ca_ano"></combobox>
+        		-->
+        		<s2listbox id="ca_ano" width="350px"></s2listbox>
+        		</div>
+        	</auxheader>
+        	<auxheader zclass="z-listbox-footer">
+        		<hlayout>
+	        		<div style="padding:4px 5px;"><label id="ca_cname"></label></div>
+        			<label>Chq#</label>
+        			<textbox id="crh_check"/>
+        			<div width="10px"/>
+        			<label>Bank</label>
+        			<textbox id="crh_bank"/>
+        		</hlayout>
+       		</auxheader>
+        	<auxheader zclass="z-listbox-footer">
+        		<hlayout>
+        			<textbox id="crhd_desc"/>
+        		</hlayout>
+        	<!-- 
+        		<hlayout>
+        			<label>Chq#</label>
+        			<textbox id="crh_check"/>
+        			<div width="10px"/>
+        			<label>Bank</label>
+        			<textbox id="crh_bank"/>
+        		</hlayout>
+        	 -->
+        	</auxheader>
+        	<auxheader zclass="z-listbox-footer">
+        		<div style="padding:4px 5px;">
+        		<combobox id="cc_cid" width="70px"></combobox>
+        		</div>
+        		</auxheader>
+        	<auxheader zclass="z-listbox-footer">
+        		<div style="text-align:right;padding:4px 5px;">
+        		<doublebox id="crh_amount" width="125px"></doublebox>
+        		</div>
+        	</auxheader>
+        	<auxheader zclass="z-listbox-footer">
+        		<div style="text-align:right;padding:4px 5px;">
+        		<!-- 
+        		<label id="crh_xrate"></label>
+        		 -->
+        		<doublebox id="crh_xrate"></doublebox>
+        		</div>
+        	</auxheader>
+        	<auxheader zclass="z-listbox-footer">
+        		<div style="text-align:right;padding:4px 5px;">
+        		<doublebox id="crh_lamount"></doublebox>
+        		</div>
+        	</auxheader>
+    	</auxhead>
+	   <listfoot>
+        	<listfooter zclass="z-listbox-footer" span="7">
+        		<div style="text-align:right;padding:4px 5px;">
+				<label id="lb_crh_netdrcr"><custom-attributes tlkey="crh_netdrcr"></custom-attributes></label>
+        		</div>
+        	</listfooter>
+        	<!--
+        	<listfooter zclass="z-listbox-footer"><doublebox id="crh_netdrcr"></doublebox></listfooter>
+        	-->
+        	<listfooter zclass="z-listbox-footer">
+        		<div style="text-align:right;padding:4px 5px;">
+        		<label id="crh_netdrcr"></label>
+        		</div>
+        	</listfooter>
+       </listfoot>
+	</listbox>
+	<div height = "100px">
+	</div>
+</zk>

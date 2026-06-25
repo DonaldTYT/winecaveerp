@@ -1,0 +1,24 @@
+<zk>
+<zscript><![CDATA[  
+	public void doResize() { 
+        visNwEventDiv.invalidate();
+        Events.sendEvent(new Event("onSize", visNwEventDiv, null));
+	};
+]]></zscript>
+<vlayout xmlns:h="native">
+<grid style="text-align:left;" id="detail_grid"> </grid>
+<listbox id="list_wip_WfmJobTask"> </listbox>
+<hlayout style="background-color:#D9D9D9;">
+	<toolbarbutton id="btAddLink" label="Add Arrow" disabled="true" mode="toggle" width="100px"></toolbarbutton>
+    <toolbarbutton id="btDelLink" label="Delete Arrow" disabled="true" width="100px"></toolbarbutton>
+    <toolbarbutton id="btRedraw" label="Redraw" width="100px"></toolbarbutton>
+    <toolbarbutton id="btCreateJob" label="Create Job" width="100px"></toolbarbutton>
+</hlayout>
+<div id="visNwEventDiv" hflex="1" height="100px"> 
+	<h:div style="width:100%; height:90%;" id="visNwContentDiv"></h:div>
+</div>
+<div>
+	<div id="propertyPanel"></div>
+</div>
+</vlayout>
+</zk>

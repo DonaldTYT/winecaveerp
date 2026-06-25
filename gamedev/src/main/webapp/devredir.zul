@@ -1,0 +1,120 @@
+<?page title="PIN Keypad" contentType="text/html;charset=UTF-8"?>
+<window id="root" title="PIN Entry" border="normal"
+        apply="com.kikyosoft.zk.devredir"
+        xmlns:w="client">
+
+    <style><![CDATA[
+      .center-screen {
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        padding: 12px;
+      }
+
+      :root {
+        --base-key-size: clamp(64px, 20vw, 128px);
+        --key-size: calc(var(--base-key-size) * 1.4);  /* +40% button size */
+      }
+
+      /* Label stays 50px higher */
+      .biglabel {
+        font-size: clamp(24px, 6vw, 48px);
+        text-align: center;
+        margin-top: -50px;
+        margin-bottom: 8px;
+      }
+
+      /* PIN textbox: increase height */
+      .pinbox {
+        font-size: clamp(30px, 7.5vw, 60px);
+        letter-spacing: 12px;
+        text-align: center;
+        display: block;
+        width: 90vw;             /* CSS width (no hflex) */
+        max-width: 600px;
+        height: 130px;           /* ⬅️ increased height */
+        margin: 4px auto 12px;
+      }
+      /* Make inner input comfy in tall box */
+      .pinbox input {
+        height: 100%;
+        line-height: 1.1;
+        padding: 16px 12px;
+      }
+
+      .keypad { margin-top: 12px; }
+      .keypad .z-grid { margin: 0 auto; }
+
+      /* Square keys; digits ≈ 3× larger; prevent double-tap zoom */
+      .keypad .z-button {
+        width: var(--key-size);
+        aspect-ratio: 1 / 1;
+        height: auto;
+        font-size: clamp(66px, 9vw, 93px); /* ⬅️ ~3× previous text size */
+        touch-action: manipulation;
+        margin: 6px;
+        user-select: none;
+      }
+      /* Tighten label line-height inside buttons across theme variants */
+      .keypad .z-button .z-button-cnt,
+      .keypad .z-button .z-button-content {
+        line-height: 1;
+      }
+
+      @supports not (aspect-ratio: 1 / 1) {
+        .keypad .z-button { height: var(--key-size); }
+      }
+    ]]></style>
+
+    <script><![CDATA[
+      function _pinBox() { return zk.Widget.$("$pinBox"); }
+      function kbAppend(d){
+          var tb=_pinBox(); if(!tb) return;
+          var v=tb.getValue()||"";
+          if(v.length<6) tb.setValue(v + d);
+      }
+      function kbBack(){
+          var tb=_pinBox(); if(!tb) return;
+          var v=tb.getValue()||"";
+          // Clear all on backspace as per your current behavior
+          if(v.length>0) tb.setValue("");
+      }
+    ]]></script>
+
+    <vlayout hflex="1" vflex="1" spacing="10px" sclass="center-screen">
+        <label sclass="biglabel" value="Enter PIN (max 6 digits)"/>
+        <textbox id="pinBox" type="password" readonly="true" maxlength="6" sclass="pinbox"/>
+
+        <grid sclass="keypad" sizedByContent="true">
+            <columns><column/><column/><column/></columns>
+            <rows>
+                <row>
+                    <button label="1" w:onClick='kbAppend("1")'/>
+                    <button label="2" w:onClick='kbAppend("2")'/>
+                    <button label="3" w:onClick='kbAppend("3")'/>
+                </row>
+                <row>
+                    <button label="4" w:onClick='kbAppend("4")'/>
+                    <button label="5" w:onClick='kbAppend("5")'/>
+                    <button label="6" w:onClick='kbAppend("6")'/>
+                </row>
+                <row>
+                    <button label="7" w:onClick='kbAppend("7")'/>
+                    <button label="8" w:onClick='kbAppend("8")'/>
+                    <button label="9" w:onClick='kbAppend("9")'/>
+                </row>
+                <row>
+                    <button id="backspaceBtn" label="C" w:onClick='kbBack()'/>
+                    <button label="0" w:onClick='kbAppend("0")'/>
+                    <button id="enterBtn" label="E"
+                            w:onClick='(function(){ 
+                              var tb = zk.Widget.$("$pinBox");
+                              tb.fire("onChange", {value: tb.getValue()}, {toServer:true});
+                            })()'/>
+                </row>
+            </rows>
+        </grid>
+    </vlayout>
+</window>

@@ -1,0 +1,29 @@
+<grid style="text-align: center;" width = "90%">
+   <columns visible="false" >
+      <column width="200px" /><!-- define 2 columns to enable auxhead/er -->
+      <column width="800px"/>
+      <column/>
+	</columns>
+    <rows>
+       <row> 
+       		Capacitiy
+       </row>
+       <row spans="2"> 
+            <listbox id = "list_BdStepDetail"> </listbox>
+      		<!-- 
+        	<spreadsheet id="list_BdStepDetail" src="/template/blank.xls" hflex="1" height="600px"/> 
+       		 -->
+       </row> 
+       <row spans="2"> 
+       <!-- 
+        	   <timeline id="timeline1" height="100%" width="100%"></timeline>
+        	   <timeline id="tlBdStep" height="100px" width="100%"></timeline>
+        -->
+        		<timeline></timeline>
+       </row> 
+       <row>
+       		 <button id="btUpdate" label="Update" />
+       		 <button id="btTimeline" label="Timeline" />
+       </row>
+    </rows>
+</grid>

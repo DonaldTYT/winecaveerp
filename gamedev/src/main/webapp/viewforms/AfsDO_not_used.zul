@@ -1,0 +1,264 @@
+<zk>
+	<style dynamic="true">
+		<!-- cut/hide the vertical borders in the grid rows -->
+		.myGridWithNoBorder tr.z-row td.z-row-inner { border-right: 0px
+		#CCC; } .GridLayoutNoBorder tr.z-row td.z-row-inner, tr.z-row
+		.z-cell,div.z-grid { border: none; overflow: hidden; zoom: 1;
+		#background:#f8f8f8 !important;<!-- remove hover -->
+		background:white !important;<!-- remove hover -->
+		border-top: none; border-left: none; border-right: none;
+		border-bottom: none; }
+	</style>
+	<grid style="text-align:left;border: 1px solid #000;"
+		id="detail_grid" sclass="GridLayoutNoBorder">
+		<columns>
+			<column width="160px"></column>
+			<column width="600px"></column>
+			<column width="160px"></column>
+			<column width="450px"></column>
+			<column></column>
+			<column width="300px"></column>
+		</columns>
+		<rows>
+			<row>
+				<cell colspan="3">
+					<image src="images/logo_afs.jpg" height="150px" />
+				</cell>
+				<cell colspan="2">
+					<!-- 
+						<image src="images/progress_sample.png" hflex="1"></image>
+					-->
+				</cell>
+				<cell>
+					<vlayout>
+						<label
+							style="font-weight: bold;font-size:50px">
+							DELIVERY
+						</label>
+						<label
+							style="font-weight: bold;font-size:50px">
+							ORDER
+						</label>
+					</vlayout>
+				</cell>
+			</row>
+			<row>
+				<cell align="right">
+					<label>Date</label>
+				</cell>
+				<cell>
+					<datebox id="stm_date" format="yyyy/MM/dd"></datebox>
+				</cell>
+				<cell align="right">
+					<label>Order No.</label>
+				</cell>
+				<cell>
+					<hbox align="middle">
+						<div width="200px">
+							<label id="stm_ref1"></label>
+						</div>
+					</hbox>
+				</cell>
+				<cell></cell>
+				<cell>
+					<label>Ref No.:</label>
+					<label id="stm_mrg"></label>
+				</cell>
+			</row>
+			<row>
+				<cell align="right">
+					<label>Sold To</label>
+				</cell>
+				<cell>
+					<hbox align="middle">
+						<combobox id="vd_vname"></combobox>
+					</hbox>
+				</cell>
+				<cell align="right">
+					<label>Status</label>
+				</cell>
+				<cell>
+					<hbox align="middle">
+						<div width="200px">
+							<combobox id="stm_status"></combobox>
+						</div>
+					</hbox>
+				</cell>
+				<cell></cell>
+				<cell>
+					<label>Customer Code:</label>
+					<label id="stm_ref2"></label>
+				</cell>
+			</row>
+			<row>
+				<cell align="right">
+					<label>Deliver To</label>
+				</cell>
+				<cell>
+					<combobox id="svloc_desp" width="560px"></combobox>
+				</cell>
+				<cell align="right">
+					<label></label>
+				</cell>
+				<cell>
+					<!-- 
+					<textbox id="inv_pocode"></textbox>
+					 -->
+				</cell>
+				<cell></cell>
+				<cell>
+					<label>Create By:</label>
+					<label id="stm_cuser"></label>
+				</cell>
+			</row>
+			<row>
+				<cell align="right">
+					<label>Address</label>
+				</cell>
+				<cell>
+					<textbox id="svloc_addr1"></textbox>
+				</cell>
+				<cell align="right">
+					<label>Contact Person</label>
+				</cell>
+				<cell>
+					<textbox id="stm_contact"></textbox>
+				</cell>
+				<cell></cell>
+				<cell>
+					<label>Create On:</label>
+					<label id="stm_cdate"></label>
+				</cell>
+			</row>
+			<row>
+				<cell align="right">
+					<label></label>
+				</cell>
+				<cell>
+					<textbox id="svloc_addr2"></textbox>
+				</cell>
+				<cell align="right">
+					<label>Telephone</label>
+				</cell>
+				<cell>
+					<textbox id="stm_tel"></textbox>
+				</cell>
+				<cell></cell>
+				<cell>
+					<label>Update By:</label>
+					<label id="stm_uuser"></label>
+				</cell>
+			</row>
+			<row>
+				<cell align="right">
+					<label>City</label>
+				</cell>
+				<cell>
+					<textbox id="svloc_city"></textbox>
+				</cell>
+				<cell align="right">
+					<label>Mobile</label>
+				</cell>
+				<cell>
+					<textbox id="inv_fax"></textbox>
+				</cell>
+				<cell></cell>
+				<cell>
+					<label>Update On:</label>
+					<label id="inv_udate"></label>
+				</cell>
+			</row>
+			<!-- 
+			<row>
+				<cell align="right">
+					<label>Country</label>
+				</cell>
+				<cell>
+					<textbox id="vd_country"></textbox>
+				</cell>
+				<cell align="right">
+					<label>Currency</label>
+				</cell>
+				<cell>
+					<hbox align="middle">
+						<div width="200px">
+							<combobox id="inv_cid"></combobox>
+						</div>
+					</hbox>
+				</cell>
+				<cell></cell>
+				<cell>
+					<label>Exchange Rate:</label>
+					<label id="inv_xrate"></label>
+				</cell>
+			</row>
+			 -->
+			<row>
+				<cell colspan="6">
+					<listbox id="list_AfsDoDet"></listbox>
+				</cell>
+			</row>
+			<!-- 
+			<row>
+				<cell align="right">
+					<label>Terms</label>
+				</cell>
+				<cell>
+					<textbox id="inv_term" hflex="1" rows="2"></textbox>
+				</cell>
+				<cell colspan="2"></cell>
+				<cell></cell>
+				<cell>
+					<hbox align="middle">
+						<div width="150px">Total Amount</div>
+						<doublebox id="inv_grtotal"></doublebox>
+					</hbox>
+				</cell>
+			</row>
+			 -->
+			<row>
+				<cell align="right">
+					<label>Delivery</label>
+				</cell>
+				<cell>
+					<textbox id="stm_shipname" hflex="1" rows="2"></textbox>
+				</cell>
+				<cell colspan="2"></cell>
+				<cell></cell>
+				<cell>
+				<!-- 
+					<hbox align="middle">
+						<div width="150px">Less Discount</div>
+						<doublebox id="inv_discount"></doublebox>
+					</hbox>
+				 -->
+				</cell>
+			</row>
+			<row>
+				<cell align="right">
+					<label>Remark</label>
+				</cell>
+				<cell>
+					<textbox id="stm_shipagent" hflex="1" rows="2"></textbox>
+				</cell>
+				<cell colspan="2"></cell>
+				<cell></cell>
+				<cell>
+				<!-- 
+					<hbox align="middle">
+						<div width="150px">Net Total</div>
+						<doublebox id="inv_total"></doublebox>
+					</hbox>
+				 -->
+				</cell>
+			</row>
+		</rows>
+	</grid>
+	<toolbar id="detail_toolbar" align="end">
+		<button id="btCustom" label="Custom Report" visible="true"></button>
+		<button id="btPrint" label="Print D/N" visible="true"></button>
+		<button id="btPrintCInv" label="Print Commerical Invoice"
+			visible="true">
+		</button>
+	</toolbar>
+</zk>

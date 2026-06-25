@@ -1,0 +1,51 @@
+<zk xmlns:n="native">
+<style dynamic="true">
+div.edit_vote {
+	display: flex;
+	justify-content: center;
+	align-content: flex-start;
+	column-gap: 10px;
+	row-gap: 10px;
+	flex-wrap: wrap;
+	overflow-y: auto;
+	padding-bottom: 10px;
+}
+div.edit_vote button.z-button.markdelete {
+	text-decoration: line-through;
+	color: black;
+}
+</style>
+<script>
+<![CDATA[
+]]>
+</script>
+<div class="zkbi-detail-toolbar-container">
+	<div class="zkbi-detail-toolbar-leftarea">
+	</div>
+	<toolbar id="detail_toolbar" align="end">
+		<button id="btVote" label="投票結果輸入" />
+	</toolbar>
+</div>
+<template name="editVoteTemplate">
+	<div sclass="edit_vote" width="calc(100% - 20px)" style="margin-left:10px">
+		<label>點選標記刪除</label>
+		<separator height="0px" width="100%"/>
+	</div>
+</template>
+<template name="inputTemplate">
+	<vlayout width="calc(100% - 20px)" style="margin-left:10px">
+		<hlayout>
+			<label>選票代碼：</label>
+			<textbox id="tbBarcode" width="120px"/>
+		</hlayout>
+		<listbox id="lbList" hflex="1">
+			<listhead>
+	        	<listheader label="選票代碼" hflex="min"/>
+	        	<listheader label="物業單位" hflex="1"/>
+	        	<listheader label="議題號碼" hflex="min"/>
+	        	<listheader label="投票結果" hflex="min"/>
+	    	</listhead>
+		</listbox>
+	</vlayout>
+</template>
+</zk>

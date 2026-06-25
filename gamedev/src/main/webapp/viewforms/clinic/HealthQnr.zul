@@ -1,0 +1,369 @@
+<zk xmlns:w="http://www.zkoss.org/2005/zk/client" xmlns:h="xhtml">
+<style>
+
+.vbox-nospace .z-vbox-separator {
+	height : 0px;
+}
+.vbox-space .z-vbox-separator {
+	height : .3em;
+}
+.hbox-nospace .z-hbox-separator {
+	width: 0px;
+}
+</style>
+<script><![CDATA[
+	var sign = null;
+    var MD5 = function(d){result = M(V(Y(X(d),8*d.length)));return result.toUpperCase()}; function M(d){for(var _,m="0123456789ABCDEF",f="",r=0;r<d.length;r++)_=d.charCodeAt(r),f+=m.charAt(_>>>4&15)+m.charAt(15&_);return f}function X(d){for(var _=Array(d.length>>2),m=0;m<_.length;m++)_[m]=0;for(m=0;m<8*d.length;m+=8)_[m>>5]|=(255&d.charCodeAt(m/8))<<m%32;return _}function V(d){for(var _="",m=0;m<32*d.length;m+=8)_+=String.fromCharCode(d[m>>5]>>>m%32&255);return _}function Y(d,_){d[_>>5]|=128<<_%32,d[14+(_+64>>>9<<4)]=_;for(var m=1732584193,f=-271733879,r=-1732584194,i=271733878,n=0;n<d.length;n+=16){var h=m,t=f,g=r,e=i;f=md5_ii(f=md5_ii(f=md5_ii(f=md5_ii(f=md5_hh(f=md5_hh(f=md5_hh(f=md5_hh(f=md5_gg(f=md5_gg(f=md5_gg(f=md5_gg(f=md5_ff(f=md5_ff(f=md5_ff(f=md5_ff(f,r=md5_ff(r,i=md5_ff(i,m=md5_ff(m,f,r,i,d[n+0],7,-680876936),f,r,d[n+1],12,-389564586),m,f,d[n+2],17,606105819),i,m,d[n+3],22,-1044525330),r=md5_ff(r,i=md5_ff(i,m=md5_ff(m,f,r,i,d[n+4],7,-176418897),f,r,d[n+5],12,1200080426),m,f,d[n+6],17,-1473231341),i,m,d[n+7],22,-45705983),r=md5_ff(r,i=md5_ff(i,m=md5_ff(m,f,r,i,d[n+8],7,1770035416),f,r,d[n+9],12,-1958414417),m,f,d[n+10],17,-42063),i,m,d[n+11],22,-1990404162),r=md5_ff(r,i=md5_ff(i,m=md5_ff(m,f,r,i,d[n+12],7,1804603682),f,r,d[n+13],12,-40341101),m,f,d[n+14],17,-1502002290),i,m,d[n+15],22,1236535329),r=md5_gg(r,i=md5_gg(i,m=md5_gg(m,f,r,i,d[n+1],5,-165796510),f,r,d[n+6],9,-1069501632),m,f,d[n+11],14,643717713),i,m,d[n+0],20,-373897302),r=md5_gg(r,i=md5_gg(i,m=md5_gg(m,f,r,i,d[n+5],5,-701558691),f,r,d[n+10],9,38016083),m,f,d[n+15],14,-660478335),i,m,d[n+4],20,-405537848),r=md5_gg(r,i=md5_gg(i,m=md5_gg(m,f,r,i,d[n+9],5,568446438),f,r,d[n+14],9,-1019803690),m,f,d[n+3],14,-187363961),i,m,d[n+8],20,1163531501),r=md5_gg(r,i=md5_gg(i,m=md5_gg(m,f,r,i,d[n+13],5,-1444681467),f,r,d[n+2],9,-51403784),m,f,d[n+7],14,1735328473),i,m,d[n+12],20,-1926607734),r=md5_hh(r,i=md5_hh(i,m=md5_hh(m,f,r,i,d[n+5],4,-378558),f,r,d[n+8],11,-2022574463),m,f,d[n+11],16,1839030562),i,m,d[n+14],23,-35309556),r=md5_hh(r,i=md5_hh(i,m=md5_hh(m,f,r,i,d[n+1],4,-1530992060),f,r,d[n+4],11,1272893353),m,f,d[n+7],16,-155497632),i,m,d[n+10],23,-1094730640),r=md5_hh(r,i=md5_hh(i,m=md5_hh(m,f,r,i,d[n+13],4,681279174),f,r,d[n+0],11,-358537222),m,f,d[n+3],16,-722521979),i,m,d[n+6],23,76029189),r=md5_hh(r,i=md5_hh(i,m=md5_hh(m,f,r,i,d[n+9],4,-640364487),f,r,d[n+12],11,-421815835),m,f,d[n+15],16,530742520),i,m,d[n+2],23,-995338651),r=md5_ii(r,i=md5_ii(i,m=md5_ii(m,f,r,i,d[n+0],6,-198630844),f,r,d[n+7],10,1126891415),m,f,d[n+14],15,-1416354905),i,m,d[n+5],21,-57434055),r=md5_ii(r,i=md5_ii(i,m=md5_ii(m,f,r,i,d[n+12],6,1700485571),f,r,d[n+3],10,-1894986606),m,f,d[n+10],15,-1051523),i,m,d[n+1],21,-2054922799),r=md5_ii(r,i=md5_ii(i,m=md5_ii(m,f,r,i,d[n+8],6,1873313359),f,r,d[n+15],10,-30611744),m,f,d[n+6],15,-1560198380),i,m,d[n+13],21,1309151649),r=md5_ii(r,i=md5_ii(i,m=md5_ii(m,f,r,i,d[n+4],6,-145523070),f,r,d[n+11],10,-1120210379),m,f,d[n+2],15,718787259),i,m,d[n+9],21,-343485551),m=safe_add(m,h),f=safe_add(f,t),r=safe_add(r,g),i=safe_add(i,e)}return Array(m,f,r,i)}function md5_cmn(d,_,m,f,r,i){return safe_add(bit_rol(safe_add(safe_add(_,d),safe_add(f,i)),r),m)}function md5_ff(d,_,m,f,r,i,n){return md5_cmn(_&m|~_&f,d,_,r,i,n)}function md5_gg(d,_,m,f,r,i,n){return md5_cmn(_&f|m&~f,d,_,r,i,n)}function md5_hh(d,_,m,f,r,i,n){return md5_cmn(_^m^f,d,_,r,i,n)}function md5_ii(d,_,m,f,r,i,n){return md5_cmn(m^(_|~f),d,_,r,i,n)}function safe_add(d,_){var m=(65535&d)+(65535&_);return(d>>16)+(_>>16)+(m>>16)<<16|65535&m}function bit_rol(d,_){return d<<_|d>>>32-_}
+	$(document).ready(function () {
+		zk.afterMount(function () {
+			initSign();
+		});
+		
+	});
+	function initSign(){
+		console.log("initSign");
+		if (sign != null){
+			console.log('skip init signpad');
+			return;
+		}
+   		var canvas =  document.getElementById('signature-pad');
+   		sign = new SignaturePad(canvas, {
+   		  onEnd:function(){
+   			console.log('onEnd event received');
+    		saveSign();
+   		  }
+   		});
+   		sign.clear();
+   		/* 
+   		//does it really
+		window.onresize = resizeCanvas(canvas);
+		resizeCanvas(canvas);
+		*/
+	}
+	function enableSign(p_flag){
+		console.log("enableSign:"+p_flag);
+		/*
+		if (sign == null){
+			console.log('signpad is null');
+			return;
+		}
+		*/
+		if (p_flag){
+			$("#signature-pad").css("background-color","#ffffff");
+			sign.on();
+		}
+		else{
+			$("#signature-pad").css("background-color","#e2dddb");
+			sign.off();
+		}
+	}
+	
+	// Adjust canvas coordinate space taking into account pixel ratio,
+	// to make it look crisp on mobile devices.
+	// This also causes canvas to be cleared.
+	function resizeCanvas(p_canvas) {
+		console.log("resizeCanvas");
+	    var ratio =  Math.max(window.devicePixelRatio || 1, 1);
+	    p_canvas.width = p_canvas.offsetWidth * ratio;
+	    p_canvas.height = p_canvas.offsetHeight * ratio;
+	    p_canvas.getContext("2d").scale(ratio, ratio);
+	}
+
+	function clearSign(){
+		console.log('clearSign called');
+		if (sign == null){
+			console.log('signpad is null');
+			return;
+		}
+   		sign.clear();
+   		var zkComp = zk.Widget.$('$signBox');
+		if (zkComp !== null){
+			zAu.send(new zk.Event(zkComp, "onSaveSign", sign.toDataURL(), {toServer:true}));
+		}
+	}
+	function loadSign(p_dataURL){
+		console.log('loadSign called');
+		/*
+		if (sign == null){
+			console.log('signpad is null');
+			return;
+		}
+		*/
+		if (p_dataURL == null){
+			console.log('dataURL is null');
+			return;
+		}
+		sign.clear();
+		sign.fromDataURL(p_dataURL,{width:500, height:200});
+   		console.log("loadSign:p_dataURL:"+ MD5(p_dataURL));
+   		console.log("loadSign:toDataURL():"+ MD5(sign.toDataURL()));
+	}
+	
+    function saveSign(){
+    	console.log('saveSign called');
+		if (sign == null){
+			console.log('signpad is null');
+			return;
+		}
+		if (zk == null || zAu == null){
+			console.log("zk is null");
+			return;
+		}
+   		var zkComp = zk.Widget.$('$signBox');
+		if (zkComp !== null){
+			zAu.send(new zk.Event(zkComp, "onSaveSign", sign.toDataURL(), {toServuer:true}));
+		}
+    }
+
+
+]]></script>
+<grid style="text-align:left;background:#FFF;border:0px;" id="detail_grid">
+	<columns>
+		<column align="left" width="200px"/>
+		<column hflex="min" />
+		<column hflex="1" style="background:red !important;" />
+	</columns>
+	<rows>
+		<row>
+			<label hflex="1" id="lb_bck_date" value=""/>
+			<datebox id="bck_date"/>
+			<div></div>
+		</row>
+		<row>
+			<label hflex="1" id="lb_bck_id" value=""/>
+			<textbox id="bck_id" sclass="zkbi-uppercase"></textbox>
+			<div></div>
+		</row>
+		<row>
+			<label hflex="1" id="lb_bck_name" value=""/>
+			<textbox id="bck_name"/>
+			<div></div>
+		</row>
+		<row id="statusRow">
+			<label hflex="1" id="lb_bck_status" value=""/>
+			<combobox id="bck_status"/>
+			<div></div>
+		</row>
+	</rows>
+</grid>
+<separator spacing="10px"></separator>
+		
+<tabbox id="tabbox" >
+    <tabs>
+        <tab id="tab1" label="Section I" />
+        <tab id="tab2" label="Section II" />
+    </tabs>
+    <tabpanels>
+        <tabpanel>
+			<label hflex="1" value="Health Questionnaire 體格健康調查問卷" style="font-size:20px !important;"></label>
+			<grid style="text-align:left;background:#FFF;border:0px;" id="detail_grid2">
+				<columns>
+					<column align="left" hflex="min" />
+					<column hflex="min" />
+					<column hflex="1" style="background:red !important;" />
+				</columns>
+				<rows>
+					<row spans="3">
+						<label style="font-weight: bold;" hflex="1" value="Family History 家庭資料 "/>
+					</row>
+					<row spans="3">
+						<hbox>
+						<div>
+							<label hflex="1" id="lb_bck_hybertension" value="bck_hybertension"/>
+							<checkbox hflex="1" id="bck_hybertension"/>
+						</div>
+						<div>
+							<label hflex="1" id="lb_bck_diabetes" value="bck_diabetes"/>
+							<checkbox hflex="1" id="bck_diabetes"/>
+						</div>
+						<div>
+							<label hflex="1" id="lb_bck_heartdis" value="bck_heartdis"/>
+							<checkbox hflex="1" id="bck_heartdis"/>
+						</div>
+						</hbox>
+					</row>
+					<row spans="3">
+						<hbox>
+							<div>
+							<label hflex="1" id="lb_bck_kidneydis" value="bck_kidneydis"/>
+							<checkbox hflex="1" id="bck_kidneydis"/>
+							</div>
+							<div>
+							<label hflex="1" id="lb_bck_mentaldisorder" value="bck_mentaldisorder"/>
+							<checkbox hflex="1" id="bck_mentaldisorder"/>
+							</div>
+							<div>
+							<label hflex="1" id="lb_bdk_hereditarytdis" value="bdk_hereditarytdis"/>
+							<checkbox hflex="1" id="bdk_hereditarytdis"/>
+							</div>
+						</hbox>
+					</row>
+					<row spans="3"><space></space></row>
+					<row>
+						<label style="font-weight: bold;" hflex="1" value="Personal History個人資料 "/>
+						<div></div>
+						<div></div>
+					</row>
+					<row spans="3">
+						<div>
+							<label hflex="1" id="lb_bck_mf" value="bck_mf"/>
+							<combobox width="60px" id="bck_mf">
+							    <comboitem label="M"/>
+							    <comboitem label="F"/>
+							    <comboitem label="U"/>
+							</combobox>
+							<label hflex="1" id="lb_bck_married" value="bck_married"/>
+							<checkbox hflex="1" id="bck_married"/>
+							<label hflex="1" id="lb_bck_numofchildren" value="bck_numofchildren"/>
+							<intbox width="50px" id="bck_numofchildren"/>
+						</div>
+					</row>
+					<row spans="3"><space></space></row>
+					<row>
+						<label style="font-weight: bold;" hflex="1" value="Personal Health 個人健康狀況:"/>
+						<div></div>
+						<div></div>
+					</row>
+					
+					<row spans="3">
+						<div>
+							<label hflex="1" id="lb_bck_smoking" value="bck_smoking"/>
+							<checkbox hflex="1" id="bck_smoking"/>
+							<label hflex="1" id="lb_bck_smokingqty" value="bck_smokingqty"/>
+							<intbox width="50px" id="bck_smokingqty"/>
+						</div>
+					</row>
+					<row spans="3">
+						<div>
+							<label hflex="1" id="lb_bck_alcohol" value="bck_alcohol"/>
+							<checkbox hflex="1" id="bck_alcohol"/>
+							<label hflex="1" id="lb_bck_alcoholqty" value="bck_alcoholqty"/>
+							<intbox width="50px" id="bck_alcoholqty"/>
+						</div>
+					</row>
+					<row spans="3">
+						<div>
+							<label hflex="1" id="lb_bck_exercise" value="bck_exercise"/>
+							<checkbox hflex="1" id="bck_exercise"/>
+						</div>
+					</row>
+					<row spans="3"><space></space></row>
+					<row>
+						<custom-attributes header="Y"/>
+						<label style="font-weight: bold;" hflex="1" value="Personal Health Questionnaire 個人健康狀況"/>
+						<div></div>
+						<div></div>
+					</row>
+				</rows>
+			</grid>
+			<grid style="text-align:left;background:#FFF;border:0px;" id="qnr_grid">
+				<columns>
+					<column align="right" hflex="min" />
+					<column align="left" hflex="min" />
+					<column hflex="1" />
+				</columns>
+				<rows>
+					<row>
+						<div></div>
+						<div></div>
+						<div></div>
+					</row>
+				</rows>
+			</grid>
+			<separator spacing="2px"></separator>
+			<div style="overflow:auto">
+				<vbox sclass="vbox-nospace" width="100%" id="signBox" pack="center" align="center" style="border:1px solid #d9d9d9;">
+			   		<hbox hflex="1" style="height:33px; color:white; background:rgb(119, 156, 177);" align="center" pack="begin">
+			   			&#160;<label style="" width="100%" value="User Signature 用戶簽署:"></label>
+			   		</hbox>
+			   		<hbox pack="begin" hflex="1">
+						<h:canvas style="background:white;" id="signature-pad" width="500px" height="200px" class="signature-pad">
+						</h:canvas>
+						<vbox sclass="vbox-space" pack="begin" hflex="1" vflex="1">
+							<button id="btEditSign" label="Edit"></button>
+							<button id="btUndoSign" tooltiptext="Undo all changes" label="Undo"></button>
+							<button id="btClearSign" label="Clear" w:onClick="clearSign()"></button>
+						</vbox>
+			   		</hbox>
+				</vbox>
+			</div>
+			<separator spacing="2px"></separator>
+        
+        
+        	
+        </tabpanel>
+        <tabpanel>
+			 <div style="overflow:auto" visible="false">
+				<vbox sclass="vbox-nospace" width="100%"  id="commentsBox" pack="center" align="center" style="border:1px solid #d9d9d9;">
+			   		<hbox hflex="1" style="height:33px; color:white; background:rgb(119, 156, 177);" align="center" pack="begin">
+			   			&#160;<label style="" width="100%" value="Doctor's Comments 醫生評估:"></label>
+			   		</hbox>
+			   		<hbox pack="begin" hflex="1">
+						<vbox sclass="vbox-space" pack="begin" hflex="1" vflex="1">
+							<textbox width="100%" id="tbComments" rows="30" style="resize: none;" placeholder="Please enter doctor comments"></textbox>
+						</vbox>
+			   		</hbox>
+				</vbox>
+			</div>
+			<separator spacing="10px" visible="false"></separator>
+			<listbox id="list_clinic_HealthQnrPlanItem"></listbox>
+			<separator spacing="10px"></separator>
+			<listbox id="list_clinic_HealthQnrFiling">
+			<!-- 
+			<listhead>
+				<listheader width="80px">
+					<box hflex="1" align="center">
+	    				<toolbarbutton id="btAddFilPopup" sclass="narrowtoolbarbutton" image="images/row_add20.png" onClick='puAddFilPopup.setAttribute("actionIdx",-1); puAddFilPopup.open(self)' />
+					</box>
+    				<popup id="puAddFilPopup">
+						<vbox>
+   	    					<button id="btAddPriDocRow" label="Private document" onClick="puAddFilPopup.close()"/>
+   	    					<button id="btAddPubDocRow" label="Public document" onClick="puAddFilPopup.close()"/>
+   	    				</vbox>
+    				</popup>
+				</listheader>
+			</listhead>
+			 -->
+			</listbox>
+			<separator spacing="2px"></separator>
+			
+			<div id="zkDropzone" style="border: dashed 2px #beefbe; background:#f3fff6;">
+				<h:div id="jsDropzone" class="dropzone" style="border:none;background:inherit;">
+					<h:div class="dz-message data-dz-message"><h:span>Drop files here or click to upload</h:span><h:br/><h:span style="font-style: italic;color:red;">*Do not detect QR code</h:span></h:div>
+				</h:div>
+			</div>       
+        
+        
+        
+        
+        </tabpanel>
+    </tabpanels>
+</tabbox>
+		
+
+
+
+<toolbar id="detail_toolbar" align="end">
+	<button id="btFilingDocument" label="Filing Document" visible="false"></button>
+	<button id="btGeneratePdf" label="Generate Pdf" visible="true"></button>
+	<button id="btBarcode" label="Print QR Code" visible="true"></button>
+	<button id="btAdd" label="Save New Record">
+		<custom-attributes ADD_CONTINUE="Y" ADD_NEXT="N" ADD_CLOSE="N"></custom-attributes>
+	</button>
+	<button id="btUpdate" label="Save" visible="true">
+		<custom-attributes UPDATE_AND_CLOSE="N" UPDATE_NEXT="N"></custom-attributes>
+	</button>
+</toolbar>
+<!-- 
+	sample template use in QnrFiling
+ -->
+<template name="template_HealthQnrFiling">
+		<vlayout>
+			<hlayout valign="middle">
+				<space></space>
+				<button id="btOpenPdf" iconSclass="flaticon-ec-box-2" Tooltiptext="Open File" style="min-width:0px !important;" width="40px"></button>
+			</hlayout>
+		</vlayout>
+</template>
+<separator spacing="40px"></separator>
+</zk>

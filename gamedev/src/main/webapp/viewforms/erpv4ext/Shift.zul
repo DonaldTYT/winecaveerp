@@ -1,0 +1,38 @@
+<zk xmlns:n="native">
+	<style dynamic="true">
+		div.z-grid.zkbi-detail-grid > div.z-grid-body {
+			height: auto;
+		}
+		div.z-grid.zkbi-detail-grid {
+		   border: 1px solid transparent;
+		}
+		div.zkbifdiv-lbdiv {
+		    min-width: 0px;
+		    width: 120px;
+		}
+		div.zkbidiv > div.z-hlayout-inner:first-child > div.z-div {
+		    width: 120px !important;
+		}	
+	</style>
+	<div class="zkbi-detail-toolbar-container">
+		<div class="zkbi-detail-toolbar-leftarea">
+		</div>
+		<toolbar id="detail_toolbar" align="end">
+		</toolbar>
+	</div>
+	<div id="zkbiListTop" sclass="zkbi-detail-grid z-grid" width="100%" height="80vh" style="overflow-y:auto">
+		<zkbidiv jxId="emsft_class"/>
+		<zkbidiv jxId="emsft_code"/>
+		<zkbidiv jxId="emsft_name"/>
+		<zkbidiv jxId="emsft_sttime"/>
+		<zkbidiv jxId="emsft_endtime"/>
+		<hlayout>
+			<zkbidiv jxId="emsft_numhr"/>
+			<label value="minutes"><custom-attributes tlkey="lb_numhr_unit"/></label>
+		</hlayout>
+		<separator height="20px"/>
+		<div>
+			<listbox id="list_erpv4ext_ShiftDetail"/>
+		</div>
+	</div>
+</zk>

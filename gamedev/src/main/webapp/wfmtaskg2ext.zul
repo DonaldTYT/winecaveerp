@@ -1,0 +1,11 @@
+<?page title="Auto Generated index.zul"?>
+<zk>
+<window id="zkbibrowser" apply="com.uniinformation.zkbi.wip.ZkBiComposerTaskG2Ext" border="none" height="80vh" style="padding:0 !important">
+	<!--
+	<vbox>
+		<span> jobid:<label id="jobId"></label> </span>
+		<span> taskid:<label id="taskId"></label> </span>
+	</vbox>
+	-->
+</window>
+</zk>

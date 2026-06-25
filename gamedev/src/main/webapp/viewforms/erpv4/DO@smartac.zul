@@ -1,0 +1,350 @@
+<zk>
+	<style dynamic="true">
+		<!-- cut/hide the vertical borders in the grid rows -->
+		.myGridWithNoBorder tr.z-row td.z-row-inner { border-right: 0px
+		#CCC; } .GridLayoutNoBorder tr.z-row td.z-row-inner, tr.z-row
+		.z-cell,div.z-grid { border: none; overflow: hidden; zoom: 1;
+		#background:#f8f8f8 !important;<!-- remove hover -->
+		background:white !important;<!-- remove hover -->
+		border-top: none; border-left: none; border-right: none;
+		border-bottom: none; }
+	</style>
+	<toolbar id="detail_toolbar" align="end">
+	<!--
+		<button id="btCustom" label="Custom Report" visible="true"></button>
+		<button id="btPrint" label="Print D/N" visible="true"></button>
+		<button id="btPrintCInv" label="Print Commerical Invoice" visible="true"> </button>
+		-->
+		<button id="btPrintDnNew" label="Print D/N" visible="true"></button>
+		<button id="btPrintInvNew" label="Print Invoice" visible="true"></button>
+	</toolbar>
+	<grid style="text-align:left;border: 1px solid #000;"
+		id="detail_grid" sclass="GridLayoutNoBorder">
+		<columns>
+			<column width="160px"></column>
+			<column width="600px"></column>
+			<column width="160px"></column>
+			<column width="450px"></column>
+			<column></column>
+			<column width="300px"></column>
+		</columns>
+		<rows>
+			<row>
+				<cell colspan="3">
+				<!-- 
+					<image src="images/logo_afs.jpg" height="150px" />
+				 -->
+				</cell>
+				<cell colspan="2">
+					<!-- 
+						<image src="images/progress_sample.png" hflex="1"></image>
+					-->
+				</cell>
+				<cell>
+					<vlayout>
+					<!-- 
+						<label
+							style="font-weight: bold;font-size:40px !important;">
+							PARTS
+						</label>
+					 -->
+						<label
+							style="font-weight: bold;font-size:40px !important;">
+							DELIVERY
+						</label>
+						<label
+							style="font-weight: bold;font-size:40px !important;">
+							ORDER
+						</label>
+					</vlayout>
+				</cell>
+			</row>
+			<row>
+				<cell align="right">
+					<label value="Date"><custom-attributes tlkey="lb_stm_date"></custom-attributes></label>
+				</cell>
+				<cell>
+					<datebox id="stm_date" format="yyyy/MM/dd"></datebox>
+				</cell>
+				<cell align="right">
+					<label value="Order No."><custom-attributes tlkey="lb_stm_ref1"></custom-attributes></label>
+				</cell>
+				<cell>
+					<hbox align="middle">
+						<div width="200px">
+							<label id="stm_ref1"></label>
+						</div>
+					</hbox>
+				</cell>
+				<cell></cell>
+				<cell>
+					<label value="Ref No."><custom-attributes tlkey="lb_stm_mrg"></custom-attributes></label>
+					<label id="stm_mrg"></label>
+				</cell>
+			</row>
+			<row>
+				<cell align="right">
+					<label value="Deliver At"><custom-attributes tlkey="lb_floc_desc"></custom-attributes></label>
+				</cell>
+				<cell>
+					<combobox id="floc_desc"></combobox>
+				</cell>
+				<cell align="right">
+					<label value="CCY"><custom-attributes tlkey="lb_stm_cur"></custom-attributes></label>
+				</cell>
+				<cell>
+					<textbox id="stm_cur"></textbox>	
+				</cell>
+				<cell></cell>
+				<cell>
+				</cell>
+			</row>
+			<row>
+				<cell align="right">
+					<label value="Sold To"><custom-attributes tlkey="lb_vd_vname"></custom-attributes></label>
+				</cell>
+				<cell>
+					<hbox align="middle">
+						<combobox id="vd_vname"></combobox>
+					</hbox>
+				</cell>
+				<cell align="right">
+					<label value="Status"><custom-attributes tlkey="lb_stm_status"></custom-attributes></label>
+				</cell>
+				<cell>
+					<hbox align="middle">
+						<div width="200px">
+							<combobox id="stm_status"></combobox>
+						</div>
+					</hbox>
+				</cell>
+				<cell></cell>
+				<cell>
+					<label value="Customer Code:"><custom-attributes tlkey="lb_stm_ref2"></custom-attributes></label>
+					<label id="stm_ref2"></label>
+				</cell>
+			</row>
+			<row>
+				<cell align="right">
+					<label value="Deliver To"><custom-attributes tlkey="lb_svloc_desp"></custom-attributes></label>
+				</cell>
+				<cell>
+					<combobox id="svloc_desp" width="560px"></combobox>
+				</cell>
+				<cell align="right">
+					<label value="Invoice No."><custom-attributes tlkey="lb_stm_ref3"></custom-attributes></label>
+				</cell>
+				<cell>
+					<textbox id="stm_ref3"></textbox>
+					<!-- 
+					<textbox id="inv_pocode"></textbox>
+					 -->
+				</cell>
+				<cell></cell>
+				<cell>
+					<label value="Create By:"><custom-attributes tlkey="lb_stm_cuser"></custom-attributes></label>
+					<label id="stm_cuser"></label>
+				</cell>
+			</row>
+			<row>
+				<cell align="right">
+					<label value="Address"><custom-attributes tlkey="lb_svloc_addr1"></custom-attributes></label>
+				</cell>
+				<cell>
+					<textbox id="svloc_addr1" width="560px"></textbox>
+				</cell>
+				<cell align="right">
+					<label value="Contact Person"><custom-attributes tlkey="lb_stm_contact"></custom-attributes></label>
+				</cell>
+				<cell>
+					<textbox id="stm_contact"></textbox>
+				</cell>
+				<cell></cell>
+				<cell>
+					<label value="Create On:"><custom-attributes tlkey="lb_stm_cdate"></custom-attributes></label>
+					<label id="stm_cdate"></label>
+				</cell>
+			</row>
+			<row>
+				<cell align="right">
+					<label></label>
+				</cell>
+				<cell>
+					<textbox id="svloc_addr2" width="560px"></textbox>
+				</cell>
+				<cell align="right">
+					<label value="Telephone"><custom-attributes tlkey="lb_stm_tel"></custom-attributes></label>
+				</cell>
+				<cell>
+					<textbox id="stm_tel"></textbox>
+				</cell>
+				<cell></cell>
+				<cell>
+					<label value="Update By:"><custom-attributes tlkey="lb_stm_uuser"></custom-attributes></label>
+					<label id="stm_uuser"></label>
+				</cell>
+			</row>
+			<row>
+				<cell align="right">
+					<label value="City"><custom-attributes tlkey="lb_svloc_city"></custom-attributes></label>
+				</cell>
+				<cell>
+					<textbox id="svloc_city"></textbox>
+				</cell>
+				<cell align="right">
+					<label value="Mobile"><custom-attributes tlkey="lb_inv_fax"></custom-attributes></label>
+				</cell>
+				<cell>
+					<textbox id="inv_fax"></textbox>
+				</cell>
+				<cell></cell>
+				<cell>
+					<label value="Update On:"><custom-attributes tlkey="lb_inv_udate"></custom-attributes></label>
+					<label id="inv_udate"></label>
+				</cell>
+			</row>
+			<!-- 
+			<row>
+				<cell align="right">
+					<label>Country</label>
+				</cell>
+				<cell>
+					<textbox id="vd_country"></textbox>
+				</cell>
+				<cell align="right">
+					<label>Currency</label>
+				</cell>
+				<cell>
+					<hbox align="middle">
+						<div width="200px">
+							<combobox id="inv_cid"></combobox>
+						</div>
+					</hbox>
+				</cell>
+				<cell></cell>
+				<cell>
+					<label>Exchange Rate:</label>
+					<label id="inv_xrate"></label>
+				</cell>
+			</row>
+			 -->
+			 <!--
+			<row>
+				<cell colspan="6">
+					<listbox id="list_erpv4_DoDet"></listbox>
+				</cell>
+			</row>
+			-->
+			<!-- 
+			<row>
+				<cell align="right">
+					<label>Terms</label>
+				</cell>
+				<cell>
+					<textbox id="inv_term" hflex="1" rows="2"></textbox>
+				</cell>
+				<cell colspan="2"></cell>
+				<cell></cell>
+				<cell>
+					<hbox align="middle">
+						<div width="150px">Total Amount</div>
+						<doublebox id="inv_grtotal"></doublebox>
+					</hbox>
+				</cell>
+			</row>
+			 -->
+			<row>
+				<cell align="right">
+					<label value="Delivery"><custom-attributes tlkey="lb_stm_shipname"></custom-attributes></label>
+				</cell>
+				<cell>
+					<textbox id="stm_shipname" hflex="1" rows="1"></textbox>
+				</cell>
+				<cell colspan="2"></cell>
+				<cell></cell>
+				<cell>
+				<!-- 
+					<hbox align="middle">
+						<div width="150px">Less Discount</div>
+						<doublebox id="inv_discount"></doublebox>
+					</hbox>
+				 -->
+				</cell>
+			</row>
+			<row>
+				<cell align="right">
+					<label value="Remark"><custom-attributes tlkey="lb_stm_shipagent"></custom-attributes></label>
+				</cell>
+				<cell>
+					<textbox id="stm_shipagent" hflex="1" rows="2"></textbox>
+				</cell>
+				<cell colspan="2"></cell>
+				<cell></cell>
+				<cell>
+				<!-- 
+					<hbox align="middle">
+						<div width="150px">Net Total</div>
+						<doublebox id="inv_total"></doublebox>
+					</hbox>
+				 -->
+				</cell>
+			</row>
+			<row>
+				<cell align="right">
+					<label value="Payment"><custom-attributes tlkey="lb_stm_remark"></custom-attributes></label>
+				</cell>
+				<cell>
+					<textbox id="stm_remark" hflex="1" rows="3"></textbox>
+				</cell>
+				<cell colspan="2"></cell>
+				<cell></cell>
+				<cell>
+				</cell>
+			</row>
+		</rows>
+	</grid>
+	<listbox id="list_erpv4_DoDet">
+	   <listfoot>
+        <listfooter id="footer_list_erpv4_MoDet" zclass="z-listbox-footer" span="6"><div style="text-align:right;padding:4px 5px;"></div></listfooter>
+        <listfooter zclass="z-listbox-footer" span="2"><div style="text-align:right;padding:4px 5px;">
+        		<vlayout>
+        		<label>Gross Total</label>
+        		<label>Less Discount </label>
+        		<textbox id="stm_salescode1"/>
+        		<textbox id="stm_salescode2"/>
+        		<label>Net Total</label>
+        		<label>Less Deposit</label>
+        		<label>Invoice Amount</label>
+        		</vlayout>
+        		</div></listfooter>
+        <listfooter zclass="z-listbox-footer" span="1"><div style="text-align:right;padding:4px 5px;">
+        		<vlayout>
+        		<label id="stm_grosstotal"></label>
+        		<doublebox id="stm_discount"></doublebox>
+        		<doublebox id="stm_fref1"></doublebox>
+        		<doublebox id="stm_fref2"></doublebox>
+        		<label id="stm_nettotal"></label>
+        		<label id="stm_deposit"></label>
+        		<label id="stm_invamount"></label>
+        		</vlayout>
+        	</div></listfooter>
+       </listfoot>
+	</listbox>	
+	<div height="30px"/>	
+	<template name="template_erpv4_DoDet_st_icode">
+		<vlayout>
+			<bandbox id="st_icode" use="com.uniinformation.jx.zk.ZkJxPickInput"/>
+			<label id="st_iname"></label>
+		</vlayout>
+	</template>
+	<template name="template_erpv4_DoDet_stmd_ref4" twidth="300px">
+		<vlayout>
+		<listbox id="stmd_ref4" width="100%" mold="select" height="20px"></listbox>
+		<hlayout>
+		<datebox id="stmd_exprdate"></datebox>
+		<textbox id="stmd_lotno"></textbox>
+		</hlayout>
+		</vlayout>
+	</template>
+	
+</zk>

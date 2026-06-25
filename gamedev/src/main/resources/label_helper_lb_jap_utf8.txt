@@ -1,0 +1,56 @@
+﻿Advanced Search
+高度な検索
+Field Name
+フィールド名
+Operator
+オペレーター
+Value
+フィールド値
+Profile
+プロフィール
+Logout
+サインアウト
+Dashboard
+ダッシュボード
+Not Use
+使用しない
+Setup
+セットアップ
+Login Id
+ログイン名
+Password
+パスワード
+Keep me signed in
+追跡する
+Submit
+提出する
+Reset
+リセット
+System Login
+システムログイン
+ERP System
+企業資源計画システム
+Language
+言語
+Style
+スタイル
+Stock Item
+在庫品
+Export file name:
+エクスポートファイル名:
+Password:
+パスワード:
+Confirm export to excel?
+エクスポートがExcelになることを確認しますか？
+Invoice
+請求書
+Purchase Order
+発注書
+Quotation
+見積書
+Sales Order
+販売注文
+Add Record
+レコードを追加
+Update Record
+レコードの更新

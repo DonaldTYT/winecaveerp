@@ -1,0 +1,98 @@
+<%@ taglib prefix="c"  uri="http://java.sun.com/jsp/jstl/core" %>
+<c:set var="ids" value="${empty param.ids ? 'ce1' : param.ids}" />
+<script>
+(() => {
+  const ids = "<c:out value='${ids}'/>";
+
+  const form   = document.getElementById(ids + "-form");
+  if (!form) return;
+
+  const resBox = document.getElementById(ids + "-result");
+  const btnSave   = document.getElementById(ids + "-save");
+  const btnCancel = document.getElementById(ids + "-cancel");
+  const dataUrl = document.getElementById(ids + "-dataUrl").value;
+  const code    = document.getElementById(ids + "-code").value;
+
+  const spinSave   = btnSave.querySelector(".spinner-border");
+  const spinCancel = btnCancel.querySelector(".spinner-border");
+  const lblSave    = btnSave.querySelector(".lbl");
+  const lblCancel  = btnCancel.querySelector(".lbl");
+
+  function alertBox(type, msg) {
+    resBox.style.display = "block";
+    resBox.className = "";
+    resBox.classList.add("alert", "alert-" + type);
+    resBox.textContent = msg || "";
+  }
+  function setBusy(btn, busy) {
+    const spin = btn === btnSave ? spinSave : spinCancel;
+    const lbl  = btn === btnSave ? lblSave : lblCancel;
+    btn.disabled = busy;
+    spin.style.display = busy ? "inline-block" : "none";
+    lbl.textContent = busy ? (btn===btnSave ? "Saving..." : "Cancelling...") : (btn===btnSave ? "Save" : "Cancel");
+  }
+  function allDisabled(b) {
+    btnSave.disabled = b; btnCancel.disabled = b;
+    Array.prototype.forEach.call(form.elements, el => { el.disabled = b && (el !== btnSave && el !== btnCancel); });
+  }
+
+  // Prefill if code is provided
+  async function prefill() {
+    if (!code) return;
+    try {
+      const r = await fetch(dataUrl + "?code=" + encodeURIComponent(code), {
+        headers: { "Accept":"application/json", "X-Requested-With":"XMLHttpRequest" }
+      });
+      const j = await r.json();
+      if (!r.ok || j.ok === false) { alertBox("danger", j.message || "Load failed"); return; }
+      const rec = j.record || {};
+      for (const k in rec) {
+        if (!Object.prototype.hasOwnProperty.call(rec, k)) continue;
+        const el = form.elements.namedItem(k);
+        if (!el) continue;
+        if (el.type === "checkbox") {
+          el.checked = (rec[k] === "on" || rec[k] === "true" || rec[k] === "1");
+        } else {
+          el.value = rec[k] || "";
+        }
+      }
+    } catch (e) {
+      alertBox("danger", "Load error: " + (e && e.message ? e.message : "unknown"));
+    }
+  }
+
+  async function postAction(action) {
+    // Build x-www-form-urlencoded (simple, no @MultipartConfig needed)
+    const params = new URLSearchParams(new FormData(form));
+    params.set("action", action);
+
+    setBusy(action === "save" ? btnSave : btnCancel, true);
+    allDisabled(true);
+    resBox.style.display = "none";
+
+    try {
+      const r = await fetch(form.action, {
+        method: "POST",
+        headers: { "Accept": "application/json", "X-Requested-With":"XMLHttpRequest" },
+        body: params
+      });
+      const j = await r.json();
+      if (!r.ok || j.ok === false) {
+        alertBox("danger", j.message || (action==="save" ? "Save failed" : "Cancel failed"));
+      } else {
+        alertBox("success", j.message || (action==="save" ? "Saved." : "Cancelled."));
+      }
+    } catch (e) {
+      alertBox("danger", "Network error: " + (e && e.message ? e.message : "unknown"));
+    } finally {
+      setBusy(action === "save" ? btnSave : btnCancel, false);
+      allDisabled(false);
+    }
+  }
+
+  btnSave.addEventListener("click", () => postAction("save"));
+  btnCancel.addEventListener("click", () => postAction("cancel"));
+
+  prefill();
+})();
+</script>

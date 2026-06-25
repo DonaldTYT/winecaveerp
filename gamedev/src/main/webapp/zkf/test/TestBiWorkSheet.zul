@@ -1,0 +1,26 @@
+<zk>
+<div width="500px">
+	<vlayout>
+		<hlayout>
+			<listbox id="invoiceList" hflex="1" height="400px">
+			<listhead>
+			<listheader label="Date" />
+			<listheader label="Invoice No." />
+			<listheader label="Create By" />
+			<listheader label="Status" />
+			<listheader label="Job No" />
+			</listhead>
+			</listbox>
+			<vlayout>
+			<button width="100px" id="btSelect" label="Select"></button>
+			<button width="100px" id="btOK" label="Create"></button>
+			</vlayout>
+		</hlayout>
+		<div align="right">
+			<hlayout>
+			<button width="100px" id="btCancel" label="Cancel"></button>
+			</hlayout>
+		</div>
+	</vlayout>
+</div>
+</zk>

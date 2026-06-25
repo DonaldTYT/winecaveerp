@@ -1,0 +1,237 @@
+<zk>
+	<grid style="text-align:left;" id="detail_grid"> </grid>
+	<div width="1470px">
+		<hlayout valign="middle">
+			<div width="80px"><label id="lb_inv_invno"></label> </div>
+			<bandbox width="150px" id="inv_invno" use="com.uniinformation.jx.zk.ZkJxPickInput" />
+			<hlayout width="80px" valign="middle"><div hflex="1"> </div><label id="lb_co_coname"></label> </hlayout>
+			<textbox width="300px" id="co_coname"/>	
+			<div width="100px"> <label id="lb_inv_pocode" value="客戶參考 PO"/> </div>
+			<textbox width="220px" id="inv_pocode"/>	
+			<button id="btNewQuo">New Quotation</button>
+			<div hflex="1"> </div>
+			<div width="80px"> <label id="lb_jm_cdate" value="Date"/> </div>
+			<div width="150px">
+			<textbox width="100px" id="jm_cdate"/>	
+			</div>
+			<div width="5px"></div>
+		</hlayout>
+		<hlayout valign="middle">
+			<div width="80px"><label id="lb_inv_vcode"></label> </div>
+			<textbox width="150px" id="inv_vcode"></textbox>
+			<hlayout width="80px" valign="middle"><div hflex="1"> </div><label id="lb_vd_vname"></label> </hlayout>
+			<textbox width="300px" id="vd_vname"/>	
+			<div width="100px"> <label id="lb_inv_quostatus"/> </div>
+			<textbox width="220px" id="inv_quostatus"/>	
+			<div hflex="1"> </div>
+			<div width="80px"> <label id="lb_jm_cuser"/> </div>
+			<div width="150px">
+			<textbox width="100px" id="jm_cuser"/>	
+			</div>
+			<div width="5px"></div>
+		</hlayout>
+		<hlayout valign="middle">
+			<div width="80px"><label id="lb_jm_jobno"></label> </div>
+			<textbox width="105px" id="jm_jobno"></textbox>
+			<intbox width="40px" id="jm_rev"></intbox>
+			<hlayout width="80px" valign="middle"><div hflex="1"> </div><label id="lb_jm_title"></label> </hlayout>
+			<textbox width="630px" id="jm_title"/>	
+			<div width="100px">
+				<checkbox hflex="1" id="jm_fsc" label="Offset"/>
+			</div>
+			<div width="100px">
+				<checkbox id="jm_xerox" label="Digital"/>
+			</div>
+			<div hflex="1"> </div>
+			<div width="80px"> <label id="lb_jm_rg"/> </div>
+			<div width="150px">
+			<textbox width="100px" id="jm_rg"/>	
+			</div>
+			<div width="5px"></div>
+		</hlayout>
+		<hlayout valign="middle">
+			<div width="80px"><label id="lb_jm_page"></label> </div>
+			<textbox width="150px" id="jm_page"></textbox>
+			<hlayout width="80px" valign="middle"><div hflex="1"> </div><label id="lb_jm_finsize"></label> </hlayout>
+			<textbox width="300px" id="jm_finsize"/>	
+			<hlayout width="80px" valign="middle"><div hflex="1"> </div><label id="lb_jm_flatsize"></label> </hlayout>
+			<textbox width="300px" id="jm_flatsize"/>	
+			<!-- 
+			<div width="100px"> <label id="lb_jm_pocode" value="客戶參考 PO"/> </div>
+			<textbox width="220px" id="jm_pocode"/>	
+			 -->
+			<div hflex="1"> </div>
+			<div width="80px"> <label id="lb_jm_updtime"/> </div>
+			<div width="150px">
+			<textbox width="150px" id="jm_updtime"/>	
+			</div>
+			<div width="5px"></div>
+		</hlayout>
+		<!-- 
+		<hlayout>
+			<div width="300px">
+			</div>
+			<div width="1000px">
+			</div>
+			<div width="170px">
+			<vlayout>
+				<hlayout valign="middle">
+				<div width="50px"></div>
+				</hlayout>
+			</vlayout>
+			</div>
+		</hlayout>
+		 -->
+		<hlayout valign="top">
+			<div width="80px"><label>成品</label> </div>
+			<listbox id="list_aw_WoQty" height="140px" width="870px"></listbox>
+		</hlayout>
+		<!-- 
+		<hlayout valign="middle">
+			<div width="50px">
+			<label id="lb_jm_qty" value="數量"/>
+			</div>
+			<textbox width="500px" id="jm_qty"/>
+			<div width="120px">
+			</div>
+		</hlayout>
+		 -->
+		<div height="30px"></div>
+		<hlayout>
+			<vlayout>
+			<hlayout valign="middle">
+			<label hflex="1">用紙</label>
+			<div width="100px">
+			<label id="lb_jm_isbn" value="產品編號"/>
+			</div>
+			<textbox id="jm_isbn"/>	
+			</hlayout>
+			<listbox id="list_aw_WoMat" height="200px"></listbox>
+			</vlayout>
+		</hlayout>
+		<div height="30px"></div>
+		<hlayout>
+			<listbox id="list_aw_WoExt" height="200px"></listbox>
+		</hlayout>
+		<div height="30px"></div>
+		<hlayout>
+			<listbox id="list_aw_WoPrt" height="200px"></listbox>
+		</hlayout>
+		<div height="30px"></div>
+		<hlayout>
+			<div width="925px">
+			<vlayout>
+			<label> 外註加工 </label>
+			<listbox id="list_aw_WoFin" height="178px"></listbox>
+			</vlayout>
+			</div>
+			<!--
+			<div hflex="1">
+				<vlayout>
+				<div height="30px"></div>
+				<checkbox hflex="1" id="jm_owflag0" label="已做刀模" />	
+				<checkbox hflex="1" id="jm_owflag1" label="已棄刀模" />	
+				<checkbox hflex="1" id="jm_owflag2" label="已做電版" />	
+				<checkbox hflex="1" id="jm_owflag3" label="已做UV菲林" />	
+				</vlayout>
+			</div>
+			-->
+			<div width="535px">
+			<listbox id="list_aw_WoProd" height="200px"></listbox>
+			</div>
+		</hlayout>
+		<div height="30px"></div>
+		<hlayout>
+			<div hflex="1">
+				<vlayout>
+					<hlayout valign="middle">
+						<label id="lb_jm_packing" value="包裝"/>
+						<bandbox hflex="1" id="jm_packing" use="com.uniinformation.jx.zk.ZkJxPickInput" />
+						<label id="lb_jm_delivery" value="運輸"/>
+						<bandbox hflex="1" id="jm_delivery" use="com.uniinformation.jx.zk.ZkJxPickInput" />
+					</hlayout>
+					<hlayout>
+						<label>數碼打稿</label>
+						<vlayout hflex="1">
+							<checkbox hflex="1" id="jm_ctpflag0" label="Hi-res(高解像度)" />
+							<checkbox hflex="1" id="jm_ctpflag1" label="Low-res(低解像度)" />
+						</vlayout>
+						<vlayout hflex="1">
+							<checkbox hflex="1" id="jm_ctpflag2" label="Xerox" />
+							<checkbox hflex="1" id="jm_ctpflag3" label="打稿" />
+						</vlayout>
+						<vlayout hflex="1">
+							<checkbox hflex="1" id="jm_ctpflag4" label="Other"/>
+						</vlayout>
+					</hlayout>
+					<hlayout valign="middle">
+						<div width="80px">
+							<label id="lb_jm_cpuid" value="電腦機號"/>
+						</div>
+						<textbox width="200px" id="jm_cpuid"/>	
+						<div width="80px">
+							<label hflex="1" id="lb_jm_jobid" value="電話號碼"/>
+						</div>
+						<textbox width="120px" id="jm_jobid"/>
+					</hlayout>
+					<hlayout valign="middle">
+						<div width="80px">
+							<label id="lb_jm_runby" value="操作人員"/>
+						</div>
+						<textbox width="200px" id="jm_runby"/>
+					</hlayout>
+					<hlayout valign="middle">
+						<div width="80px">
+							<label id="lb_jm_createby" value="製單人員"/>
+						</div>
+						<textbox width="200px" id="jm_createby"/>			
+					</hlayout>
+					<hlayout valign="middle">
+						<div width="80px">
+							<label id="lb_jm_ddate" value="交貨日期"/>
+						</div>
+						<datebox id="jm_ddate"/>
+						<checkbox id="jm_rdytoprt" label="可印"/>
+						<checkbox id="jm_wipflag0" label="上機"/>
+						<checkbox id="jm_wipflag1" label="加工"/>
+						<checkbox id="jm_wipflag2" label="送貨"/>
+						<checkbox id="jm_hasow" label="完成"/>
+						<!-- 
+						<checkbox hflex="1" id="jm_hasow" label="完成"/>
+						<checkbox hflex="1" id="jm_rdytoprt" label="可印"/>
+						 -->
+					</hlayout>
+				</vlayout>
+			</div>
+			<div width="50px"></div>
+			<div width="600px">
+				<hlayout>
+				<vlayout width="200px">
+				<div height="30px"></div>
+				<checkbox hflex="1" id="jm_owflag0" label="已做刀模" />	
+				<checkbox hflex="1" id="jm_owflag1" label="已棄刀模" />	
+				<checkbox hflex="1" id="jm_owflag2" label="已做電版" />	
+				<checkbox hflex="1" id="jm_owflag3" label="已做UV菲林" />	
+				</vlayout>
+				<vlayout width="400px">
+					<label hflex="1" id="lb_jm_otherrem" value="其他"/>
+					<textbox hflex="1" id="jm_otherrem" rows="10"/>
+				</vlayout>
+				</hlayout>
+			</div>
+		</hlayout>
+		<!-- 
+		<hlayout>
+			<vlayout>
+			<div height="30px"></div>
+			<label>Invoice Informatin</label>
+			<listbox id="list_aw_QuoDet" height="200px"></listbox>
+			</vlayout>
+	    </hlayout>
+		 -->
+	</div>
+	<toolbar id="detail_toolbar" align="end">
+		<button id="btCopy" label="Copy Order" visible="true"></button>
+		<button id="btPrint" label="Print Order" visible="true"></button>
+	</toolbar>
+</zk>

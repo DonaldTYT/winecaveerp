@@ -1,0 +1,9 @@
+<zk>
+<window sclass="zkbi-form zkbi-main-window" width="600px" apply="com.uniinformation.zkf.ZkCellActionForm">
+	<vlayout sclass="zkbi-form-content">
+		<div align="center">
+			<button width="100px" id="btAdd" label="Add"> </button>
+		</div>
+	</vlayout>
+</window>
+</zk>

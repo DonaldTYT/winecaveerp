@@ -1,0 +1,39 @@
+{
+  "intro": {
+    "tag": "Safe payments and speedy delivery",
+    "title": "Payment & Delivery",
+    "desc": "We make your wine shopping smooth from checkout to arrival. Secure transactions, careful packing, and reliable couriers ensure every order is handled with care from start to finish.",
+    "cta": "Contact Us"
+  },
+  "s1": {
+    "tag": "Secure payments, fast and reliable delivery",
+    "title": "Payment & Delivery",
+    "lead": "At Wine Cave, we are committed to making your wine shopping experience as smooth and enjoyable as possible. From secure payments to reliable delivery, we ensure every order is handled with care from start to finish.",
+    "payment": {
+      "title": "Payment Options",
+      "lead": "We offer a range of safe and convenient payment methods:",
+      "items": [
+        "Credit & Debit Cards – Visa, MasterCard, American Express, and more",
+        "Digital Wallets & Online Payments – PayPal, Stripe, Apple Pay, Google Pay, and local gateways",
+        "Bank Transfers – A trusted option for bulk or custom orders",
+        "Cash on Delivery (COD) – Available in selected locations"
+      ],
+      "note": "All transactions with Wine Cave are processed through encrypted systems to guarantee your privacy and security."
+    },
+    "delivery": {
+      "title": "Delivery Information",
+      "lead": "Wine Cave partners with trusted courier services to bring your wines to you quickly and safely:",
+      "items": [
+        "Processing Time – Orders are confirmed and packed within 24–48 hours",
+        "Standard Delivery – 3–7 business days (depending on location)",
+        "Express Delivery – Faster options available at checkout",
+        "Same-Day / Next-Day Delivery – Available in select areas",
+        "International Shipping – Secure worldwide delivery with real-time tracking"
+      ]
+    },
+    "packaging": {
+      "title": "Packaging & Handling",
+      "body": "Every bottle from Wine Cave is carefully packaged using shock-resistant materials and eco-friendly solutions. We cushion and protect each wine bottle against impact, temperature changes, and transit handling to ensure it arrives in pristine condition."
+    }
+  }
+}

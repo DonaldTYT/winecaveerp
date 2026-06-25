@@ -1,0 +1,108 @@
+<zk>
+<style>
+.econtainer {
+	display: flex;
+	flex-direction: column;
+}
+.itemrow {
+	display: inline-flex;
+	flex-direction: row;
+}
+.itemrow .textlabel {
+	width: 130px;
+	flex: none;
+}
+.itemrow .inputelement,
+.itemrow .select2 {
+	flex: 1;
+}
+.itemrow .payperioddiv>.select2 {
+	width: 190px !important;
+}
+.itemrow .paydatediv>.select2 {
+	width: 110px !important;
+}
+
+@media (min-width: 992px) {
+	.itemrow .emiddiv {
+		display: inline-flex;
+		flex: 1;
+	}
+	.itemrow .emiddiv>.select2 {
+		flex: 1;
+		max-width: 800px;
+	}
+}
+@media (max-width: 991px) {
+	.itemrow .emiddiv {
+		display: inline-flex;
+		flex-wrap: wrap;
+	}
+	.itemrow .emiddiv>.select2 {
+		flex: none;
+		width: 200px !important;
+	}
+}
+</style>
+<zscript>
+<![CDATA[
+	String composer = "ZkBiComposerBase";
+	String classPrefix = "com.uniinformation.zkbi.";
+	if (Executions.getCurrent().getParameter("composer") != null){
+		composer = Executions.getCurrent().getParameter("composer").trim();
+	}
+	if (Executions.getCurrent().getParameter("prefix") != null){
+		classPrefix = "com.uniinformation."+Executions.getCurrent().getParameter("prefix").trim()+".";
+	}
+]]></zscript>
+	<window id="winPaymentGen" title="Payment Generation" width="100%" border="narrow" apply="${classPrefix}${composer}" xmlns:h="native">
+ 		<caption style="font-size:14px">
+  			<toolbarbutton id="btnHelp" image="images/icons/zkweb/033-doubt-25x25.png" sclass="zkbi-header-help narrowtoolbarbutton zkbi-tbb-active" />
+   		</caption>
+		<div class="econtainer">
+			<separator height="10px"/>
+			<div class="itemrow">
+				<label class="textlabel" value="Emp.Id:"><custom-attributes tlkey="lb_emid"/></label>
+				<div class="emiddiv">
+					<s2listbox id="s2Emid"/>
+					<space/>
+					<label value="(Blank for all)"><custom-attributes tlkey="lb_blankforall"/></label>
+				</div>
+			</div>
+			<separator height="10px"/>
+			<div class="itemrow">
+				<label class="textlabel" value="Department:"><custom-attributes tlkey="lb_dept"/></label>
+				<div class="emiddiv">
+					<s2listbox id="s2Dept"/>
+				</div>
+			</div>
+			<separator height="10px"/>
+			<div class="itemrow">
+				<label class="textlabel" value="Pay Period:"><custom-attributes tlkey="lb_payperiod"/></label>
+				<div class="payperioddiv">
+					<s2listbox id="s2PayPeriod"/>
+				</div>
+			</div>
+			<separator height="10px"/>
+			<div class="itemrow">
+				<label class="textlabel" value="Pay Date:"><custom-attributes tlkey="lb_paydate"/></label>
+				<div class="paydatediv">
+					<s2listbox id="s2PayDate"/>
+				</div>
+			</div>
+			<separator height="10px"/>
+			<div class="itemrow">
+				<label class="textlabel" value="When Payment Record Exist:"><custom-attributes tlkey="lb_whenexist"></custom-attributes></label>
+				<radiogroup id="rgWhenExist">
+					<radio label="Abort" selected="true"><custom-attributes tlkey="rd_whenex_abort"/></radio>
+					<radio label="Skip"><custom-attributes tlkey="rd_whenex_skip"/></radio>
+					<radio label="Override"><custom-attributes tlkey="rd_whenex_override"/></radio>
+				</radiogroup>
+			</div>
+			<separator height="10px"/>
+			<div class="itemrow">
+				<button id="btStart" style="flex:0" label="Start"><custom-attributes tlkey="bt_start"></custom-attributes></button>
+			</div>
+		</div>
+  	</window>
+</zk>

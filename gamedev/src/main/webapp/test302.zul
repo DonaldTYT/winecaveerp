@@ -1,0 +1,121 @@
+<zk xmlns:c="client">
+  <style>
+    .text-center, .z-combobox-inp, .z-datebox-inp {
+        text-align: center;
+    }
+    div.z-grid-body {
+        #overflow: hidden;
+    }
+    div.z-column-cnt {
+        padding: 7px 0 5px 5px;
+    }
+    tr.z-row td.z-row-inner,div.z-row-cnt {
+        padding: 0 2px;
+    }
+  </style>
+  <zscript><![CDATA[
+  List status = new java.util.ArrayList();
+  status.add("Ordered");
+  status.add("Shipped");
+  status.add("Awaiting");
+  status.add("Unavailable");
+  ListModel lm = new ListModelList(status);
+  Date today = org.zkoss.util.Dates.today();
+]]></zscript>
+  <grid width="850px">
+    <columns height="22px">
+      <column width="150px" label="Author">
+        <image src="/widgets/grid/inline_editing/img/ui-text-field.png" />
+      </column>
+      <column width="350px" label="Title">
+        <image src="/widgets/grid/inline_editing/img/ui-text-field.png" />
+      </column>
+      <column width="100px" label="Publish Date" align="center">
+        <image src="/widgets/grid/inline_editing/img/calendar-blue.png" />
+      </column>
+      <column width="150px" label="Hardcover" align="center">
+        <image src="/widgets/grid/inline_editing/img/control-up-down.png" />
+      </column>
+      <column width="100px" label="Status" align="center">
+        <image src="/widgets/grid/inline_editing/img/ui-combo-box-edit.png" />
+      </column>
+    </columns>
+    <rows>
+      <row>
+        <textbox inplace="true" onChange='self.style="font-weight:bold"' value="Philip Hensher" width="99%" />
+        <textbox inplace="true" multiline="true" onChange='self.style="font-weight:bold"' value="The Fit" width="99%" />
+        <datebox inplace="true" onChange='self.style="font-weight:bold"' value="${today}" width="99%"
+          format="MM/dd/yyyy" />
+        <div class='text-center'>
+          <!-- Inplace is pure client action so that use client way to modify the width-->
+          <spinner inplace="true" onChange='self.style="font-weight:bold"' value="240" width="30px"
+            c:onFocus='this.setWidth("55px")' c:onBlur='this.setWidth("30px")' />
+          <!-- Click text then users can edit number -->
+          <label value="pages" onClick="self.previousSibling.focus=true" />
+        </div>
+        <combobox width="99%" inplace="true" onChange='self.style="font-weight:bold"' value="Shipped" model="${lm}" />
+      </row>
+      <row>
+        <textbox inplace="true" onChange='self.style="font-weight:bold"' value="Philip Hensher" width="99%" />
+        <textbox inplace="true" multiline="true" onChange='self.style="font-weight:bold"' value="Kitchen Venom" width="99%" />
+        <datebox inplace="true" onChange='self.style="font-weight:bold"' value="${today}"
+          width="99%" format="MM/dd/yyyy" />
+        <div class='text-center'>
+          <spinner inplace="true" onChange='self.style="font-weight:bold"' value="336" width="30px"
+            c:onFocus='this.setWidth("55px")' c:onBlur='this.setWidth("30px")' />
+          <label value="pages" onClick="self.previousSibling.focus=true" />
+        </div>
+        <combobox width="99%" inplace="true" onChange='self.style="font-weight:bold"' value="Awaiting" model="${lm}" />
+      </row>
+      <row>
+        <textbox inplace="true" onChange='self.style="font-weight:bold"' value="Michael Greenberg" width="99%" />
+        <textbox inplace="true" multiline="true" onChange='self.style="font-weight:bold"' value="Hurry Down Sunshine" width="99%" />
+        <datebox inplace="true" onChange='self.style="font-weight:bold"' value="${today}"
+          width="99%" format="MM/dd/yyyy" />
+        <div class='text-center'>
+          <spinner inplace="true" onChange='self.style="font-weight:bold"' value="245" width="30px"
+            c:onFocus='this.setWidth("55px")' c:onBlur='this.setWidth("30px")' />
+          <label value="pages" onClick="self.previousSibling.focus=true" />
+        </div>
+        <combobox width="99%" inplace="true" onChange='self.style="font-weight:bold"' value="Awaiting" model="${lm}" />
+      </row>
+      <row>
+        <textbox inplace="true" onChange='self.style="font-weight:bold"' value="Michael Greenberg" width="99%" />
+        <textbox inplace="true" multiline="true" onChange='self.style="font-weight:bold"' value="Painless Vocabulary (Painless)" width="99%" />
+        <datebox inplace="true" onChange='self.style="font-weight:bold"' value="${today}"
+          width="99%" format="MM/dd/yyyy" />
+        <div class='text-center'>
+          <spinner inplace="true" onChange='self.style="font-weight:bold"' value="292" width="30px"
+            c:onFocus='this.setWidth("55px")' c:onBlur='this.setWidth("30px")' />
+          <label value="pages" onClick="self.previousSibling.focus=true" />
+        </div>
+        <combobox width="99%" inplace="true" onChange='self.style="font-weight:bold"' value="Ordered" model="${lm}" />
+      </row>
+      <row>
+        <textbox inplace="true" onChange='self.style="font-weight:bold"' value="Rick Perlstein" width="99%" />
+        <textbox inplace="true" multiline="true" onChange='self.style="font-weight:bold"'
+          value="Nixonland: The Rise of a President and the Fracturing of America" width="99%" />
+        <datebox inplace="true" onChange='self.style="font-weight:bold"' value="${today}"
+          width="99%" format="MM/dd/yyyy" />
+        <div class='text-center'>
+          <spinner inplace="true" onChange='self.style="font-weight:bold"' value="896" width="30px"
+            c:onFocus='this.setWidth("55px")' c:onBlur='this.setWidth("30px")' />
+          <label value="pages" onClick="self.previousSibling.focus=true" />
+        </div>
+        <combobox width="99%" inplace="true" onChange='self.style="font-weight:bold"' value="Unavailable" model="${lm}" />
+      </row>
+      <row>
+        <textbox inplace="true" onChange='self.style="font-weight:bold"' value="Rick Perlstein" />
+        <textbox inplace="true" multiline="true" onChange='self.style="font-weight:bold"' value="Nixonland" />
+        <datebox inplace="true" onChange='self.style="font-weight:bold"' value="${today}"
+          width="99%" format="MM/dd/yyyy" />
+        <div class='text-center'>
+          <spinner inplace="true" onChange='self.style="font-weight:bold"' value="845" width="30px"
+            c:onFocus='this.setWidth("55px")' c:onBlur='this.setWidth("30px")' />
+          <label value="pages" onClick="self.previousSibling.focus=true" />
+        </div>
+        <combobox width="99%" inplace="true" onChange='self.style="font-weight:bold"' value="Awaiting" model="${lm}" />
+      </row>
+    </rows>
+  </grid>
+</zk>

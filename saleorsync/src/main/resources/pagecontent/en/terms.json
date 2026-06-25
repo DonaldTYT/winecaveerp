@@ -1,0 +1,64 @@
+{
+  "intro": {
+    "tag": "Please read carefully before using",
+    "title": "Terms & Conditions",
+    "desc": "Welcome to Wine Cave. By accessing or using our website, products, or services, you agree to comply with these Terms & Conditions.",
+    "cta": "Contact Us"
+  },
+  "s1": {
+    "tag": "Understanding the guidelines of our services",
+    "title": "Terms & Conditions",
+    "lead": "Welcome to Wine Cave. By accessing or using our website, products, or services, you agree to comply with the following Terms & Conditions. Please read them carefully before making a purchase or booking.",
+    "sections": [
+      {
+        "title": "1. General Information",
+        "items": [
+          "Wine Cave is committed to providing a secure and enjoyable shopping experience.",
+          "By using our site, you confirm that you are of legal drinking age in your country of residence.",
+          "We reserve the right to update or modify these Terms & Conditions at any time."
+        ]
+      },
+      {
+        "title": "2. Orders & Payments",
+        "items": [
+          "All orders are subject to availability and confirmation.",
+          "Prices are listed in the specified currency and may change without notice.",
+          "We accept multiple payment methods including credit/debit cards, digital wallets, bank transfers, and cash on delivery (where available).",
+          "Payment must be completed before order processing unless otherwise specified."
+        ]
+      },
+      {
+        "title": "3. Shipping & Delivery",
+        "items": [
+          "Orders are usually processed within 24–48 hours.",
+          "Standard delivery times vary between 3–7 business days, depending on location.",
+          "International shipping is available, and customs fees (if any) are the responsibility of the customer.",
+          "Wine Cave is not liable for delays caused by third-party couriers or unforeseen circumstances."
+        ]
+      },
+      {
+        "title": "4. Returns & Refunds",
+        "items": [
+          "We take great care in packaging to ensure wines arrive in excellent condition.",
+          "Returns are only accepted if products are damaged, incorrect, or defective upon delivery.",
+          "Refunds or replacements will be processed once returned items are inspected.",
+          "Requests must be made within 7 days of delivery by contacting our support team."
+        ]
+      },
+      {
+        "title": "5. Cancellations",
+        "items": [
+          "Orders can be canceled within 12 hours of purchase, provided they haven’t been dispatched.",
+          "Once shipped, cancellations are no longer possible."
+        ]
+      },
+      {
+        "title": "6. Use of Website",
+        "items": [
+          "Content, images, and branding on Wine Cave’s website are the intellectual property of Wine Cave and may not be copied, modified, or distributed without permission.",
+          "You agree not to misuse our website for fraudulent or unlawful purposes."
+        ]
+      }
+    ]
+  }
+}

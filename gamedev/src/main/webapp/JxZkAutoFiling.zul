@@ -1,0 +1,14 @@
+<zk xmlns:w="http://www.zkoss.org/2005/zk/client" xmlns:h="xhtml">
+<space/>
+		<window class="zk-container" id="winMain" title="Auto Filing" border="normal" width="100%" apply="com.uniinformation.jxapp.clinic.JxZkAutoFiling">
+			<div id="zkDropzone" style="border: dashed 2px #beefbe; background:#f3fff6;" class="zkbi-80pct-height">
+				<h:div id="jsDropzone" class="dropzone" style="border:none;background:inherit; width:100%; height:100%">
+					<h:div class="dz-message data-dz-message"><h:span>Drop files here or click to upload</h:span><h:br/><h:span style="font-style: italic;color:red;">*File PDF Document with QR code</h:span></h:div>
+				</h:div>
+			</div>
+			<separator height="2px"></separator>
+			<div width="100%">
+				<h:textarea id="jsDropzoneLogTA" rows="5" style="width:50%;" placeholder="Auto Filing Status Log"></h:textarea>
+			</div>
+		</window>
+</zk>

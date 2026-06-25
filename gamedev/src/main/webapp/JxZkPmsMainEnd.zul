@@ -1,0 +1,28 @@
+<window border="normal" width="400px" title="Welcome" apply="com.uniinformation.jx.zk.JxZkPmsMainEnd" id="JxZkPmsMainEnd" >
+    <grid hflex="1"> <!-- hflex="1" - available width inside parent (window) -->
+        <columns visible="false" >
+            <column/><!-- define 2 columns to enable auxhead/er -->
+            <column/>
+        </columns>
+        <auxhead>
+            <auxheader colspan="2" label="System Login" style="font-size:16px" image="images/login2.jpg"/>
+        </auxhead>
+        <rows>
+            <row>
+                Login Id <textbox id="txLoginId" hflex="1" constraint="no empty"/>
+            </row>
+            <row>
+                Password  <textbox id="txPassword" hflex="1" constraint="no empty" type="password"/>
+            </row>
+            <row spans="2" align="right">
+                <hlayout>
+                    <button id="btSubmit" label="Submit" disabled="true"/>
+                    <button id="btReset" label="Reset" />
+                </hlayout>
+            </row>
+            <row spans="2">
+              <checkbox id="cbKeepMeSignedIn" label="Keep me signed in" checked="true" />
+            </row>
+        </rows>
+    </grid>
+</window>

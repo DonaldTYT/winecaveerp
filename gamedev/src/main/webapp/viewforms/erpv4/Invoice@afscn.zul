@@ -1,0 +1,159 @@
+<zk xmlns:n="native">
+	<toolbar id="detail_toolbar" align="end"> 
+		<button id="btPrintInvoice" label="Print" visible="true"><custom-attributes tlkey="bt_PrintInvoice"></custom-attributes></button>
+		<button id="btUnpost" label="Unpost" visible="true"><custom-attributes tlkey="bt_Unpost"></custom-attributes></button>
+		<button id="btCopyInv" label="Copy" visible="true"><custom-attributes tlkey="bt_CopyInv"></custom-attributes></button>
+	</toolbar>
+	<div style="background-color:white">
+			<bs-row>
+				<bs-col-311>
+					<image id="co_logo" height="100px" />
+				</bs-col-311>
+				<bs-col-311>
+				</bs-col-311>
+				<bs-col-311 align="right">
+	 				<label id="pageTitle" style="font-weight: bold;font-size:30px !important;" value="Invoice"><custom-attributes tlkey="hdr_erp_v4_Invoice"></custom-attributes></label>
+				</bs-col-311>
+					
+			</bs-row>
+			<bs-row>
+				<bs-col-321>
+					<!--
+					<zkbitextbox jxId="invh_vcode" labelWidth="30%" compWidth="30%"></zkbitextbox>
+					<zkbis2listbox id="vd_vname"></zkbis2listbox>
+					<zkbicombobox jxId="vd_vname" labelWidth="30%" compWidth="30%"> </zkbicombobox>
+					-->
+					<zkbis2listbox jxId="vd_vname" labelWidth="30%" compWidth="70%"></zkbis2listbox>
+					<zkbitextbox jxId="invh_contact" labelWidth="30%" compWidth="70%" textboxWidth="100%"> </zkbitextbox>
+					<zkbitextbox jxId="invh_tel" labelWidth="30%" compWidth="70%" textboxWidth="45%" template="tinvhtel">
+						<template name="tinvhtel">
+							<div sclass="zkbitextbox-lb-div" hflex="1" align="right">
+							<label id="lb_invh_fax" use="com.uniinformation.zkcomp.ZkBiHeaderLabel">
+								<custom-attributes tlkey="invh_fax"></custom-attributes>
+							</label>
+							</div>
+							<textbox id="invh_fax" width="45%"></textbox>
+						</template>
+					</zkbitextbox>
+					<zkbitextbox jxId="invh_email" labelWidth="30%" compWidth="70%" textboxWidth="100%"> </zkbitextbox>
+					<zkbitextbox jxId="invh_addr0" labelWidth="30%" compWidth="70%" textboxWidth="100%"> </zkbitextbox>
+					<zkbitextbox jxId="invh_addr1" labelWidth="30%" compWidth="70%" textboxWidth="100%"> </zkbitextbox>
+					<zkbitextbox jxId="invh_addr2" labelWidth="30%" compWidth="70%" textboxWidth="100%"> </zkbitextbox>
+					<zkbitextbox jxId="invh_addr3" labelWidth="30%" compWidth="70%" textboxWidth="100%"> </zkbitextbox>
+					<!--
+					<zkbitextbox jxId="invh_quodeli" labelWidth="30%" compWidth="70%" textboxRows="2"> </zkbitextbox>
+					<zkbitextbox jxId="invh_term" labelWidth="30%" compWidth="70%" textboxRows="2"> </zkbitextbox>
+					<zkbitextbox jxId="invh_remark" labelWidth="30%" compWidth="70%" textboxRows="2"> </zkbitextbox>
+					-->
+					<!--
+					<zkbis2listbox jxId="vd_vname" labelWidth="30%" compWidth="70%" template="tvdvname">
+						<template name="tvdvname">
+							<textbox style="padding-left:5px" id="invh_vcode"></textbox>
+						</template>
+					</zkbis2listbox>
+					-->
+					<!--
+					<zkbitextbox jxId="invh_vcode" labelWidth="30%" compWidth="70%" template="tvcode">
+						<template name="tvcode">
+							<s2listbox style="padding-left:5px" id="vd_vname"></s2listbox>
+						</template>
+					</zkbitextbox>
+					-->
+				</bs-col-321>
+				<bs-col-321>
+					<zkbiradiogroup jxId="invh_invtype" labelWidth="30%" compWidth="30%"> </zkbiradiogroup>
+					<zkbiradiogroup jxId="invh_bankinfo" labelWidth="30%" compWidth="30%"> </zkbiradiogroup>
+					<zkbitextbox jxId="invh_invno" labelWidth="30%" compWidth="30%"> </zkbitextbox>
+					<zkbidatebox jxId="invh_date" labelWidth="30%" compWidth="30%"> </zkbidatebox>
+					<zkbidatebox jxId="invh_duedate" labelWidth="30%" compWidth="30%"> </zkbidatebox>
+					<zkbitextbox jxId="invh_jobno" labelWidth="30%" compWidth="30%"> </zkbitextbox>
+					<zkbitextbox jxId="invh_pocode" labelWidth="30%" compWidth="30%"> </zkbitextbox>
+					<zkbicombobox jxId="cc_cid" labelWidth="30%" compWidth="40%" template="tcccid">  
+						<template name="tcccid">
+							<div sclass="zkbitextbox-lb-div" hflex="1" align="right">
+							<!--
+							<label id="lb_invh_xrate" use="com.uniinformation.zkcomp.ZkBiHeaderLabel">
+								<custom-attributes tlkey="invh_xrate"></custom-attributes>
+							</label>
+							-->
+							<label>@</label>
+							</div>
+							<doublebox id="invh_xrate" width="45%"></doublebox>
+						</template>
+					</zkbicombobox>
+					<!--
+					<zkbidoublebox jxId="invh_grtotal" labelWidth="30%" compWidth="30%"> </zkbidoublebox>
+					<zkbidoublebox jxId="invh_discount" labelWidth="30%" compWidth="30%"> </zkbidoublebox>
+					<zkbidoublebox jxId="invh_delichg" labelWidth="30%" compWidth="30%"> </zkbidoublebox>
+					<zkbidoublebox jxId="invh_total" labelWidth="30%" compWidth="30%"> </zkbidoublebox>
+					-->
+					<zkbicombobox jxId="invh_post" labelWidth="30%" compWidth="40%" template="tinvpost">
+						<template name="tinvpost">
+							<div sclass="zkbitextbox-lb-div" hflex="1" align="right">
+							<label id="lb_invh_voidflag" use="com.uniinformation.zkcomp.ZkBiHeaderLabel">
+								<custom-attributes tlkey="invh_voidflag"></custom-attributes>
+							</label>
+							</div>
+							<checkbox id="invh_voidflag" width="45%"></checkbox>
+						</template>
+					</zkbicombobox>
+				</bs-col-321>
+				<bs-col-321>
+					<zkbilabel jxId="invh_vcode" labelWidth="50%" compWidth="50%"> </zkbilabel>
+					<zkbilabel jxId="invh_cuser" labelWidth="50%" compWidth="50%" ></zkbilabel>
+					<zkbilabel jxId="invh_cdate" labelWidth="50%" compWidth="50%" ></zkbilabel>
+					<!--
+					<zkbilabel jxId="sih_total" labelWidth="50%" compWidth="50%" ></zkbilabel>
+					<zkbilabel jxId="sih_osbal" labelWidth="50%" compWidth="50%" ></zkbilabel>
+					-->
+				</bs-col-321>
+			</bs-row>
+	</div>
+	<!--
+					<zkbitextbox jxId="invh_term" labelWidth="30%" compWidth="70%" textboxRows="2"> </zkbitextbox>
+					<zkbitextbox jxId="invh_remark" labelWidth="30%" compWidth="70%" textboxRows="2"> </zkbitextbox>
+					-->
+	<listbox id="list_erpv4_InvDet">
+	   <listfoot>
+        <listfooter zclass="z-listbox-footer" span="1"><div style="text-align:right;padding:4px 5px;"></div></listfooter>
+        <listfooter zclass="z-listbox-footer" span="1"><div style="text-align:right;padding:4px 5px;">
+        		<vlayout>
+				<label>Delivery</label>
+				<label>Term</label>
+				<label>Remark</label>
+				</vlayout>
+        	</div>
+        </listfooter>
+        <listfooter zclass="z-listbox-footer" span="2"><div style="text-align:right;padding:4px 5px;">
+        		<vlayout>
+				<textbox id="invh_quodeli" rows="2" width="400px"></textbox>
+				<textbox id="invh_term" rows="2" width="400px"></textbox>
+				<textbox id="invh_remark" rows="2" width="400px"></textbox>
+				</vlayout>
+        	</div>
+        </listfooter>
+        <listfooter zclass="z-listbox-footer" span="1"><div style="text-align:right;padding:4px 5px;"></div></listfooter>
+        <listfooter zclass="z-listbox-footer" span="1"><div style="text-align:right;padding:4px 5px;"></div></listfooter>
+        <listfooter zclass="z-listbox-footer" span="4"><div style="text-align:right;padding:4px 5px;">
+        		<vlayout>
+        		<label>Gross Total</label>
+        		<label>Less Discount </label>
+        		<label>Delivery Charge</label>
+        		<label>Net Total</label>
+        		<label>Outstanding Balance</label>
+        		</vlayout>
+        	</div>
+        </listfooter>
+        <listfooter zclass="z-listbox-footer" span="1"><div style="text-align:right;padding:4px 5px;">
+        		<vlayout>
+        		<doublebox id="invh_grtotal"/>
+        		<doublebox id="invh_discount"/>
+        		<doublebox id="invh_delichg"/>
+        		<doublebox id="invh_total"/>
+        		<doublebox id="sih_osbal"/>
+        		</vlayout>
+        	</div>
+        </listfooter>
+       </listfoot>
+	</listbox>	
+</zk>

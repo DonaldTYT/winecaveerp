@@ -1,0 +1,96 @@
+<zk>
+<window width="90%" sclass="zkbi-form zkbi-main-window" title="" id="winUserProfile" apply="com.uniinformation.jx.zk.JxZkUserProfile" style="padding: 0px !important;" >
+	<label sclass="zkbi-form-header" id="lbHeader" value="User Profile"></label>
+	<vlayout sclass="zkbi-form-content">
+ 	<grid>
+        <columns>
+            <column width="30%"></column> 
+            <column width="70%"></column>
+        </columns>
+        <rows>
+            <row>
+                <label id="lbLoginId" value="Login ID"/>
+                <textbox id="txLoginId" value=""></textbox>
+            </row>
+            <row>
+                <label id="lbOldPassword" value="Old Password"/>
+                <textbox id="txOldPassword" instant="true" type="password" value=""></textbox>
+            </row>
+            <row>
+                <label id="lbNewPassword" value="New Password"/>
+                <hlayout>
+                <textbox id="txNewPassword" instant="true" type="password" value=""></textbox>
+                <div width="30px"/>
+                <label id="straightPassword" />
+                <!--
+                <label id="straightPassword" value="Must be mixture of both uppercase and lowercase letters and include at least one special character, e.g., ! @ # ?"/>
+                -->
+                </hlayout>
+            </row>
+            <row>
+                <label id="lbNewPasswordConfirm" value="New Password Confirm"/>
+                <textbox id="txNewPasswordConfirm" instant="true" type="password" value=""></textbox>
+            </row>
+            <row>
+                <label id="lbLang" value="Preferred Language"/>
+               	<combobox id="comboLang"></combobox>
+                
+            </row>
+            <row id="rowAccessKey" visible="false">
+            	<label id="lbAccessKey" value="AccessKey"></label>
+            	<textbox id="txAccessKey" hflex="1" value="" readonly="true"></textbox>
+            </row>
+            <row>
+            	<div></div>
+            	<hbox>
+    				<button id="btUpdate" label="Update"></button>
+    				<button id="btClear" label="Clear"></button>
+            	</hbox>
+            </row>
+        </rows>
+    </grid>	
+    <separator spacing="20px"/>
+    
+    <div id="divTwoFactorAuth" visible="false">
+	<label id="lbTwoFactorAuth" value="Two-Factor Authentication" style="font-size:18px"></label>
+ 	<grid>
+        <columns>
+            <column width="30%"></column> 
+            <column width="70%"></column>
+        </columns>
+        <rows>
+            <row>
+                <label id="lbGA" value="Google Authenticator"/>
+                <vbox>
+    				<checkbox id="cbGA" mold="switch" disabled="false" ></checkbox>
+    				<vbox id="confirmBox" visible="false">
+    					
+    					<label style="font-size:12px !important;" value="*Step 1. Launch Google Authenticator App and scan the QR Code"></label>
+                		<hbox>
+                			<vbox>
+                				<image id="imgGA"></image>
+                				<textbox id="txGASecret" width="200px" readonly="true" value=""></textbox>
+                			</vbox>
+                		</hbox>
+                		<space/>
+    					<label style="font-size:12px !important;" value="*Step 2. Get a 6 digit code from your Google Authenticator App for verification"></label>
+                		<hbox>
+                			<intbox id="txGAConfirmCode" placeholder="Confirm Code" instant="true"></intbox>
+                			<button id="btGASubmit" label="Verify"> </button>
+                		</hbox>
+                	</vbox>
+                </vbox>
+            </row>
+        </rows>
+    </grid>	
+    </div>
+    
+	</vlayout>
+	
+	
+	
+    
+    
+</window>
+</zk>
+    

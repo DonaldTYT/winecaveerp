@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html>
+<head>
+<jsp:include page="commonInit.jsp" flush="true"/>
+<script>
+
+$(document).ready( function() {
+	zk.afterMount(function () {
+		console.log('after mount');
+		
+		//try to move the zul element to summary-container
+		var element = $('.summary-items').detach();
+		$('.summary-container').append(element);
+	});
+	
+	//adjust position of summary block 
+	$('body').scroll(function(){  //after include commonInit document/window selector does not work
+	    var st = $(this).scrollTop();
+		if (st > 80){
+			$(".summary-container").css('margin-top',  st - 80+ 'px');
+		}
+		else{
+			$(".summary-container").css('margin-top',  0+ 'px');
+		}
+	});
+	
+	
+});
+
+</script>
+
+<style>
+body {
+	margin: 0;
+	background: #f1f1f1;
+}
+.content-block {
+	/*background: red;*/
+	margin-bottom: 50px;
+	max-width: 1400px;
+	min-width: 1200px;
+	margin: 0 auto;
+	margin-top: 20px;
+	position: relative;
+	margin-bottom: 20px;
+}
+footer {
+    background: grey;
+}
+.footer-block {
+    margin: 0 auto;
+    padding-top: 30px;
+    padding-bottom: 30px;
+    background: grey;
+}
+
+header {
+    background: grey;
+}
+.header-block {
+    margin: 0 auto;
+    padding-top: 30px;
+    padding-bottom: 30px;
+    background: grey;
+}
+
+.main-container {
+    margin-right: 400px;
+    background: #fff;
+}
+
+/*
+
+.content-block::before {
+	content: "content-block";
+}
+.footer-block::before {
+	content: "footer-block";
+}
+.header-block::before {
+	content: "header-block";
+}
+.main-container::before {
+	content: "main-container";
+}
+.main-item::before {
+	content: "main-item";
+}
+.summary-container::before {
+	content: "summary-container";
+}
+.summary-item::before {
+	content: "summary-item";
+}
+*/
+
+
+.main-item {
+	padding-top: 20px;
+	padding-left: 10px;
+	padding-right: 10px;
+}
+
+.summary-container {
+
+    background: #fff;
+    position: absolute;
+    right: 0px;
+    top: 0px;
+}
+.summary-item {
+	width: 360px;
+	padding: 10px;
+	/*background:pink;*/
+}
+.dummy300::before {
+	content: "dummy300";
+}
+.dummy300 {
+	margin: 2px;
+	height: 300px;
+	width: 300px;
+	border: 5px dashed grey;
+	background: #fff;
+}
+.dummy100::before {
+	content: "dummy100";
+}
+.dummy100 {
+	margin: 2px;
+	height: 100px;
+	width: 100px;
+	border: 5px dashed grey;
+	background: #fff;
+}
+.main-item-group {
+	display: flex;
+	margin-top: 18px;
+	
+}
+div.main-item-label {
+	width: 200px;
+}
+div.main-item-label .z-label {
+    font-size: 18px;
+}
+div.main-item-content {
+}
+
+
+/* customize radio button */
+div.main-item-content .z-radiogroup {
+	/*background:green !important;*/	
+    max-width: 500px;
+    position: relative;
+    /*margin: 50px auto 0;*/
+}
+div.main-item-content .z-radio {
+    position: relative;
+    text-align:center;
+}
+div.main-item-content .z-radio label {
+    /*display: block;*/
+    background:none;
+    /*color:#01a7e1;*/
+    border-radius: 5px;
+    padding: 10px 20px;
+    /*border: 1px solid #01a7e1;*/
+    border: 1px solid #c0c0c0;
+    color: #000;
+    /*margin-bottom: 5px;*/
+    margin-right: 5px;
+    cursor: pointer;
+    user-select: none;
+}
+div.main-item-content .z-radio input[type="radio"] {
+    display: none;
+    position: absolute;
+    width: 100%;
+    appearance: none;
+}
+div.main-item-content .z-radio input[type="radio"]:checked + label {
+    color:#01a7e1;
+    border: 1px solid #01a7e1;
+	background: url(images/dot_btnbg.svg) 100% 100% no-repeat #fff;
+}
+
+
+/* customize checkbox style */
+div.main-item-content span.z-checkbox input[type="checkbox"] {
+	display: none;
+}
+div.main-item-content span.z-checkbox {
+	position: relative;
+	display: inline-block;
+}
+div.main-item-content span.z-checkbox label.z-checkbox-content {
+    border: 1px solid #c0c0c0;
+	display: block;
+	border-radius: 5px;
+	overflow: hidden;
+	background-color: #fff;
+	align-items: center;
+	cursor: pointer;
+	margin-right: 1px;
+	text-align: center;
+	padding: 10px 20px;
+	user-select: none;
+	color: black;
+}
+div.main-item-content span.z-checkbox input[type="checkbox"]:checked+label+label{
+	color: #01a7e1;
+	border: 1px solid #01a7e1;
+	background: url(images/tick_btnbg.svg) 100% 100% no-repeat #fff;
+	
+}
+
+
+
+</style>
+</head>
+<body>
+	<header>
+		<div class="header-block"></div>
+	</header>
+	
+	
+	<div class="content-block">
+		<div class="main-container">
+			<div class="main-item">
+				<div style="display:flex;justify-content:left;">
+					<div class="dummy100"></div>
+					<div class="dummy100"></div>
+					<div class="dummy100"></div>
+					<div class="dummy100"></div>
+					<div class="dummy100"></div>
+					<div class="dummy100"></div>
+					<div class="dummy100"></div>
+				</div>
+			</div>
+			<jsp:include page="JxZkQuoteDemo.zul" flush="true" />
+			<!-- 
+			<div class="main-item">
+				<div class="dummy100"></div>
+			</div>
+			<div class="main-item">
+				<div class="dummy300"></div>
+				<div class="dummy300"></div>
+				<div class="dummy300"></div>
+				<div class="dummy300"></div>
+			</div>
+			 -->
+		</div>
+		<div class="summary-container">
+			<div class="main-item">
+			<div style="display:flex;justify-content:left;">
+				<div class="dummy100"></div>
+				<div class="dummy100"></div>
+			</div>
+			</div>
+		</div>
+		
+	</div>
+	<footer>
+		<div class="footer-block"></div>
+	</footer>
+	
+</body>
+</html>

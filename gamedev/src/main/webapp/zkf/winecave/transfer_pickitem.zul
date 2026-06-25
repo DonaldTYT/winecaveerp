@@ -1,0 +1,25 @@
+<zk>
+
+<div height="280px" width="300px">
+	<vlayout >
+		<div align="center">
+			<listbox id="selectList" height="210px" width="300px" multiple="true" checkmark="true">
+			<listhead>
+			<listheader width="50px"/>
+			<listheader id="listICode"></listheader>
+			</listhead>
+    		</listbox>
+			<vlayout>
+			<hlayout>
+			<button id="btOK" label="Transfer"></button>
+			<button id="btClose" label="Cencel"></button>
+			</hlayout>
+			<hlayout>
+			<button id="btPrint" label="Print(1)"></button>
+			<button id="btPrint2" label="Print(2)"></button>
+			</hlayout>
+			</vlayout>
+		</div>
+	</vlayout>
+</div>
+</zk>

@@ -1,0 +1,26 @@
+<?page title="Auto Generated index.zul"?>
+<zk>
+	<style dynamic="true">
+		body{
+			text-align: left;
+		}
+	</style>
+<window border="narrow" id="JxZkTestCjs" apply="com.uniinformation.jx.zk.ZkJxComposer" xmlns:h="native">
+	<vbox id="vbox1">
+		<hbox>
+			<div width="300px" height="300px" id="div1"></div>
+			<div width="300px" height="300px" id="div2"></div>
+			<div width="300px" height="300px" id="div3"></div>
+			<div width="300px" height="300px" id="div4"></div>
+		</hbox>
+		<hbox>
+			<div width="300px" height="300px" id="div5"></div>
+			<div width="300px" height="300px" id="div6"></div>
+			<div width="300px" height="300px" id="div7"></div>
+			<!-- dirty trick to hide a img -->
+			<div width="300px" height="300px" id="div8" style="position:absolute; top:-1000px"></div>
+		</hbox>
+	</vbox>
+</window>
+</zk>
+    

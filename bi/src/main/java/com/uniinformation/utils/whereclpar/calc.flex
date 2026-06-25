@@ -1,0 +1,122 @@
+package com.uniinformation.utils.whereclpar;
+import java.io.*;
+import com.uniinformation.utils.*;
+
+%%
+
+%byaccj
+%unicode
+
+%{
+  StringBuffer sb = new StringBuffer();
+  private Parser yyparser;
+
+  public Yylex(java.io.Reader r, Parser yyparser) {
+    this(r);
+    this.yyparser = yyparser;
+  }
+	public int getCurrentPos() {
+  		return(yy_currentPos);
+	}
+%}
+
+INT = [0-9]+
+NUM = (\.[0-9]+|[0-9]+\.[0-9]*) 
+NL  = \n | \r | \r\n
+IDENT = [_a-zA-Z] [a-zA-Z_0-9\.]*
+AND = "&&" | "and" | "AND"
+OR = "||" | "or" | "OR"
+TRUE = "true"
+FALSE = "false"
+GT = ">"
+GE = ">="
+LT = "<"
+LE = "<="
+EQ = "==" | "="
+NE = "!=" | "<>"
+NOT = "!" 
+MATCHES = "matches"
+LIKE = "like"
+S_NOT = "not"
+S_IS = "is"
+S_IN = "in"
+S_NULL = "null"
+S_BETWEEN = "between"
+S_REGEXP = "regexp"
+
+%state STRINGLITERAL
+%state STRINGLITERAL2
+
+%%
+
+<YYINITIAL> {
+/* operators */
+"," | "+" | "-" | "*" | "/" | "^" | "(" | ")" | "[" | "]" { return (int) yycharat(0); }
+
+/* newline */
+{NL}   { }
+
+{TRUE}   { return Parser.TRUE; }
+{FALSE}   { return Parser.FALSE; }
+{MATCHES}   { return Parser.MATCHES; }
+{LIKE}   { return Parser.LIKE; }
+{GT}   { return Parser.GT; }
+{GE}   { return Parser.GE; }
+{LT}   { return Parser.LT; }
+{LE}   { return Parser.LE; }
+{EQ}   { return Parser.EQ; }
+{NE}   { return Parser.NE; }
+{AND}  { return Parser.AND; }
+{OR}   { return Parser.OR; }
+{NOT}  { return Parser.NOT; }
+{S_NOT}  { return Parser.T_NOT; }
+{S_IS}  { return Parser.T_IS; }
+{S_IN}  { return Parser.T_IN; }
+{S_NULL}  { return Parser.T_NULL; }
+{S_BETWEEN}  { return Parser.T_BETWEEN; }
+{S_REGEXP}  { return Parser.T_REGEXP; }
+
+/* float */
+{NUM}  { yyparser.yylval = new ParserVal(Double.parseDouble(yytext()));
+         return Parser.NUM; }
+
+{INT}  { yyparser.yylval = new ParserVal(Integer.parseInt(yytext()));
+         return Parser.INT; }
+
+
+{IDENT}  { 
+         yyparser.yylval = new ParserVal(new LexIdent(yytext()));
+         return Parser.IDENT; }
+
+
+/* whitespace */
+[ \t]+ { }
+
+\b     { System.err.println("Sorry, backspace doesn't work"); }
+
+\"     { sb.setLength(0); yybegin(STRINGLITERAL); }
+
+\'     { sb.setLength(0); yybegin(STRINGLITERAL2); }
+
+}
+
+<STRINGLITERAL> {
+   [\\][\\] { sb.append("\\"); }
+   [\\][\"] { sb.append("\""); }
+   \"   { yybegin(YYINITIAL); 
+          yyparser.yylval = new ParserVal(sb.toString());
+          return Parser.STRING;
+	     }
+   [^\"\\]+ { sb.append(yytext()); UniLog.log("xxx"); }
+}
+
+<STRINGLITERAL2> {
+   [\\][\\] { sb.append("\\"); }
+   [\\][\'] { sb.append("'"); }
+   \'   { yybegin(YYINITIAL); 
+          yyparser.yylval = new ParserVal(sb.toString());
+          return Parser.STRING;
+	     }
+   [^\'\\]+ { sb.append(yytext()); }
+}
+

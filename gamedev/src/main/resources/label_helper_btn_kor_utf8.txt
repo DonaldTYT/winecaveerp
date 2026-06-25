@@ -1,0 +1,24 @@
+﻿Add
+더하다
+Detail
+세부 묘사
+Export
+수출
+Save Changes
+변경 사항을 저장하다
+Update
+최신 정보
+Import
+수입
+Password Protect?
+비밀번호로 보호 하시겠습니까?
+Ok
+승인
+Cancel
+취소
+Save Changes
+변경 사항을 저장하다
+Save New Record
+새 레코드 저장
+Close
+닫기

@@ -1,0 +1,10 @@
+<zk>
+<window sclass="zkbi-form zkbi-main-window" width="600px" apply="com.uniinformation.zkf.ZkCellActionWebglBarcode">
+<div align="center">
+	<hlayout>
+	<button id="btStart" label="Start"></button>
+	<button id="btStop" label="Stop"></button>
+	</hlayout>
+</div>
+</window>
+</zk>

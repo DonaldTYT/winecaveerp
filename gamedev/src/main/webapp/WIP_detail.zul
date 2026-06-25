@@ -1,0 +1,237 @@
+<zk>
+<window border="none" width="1200px" title="Welcome" apply="com.uniinformation.jx.zk.ZkJxComposer" id="WOEST_detail">
+<custom-attributes listboxHeight="css"/>
+<grid id="Pc_je_detail">
+   	<columns>
+      <column width="120px" /><!-- define 2 columns to enable auxhead/er -->
+      <column width="120px"/>
+      <column/>
+	</columns>
+    <rows id="Pdx_extents">
+       <row> 
+       		Customer Code/Name
+       		<combobox id="Pdg_custcode" width="100px"></combobox> 
+       		<textbox id="Pdg_custname" width="600px" disabled="true"></textbox>
+       </row>
+       <row> 
+       		Job Number/Title
+       		<intbox id="Pdg_jobnum" width="100px" disabled="true"></intbox>
+       		<textbox id="Pdg_title" width="600px"></textbox> 
+       </row>
+        		 <row spans="1,2"> Product Type
+        		 	<hlayout>
+        		 	<combobox id="Pdg_catname" width="500px"></combobox>
+        		 	<!-- 
+        		 	<spinner id="Pdg_volcnt" constraint="no empty,min 1 max 30" ></spinner>
+        		 	<spinner id="Pdg_volcnt" ></spinner>
+        		 	
+        		 	<checkbox id="Pdg_reprint" label="Reprint"/>
+        		 	 -->
+        		 	<button id="btSaveTemplate">Save As Template</button>
+        		 	</hlayout>
+        		 </row>
+        		 <!-- 
+        		 <row spans="1,2"> Size 
+        		 	<hlayout valign="middle">
+	        		 	<doublebox id="Pdg_qdepth" /> 
+	        		 	x
+	        		 	<doublebox id="Pdg_qwidth" /> 
+	        		 	<radiogroup id="Pdg_qmetric">
+	        		 		<radio label="inch"/>
+	        		 		<radio label="mm"/>
+	        		 	</radiogroup>
+	        		 	=
+	        		 	<label id="Pdg_depth" /> 
+	        		 	x
+	        		 	<label id="Pdg_width" /> 
+	        		 	mm
+	        		 	<label id="Pdg_lp"></label>
+        		 	</hlayout>
+        		 </row>	
+        		  -->
+						<template name="Pdx_exttemplate">
+							<row id="Pdx_extpanel" spans="1,2">
+        		 			<div width="120px"> 
+        		 				<vlayout>
+        		 				<label id="Pdx_extname"> </label> 
+	        		 			<button id="btDelExtent">Delete</button>
+        		 				</vlayout>
+        		 			</div>
+	        		 		<hlayout valign="middle">
+	        		 			<vlayout>
+	        		 			<!-- 
+	        		 				<hlayout valign="middle">
+							        	<div width="80px">Color</div>
+				            			<intbox id="Pdx_fcol" width="50px"/>
+	        							x 	
+				            			<intbox id="Pdx_bcol" width="50px"/>
+	        		 					<div width="120px">
+	        		 						<hlayout id="Pdx_pagebox" valign="middle"> 
+	        		 						Page
+				            				<intbox id="Pdx_page" width="50px"/>
+	        		 						</hlayout>
+	        		 					</div>
+	        		 					<div width="250">
+	        		 						<hlayout>
+	        		 						Size	
+				            				<doublebox id="Pdx_xd" width="50px"/>
+				            				x
+				            				<doublebox id="Pdx_xw" width="50px"/>
+				            				Quantity
+				            				<intbox id="Pdx_qty" width="50px"/>
+	        		 						</hlayout>
+	        		 					</div>
+	        		 				</hlayout>
+	        		 				<vlayout id="Pdx_extmat"> 
+										<template name="Pdx_extmattemplate">
+	        		 						<hlayout id="Pdx_extmatpanel" valign="middle">
+							        		 		<div width="80px"> <label id="Pdx_matextname"> </label> </div>
+		        		 							<combobox id="Pdx_mattype" width="200px"></combobox>
+    		    		 							<combobox id="Pdx_matname" width="400px"></combobox>
+        				 							<combobox id="Pdx_matwt" width="80px"></combobox>
+        		 							</hlayout>	
+				        		 		</template>
+        		 					</vlayout>
+	        		 			 -->
+        		 					<grid id="Pdx_optionlist" use="com.uniinformation.jx.zk.ZkJxCheckListBox" > </grid>
+	        		 			</vlayout>
+	        		 		</hlayout>
+							</row>
+        		 		</template>
+    </rows>
+</grid>
+<grid id="Tn_pdtinfo" >
+        	<columns>
+        	    <column width="120px" /><!-- define 2 columns to enable auxhead/er -->
+        	    <column/>
+        	</columns>
+        	<rows >
+        		 
+        		 <!-- 
+        		 <row>
+        		 	Editions
+        			<spreadsheet id="editionGrid" src="/template/blank.xls" hflex="1" height="200px"/> 
+        		 </row>
+        		  -->
+        		 <!-- 
+        		 <row> 
+        		 	Material
+	        		 	<hlayout id="Pdx_matpanel" valign="middle">
+	        		 		<div width="150px">
+		        		 	<label id="Pdx_matextname" value="XXXX"> </label>
+	        		 		</div>
+		        		 	<combobox id="Pdx_mattype" width="250px"></combobox>
+    		    		 	<combobox id="Pdx_matname" width="250px"></combobox>
+        				 	<combobox id="Pdx_matwt" width="100px"></combobox>
+        		 		</hlayout>	
+        		 </row>
+        		  -->
+        		 <!-- 
+        		 <row>
+        		 	Materials
+        		 	<vlayout id="Pdx_materials"> 
+						<template name="Pdx_mattemplate">
+	        		 	<hlayout id="Pdx_matpanel" valign="middle">
+	        		 		<div width="80px"> <label id="Pdx_matextname"> </label> </div>
+		        		 	<combobox id="Pdx_mattype" width="200px"></combobox>
+    		    		 	<combobox id="Pdx_matname" width="400px"></combobox>
+        				 	<combobox id="Pdx_matwt" width="80px"></combobox>
+        		 		</hlayout>	
+        		 		</template>
+        		 	</vlayout>
+        		 </row>
+        		  -->
+       		 	 <row>
+        		 	Quantity
+        		 	<hlayout valign="middle">
+			            <intbox id="Pdg_qty0" width="80px"/>
+			            <!-- 
+			            <intbox id="Pdg_qty1" width="80px"/>
+			            <intbox id="Pdg_qty2" width="80px"/>
+			            <intbox id="Pdg_qty3" width="80px"/>
+			            <intbox id="Pdg_qty4" width="80px"/>
+			            <label> Price in </label>
+	        		 	<combobox id="Pdg_ccy" width="60px"></combobox>
+			             -->
+        		 	</hlayout>
+        		 </row>
+        		 <row>
+        		 	交貨日期
+        		 	<hlayout valign="middle">
+        		 		<datebox id="Pdg_shipdate"></datebox>
+        		 	</hlayout>
+        		 </row>
+        		 <!-- 
+        		 <row>
+        		 	Shipment
+        		 	<vlayout>
+        		 	<hlayout>
+	        		 	<radiogroup id="Pdgx_shiptype" orient="vertical">
+	        		 	</radiogroup>
+	        		 	<combobox id="Pdgx_shipto" width="400px"></combobox>
+        		 	</hlayout>
+        		 	</vlayout>
+        		 </row>
+        		 <row>
+        		 	Packing
+        		 	<vlayout>
+        		 	<hlayout>
+	        		 		<div width="120px"> Product Dimension</div>
+	        		 		<label width="60px" id="Pdex_pdtd"/>
+	        		 		<label width="10px">x</label> 
+	        		 		<label width="60px" id="Pdex_pdtw"/>
+	        		 		<label width="10px">x</label> 
+	        		 		<label width="60px" id="Pdex_pdth"/>
+	        		 		<label width="50px">weight</label> 
+	        		 		<label width="60px" id="Pdex_pdtwt"/>
+        		 	</hlayout>
+        		 	<hlayout>
+	        		 		<div width="120px"> Carton Size</div>
+	        		 		<label width="60px" id="Pddx_packd"/>
+	        		 		<label width="10px">x</label> 
+	        		 		<label width="60px" id="Pddx_packw"/>
+	        		 		<label width="10px">x</label> 
+	        		 		<label width="60px" id="Pddx_packh"/>
+	        		 		<label width="50px">weight</label> 
+	        		 		<label width="60px" id="Pddx_packwt"/>
+	        		 		<label width="70px">arrangement</label> 
+	        		 		<label width="60px" id="Pddx_packm"/>
+	        		 		<label width="10px">x</label> 
+	        		 		<label width="60px" id="Pddx_packn"/>
+	        		 		<label width="10px">x</label> 
+	        		 		<label width="60px" id="Pddx_packk"/>
+        		 	</hlayout>
+        		 	</vlayout>
+        		 </row>
+        		 --> 
+        		 <!-- 
+        		 <row>
+        		 	Finishing
+        		 	<listbox id="Pdx_optionlist" use="com.uniinformation.jx.zk.ZkJxCheckListBox" > </listbox>
+
+        		 </row>
+        		  -->
+        		  <!-- 
+        		 <row>
+        		 	Editions
+        			<spreadsheet id="editionGrid" src="/template/blank.xls" hflex="1" height="200px"/> 
+        		 </row> 
+        		   -->
+        		 <row> Remark <textbox id="Pdg_remark" width="500px" /> </row>	
+        		 <row spans="2" align="right"> </row>
+            </rows>
+            
+</grid>	
+<hlayout>
+<!-- 
+            <button id="Pb_recal" label="Re-Cal" />
+ -->
+            <button id="btOK" label="Save" />
+<!-- 
+            <button id="btCancel" label="Cancel" />
+ -->
+			<button id="btAddExtent">Add Extent</button>
+			<combobox id="cbAddExtent"></combobox>
+</hlayout>
+</window>
+</zk>

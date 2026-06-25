@@ -1,0 +1,348 @@
+<%@ page language="java" pageEncoding="utf-8" contentType="text/html;charset=utf-8"%>
+<%@ page import="java.util.*, com.uniinformation.utils.*,com.uniinformation.webcore.* " %>
+<%@ taglib uri="http://www.zkoss.org/jsp/zul" prefix="z" %>
+<%
+//response.setHeader("Expires", DateUtil.toDateString(new java.util.Date(new java.util.Date().getTime()-((long) 7)*86400*1000), "www, dd mmm yyyy HH:MM:SS ")+"GMT");
+response.setHeader("Cache-Control", "no-cache, no-store, must-revalidate"); // HTTP 1.1.
+response.setHeader("Pragma", "no-cache"); // HTTP 1.0.
+response.setHeader("Expires", "0"); // Proxies.
+try {	
+	SessionHelper sessionHelper = ZkSessionHelper.getSessionHelper(request, response);   
+	sessionHelper.validateLogin(request, response);
+	String versionTag = "?version=" + sessionHelper.getVersionId();
+%>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<style>
+.wndcontainer {
+    float:right;
+    position:relative;
+    left:-50%;
+    text-align:left;
+}
+.menublk {
+    list-style:none;
+    position:relative;
+    width:auto;
+    left:50%;
+}
+.menublk li {
+	padding: 0 30px 0 30px;
+	float:left;
+	position: relative;
+}/* ie needs position:relative here*/
+
+.wndblk {
+    list-style:none;
+    position:relative;
+    width:auto;
+    left:50%;
+}
+.menuli {
+	padding: 0 30px 0 30px;
+	float:left;
+	position: relative;
+}/* ie needs position:relative here*/
+
+.grid-stack {
+	background: lightgoldenrodyellow;
+	<%
+	if (sessionHelper.isMobileDevice()){
+	%>
+		min-height: 500px;
+	<%
+	} else{
+	%>
+		min-height: 750px;
+	<%
+	}
+	%>
+}
+.grid-stack {
+    font-size: 12px;
+}
+.grid-stack-item-content {
+	color: #2c3e50;
+	text-align: center;
+	//background-color: #18bc9c;
+	//background-color: #ffffff;
+	background-color: transparent;
+    border-radius: 10px 10px 10px 10px;
+}
+/*.grid-stack-item-content a,
+.grid-stack-item-content a:hover,
+.grid-stack-item-content a:not([href]):not([tabindex]),
+.grid-stack-item-content a:not([href]):not([tabindex]):hover {
+  	text-decoration: none;
+  	//color: #000;
+  	color: #585858;
+}*/
+.grid-stack-item-content .fa {
+   	font-size: 75px;
+    line-height: 75px;
+    text-align: center;
+    vertical-align: middle;
+}
+.grid-stack-item-content .icon {
+	display: block;
+	padding: 10px;
+    width: 95px;
+    height: 95px;
+    margin: 0 auto;
+}
+.grid-stack-item-content .noti-count {
+	position:absolute;
+	right:15px;
+	top:5px;
+	background-color:rgb(255,0,0);
+	text-align:center;
+	color:white;
+	min-width:25px;
+	padding:0 2px;
+	border-radius:50%;
+}
+.grid-stack-item .fa.fa-close {
+	position: absolute;
+	right: 0px;
+	top: 0px;
+	padding-top: 10px;
+	padding-right: 10px;
+	padding-left: 10px;
+	padding-bottom: 10px;
+   	font-size: 20px;
+    width: 40px;
+    height: 40px;
+    line-height: 20px;
+    text-align: center;
+    vertical-align: middle;
+}
+.grid-stack-item .close-btn,
+.grid-stack-item .close-btn:hover {
+	display: none;
+	color: #666;
+}
+/*.grid-stack-item a,
+.grid-stack-item a:hover{
+  	text-decoration: none;
+  	color: #585858;
+}
+.grid-stack-item a:active{
+	color: #808080;
+}
+.grid-stack-item a.unactive{
+  	color: #585858 !important;
+}
+.grid-stack-item a.active{
+	color: #808080 !important;
+}*/
+.remove-grid:after {
+    content: '\f014';
+    //content: '\505C\7528';
+    z-index: 9;
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate( -50%, -50% );
+    color: white;
+    font-family: 'FontAwesome';
+    font-size: 100px;
+    border-radius: 5px 5px 5px 5px;
+    opacity: 0.5;
+}
+.remove-grid {
+	display: none;
+    position:relative;
+    background: #ffe5e5;
+	border-style: dashed;  
+	border-radius: 10px;
+    background-size: 21px 21px;
+    background-image: radial-gradient(circle, #d6d6c2 1px, rgba(0, 0, 0, 0) 1px);
+	border-color: #d3d3d3;
+	border-width: 1px;
+}
+.add-grid {
+    background-color: transparent;
+	/*border-style: solid;  */
+	border-style: none;  
+	border-radius: 10px;
+	border-color: #d3d3d3;
+	border-width: 1px;
+}
+.add-grid-edit {
+    background-color: #e5ffe5;
+	border-style: dashed;  
+	border-radius: 10px;
+    background-size: 21px 21px;
+    background-image: radial-gradient(circle, #d6d6c2 1px, rgba(0, 0, 0, 0) 1px);
+}
+.editGridBtn, 
+.z-a.editGridBtn,
+.editGridBtn .z-label {
+  	color: #000;
+  	font-size: 14px;
+}
+.editGridStackBtns {
+	display: none;
+}
+<%
+	if (sessionHelper.getAllowWallpaper()){
+%>
+@media (orientation: landscape) {
+	body{ 
+		background-image: url("<%=sessionHelper.getWallPaperPath(false)%>") !important;
+		background-repeat: no-repeat !important;
+		background-size: cover !important;
+		background-position-x: center !important;
+		background-position-y: center !important;
+		background-attachment: fixed !important;
+	}
+}
+
+@media (orientation: portrait) {
+	body{ 
+		background-image: url("<%=sessionHelper.getWallPaperPath(true)%>") !important;
+		background-repeat: no-repeat !important;
+		background-size: cover !important;
+		background-position-x: center !important;
+		background-position-y: center !important;
+		background-attachment: fixed !important;
+	}
+}
+.sidemenu-container { 
+	background: none !important;
+    border-bottom: none !important;
+}
+div.grid-stack-item-content > a > div > span.title{
+	color: #FFF !important;
+	text-shadow: 1px 1px 1px #000, 0px 0px 1px #000;
+}
+div.grid-stack-item-content > a > div > i.icon.fa{
+	text-shadow: 1px 1px 0px #fefefe, 1px 1px 3px #a9a9a9;
+}
+/* for test color icon */
+/*
+div:nth-child(-n+30) > div.grid-stack-item-content > a > div > i.icon.fa{
+	text-shadow: 2px 3px 1px #de6eb8, 2px 3px 1px #a9a9a9;
+}
+div:nth-child(-n+20) > div.grid-stack-item-content > a > div > i.icon.fa{
+	text-shadow: 2px 3px 1px #6bca80, 2px 3px 1px #a9a9a9;
+}
+div:nth-child(-n+10) > div.grid-stack-item-content > a > div > i.icon.fa{
+	text-shadow: 2px 3px 1px #6eb1de, 2px 3px 1px #a9a9a9;
+}
+*/
+
+<%
+	}
+%>
+</style>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<jsp:include page="commonInit.jsp" flush="true"/>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>Home</title>
+<script src="js/zkpages.js"></script>
+
+<link rel="stylesheet" href="css/gridstack.css"/>
+<script src="js/lodash.min.js"></script>
+<!-- <script src="js/jquery-ui.min.js"></script> -->
+<script src="js/jquery.ui.touch-punch.js<%=versionTag%>"></script>
+<script src="js/jquery.ba-resize.min.js"></script>
+<script src="js/gridstack.js<%=versionTag%>"></script>
+<script src="js/gridstack.jQueryUI.min.js"></script>
+
+</head>
+
+<body>
+	<jsp:include page="sideMenu.jsp" flush="true"/>
+
+	<script type="text/javascript">
+	$(document).ready(function(){
+        var styles = GridStackUI.Utils.createStylesheet('custom_menu_styles');
+        var i = 0;
+		if ('ontouchstart' in window) {
+            GridStackUI.Utils.insertCSSRule(styles,
+                '.grid-stack-item a,.grid-stack-item a:hover',
+                'text-decoration: none;color: #585858;', i++
+            );
+            GridStackUI.Utils.insertCSSRule(styles,
+                '.grid-stack-item a:active',
+                'color: #808080;   text-shadow: 0 0 3px #FFF;', i++
+            );
+            GridStackUI.Utils.insertCSSRule(styles,
+                '.editGridBtn:hover,.z-a.editGridBtn:hover',
+                'text-decoration: none;color: #000;', i++
+            );
+            GridStackUI.Utils.insertCSSRule(styles,
+                '.editGridBtn:active,.z-a.editGridBtn:active',
+                'text-decoration: none;color: #0064ed;', i++
+            );
+		}
+		else {
+            GridStackUI.Utils.insertCSSRule(styles,
+                '.grid-stack-item a',
+                'text-decoration: none;color: #585858;', i++
+            );
+            GridStackUI.Utils.insertCSSRule(styles,
+                '.grid-stack-item a:hover',
+                'text-decoration: none;color: #808080;', i++
+            );
+            GridStackUI.Utils.insertCSSRule(styles,
+                '.editGridBtn:hover,.z-a.editGridBtn:hover',
+                'text-decoration: none;color: #0064ed;', i++
+            );
+		    $(".dashboard ul li div").hover(
+	    		function(){
+					$(this).css( {boxShadow: '5px 5px 10px #888888'});
+		        }, 
+		        function(){
+					$(this).css( {boxShadow: 'none'});
+		    });	
+		}
+    });
+	</script>
+	<%-- add timer avoid zk session timeout 10min--%>
+	<%
+	/*
+	//andrew190807: this will create a unwanted zk page
+	<z:page>
+		<z:timer id="timerKeepAliveSession" repeats="true" delay="600000" onTimer=""/>
+	</z:page>
+	*/
+	%>
+	<%
+	/*String containerWidth = "width:85%;";
+	if (sessionHelper.isMobileDevice()){
+		containerWidth = "width:100%;";
+	}*/
+	String containerWidth = "width:100%;";
+	%>
+	<div id="container" style="<%=containerWidth%>">
+		<div id="mainwnd">
+			<jsp:include page='custom_menu.zul' flush="true" />
+		</div>
+		<div class = "nav"></div>	
+		<div class = "nav"></div>		
+	</div>
+	<%
+		boolean testIframe = false;
+		if (testIframe){
+	%>
+		<script> 
+			//zkbiOpenIframe('User Profile','zkbiloader.html?zul=JxZkUserProfile.zul&sidemenu=N&fillscreen=full',800,400); 
+			//zkbiOpenIframe('Calendar','zkbiloader.html?action=browse&viewid=ZkBiCalendar&page_id=ZkBiCalendar_01&zul=zkbicalendar.zul&composer=ZkBiComposerCalendar&load=fc&load=pickr&menuitem=69&sidemenu=N&fillscreen=full',1200,800); 
+			zkbiOpenIframe('Translate', 'zkbiloader.html?action=browse&viewid=BiTranslate&page_id=BiTranslate_01&zul=zkbiloader.zul&menuitem=40&sidemenu=N&fillscreen=full' ,800,480); 
+			//zkbiOpenIframe('Note #1','zkbiloader.html?zul=tmp/testckeditor.zul&sidemenu=N&fillscreen=full',630,270); 
+			zkbiOpenIframe('Note #2','zkbiloader.html?zul=tmp/testckeditor.zul&sidemenu=N&fillscreen=full',630,270); 
+		</script>
+	<%
+		}
+	%>
+</body>
+</html>
+<%
+} catch(Exception ex) {
+	UniLog.log(ex);
+	throw(ex);
+} finally {
+}
+%>

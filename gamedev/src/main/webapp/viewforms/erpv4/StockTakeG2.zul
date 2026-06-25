@@ -1,0 +1,16 @@
+<zk xmlns:n="native">
+	<toolbar id="detail_toolbar" align="end"> 
+		<button id="btSyncDelta" label="SyncDelta" visible="true">
+			<custom-attributes tlkey="bt_syncdelta"/>
+		</button>
+		<button id="btSyncBalance" label="SyncBalance" visible="true">
+			<custom-attributes tlkey="bt_syncbalance"/>
+		</button>
+		<button id="btFixFifo" label="Fix FiFo" visible="true">
+			<custom-attributes tlkey="bt_fixfifo"/>
+		</button>
+		<button id="btReload" label="Reload" visible="true">
+			<custom-attributes tlkey="bt_reload"/>
+		</button>
+	</toolbar>
+</zk>

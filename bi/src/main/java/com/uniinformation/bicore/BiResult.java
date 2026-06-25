@@ -1,0 +1,9135 @@
+package com.uniinformation.bicore;
+
+
+
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
+import java.io.Serializable;
+import java.sql.SQLException;
+import java.text.DateFormat;
+import java.text.DecimalFormat;
+import java.text.SimpleDateFormat;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang.ObjectUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.json.JSONObject;
+import org.json.JSONArray;
+import org.json.JSONException;
+
+import com.uniinformation.rpccall.RpcClient;
+import com.uniinformation.rpccall.RpcException;
+import com.uniinformation.rpccall.Strval;
+import com.uniinformation.rpccall.Value;
+import com.uniinformation.utils.*;
+import com.uniinformation.utils.ConditionPresets.ConditionFieldMap;
+import com.uniinformation.utils.exprpar.FunctionInterface;
+import com.uniinformation.utils.exprpar.VariableInterface;
+import com.uniinformation.utils.poi.ExcelPoi;
+import com.uniinformation.utils.poi.ExcelPoiFormula;
+import com.kyoko.parser.ValueTranslationInterface;
+import com.uniinformation.bicore.AggregateOrPivot.AggregateRec;
+import com.uniinformation.bicore.BiView.BiViewWhereclParser;
+import com.uniinformation.bicore.bischema.BiResultExcelSheet;
+import com.uniinformation.cell.*;
+import com.uniinformation.erpv4.BiConfig;
+import com.uniinformation.erpv4.RecSync;
+import com.uniinformation.utils.whereclpar.*;
+import com.uniinformation.webcore.SessionHelper;
+import com.uniinformation.webcore.ZkSessionHelper;
+import org.apache.commons.lang3.tuple.Pair;
+
+import com.kikyosoft.utils.JsonUtil;
+import com.kyoko.common.*;
+public class BiResult implements GetCellInterface {
+	protected int ignoreCase = 0;
+	int sqlEngine;
+	public static final String EXCEL_LOOKUP_SHEETNAME="#Lookup_Table";
+	public static boolean fDebug = false;
+//	public static final int TIMEOUT_WITH_TRANSACTION = 180;
+	public static final int TIMEOUT_WITH_TRANSACTION = 600;
+	static final int DEFAULT_RECORD_LIMIT = 15000;
+	BiResult parent;
+	protected SelectUtil su;
+	int recLimit;
+	String lastSelStr = null;
+	String selListStr = null;
+	String selSidStr = null;
+	String selFetchtr = null;
+	protected boolean sortAggregates = true;
+	private boolean allowLookupItemList = true;
+	boolean useSummaryCache = false;
+	Vector<BiTable> lookupList = null;
+	public boolean exportMode = false;
+	public Hashtable<String,com.uniinformation.utils.exprpar.Parser> formulaParserHash;
+	static Boolean alwaysReloadCurrent = null;
+	Hashtable<BiResult,AutoAddUpdateMap>brAutoAddUpdateViews = null;
+	/*
+	Boolean enableAutoAdd = true;
+	Boolean lookupClearOverrideBeforSync = true;
+	private static boolean allowLookupData = true;
+	*/
+	
+	Boolean enableAutoAdd = false;
+	Boolean lookupClearOverrideBeforSync = true;
+	boolean virtualDetail = false;
+	protected boolean virtualMaster = false;
+	private static boolean allowLookupData = false; //221118 experimental, not work yet! for handle autoaddupdate lookup tr update
+	
+	ConcurrentHashMap<String,LookupData> lookupDataHM = new ConcurrentHashMap<String, LookupData>(); //key by lookup tr hashcode string, for keep extra data of the tr
+
+	
+//	CellValidation biCellValidation = null;
+
+	
+	//andrew210830 lookuptb cache (experimental)
+	private ConcurrentHashMap<String,LookupTabTrCache> lookupTabTrCacheHM = new ConcurrentHashMap();  
+	public final static long LOOKUPTAB_CACHE_TTL = 60000;  //<=0 disable cache lookup
+	
+	int rpcTimeout = -1; //andrew2301107 keep a copy for reference only. it may different from actual rpccall_timeout value.
+	
+	
+	public void addAggregateCellValueAction( String viewName,ColumnCell p_cell,String p_cellLabel) {
+		addSublinkAction(viewName, 
+								new  BiResult.BiAggregateCellValueAction(p_cell,p_cellLabel)
+							);
+		
+	}
+	public class BiAggregateCellValueAction extends CellValueAction {
+		ColumnCell aggCell;
+		String detCellLabel;
+		BiAggregateCellValueAction (ColumnCell p_cell,String p_cellLabel) {
+			aggCell = p_cell;
+			detCellLabel = p_cellLabel;
+		}
+
+		@Override
+		public void cellAction_onchange(Cell p_value) throws CellException {
+			// TODO Auto-generated method stub
+			aggCell.eval();
+		}
+
+		@Override
+		public void cellAction_onfree() throws CellException {
+			// TODO Auto-generated method stub
+			
+		}
+		public String getDetailCellLabel() {
+			return(detCellLabel);
+		}
+	};
+	Hashtable<String,Vector<BiAggregateCellValueAction>> subLinkActions;
+	Vector <BiTable> tabList;
+//	CellVector recs;
+	protected SessionHelper sh = null;
+	private boolean debugTrFlag = false; //for debug memory usage only, the operation is expensive
+	
+	
+	//Will be obsoleted conditions are to be stored in a com.uniinformation.utils.wherecl.Condition
+	//Vector <BiCondition> condition;
+
+	//this are to replace the BiCondtion finally, currently, only the Hash Value with key = null is used , which represent the condtions that contains
+	//column with no associated database
+	//in this version that supports only single database, this list only will have a maximum of 2 item, one with null key and one with key = database Label
+	//HashMap<String,Condition> conditionList;
+	Condition customCondition = null;
+	Wherecl currentWherecl = null;
+	
+	private BiViewWhereclParser conditionParser = null;
+	BiResultWhereclParser whereStrParser = null;
+	
+	Vector orderby;
+	Vector <BiColumn> schemaViewList;
+	Vector <BiColumn> schemaAggList;
+	Vector <BiColumn> viewList;
+	boolean viewListModified = false;
+	Vector <BiColumn> pickList;
+	protected Vector <BiColumn> selectFieldList;
+	Vector <BiColumn> onLoadList;
+	List <BiColumn> tempColumnList;
+//	TableRec resultTr;
+//	Vector<Object[]> resultV;
+	protected TableRec resultTr;
+//	Hashtable<String,Object> resultCache[] = null;
+	Object[] resultCache[] = null;
+	private BiCellCollection currentCol=null;
+	Vector<BiResult> sublinks=null; //detail record
+	HashMap<BiColumn,BiColumn>linkJoins=null;
+	TrStat currentTr = null;
+	private BiTableRec currentRec[]=null;;
+	//Hashtable tablehash;
+	String lastErrorMessage = "";
+	private String baseWhereStr = null;;
+	BiView biView;
+	java.util.Date lastQuery;
+	java.util.Date lastUpdate;
+	int vsDelCount = 0;
+	int vsUpdCount = 0;
+	int vsInsCount = 0;
+	private Vector <TrStat> resultStatList;
+//	BiCellActionValidate biCellActionValidate;
+	boolean useTransaction = true;
+	boolean recordLocked;
+	private boolean actionEnabled = true;
+	boolean inLoadingRec = false;
+	Hashtable<String,ColumnAttr> columnAttrs;
+	Hashtable userDataHash;
+	private int curFetchIdx = -1;
+	private int curLoadRecIdx = -1;
+//	int currentBiVersion = 0;
+	protected boolean queryIncludeNoDetail=false;
+	public final static boolean auditLogFlag = false;
+//	String primaryKey = null;
+	BiColumn primaryColumns[] = null;
+	boolean needSync = false;
+//	Vector<String> aggregateOrPivotList = null;
+	AggregateOrPivot aop;
+	
+	boolean useLoadCache = true;
+	JSONObject preImage = null;
+	String versionAgent = null;
+	
+	protected BiCellCollection createColumnCollection(BiCellCollection p_parent) {
+		return(new BiCellCollection(p_parent,this));
+//		BiResult parent = getParent();
+//		if(parent != null)
+//			return(new CellCollection(parent.getCurrentCollection()));
+//		else
+//			return(new CellCollection());
+	}
+	protected class TrStat
+	{
+		int recidx;
+		int serial_id;
+		boolean deleted;
+		boolean updated;
+		boolean inserted;
+//		boolean outOfSync;
+		AggregateDataSet app;
+		public TrStat(int p_idx,int p_serial_id,AggregateDataSet p_app) {
+			recidx = p_idx;
+			serial_id = p_serial_id;
+			app = p_app;
+		}
+		public TrStat(int p_idx,int p_serial_id) {
+			recidx = p_idx;
+			serial_id = p_serial_id;
+			app = null;
+		}
+	}
+	
+	class ColumnAttr {
+		BiColumn bc;
+		int fdIdx;
+	}
+	
+	class AutoAddUpdateMap {
+		Hashtable<BiColumn,BiColumn> keyCols;
+		Hashtable<Integer,BiColumn> updCols;
+		AutoAddUpdateMap() {
+			keyCols = new Hashtable<BiColumn,BiColumn>();
+			updCols = new Hashtable<Integer,BiColumn>();
+		}
+	}
+	/*
+	class ColumnAttr {
+		Boolean inList;
+		Boolean inVisible;
+		Boolean noEntry;
+		Boolean noUpdate;
+		Boolean inExport;
+	}
+	*/
+	
+	protected ReturnMsg validateOneRow(CellCollection col,boolean isUpdate) {
+		try {
+		for(BiColumn bc : getView().getColumns()) {
+			ReturnMsg rtnMsg = validateColumnCell(
+					(ColumnCell) col.getCell(bc.getLabel())
+							) ;
+			if(!rtnMsg.getStatus()) return(rtnMsg);
+		}
+		return(new ReturnMsg(true));
+		} catch (CellException cex) {
+			UniLog.log(cex);
+			return(new ReturnMsg(false,cex.toString()));
+		}
+	}
+
+	protected ReturnMsg validateColumnCell(ColumnCell p_value) throws CellException
+	{
+			BiColumn c = p_value.getBiColumn();
+			if(c == null) {
+				UniLog.log("column for BiCellAction not found");
+				return(new ReturnMsg(true));
+			}
+			if(c.isNoSpace()) {
+				//UniLog.log("HAHA 2017 " + c.label + " " + "noSpace");
+				if(p_value.getString().contains(" ")) {
+					UniLog.log("space detected in noSpace field, reverse change");
+					return(new ReturnMsg(false,"Field should not contain space"));
+				}
+			}
+			if (c.isUpShift() && p_value != null && !p_value.getString().trim().equals(p_value.getString().trim().toUpperCase())){
+				p_value.clearEvaluatingChild();
+				p_value.set(p_value.getString().toUpperCase());
+				UniLog.log("cellAction_onchange:US:after:" + p_value.getString());
+			}
+			if (isRequired(c)){
+				if (fDebug) UniLog.log("cellAction_onchange:RQ:" + p_value +":");
+				/*
+				if (p_value == null || p_value.getString().trim().length() <= 0){
+					return(new ReturnMsg(false,"Mandatory  Field [" + c.getEngName() + "] is Empty"));
+				}
+				*/
+				if(p_value.isBlank()) {
+					return(new ReturnMsg(false,"Mandatory Field [" + c.getEngName() + "] is Empty"));
+				}
+				
+			}
+			if(c.getValidation() != null && !c.getValidation().trim().equals("")) {
+				com.uniinformation.utils.exprpar.Parser parser 
+						= new com.uniinformation.utils.exprpar.Parser(ignoreCase,c.getValidation(),p_value.getCollection(),p_value.getCollection());
+				try {
+					Object oo = parser.evaluate();
+					if(!(Boolean) oo) {
+						return(new ReturnMsg(false,c.getEngName() + " Validation Failed"));
+					}
+				} catch (Exception ex) {
+					UniLog.log(ex);
+					return(new ReturnMsg(false,c.getEngName() + " Validation Cause Exception"));
+				}
+			}
+			return(new ReturnMsg(true));
+	}
+	
+//	class BiCellActionValidate extends CellValueAction 
+//	{
+//		@Override
+//		public void cellAction_onchange(Cell p_value) throws CellException {
+//			// TODO Auto-generated method stub
+//			if(!actionEnabled) return;
+//			if(!(p_value instanceof ColumnCell)) return;
+//			ReturnMsg rtnMsg = validateColumnCell((ColumnCell) p_value);
+//			if(rtnMsg != null && !rtnMsg.getStatus()) {
+//				throw new CellException(rtnMsg.getMsg());
+//			}
+//		}
+//
+//		@Override
+//		public void cellAction_onfree() throws CellException {
+//		}
+//	}
+	
+	
+	void createOneColumnCell(BiCellCollection p_col,BiColumn c, Hashtable<String,String>defaultHash)
+	{
+
+			int mode = Cell.VMODE_NORMAL;
+			boolean isProtected = false;
+			/*
+			 * This should be change in future, that Cell.isProtected is treated independently , and HIDDEN is controlled by isInvisibale flag only
+			 * 2022-11-28 by DT
+			 */
+			if(c.isNoUpdate(sh) && c.isNoEntry(sh)){
+				if(!c.isProtected() && c.isInvisible(sh)) {
+					mode = Cell.VMODE_HIDDEN;
+				} else mode = Cell.VMODE_DISPONLY;
+			} 
+			if(c.isProtected()) {
+				isProtected = true;
+			}
+			Cell newCell = null;
+			String ft;
+			if(c.getField() != null ) {
+				ft = c.getField().getFieldType(); 
+			}
+			else {
+				ft = c.getColumnType();
+			}
+			//UniLog.log("create Cell Column " + c.getEngName() + " type " + ft);
+			if(StringUtils.equalsAny(ft, "integer", "serial")){
+				if(StringUtils.equalsAny(c.getColumnType(), "datetime", "time")){
+					newCell=p_col.addCell(c.getLabel(),new ColumnCell(DateUtil.zeroDate,mode));
+					newCell.setDateTime(true,c.getColumnType().equals("time"));
+					if(c.getFormat() != null) {
+						newCell.setFormat(new SimpleDateFormat(c.getFormat()));
+					}
+				} 
+				else {
+					newCell=p_col.addCell(c.getLabel(),new ColumnCell(0,mode));
+					if(c.getFormat() != null) {
+						newCell.setFormat(new DecimalFormat(c.getFormat()));
+					}
+				}
+			}
+//			if(ft.equals("datetime")) {
+//				newCell=p_col.addCell(c.getLabel(),new ColumnCell(new java.util.Date(0L),mode));
+//				if(c.getFormat() != null) {
+//					newCell.setFormat(new DecimalFormat(c.getFormat()));
+//					if(c.getFormat() != null) {
+//						newCell.setFormat(new SimpleDateFormat(c.getFormat()));
+//					}
+//				}
+//			}
+			if(ft.equals("date")) {
+				newCell=p_col.addCell(c.getLabel(),new ColumnCell(/* new java.util.Date() */ com.kyoko.common.DateUtil.zeroDate,mode));
+				if(c.getFormat() != null) {
+					newCell.setFormat(new DecimalFormat(c.getFormat()));
+					if(c.getFormat() != null) {
+						newCell.setFormat(new SimpleDateFormat(c.getFormat()));
+					}
+				}
+			}
+			if (StringUtils.equalsAny(ft, "float", "double", "money","decimal")){
+				newCell=p_col.addCell(c.getLabel(),new ColumnCell(0.0,mode));
+				if(c.getFormat() != null) {
+					newCell.setFormat(new DecimalFormat(c.getFormat()));
+				}
+			}
+			if(ft.equals("char")) {
+				if(c.getColumnType().equals("checkbox")) {
+					newCell=p_col.addCell(c.getLabel(),new ColumnCell(false,mode));
+				} else {
+					newCell=p_col.addCell(c.getLabel(),new ColumnCell("",mode));
+				}
+			}
+			if(ft.equals("list")) {
+				newCell=p_col.addCell(c.getLabel(),new ColumnCell("",mode));
+			}
+			if(ft.equals("combobox")) {
+				newCell=p_col.addCell(c.getLabel(),new ColumnCell("",mode));
+			}
+			if(ft.equals("radio")) {
+//				newCell=p_col.addCell(c.getLabel(),new ColumnCell("",mode));
+				newCell=p_col.addCell(c.getLabel(),new ColumnCell(0,mode));
+			}
+			if(ft.equals("pickinput")) {
+				newCell=p_col.addCell(c.getLabel(),new ColumnCell("",mode));
+			}
+			if(ft.equals("button")) {
+//				newCell=p_col.addCell(c.getLabel(),new ColumnCell());
+				newCell=p_col.addCell(c.getLabel(),new ColumnCell(0,mode));
+			}
+			if(ft.equals("checkbox")) {
+				newCell=p_col.addCell(c.getLabel(),new ColumnCell(false,mode));
+			}
+			if(ft.equals("label")) {
+				newCell=p_col.addCell(c.getLabel(),new ColumnCell("",mode));
+			}
+			if(ft.equals("memo")) {
+				newCell=p_col.addCell(c.getLabel(),new ColumnCell("",mode));
+			}
+			if(ft.equals("colorbox")) {
+				newCell=p_col.addCell(c.getLabel(),new ColumnCell(0,mode));
+			}
+			if(ft.equals("datetime")) {
+				newCell=p_col.addCell(c.getLabel(),new ColumnCell(DateUtil.zeroDate,mode));
+				newCell.setDateTime(true,false);
+			}
+			if(ft.equals("div")) {
+				newCell=p_col.addCell(c.getLabel(),new ColumnCell("",mode));
+			}
+			if(ft.equals("time")) {
+				newCell=p_col.addCell(c.getLabel(),new ColumnCell(DateUtil.zeroDate,mode));
+				newCell.setDateTime(true,true);
+			}
+			try {
+				newCell.protect(isProtected);
+			} catch (CellException cex) {
+				UniLog.log(cex);
+			}
+			if (newCell != null && getSessionHelper() != null) {
+				newCell.setIgnoreEncode(getSessionHelper().getAllowIgnoreEncode());
+			}
+			if(newCell != null) {
+				((ColumnCell) newCell).setBiColumn(c,p_col,this);
+				//Move CellValidation to be done before BiUpDate and BiAdd
+				//x.addAction(biCellActionValidate);
+			}
+			if(defaultHash != null && c.getDefaultValue() != null && !c.getDefaultValue().trim().equals("")
+					) {
+				defaultHash.put(c.getLabel(), c.getDefaultValue());
+			}
+//			if(newCell != null) {
+//			if(c.getValidation() != null) {
+//				UniLog.log("BiColumn add validation " + c.getValidation());
+//				if(biCellValidation == null) {
+//					biCellValidation = new CellValidation() {
+//
+//						@Override
+//						public boolean validate(Cell p_cell, Object p_value) {
+//							// TODO Auto-generated method stub
+//							if(!actionEnabled) return(true);
+//							return true;
+//						}
+//
+//						@Override
+//						public String getErrMsg() {
+//							// TODO Auto-generated method stub
+//							return null;
+//						}
+//						
+//					};
+//				}
+//				newCell.setValidation(biCellValidation);
+//			}
+//			}
+		
+	}
+	void setColumnCellFormula(BiCellCollection p_col,BiColumn biCol) {
+			try {
+				Cell cell = p_col.getCell(biCol.getLabel());
+				if (StringUtils.isNotBlank(biCol.getFormula(parent == null))){
+					if(!biCol.isformulaOnLoadOrSave()) {
+						boolean recal = biCol.getField() == null;
+						cell.setFormula(new ColumnCellFormula(biCol.getFormula(parent == null),(ColumnCell) cell),recal);
+//						cell.setFormula(new ColumnCellFormula(biCol.getFormula(),(ColumnCell) cell),false);
+					}
+				}
+				String ol[] = biCol.getOptionList(this,p_col);
+				if (ol != null) {
+					Vector itemList = new Vector();
+			    	for (String opt : ol) {
+			    		itemList.add(opt);
+			    	}	
+			    	cell.setItemList(itemList);
+				}
+			}
+			catch (CellException ex) {
+				ex.printStackTrace();
+				UniLog.log("setformula exception");
+			}
+	}
+	protected void createColumnCells(BiCellCollection p_col)
+	{
+		Vector<BiColumn> cols = biView.getColumns();
+		Hashtable<String,String>defaultHash = new Hashtable<String,String>();
+		for(int i = 0;i<cols.size();i++) {
+			createOneColumnCell(p_col,(BiColumn) cols.get(i), defaultHash);
+//			int mode = Cell.VMODE_NORMAL;
+//			BiColumn c = (BiColumn) cols.get(i);
+//			if(c.isNoUpdate() && c.isNoEntry()){
+//				mode = Cell.VMODE_DISPONLY;
+//			}
+//			else if(c.isProtected()) {
+//				mode = Cell.VMODE_PROTECTED;
+//			}
+//			Cell newCell = null;
+//			String ft;
+//			if(c.getField() != null ) {
+//				ft = c.getField().getFieldType(); 
+//			}
+//			else {
+//				ft = c.getColumnType();
+//			}
+//			//UniLog.log("create Cell Column " + c.getEngName() + " type " + ft);
+//			if(StringUtils.equalsAny(ft, "integer", "serial")){
+//				if(StringUtils.equalsAny(c.getColumnType(), "datetime", "time")){
+//					newCell=p_col.addCell(c.getLabel(),new ColumnCell(DateUtil.zeroDate,mode));
+//					newCell.setDateTime(true);
+//					if(c.getFormat() != null) {
+//						newCell.setFormat(new SimpleDateFormat(c.getFormat()));
+//					}
+//				} 
+//				else {
+//					newCell=p_col.addCell(c.getLabel(),new ColumnCell(0,mode));
+//					if(c.getFormat() != null) {
+//						newCell.setFormat(new DecimalFormat(c.getFormat()));
+//					}
+//				}
+//			}
+//			if(ft.equals("date")) {
+//				newCell=p_col.addCell(c.getLabel(),new ColumnCell(/* new java.util.Date() */ com.uniinformation.utils.DateUtil.zeroDate,mode));
+//			}
+//			if (StringUtils.equalsAny(ft, "float", "double", "money","decimal")){
+//				newCell=p_col.addCell(c.getLabel(),new ColumnCell(0.0,mode));
+//				if(c.getFormat() != null) {
+//					newCell.setFormat(new DecimalFormat(c.getFormat()));
+//				}
+//			}
+//			if(ft.equals("char")) {
+//				if(c.getColumnType().equals("checkbox")) {
+//					newCell=p_col.addCell(c.getLabel(),new ColumnCell(false,mode));
+//				} else {
+//					newCell=p_col.addCell(c.getLabel(),new ColumnCell("",mode));
+//				}
+//			}
+//			if(ft.equals("list")) {
+//				newCell=p_col.addCell(c.getLabel(),new ColumnCell("",mode));
+//			}
+//			if(ft.equals("radio")) {
+//				newCell=p_col.addCell(c.getLabel(),new ColumnCell("",mode));
+//			}
+//			if(ft.equals("pickinput")) {
+//				newCell=p_col.addCell(c.getLabel(),new ColumnCell("",mode));
+//			}
+//			if(ft.equals("button")) {
+////				newCell=p_col.addCell(c.getLabel(),new ColumnCell());
+//				newCell=p_col.addCell(c.getLabel(),new ColumnCell(0,mode));
+//			}
+//			if(ft.equals("checkbox")) {
+//				newCell=p_col.addCell(c.getLabel(),new ColumnCell(false,mode));
+//			}
+//			if(ft.equals("label")) {
+//				newCell=p_col.addCell(c.getLabel(),new ColumnCell("",mode));
+//			}
+//			if(ft.equals("memo")) {
+//				newCell=p_col.addCell(c.getLabel(),new ColumnCell("",mode));
+//			}
+//			if(ft.equals("colorbox")) {
+//				newCell=p_col.addCell(c.getLabel(),new ColumnCell(0,mode));
+//			}
+//			if(ft.equals("datetime")) {
+//				newCell=p_col.addCell(c.getLabel(),new ColumnCell(DateUtil.zeroDate,mode));
+//				newCell.setDateTime(true);
+//			}
+//			if(ft.equals("div")) {
+//				newCell=p_col.addCell(c.getLabel(),new ColumnCell("",mode));
+//			}
+//			if(ft.equals("time")) {
+//				newCell=p_col.addCell(c.getLabel(),new ColumnCell(DateUtil.zeroDate,mode));
+//				newCell.setDateTime(true);
+//			}
+//			if(newCell != null) {
+//				((ColumnCell) newCell).setBiColumn(c,p_col,this);
+//				//Move CellValidation to be done before BiUpDate and BiAdd
+//				//x.addAction(biCellActionValidate);
+//			}
+//			if(c.getDefaultValue() != null && !c.getDefaultValue().trim().equals("")
+//					) {
+//				defaultHash.put(c.getLabel(), c.getDefaultValue());
+//			}
+		}
+		for(int i = 0;i<cols.size();i++) {
+			setColumnCellFormula(p_col,(BiColumn) cols.get(i));
+			/*
+			BiColumn biCol = (BiColumn) cols.get(i);
+			try {
+				Cell cell = p_col.getCell(biCol.getLabel());
+				if (StringUtils.isNotBlank(biCol.getFormula())){
+					if(!biCol.isformulaOnLoadOrSave()) cell.setFormula(new CellFormula(biCol.getFormula(),p_col),false);
+				}
+				if (biCol.getOptionList() != null) {
+					Vector itemList = new Vector();
+			    	for (String opt : biCol.getOptionList()){
+			    		itemList.add(opt);
+			    	}	
+			    	cell.setItemList(itemList);
+				}
+			}
+			catch (CellException ex) {
+				ex.printStackTrace();
+				UniLog.log("setformula exception");
+			}
+			*/
+		}
+		addLookupTab(biView, p_col);
+		for(int i = 0;i<cols.size();i++) {
+			BiColumn biCol = (BiColumn) cols.get(i);
+			try {
+				Cell cell = p_col.getCell(biCol.getLabel());
+				
+				if (StringUtils.isNotBlank(biCol.getFormula(parent == null))){
+					if(!biCol.isformulaOnLoadOrSave()) {
+						cell.eval();
+					}
+				}
+			}
+			catch (CellException ex) {
+				ex.printStackTrace();
+				UniLog.log("setformula exception");
+			}
+		}
+		try {
+		for(String clabel:defaultHash.keySet()) {
+			String defaultFormula = defaultHash.get(clabel);
+			com.uniinformation.utils.exprpar.Parser parser 
+				 = new com.uniinformation.utils.exprpar.Parser(ignoreCase,defaultFormula,p_col,p_col);
+			p_col.getCell(clabel).set(parser.evaluate());
+		}
+		setOnLoadValue(p_col,null);
+		} catch (Exception cex) {
+			//UniLog.log(cex);
+			UniLog.log1("error:"+cex.getMessage()); //andrew231106 too much invalid record index error, better hide the stacktrace
+		}
+		
+		if(getParent() != null) {
+			for(BiColumn bl : linkJoins.keySet()) {
+				BiColumn dl = linkJoins.get(bl);
+				ColumnCell dc = (ColumnCell) p_col.getCell(dl.getLabel());
+				try {
+					if(dc.getFormula() == null ) {
+						dc.setFormula(new ColumnCellFormula("super."+bl.getLabel(),dc),true);
+					}
+				} catch (Exception ex) {
+					UniLog.log(ex);
+				}
+			}
+			
+			
+			if(getParent().subLinkActions != null) {
+				Vector<BiAggregateCellValueAction> v = getParent().subLinkActions.get(getView().getName());
+				if(v != null) {
+				for(CellValueAction ca : v) {
+					if(ca instanceof BiAggregateCellValueAction) {
+						String detailCell = ((BiAggregateCellValueAction) ca).getDetailCellLabel();
+						Cell cc = p_col.getCell(detailCell);
+						if(cc != null) {
+							cc.addAction(ca);
+						}
+					}
+				}
+				}
+			}
+		}
+		
+		p_col.afterCreateColumnCells();
+	}
+	public BiResult getParent()
+	{
+		return(parent);
+	}
+	/*
+	public BiResult(BiResult p_parent,BiView p_view,SelectUtil p_su,Vector p_tabList, String p_whereStr) throws CellException{
+		this(p_parent,p_view,p_su,p_tabList, p_whereStr, (SessionHelper) null);
+	}
+	*/
+	
+	//for backward compatibility
+	@Deprecated
+	public BiResult(BiResult p_parent,BiView p_view,SelectUtil p_su,Vector p_tabList, String p_whereStr, SessionHelper p_sh) throws CellException{
+		this(p_parent,p_view,p_su,p_tabList, p_whereStr, p_sh, true);
+	}
+	
+	protected void preInit() {
+		
+	}
+	
+	protected BiResult(BiResult p_parent,BiView p_view,SelectUtil p_su,Vector p_tabList, String p_whereStr, SessionHelper p_sh, boolean p_allowLookupItemList) throws CellException
+	{
+		parent = p_parent;
+		biView = p_view;
+		su = p_su;
+		tabList = p_tabList;
+		baseWhereStr = p_whereStr; 
+		sh = p_sh;
+//		viewList = new Vector();
+		schemaViewList = new Vector();
+		schemaAggList = new Vector();
+		pickList = new Vector();
+		selectFieldList = new Vector();
+		onLoadList = new Vector();
+//		biCellActionValidate = new BiCellActionValidate();
+		if(sh != null) recLimit = sh.getDefaultRecordLimit(); else recLimit = DEFAULT_RECORD_LIMIT;
+		curFetchIdx = -1;
+		curLoadRecIdx = -1;
+		allowLookupItemList = p_allowLookupItemList;
+		lookupTabTrCacheHM.clear();
+		lookupDataHM.clear();
+		
+		sqlEngine = p_view.getSchema().getSqlEngine();
+		preInit();
+		whereStrParser = new BiResultWhereclParser();
+		whereStrParser.setVarInterface(whereStrParser);
+		whereStrParser.setFunctInterface(whereStrParser);
+		conditionParser = getView().getWhereclParser(this);
+		if(p_parent == null) {
+			currentCol = createColumnCollection(getParent() == null ? null : getParent().getCurrentCollection());
+			currentCol.setSid(-1, -1);
+			createColumnCells(currentCol);
+		} 
+//		for(int i = 0;i<biView.links.size();i++) {
+//			BiView subView = (BiView) biView.links.get(i);
+//			if(biView.getTable().getJoin(subView.getTable().getName()) == null) {
+//				throw(new CellException("get Join got null"));
+//			}
+//			//BiResult subResult = ((BiView) biView.links.get(i)).newBiResult(null,this);
+//			//BiResult subResult = ((BiView) biView.links.get(i)).newBiResult(null,this,null,p_sh);
+//			BiResult subResult = ((BiView) biView.links.get(i)).newBiResult(null,null,this,null,p_sh,allowLookupItemList);
+//		}
+		
+		for(BiView subView : biView.getLinkViews()) {
+//			BiView subView = (BiView) biView.links.get(i);
+			if(biView.getTable().getJoin(subView.getTable().getName()) == null) {
+				if(biView.linkIsVirtual(subView) || biView.linkOnDemand(subView)) {
+					UniLog.log("HAHA link to virtual or on Demand sublink without join");
+				} else {
+					throw(new CellException("get Join got null"));
+				}
+			}
+			
+			
+			//BiResult subResult = ((BiView) biView.links.get(i)).newBiResult(null,this);
+			//BiResult subResult = ((BiView) biView.links.get(i)).newBiResult(null,this,null,p_sh);
+//			BiResult subResult = ((BiView) biView.links.get(i)).newBiResult(null,null,this,null,p_sh,allowLookupItemList);
+			BiResult subResult = subView.newBiResult(null,null,this,null,p_sh,allowLookupItemList);
+		}		
+		
+		
+		if(p_parent != null) {
+			BiResult pr = (BiResult) p_parent;
+			Vector v = pr.sublinks;
+			if(v == null) {
+				v = new Vector();
+				pr.sublinks = v;
+			}
+			v.add(this);
+			
+//			Remark the following one line if "NEW_CURRENTCOL_PER_FETCH"			
+//			currentCol.addCollectionList("recs", new CellVector());
+//			recs = new CellVector();
+			linkJoins = new HashMap<BiColumn,BiColumn>();
+			/*
+			{
+				if(p_parent.currentCol != null) {
+					p_parent.currentCol.addCollectionList(p_view.getName(), new CellVector());
+					
+				}
+			}
+			*/
+			
+			BiTable master = p_parent.biView.getTable();
+			BiTable detail = biView.getTable();
+			BiJoin jn = master.getJoin(detail.getName());
+			if(jn != null) {
+				Vector mc = p_parent.getColumns();
+				Vector dc = getColumns();
+				
+				for(int n=0;n<jn.getJoinCount();n++) {
+					for(int j = 0;j < mc.size();j++) {
+						BiColumn bl = (BiColumn) mc.get(j);
+						if(bl.getField() == jn.getFromField(n)) {
+							for(int k = 0;k < dc.size();k++) {
+								BiColumn dl = (BiColumn) dc.get(k);
+								if(dl.getField() == jn.getToField(n)) {
+									linkJoins.put(bl, dl);
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+		resultStatList = new Vector();
+		vsDelCount = 0;
+		vsUpdCount = 0;
+		vsInsCount = 0;
+		Vector vc = getColumns();
+		columnAttrs = new Hashtable<String,ColumnAttr> ();
+		int fdIdx=0;
+		for(int i = 0;i < vc.size();i++) {
+			BiColumn cl = (BiColumn) vc.get(i);
+			if(p_parent != null) {
+				if(cl.getTable() != null)  {
+					BiView pv = cl.getView();
+					BiChain pc = pv.findChain(cl.getTable());
+					boolean isInParentView = false;
+					for(;pc != null;pc = pc.getParentChain()) {
+						if(pc.getTable() == p_parent.getView().getTable()) {
+							isInParentView = true;
+							break;
+						}
+					}
+					if(isInParentView) continue;
+				}
+			}
+			ColumnAttr ca = new ColumnAttr();
+			ca.bc = cl;
+			ca.fdIdx = 0;
+			if(
+					p_sh == null || ((p_parent != null || cl.getAggregate() == null) && cl.isInList(p_sh) && (!p_sh.isMobileDevice() || !cl.isExcludeForMobile()))
+					) {
+				schemaViewList.add(cl);
+			}
+			if(
+					p_sh != null && ((p_parent != null || cl.getAggregate() != null) && cl.isInList(p_sh) && (!p_sh.isMobileDevice() || !cl.isExcludeForMobile()))
+					) {
+				schemaAggList.add(cl);
+			}
+			if(cl.getField() != null || cl.isStoredFunction()) {
+				if(!biView.isGroupBy() || cl.isGroupByField(p_sh)) {
+					selectFieldList.add(cl);
+					ca.fdIdx = tabList.size() + fdIdx;
+					fdIdx++;
+				}
+			}
+			if(cl.isformulaOnLoad() && !StringUtils.isBlank(cl.getFormula(parent == null))) {
+				onLoadList.add(cl);
+			}
+			if(cl.inPickList()) {
+				pickList.add(cl);
+			}
+			columnAttrs.put(cl.getLabel(), ca);
+		}
+//		viewList = (Vector<BiColumn>) schemaViewList.clone();
+		resetViewList();
+//		conditionParser = getView().getWhereclParser(this);
+		clearCondition();
+		clearOrderBy();
+		if(p_parent == null) {
+			String primaryFields[] = getView().getTable().getPrimaryKeys();
+			if(primaryFields != null) {
+				primaryColumns = new BiColumn[primaryFields.length];
+				for(int n = 0;n<primaryColumns.length;n++) {
+					for(BiColumn cl : selectFieldList) {
+						if(cl.getField() != null &&  cl.getField().getTable() == getView().getTable() && cl.getField().getName().equals(primaryFields[n])) {
+							primaryColumns[n]= cl;
+							UniLog.log("biresult primaryColumn " + getView().getName() + " " + n + " " + cl.getLabel());
+							break;
+						}
+					}
+					if(primaryColumns[n] == null) {
+						UniLog.log("biresult primaryColumn " + getView().getName() + " incomplete , reset to null ");
+						primaryColumns = null;
+						break;
+					}
+				}
+			}
+			/*
+			String primaryField = getView().getTable().getPrimaryKey();
+			if(primaryField != null && !primaryField.equals((""))) {
+				for(BiColumn cl : selectFieldList) {
+					if(cl.getField() != null &&  cl.getField().getName().equals(primaryField)) {
+						primaryKey = cl.getLabel();
+						UniLog.log("biresult primaryKey " + getView().getName() + " " + primaryKey);
+						break;
+					}
+				}
+			}
+			*/
+			if(sh != null) needSync = RecSync.needSync(sh.getAgent(), p_view.getName());
+		}
+		createSelectAndCacheHash();
+		brAutoAddUpdateViews = new Hashtable<BiResult,AutoAddUpdateMap>();
+		for(BiView asv : getView().getAutoAddUpdateViews()) {
+			BiResult bsv = asv.newBiResult(p_su, p_su.getLoginId(), null, null, sh, false);
+			AutoAddUpdateMap am = new AutoAddUpdateMap();
+			brAutoAddUpdateViews.put(bsv, am);
+			for(int i=0;i<selectFieldList.size();i++) {
+				BiColumn bc = selectFieldList.get(i);
+				if(bc.getField() != null && bc.getTable() == asv.getTable() && !(bc.isNoEntry(sh) && bc.isNoUpdate(p_sh)) ) {
+					for(BiColumn abc : bsv.selectFieldList) {
+						if(abc.getField() != null && abc.getField() == bc.getField() && !(abc.isNoEntry(sh) && abc.isNoUpdate(p_sh)) ) {
+							am.updCols.put(i, abc);
+						}
+					}
+				}
+			}
+
+			BiChain ch = getView().findChain(asv.getTable());
+			BiJoin join = asv.getTable().getJoin(ch.getMaster());
+			for(int i=0;i<join.getJoinCount();i++) {
+				for(BiColumn fbc : selectFieldList) {
+					if(fbc.getField() == join.getToField(i)) {
+						for(BiColumn tbc : bsv.selectFieldList) {
+							if(tbc.getField() == join.getFromField(i)) {
+								am.keyCols.put(fbc, tbc);
+								break;
+							}
+						}
+						break;
+					}
+				}
+			}
+			if(am.keyCols.size() != join.getJoinCount()) {
+				throw new CellException("Autoupdate View Key Column Not Found");
+			}
+//			String updStr = null;
+//			Wherecl wcl = new Wherecl();
+//			for(BiColumn bc : needUpdateColumns) {
+//				if(updStr == null) {
+//					updStr = "update " + bt.getDbtName() + " set " + bc.getField().getName() + " = ? ";
+//				} else {
+//					updStr += " ," + bc.getField().getName() + " = ? ";
+//				}
+//				wcl.appendArgument(getCell(bc.getLabel()).getObject());
+//			}
+//			for(int i=0;i<join.getJoinCount();i++) {
+//				Cell fcell = null;
+//				for(BiColumn fbc : selectFieldList) {
+//					if(fbc.getField() == join.getToField(i)) {
+//						fcell = getCell(fbc.getLabel());
+//						break;
+//					}
+//				}
+//				wcl.andUniop(join.getFromField(i).getName(), "=", fcell.getObject());
+//			}
+//			brAutoAddUpdateViews.put(asv, bsv);
+		}
+		if(sh != null) {
+			if(sh.isUseVersionControl()) {
+				versionAgent = sh.getAgent();
+			}
+		}
+	}
+	
+	public String makeOptionSelectCondition(BiCellCollection p_col,String p_condStr) {
+		try {
+			conditionParser.setParseMode(BiView.BiViewWhereclParser.GETOBJECT_MODE_OPTIONSELECT);
+			conditionParser.setCollection(p_col);
+			Condition optionCondition = (Condition) conditionParser.parse(p_condStr);
+			List <Object> argList = new ArrayList<Object>();
+			String ws = optionCondition.toWherecl(argList);
+			conditionParser.setParseMode(BiView.BiViewWhereclParser.GETOBJECT_MODE_COLUMN);
+			conditionParser.setCollection(null);
+			return(ws);
+		} catch (Exception ex) {
+			UniLog.log(ex);
+		}
+		return(null);
+	}
+	
+	private HashMap<String,Condition> makeConditionList(boolean p_includeViewWhere) throws Exception
+	{
+		// convert the parsed condition in to a list of (p0 or p1 or ...) conditions that can be "And"'ed together
+		HashMap<String,Condition> conditionList = new HashMap<String,Condition> ();
+		Condition currentCondition = null;
+		String viewWhere = getView().getWhereCl();
+		try {
+			if(p_includeViewWhere && viewWhere != null) {
+				currentCondition = (Condition) conditionParser.parse(viewWhere.toString());
+			}
+			if(customCondition != null) {
+				if(currentCondition == null) {
+					currentCondition = customCondition;
+				} else {
+					currentCondition = new Condition(currentCondition,Condition.LOGIC_OP_AND,customCondition);
+				}
+			}
+		} catch (Exception  ex){
+			UniLog.log(ex);
+		}
+		if(currentCondition == null) return(conditionList);
+		List<Condition> condList = Condition.serializeCondition(false, currentCondition);
+		for(Condition cond : condList) {
+			conditionParser.setParseMode(BiView.BiViewWhereclParser.GETOBJECT_MODE_DATABASE);
+			HashSet vSet = cond.getVariableHash(new HashSet());
+			conditionParser.setParseMode(BiView.BiViewWhereclParser.GETOBJECT_MODE_COLUMN);
+			HashSet cSet = cond.getVariableHash(new HashSet());
+//			if(getSessionHelper().getLHLang().equals("SCHN")) {
+				boolean canTranslate = false;
+				for(Object bc : cSet) {
+					if((bc != null) && ((BiColumn) bc).isAutoTranslate()) {
+						canTranslate = true;
+					} else {
+						canTranslate = false;
+						break;
+					}
+				}
+				if(canTranslate) {
+					cond.translateValue(new ValueTranslationInterface() {
+						@Override
+						public boolean translaceCell(Cell p_cell) {
+							// TODO Auto-generated method stub
+							try {
+							if(p_cell.getType() == Cell.VTYPE_STRING) {
+								String s = p_cell.getString();
+								p_cell.set(ChineseConvert.convertAuto2Bnew(s));
+							}
+							} catch (CellException cex) {
+								UniLog.log(cex);
+							}
+							return true;
+						}
+						
+					});
+				}
+//			}
+			if(vSet.size() == 0) {
+				// cond has no variable => truth statement
+				if(cond.eval(null)) {
+					continue; //ignore always true statement
+				} else {
+					return(null); //return null for alwasy false statement;
+				}
+			}
+			String dbName = null;
+			if(!vSet.contains(null)) {
+				if(vSet.size() > 1) {
+					// conndtion accross more then one database , evaluate on Java , can optimize to evaluate on database later
+				} else {
+					dbName = (String ) (vSet.toArray()[0]);
+				}
+			}
+			if(conditionList.get(dbName) != null) {
+				conditionList.put(dbName,
+						new Condition(conditionList.get(dbName),Condition.LOGIC_OP_AND,cond));
+			} else {
+				conditionList.put(dbName,cond);
+			}
+		}
+		return(conditionList);
+	}
+			
+	
+	public void reloadOneRecV(int p_tridx) throws Exception {
+		reloadOneRec(resultStatList.get(p_tridx).recidx );
+		invalidateLoadCache();
+	}
+	void reloadOneRec(int p_idx) throws Exception {
+		resultTr.setRecPointer(p_idx);
+		String ss = getView().makeSelectTableStr(new HashSet(),new HashSet(),false,getParent());
+		Wherecl whereCl = (Wherecl) currentWherecl.clone();
+		for(int i = 0;i<tabList.size();i++) {
+			BiTable bt = (BiTable) tabList.get(i);
+			whereCl.andUniop(bt.getSidField(), "=", resultTr.getField(i));
+		}
+		StringBuffer selStr = new StringBuffer(lastSelStr);
+		selStr.append(" from ").append(tabList.get(0).getSelectFromName()).append(ss);
+		TableRec tr = su.getQueryResult(selStr.toString(), whereCl);
+		if(tr.getRecordCount() == 1) {
+			
+			Object[] target = resultTr.getRecord(p_idx);
+			Object[] source = tr.getRecord(0);
+			if(target.length != source.length) {
+				throw new Exception ("reloadOneRec: result columns count not equal");
+			}
+			for(int i = 0;i<source.length;i++) {
+				target[i] = source[i];
+			}
+		} else throw new Exception ("reloadOneRec: result not unique");
+		curLoadRecIdx = -1;
+	}
+	
+	/***
+	 * select data from database
+	 * @param p_rollback
+	 * @param p_loadData
+	 * @param p_queryPlan
+	 * @return
+	 */
+//	private void querySummaryDetail( ArrayList<BiColumn> cl, BiQueryPlan bqp, StringBuffer inStr, String selS, String fromS, int inCnt, int inStart) throws Exception
+//	{
+//		UniLog.log("Query Summary start " + inStart + " " + inCnt);
+//								inStr.append(")");
+//								String ss = selS;
+//								for(BiColumn bc: cl) {
+//									ss += ", "+bc.getSummaryAggregate() + fromS;
+//								}
+//								Wherecl wcl = new Wherecl().andWherecl(bqp.queryWherecl).appendString(inStr.toString()).appendString(" group by 1");
+//		UniLog.log("Query Summary before sql " + inStart + " " + inCnt);
+//								TableRec str = su.getQueryResult(ss,wcl);
+//		UniLog.log("Query Summary after sql " + inStart + " " + inCnt);
+//								Hashtable <Object,Integer >shash = new Hashtable<Object,Integer>();
+//								for(int j=0;j<str.getRecordCount();j++) {
+//									str.setRecPointer(j);
+//									shash.put(str.getField(0), j);
+//								}
+//								for(int j=0;j<inCnt;j++) {
+//									resultTr.setRecPointer(j+inStart);
+//									Object sid = resultTr.getField(0)	;
+//									Integer sidx = shash.get(sid);
+//									if(sidx != null) {
+//										int tridx = 1;
+//										for(BiColumn bc: cl) {
+//											Object o = str.getField(tridx, sidx);
+//											tridx++;
+//											ColumnAttr ca = columnAttrs.get(bc.getLabel());
+//											resultTr.setField(ca.fdIdx,o);
+//										}
+//										
+//									}
+//								}
+//		UniLog.log("Query Summary end " + inStart + " " + inCnt);
+//	}
+	private void querySummaryDetail( ArrayList<BiColumn> cl, BiQueryPlan bqp, StringBuffer inStr, String selS, String fromS, Hashtable<Object,HashSet<Integer>> shash,BiView detView,BiSchema sch) throws Exception
+	{
+
+								inStr.append(")");
+								String ss = selS;
+								for(BiColumn bc: cl) {
+									ss += ", "+bc.getSummaryAggregate();
+								}
+								ss += fromS;
+								Wherecl wcl = new Wherecl().andWherecl(bqp.queryWherecl).appendString(inStr.toString()).appendString(" group by 1");
+								TableRec str = su.getQueryResult(ss,wcl);
+								for(int j=0;j<str.getRecordCount();j++) {
+//									Integer trIdx = (Integer) shash.get(str.getField(0, j));
+									for(int trIdx : shash.get(str.getField(0,j))) {
+										resultTr.setRecPointer(trIdx);
+										int cidx = 1;
+										for(BiColumn bc: cl) {
+											Object o = str.getField(cidx, j);
+											if(o instanceof byte[]) {
+												o = new String((byte[]) o);
+											}
+											cidx++;
+											ColumnAttr ca = columnAttrs.get(bc.getLabel());
+											resultTr.setField(ca.fdIdx,o);
+										}
+									}
+									if(useSummaryCache) {
+										sch.addSummaryCache(getView(), detView, str.getField(0,j), str.getRecord(j));
+									}
+								}
+	}
+	
+	public Object makeCacheKey(Object[] sids) {
+		return(sids[0]);
+		/*
+		String s = null;
+		if(tabList.size() == 1) return(sids[0]);
+		for(int tabidx = 0;tabidx<tabList.size();tabidx++) {
+			if(s == null) {
+				s = sids[tabidx].toString();
+			} else {
+				s += "," + sids[tabidx].toString();
+			}
+		}
+		return(s);
+		*/
+	}
+//	private void queryViewCache( String selStr,StringBuffer inStr,Wherecl wherecl,BiSchema sch,int cnt) throws Exception
+//	{
+//		UniLog.log("queryViewCache batch " + getView().getName() + " " + cnt);
+//		inStr.append(")");
+//		wherecl.appendString(inStr.toString());
+//		TableRec str = su.getQueryResult(selStr,wherecl);
+//		for(int j=0;j<str.getRecordCount();j++) {
+//			resultTr.add(str.getRecord(j));
+//			if(useSummaryCache) {
+//				sch.addSummaryCache(getView(), getView(), makeCacheKey(str.getRecord(j)), str.getRecord(j));
+//			}
+//			/*
+//			Integer trIdx = (Integer) shash.get(str.getField(0, j));
+//			if(trIdx != null) {
+//				
+//				if(useSummaryCache) {
+//					sch.addSummaryCache(getView(), detView, str.getField(0,j), str.getRecord(j));
+//				}
+//			}
+//			*/
+//		}
+//	}
+	private ReturnMsg loadSerialMap(boolean p_rollback,boolean p_loadData,BiQueryPlan p_queryPlan)
+	{	
+		clearCurrentRec();
+//		aggregateOrPivotList = null;
+		aop = null;
+		boolean useRecCount = false;
+		currentTr = null;
+		currentRec = null;
+		curFetchIdx = -1;
+		Vector vc = getColumns();
+		if(p_rollback && getParent() == null) rollbackWork();
+		Hashtable tabHash = new Hashtable();
+		StringBuffer selStr = new StringBuffer();
+//		StringBuffer whereStr = new StringBuffer();
+		StringBuffer orderbyStr = new StringBuffer();
+		StringBuffer fromStr = new StringBuffer();
+		Wherecl whereCl = (Wherecl) currentWherecl.clone();
+		int queryPlanKeyfieldIndex = -1;
+		if(useLoadCache && curLoadRecIdx >= 0) {
+			clearCurrentRec();
+		}
+		curLoadRecIdx = -1;
+		int aggregateGroupCount = 0;
+		resultTr = null;
+		resultCache = null;
+		String selSidStr = null;
+
+		HashMap<String,Condition> conditionList = null;
+		try {
+			conditionList = makeConditionList(true);
+			if(conditionList == null) {
+				resultStatList.clear();
+				vsDelCount = 0;
+				vsUpdCount = 0;
+				vsInsCount = 0;
+				return(ReturnMsg.defaultOk);
+			}
+		} catch (Exception ex) {
+			UniLog.log(ex);
+			return(new ReturnMsg(false,ex.toString()));
+		}
+		if( (conditionList != null && conditionList.get(null) != null) || p_loadData ) {
+			if(selListStr != null) {
+//				StringBuffer selListStrB = new StringBuffer();
+//				for(int i = 0;i<tabList.size();i++) {
+//					BiTable bt = (BiTable) tabList.get(i);
+//					if(i == 0) {
+//						selListStrB.append("select "); 
+//					} else {
+//						selListStrB.append(",");
+//					}
+//					if(biView.isAggregate) {
+//						selListStrB.append("0 ");
+//						selListStrB.append(" " + bt.getName()  + "_sid");
+//						aggregateGroupCount++;
+//					} else {
+//						selListStrB.append(bt.getSidField());
+//						selListStrB.append(" " + bt.getName()  + "_sid");
+//					}
+//				}
+			}
+			for(int i = 0;i<tabList.size();i++) {
+				BiTable bt = (BiTable) tabList.get(i);
+				if(i == 0) {
+					selStr.append("select "); 
+				} else {
+					selStr.append(",");
+				}
+				if(biView.isGroupBy()) {
+					selStr.append("0 ");
+					selStr.append(" " + bt.getName()  + "_sid");
+					aggregateGroupCount++;
+				} else {
+					selStr.append(bt.getSidField());
+					selStr.append(" " + bt.getName()  + "_sid");
+				}
+			}
+			if(getView().useViewCache) {
+				selSidStr = selStr.toString();
+			}
+			for(int i = 0;i < selectFieldList.size();i++) {
+				BiColumn cl = (BiColumn) selectFieldList.get(i);
+//				selStr.append(","+cl.getSelectName());
+				selStr.append(","+getSelectName(cl));
+//				if(p_queryPlan != null && p_queryPlan.keyField != null && cl.getLabel().equals(p_queryPlan.keyField)) {
+				if(p_queryPlan != null && p_queryPlan.keyField != null && cl.getField() != null && cl.getField().getName().equals(p_queryPlan.keyField)) {
+					queryPlanKeyfieldIndex = tabList.size()+ i;
+				}
+				if(biView.isGroupBy()) {
+					if(!cl.isStoredFunction()) {
+						aggregateGroupCount++;
+					}
+				}
+			}
+
+			if(!biView.isGroupBy()) {
+				if(lookupList != null) {
+				for(BiTable lt : lookupList) {
+					selStr.append(",");
+					selStr.append(lt.getSidField());
+					selStr.append(" " + lt.getName()  + "_sid");
+				}
+				}
+			}
+			
+			lastSelStr = selStr.toString();
+			if(p_queryPlan != null && queryPlanKeyfieldIndex < 0) {
+				selStr.append(","+p_queryPlan.keyField);
+				queryPlanKeyfieldIndex = tabList.size()+ selectFieldList.size();
+			}
+		} else {
+			if(p_queryPlan != null && p_queryPlan.keyField != null) {
+				for(int j=0;j<selectFieldList.size();j++) {
+//					if(selectFieldList.get(j).getLabel().equals(p_queryPlan.keyField)) {
+					if(selectFieldList.get(j).getField() != null &&
+							selectFieldList.get(j).getField().getName().equals(p_queryPlan.keyField) &&
+							selectFieldList.get(j).getField().getTable().getName().equals(p_queryPlan.keyTable) 
+							) {
+						selStr.append("select " + selectFieldList.get(j).getField().getFullName());
+					}
+				}
+				if(p_queryPlan.masterTabe != null) {
+					selStr.append("select " + p_queryPlan.keyField);
+				}
+			} else {
+				useRecCount = true;
+				selStr.append("select count(*) ");
+			}
+		}
+		Condition dbCond = conditionList.get(getView().getName()+"@"+getView().getSchema().dbLabel.toString()); 
+		HashSet<BiTable> ptl = null;
+		HashSet<BiTable> otl = new HashSet<BiTable>();
+		if(dbCond != null) {
+			try {
+				conditionParser.setParseMode(BiView.BiViewWhereclParser.GETOBJECT_MODE_TABLE);
+				ptl = dbCond.getVariableHash(new HashSet<BiTable>());
+				conditionParser.setParseMode(BiView.BiViewWhereclParser.GETOBJECT_MODE_COLUMN);
+			} catch (Exception ex) {
+				UniLog.log(ex);
+				return(new ReturnMsg(false,ex.toString()));
+			}
+		} else ptl = new HashSet<BiTable>();
+		{
+			HashSet<BiTable> xtl = addExtraWhereStr(whereCl,(HashSet<BiTable>)null);
+			if(xtl != null) {
+				for(BiTable xbt : xtl) {
+					ptl.add(xbt);
+				}
+			}
+		}
+	if(sqlEngine == BiSchema.SQLENGINE_SCORPION) {
+		
+		if(ptl.size() > 1) {
+//	only one lookup table list should be  move up to to table search order, otherwise will generate a very inefficient query plan (for scorpion only, not sure for other sql engine)
+//			BiTable bit = ptl.iterator().next();
+			boolean bb = false;
+			if(ptl.contains(getView().getTable())) {
+					otl = ptl;
+					ptl = new HashSet<BiTable>();
+					ptl.add(getView().getTable());
+					otl.remove(getView().getTable());
+			} else {
+				for(BiTable bit:ptl) {
+					if(!bb) {
+						ptl = new HashSet<BiTable>();
+						ptl.add(bit);
+						bb = true;
+					} else {
+						otl.add(bit);
+					}
+				}
+			}
+//			ptl = new HashSet<BiTable>();
+//			ptl.add(bit);
+		}
+		boolean useOuter = true;
+		String ss = getView().makeSelectTableStr(ptl,otl,queryIncludeNoDetail,getParent());
+
+		
+		String fs = "";
+		for(BiTable bt:ptl) {
+			if(!fs.equals("")) fs+= ",";
+			fs += bt.getSelectFromName();
+		}
+		if(useOuter) {
+			if(!ptl.contains(tabList.get(0))) {
+				if(!fs.equals("")) fs+= ",";
+				fs += tabList.get(0).getSelectFromName();
+			}
+			fromStr.append(" from ").append(fs).append(ss);
+		} else {
+			for(int i = 0;i<tabList.size();i++) {
+				if(!ptl.contains(tabList.get(i))) {
+					if(!fs.equals("")) fs+= ",";
+					fs += tabList.get(i).getSelectFromName();
+				}
+			}
+			fromStr.append(" from ").append(fs);
+		}
+		if(p_queryPlan != null && p_queryPlan.masterTabe != null) fromStr.append(" , " + p_queryPlan.masterTabe);
+		if (fDebug) UniLog.log( " outer select str = fs=" + fs + " ss="+ss);
+	} else {
+		fromStr.append(" from ").append(tabList.get(0).getSelectFromName());
+		if(p_queryPlan != null && p_queryPlan.masterTabe != null) {
+			fromStr.append(" join " + p_queryPlan.masterTabe);
+			if(p_queryPlan != null && p_queryPlan.masterJoinStr != null) {
+				fromStr.append(" on " + p_queryPlan.masterJoinStr);
+			}
+		}
+		fromStr.append(getView().makeJoinTableStrSql20(ptl,queryIncludeNoDetail));
+	}
+//		addExtraWhereStr(whereCl);
+		if(dbCond != null) {
+			conditionParser.setParseMode(BiView.BiViewWhereclParser.GETOBJECT_MODE_FIELD);
+			try {
+				List <Object> argList = new ArrayList<Object>();
+				String ws = dbCond.toWherecl(argList);
+				whereCl.appendString(" and " + ws);
+				for(Object arg : argList) {
+					whereCl.appendArgument(arg);
+				}
+			} catch (CellException cex ) {
+				UniLog.log(cex);
+			}
+			conditionParser.setParseMode(BiView.BiViewWhereclParser.GETOBJECT_MODE_COLUMN);
+		}
+		if(getParent()== null) {
+			Vector v = getSubLinks();
+			if(v != null) {
+				for(int i = 0;i < v.size();i++) {
+					BiResult sr = (BiResult) v.get(i);
+					Condition dbSubCond = conditionList.get(sr.getView().getName()+"@"+sr.getView().getSchema().dbLabel.toString()); 
+					if(dbSubCond != null) {
+						BiTable master = biView.getTable();
+						BiTable detail = sr.biView.getTable();
+						if (fDebug) UniLog.log("subquery:biResult get sublinks result from " + master.getName() + " to " + detail.getName());
+						BiJoin jn = master.getJoin(detail.getName());
+						if(jn != null) {
+							BiQueryPlan bqp = new BiQueryPlan(0);
+							String inFieldName;
+							if(jn.getJoinCount() != 1) {
+//								UniLog.log("subquery with more then one join field with master is not supported");
+//								continue;
+								String mjAliase = String.format("%s_%s", master.getDbtName(),detail.getDbtName());
+								bqp.masterTabe = String.format("%s %s", master.getDbtName(),mjAliase);
+								bqp.masterJoinStr = "";
+								for(int j = 0;j<jn.getJoinCount();j++) {
+									if(!StringUtils.isBlank(bqp.masterJoinStr)) bqp.masterJoinStr += " and ";
+									bqp.masterJoinStr += String.format("%s.%s = %s"
+											,mjAliase
+											,jn.getFromField(j).fieldName
+											,jn.getToField(j).getFullName()
+											);
+								}
+								bqp.keyField = String.format("%s.%s", mjAliase,master.getSerialId());
+								inFieldName = master.getSidField();
+							} else {
+								BiField keyField = jn.getToField(0);
+								bqp.keyField = keyField.getName();
+								bqp.keyTable = keyField.getTable().getName();
+								inFieldName = jn.getFromField(0).getFullName();
+							}
+							sr.clearCondition();
+							sr.addCustomCondition(dbSubCond.toString());
+							if(jn.getParsedCondition(this) != null) {
+								sr.appendWherecl(new Wherecl().appendString(jn.getParsedCondition(this)));
+							}
+							sr.loadSerialMap(false, false, bqp);
+//							whereCl.appendString(" and " + jn.getFromField(0).getFullName() + " in (" +  
+							whereCl.appendString(" and " + inFieldName + " in (" +  
+//										" select " + jn.getToField(0) + " from " + detail.getSelectFromName() 
+										bqp.queryStr
+										+ " where " +
+										bqp.queryWherecl.stripAnd().getWhereString() + ") ");
+							Vector vals = bqp.queryWherecl.getValues();
+							for(Object arg : vals) {
+								whereCl.appendArgument(arg);
+							}
+							sr = null;
+						}
+					}
+				}
+			}
+		}
+		if(p_loadData) {
+			Vector defaultOrderBy = biView.getDefaultOrderBy();
+			if(defaultOrderBy != null) {
+				int j=0;
+				for(int i = 0;i<defaultOrderBy.size();i++) {
+					BiOrderBy ob = (BiOrderBy) defaultOrderBy.get(i);
+					if(ob.getColumn() == null || ob.getColumn().getLabel().equals("serial_id")) {
+						orderbyStr.append(",1 ");
+						if(ob.getDesc()) orderbyStr.append(" desc ");
+					} else {
+						for(j=0;j<selectFieldList.size();j++) {
+							if(ob.getColumn().equals(selectFieldList.get(j))) break;
+						}
+						if(j < selectFieldList.size()) {
+							orderbyStr.append(","+(j+tabList.size()+1));
+							if(ob.getDesc()) orderbyStr.append(" desc ");
+						}
+					}
+				}
+			}
+		}
+		try {
+			selStr.append(fromStr.toString());
+			
+			if(aggregateGroupCount > 0) {
+				String gs = " group by " ;
+				for(int i = 0;i<aggregateGroupCount;i++) {
+					if( i>0) gs += ",";
+					gs += ""+(i+1);
+				}
+				gs += " ";
+				whereCl.appendString(gs);
+			}
+			
+			String orderByStr = null;
+			if(!getView().useViewCache && !orderbyStr.toString().equals("")) {
+				orderByStr = " order by " + orderbyStr.toString().substring(1);
+			}
+			if(p_loadData) {
+				if(orderByStr == null) 
+					orderByStr = " limit " + recLimit;
+				else
+					orderByStr += " limit " + recLimit;
+			} else {
+				if(p_queryPlan != null && p_queryPlan.maxPrefetch > 0) {
+					orderByStr += " limit " + p_queryPlan.maxPrefetch;
+				}
+			}
+			if(orderByStr != null) whereCl.appendString(orderByStr);
+			if (fDebug) UniLog.log1("querystr ["+selStr+"]"+ whereCl);
+	if(sqlEngine == BiSchema.SQLENGINE_SCORPION) {
+			if(p_queryPlan != null && p_queryPlan.masterJoinStr != null) {
+				whereCl.appendString(" and " + p_queryPlan.masterJoinStr);
+			}
+	}
+			if( !p_loadData ) {
+				if(p_queryPlan != null) {
+					if(conditionList == null || conditionList.get(null) == null) {
+						p_queryPlan.queryStr = selStr.toString();
+						if(p_queryPlan != null && p_queryPlan.masterJoinStr != null) {
+			
+						}
+						p_queryPlan.queryWherecl = whereCl;
+					} else {
+						p_queryPlan.queryStr = null;
+						p_queryPlan.queryWherecl = null;
+					}
+				}
+				if(p_queryPlan == null || p_queryPlan.maxPrefetch > 0) {
+					TableRec ttr = su.getQueryResult(selStr.toString(),whereCl);
+					if(p_queryPlan != null) {
+						p_queryPlan.prefetchLimitReached = ttr.getRecordCount() >= p_queryPlan.maxPrefetch;
+						p_queryPlan.prefetchList = new ArrayList<Object>();
+					} 
+					if(!useRecCount) {
+						int reccnt = 0;
+						if(conditionList != null && conditionList.get(null) != null) {
+							Condition cond = conditionList.get(null);
+							TableRec orgTr = resultTr;
+//							BiTableRec orgTr = resultTr;
+//							BiTableRec.RECMODE orgMode = resultTr.getMode();
+//							resultTr = new BiTableRec(ttr);
+							resultTr = ttr;
+							for(int i=ttr.getRecordCount()-1;i>=0;i--) {
+								loadOneRec(i,currentCol,false);
+								if(cond.eval(currentCol)) {
+									if(p_queryPlan != null)  
+										p_queryPlan.prefetchList.add(
+											resultTr.getField(queryPlanKeyfieldIndex,i));	
+									reccnt++;
+								} else {
+									resultTr.deleteRecord(i);
+								}
+							}
+//							resultTr = orgTr;
+							resultTr = orgTr;
+						} else {
+							reccnt = ttr.getRecordCount();
+						}
+						if(p_queryPlan != null) {
+							for(int i=0;i<ttr.getRecordCount();i++) {
+								p_queryPlan.prefetchList.add(resultTr.getField(queryPlanKeyfieldIndex,i));	
+							}
+						}
+						ReturnMsg rtn = new ReturnMsg(true);
+						rtn.setData(new Integer(reccnt));
+						return(rtn);
+					} else {
+						if(ttr.getRecordCount() <= 0) return(new ReturnMsg(false,"prefetch failed"));
+						ttr.setRecPointer(0);
+						if(p_queryPlan != null) {
+							p_queryPlan.prefetchLimitReached = ((Integer) ttr.getField(0)) >= p_queryPlan.maxPrefetch;
+							p_queryPlan.prefetchList = null;
+						}
+						ReturnMsg rtn = new ReturnMsg(true);
+						rtn.setData(new Integer((Integer) ttr.getField(0)));
+						return(rtn);
+					}
+				} else {
+					p_queryPlan.prefetchLimitReached = false;
+					p_queryPlan.prefetchList = null;
+					return(ReturnMsg.defaultOk);
+				}
+			}
+			
+			if(!getView().useViewCache) {
+				resultTr = su.getQueryResult(selStr.toString(),whereCl);
+//				resultTr = new BiTableRec(su.getQueryResult(selStr.toString(),whereCl));
+			} else {
+				/*
+				UniLog.log("queryViewCache start");
+				BiSchema sch = getView().getSchema();
+				TableRec sidRecs = su.getQueryResult(selSidStr+fromStr,whereCl);
+				UniLog.log("queryViewCache gotsidList "+sidRecs.getRecordCount());
+				String selS = selStr.toString();
+				int sidx = selS.indexOf("from");
+				selS = selS.substring(0,sidx);
+				String fromS = fromStr.substring(5);
+				String[]tabs = fromS.split(",");
+				String masterTable = getView().getTable().getSelectFromName();
+				fromS = " from " + masterTable;
+				for(String ss : tabs) {
+								if(!masterTable.equals(ss.trim())) {
+									fromS += "," + ss.trim();
+								}
+							}
+				int inCnt = 0;
+				int maxIn = 1500;
+				Hashtable <Object,Integer >shash = new Hashtable<Object,Integer>();
+				StringBuffer inStr = new StringBuffer(" and " + getView().getTable().getSidField() + " in (");
+				resultV = new Vector<Object[]>();
+				for(int i=0;i<sidRecs.getRecordCount();i++) {
+					if(inCnt >= maxIn) {
+//						queryViewCache( selStr,inStr,(Wherecl) currentWherecl.clone(),sch);
+						queryViewCache( selS+fromS,inStr,(Wherecl) currentWherecl.clone(),sch,inCnt);
+						inCnt = 0;
+						inStr = new StringBuffer(" and " + getView().getTable().getSidField() + " in (");
+						shash = new Hashtable<Object,Integer>();
+					}
+					Object key = makeCacheKey(sidRecs.getRecord(i));
+					Object[] cache = sch.getSummaryCache(getView(), getView(), key);
+					if(cache != null) {
+						resultV.add(cache);
+						continue;
+					}
+					int sid = (Integer) sidRecs.getField(0,i);
+					shash.put(sid, i);
+					if(inCnt > 0) inStr.append(",");
+					inStr.append(""+sid);
+					inCnt++;
+				}
+				if(inCnt > 0) {
+					queryViewCache( selS+fromS,inStr,(Wherecl) currentWherecl.clone(),sch,inCnt);
+				}
+				*/
+				UniLog.log("queryViewCache end");
+			}
+			if (debugTrFlag) {
+				debugTr();
+			}
+
+			ReturnMsg rtn = afterLoadSerialMap();
+			if(!rtn.getStatus()) {
+				return(rtn);
+			}
+			for(BiView sv : getView().getSummaryViews().keySet()) {
+				UniLog.log("Select Detail View Summary " + sv.getName());
+				ArrayList<BiColumn> cl = getView().getSummaryViews().get(sv);
+//				StringBuffer sqlStr = new StringBuffer("select ");
+//				sqlStr.append(getView().getTable().getSidField());
+//				for(BiColumn bc: cl) {
+//					sqlStr.append(", "+bc.getSummaryAggregate());
+//				}
+				{
+							BiResult sr = getSubLink(sv.getName());
+							BiTable master = biView.getTable();
+							BiTable detail = sv.getTable();
+							BiJoin jn = master.getJoin(detail.getName());
+							BiQueryPlan bqp = new BiQueryPlan(0);
+							String inFieldName;
+								String mjAliase = String.format("%s_%s", master.getDbtName(),detail.getDbtName());
+								bqp.masterTabe = String.format("%s %s", master.getDbtName(),mjAliase);
+								bqp.masterJoinStr = "";
+								for(int j = 0;j<jn.getJoinCount();j++) {
+									if(!StringUtils.isBlank(bqp.masterJoinStr)) bqp.masterJoinStr += " and ";
+									bqp.masterJoinStr += String.format("%s.%s = %s"
+											,mjAliase
+											,jn.getFromField(j).fieldName
+											,jn.getToField(j).getFullName()
+											);
+								}
+								bqp.keyField = String.format("%s.%s", mjAliase,master.getSerialId());
+								inFieldName = master.getSidField();
+							sr.clearCondition();
+//							sr.addCustomCondition(dbSubCond.toString());
+							sr.loadSerialMap(false, false, bqp);
+							int idx = bqp.queryStr.indexOf("from");
+							String selS = bqp.queryStr.substring(0,idx);
+							String fromS = bqp.queryStr.substring(idx+4);
+							String[]tabs = fromS.split(",");
+							fromS = " from " + bqp.masterTabe;
+							for(String ss : tabs) {
+								if(!bqp.masterTabe.equals(ss.trim())) {
+									fromS += "," + ss.trim();
+								}
+							}
+//							whereCl.appendString(" and " + inFieldName + " in (" +  
+//										bqp.queryStr
+//										+ " where " +
+//										bqp.queryWherecl.stripAnd().getWhereString() + ") ");
+//							Vector vals = bqp.queryWherecl.getValues();
+//							for(Object arg : vals) {
+//								whereCl.appendArgument(arg);
+//							}
+
+							int inCnt = 0;
+							int maxIn = 1500;
+							Hashtable <Object,HashSet<Integer> >shash = new Hashtable<Object,HashSet<Integer>>();
+							StringBuffer inStr = new StringBuffer(" and " + bqp.keyField + " in (");
+//							for(int i=resultTr.getRecordCount()-1;i>=0;i--) {
+							BiSchema sch = getView().getSchema();
+							for(int i=0;i<resultTr.getRecordCount();i++) {
+								if(inCnt >= maxIn) {
+//									querySummaryDetail(cl, bqp, inStr, selS, fromS, inCnt, inStart);
+									querySummaryDetail(cl, bqp, inStr, selS, fromS, shash,sr.getView(),sch);
+									inCnt = 0;
+									inStr = new StringBuffer(" and " + bqp.keyField + " in (");
+									shash = new Hashtable<Object,HashSet<Integer>>();
+								}
+								Integer sid = (Integer) resultTr.getField(0,i);
+								if(useSummaryCache) {
+									Object[] cache = sch.getSummaryCache(getView(), sr.getView(), sid);
+									if(cache != null) {
+										resultTr.setRecPointer(i);
+										int cidx = 1;
+										for(BiColumn bc: cl) {
+											Object o = cache[cidx];
+											cidx++;
+											ColumnAttr ca = columnAttrs.get(bc.getLabel());
+											resultTr.setField(ca.fdIdx,o);
+										}
+										continue;
+									}
+								}
+								HashSet<Integer>trSet = shash.get(sid);
+								if(trSet == null) {
+									trSet = new HashSet<Integer>();
+									shash.put(sid, trSet);
+									if(inCnt > 0) inStr.append(",");
+									inStr.append(""+resultTr.getField(0,i));	
+									inCnt++;
+								}
+								trSet.add(i);
+							}
+
+							if(inCnt > 0) {
+//								querySummaryDetail(cl, bqp, inStr, selS, fromS, inCnt, inStart);
+								querySummaryDetail(cl, bqp, inStr, selS, fromS, shash,sr.getView(),sch);
+							}
+							sr = null;
+				
+				}
+			}
+			if(conditionList != null && conditionList.get(null) != null) {
+				Condition cond = conditionList.get(null);
+				for(int i=resultTr.getRecordCount()-1;i>=0;i--) {
+					loadOneRec(i,currentCol,false);
+					if(!cond.eval(currentCol)) {
+						resultTr.deleteRecord(i);
+					}
+				}
+			}
+			rtn = afterLoadSerialMap2();
+			if(!rtn.getStatus()) {
+				return(rtn);
+			}
+//			resultCache = new Hashtable[resultTr.getRecordCount()];
+//			if(getParent() == null) resultCache = new Object[resultTr.getRecordCount()][];
+			resetStatList();
+			rtn=afterLoadSerialMap3();
+			if(!rtn.getStatus()) {
+				return(rtn);
+			}
+			/*
+			resultStatList.clear();
+			vsDelCount = 0;
+			vsUpdCount = 0;
+			vsInsCount = 0;
+			
+			for(int i = 0;i<resultTr.size();i++) {
+				resultTr.setRecPointer(i);
+				resultStatList.add(new TrStat(i,((Integer) resultTr.getField(0)).intValue()));
+			}
+			if (fDebug) UniLog.log("Result Set fetched, total " + resultStatList.size() + " records");
+			*/
+		} catch (Exception ex) {
+			UniLog.log(ex);
+			jdbcReconnect();
+			lastErrorMessage = ex.toString();
+			return(new ReturnMsg(false,ex.toString()));
+		}
+		lastQuery = new java.util.Date();
+		ReturnMsg rtn = new ReturnMsg(true);
+		rtn.setData(new Integer(resultStatList.size()));
+		return(rtn);
+	}
+	
+	//a dirty hotfix, should invalid the connection in driver level
+	private void jdbcReconnect(){
+		if (su != null){
+			boolean reconnRes = su.jdbcReconnect();
+			UniLog.log("su reconnect result:" + reconnRes);
+		}
+	}
+
+	public void close()
+	{
+		su.close();
+	}
+	
+	public BiView getView()
+	{
+		return(biView);
+	}
+	public Vector<BiColumn> getColumns()
+	{
+		return(biView.getColumns());
+	}
+	public BiColumn getColumnByLabel(String p_label){
+		return(biView.getColumnByLabel(p_label));
+	}
+
+	public Vector getOrderBy()
+	{
+		return(orderby);
+	}
+	public void clearCondition()
+	{
+		customCondition = null;
+		/*
+		String viewWhere = getView().getWhereCl();
+		try {
+			if(viewWhere != null) {
+				customCondition = (Condition) parser.evaluate(viewWhere.toString());
+			}
+		} catch (Exception  ex){
+			UniLog.log(ex);
+		}
+		*/
+		currentWherecl = new Wherecl();
+		if(baseWhereStr != null && !baseWhereStr.trim().equals("")) {
+//			currentWherecl.appendString(baseWhereStr);
+			try {
+				Condition baseCondition = (Condition) whereStrParser.parse(baseWhereStr);
+				UniLog.log("Parsed baseWhereStr = ["+baseCondition.toString()+"]");
+				currentWherecl.appendString(baseCondition.toString());
+			} catch(Exception ex) {
+				UniLog.log(ex);
+				currentWherecl.appendString("ERROR: baseWhereString Syntax error");
+			}
+		}
+		
+	}
+	public void clearOrderBy()
+	{
+		orderby = new Vector();
+	}
+
+	/***
+	 * append where clause to existing where clause with logical AND
+	 * @param p_wherecl - append to default where clause,
+	 *                    remark: use cellName instead of field name
+	 * @return
+	 */
+	public ReturnMsg addCustomCondition(String p_wherestr){
+		return(addCustomCondition(p_wherestr, false));
+	}
+	
+	/**custom
+	 * append Condition 
+	 * @param p_wherecl - where clause string
+	 * @param p_testMode - true: test where clause structure only, will not apply to data strucre
+	 * @return
+	 */
+	public ReturnMsg addCustomCondition(String p_wherecl, boolean p_testMode)
+	{
+		if (StringUtils.isBlank(p_wherecl)){
+			return(new ReturnMsg(true,"where clause is blank"));
+		}
+		UniLog.logm(this, "entered: %s", p_wherecl);
+		try {
+			Object result = conditionParser.parse(p_wherecl);
+			if(conditionParser.getErrCnt() > 0) {
+				return(new ReturnMsg(false,"Syntax Error at Position " + conditionParser.getErrPos()));
+				
+			}
+			if(!(result instanceof Condition)) {
+				return(new ReturnMsg(false,"Statement is not conditional" + conditionParser.getErrPos()));
+			}
+			if (p_testMode){
+				ReturnMsg rtn = new ReturnMsg(true);
+				rtn.setData(result);
+				return(rtn);
+			}
+			conditionParser.setParseMode(BiView.BiViewWhereclParser.GETOBJECT_MODE_COLUMN);
+			((Condition) result).getVariableHash(new HashSet<BiColumn>());
+			
+			if(customCondition == null) customCondition = (Condition) result;
+			else
+				customCondition = new Condition(customCondition,Condition.LOGIC_OP_AND,(Condition) result);
+			return(new ReturnMsg(true));
+		} catch (Exception ex) {
+			UniLog.log(ex);
+			return(new ReturnMsg(false,ex.toString()));
+		}
+	}
+
+	public void appendCondition(Condition p_condition) throws Exception {
+		if(customCondition == null) 
+			customCondition = p_condition;
+		else
+			customCondition = new Condition(customCondition,Condition.LOGIC_OP_AND,p_condition);
+	}
+
+	public boolean addCondition(List p_tablist,String p_wherecl)
+	{
+		ReturnMsg rtnMsg = addCustomCondition(p_wherecl);
+		if(rtnMsg != null && !rtnMsg.getStatus()) return(false);
+		
+		Vector tv=new Vector();
+		for(int i = 0;i<p_tablist.size();i++) {
+			BiTable table = (BiTable) p_tablist.get(i);
+			tv.add(table);
+		}
+		return(true);
+		
+	}
+	/***
+	 * add order by col
+	 * This method is obsoleted. Please use addOrderByColumnList()
+	 * @param p_colidx
+	 * @param p_desc
+	 * @return
+	 */
+	public boolean addOrderByViewList(int p_colidx,boolean p_desc) {
+//		BiView view = (BiView) getParent();
+		Vector cols = viewList;
+		
+		if(p_colidx <= 0 || p_colidx > cols.size()) {
+			if (p_colidx > cols.size() && aop != null && p_colidx <= cols.size() + aop.getAggregateOrPivotList().size()) {
+				/*
+				int realColIdx = p_colidx - 1 - cols.size();
+				if(aop.aopListOrder != null) {
+					realColIdx = aop.aopListOrder[realColIdx];
+				}
+				orderby.add(new AggregateDataSetOrderBy(realColIdx, p_desc));
+				*/
+				orderby.add(new AggregateDataSetOrderBy(p_colidx - 1 - cols.size(), p_desc));
+				return true;
+			}
+			UniLog.log("ERROR addOrderBy colidx " + p_colidx + " out of range");
+			return(false);
+		}
+		orderby.add(new BiOrderBy(biView,(BiColumn) cols.get(p_colidx-1),p_desc));
+		return(true);
+	}
+	/***
+	 * append orderby col
+	 * sort result by java instead of db
+	 * @param p_label - cellName
+	 * @param p_desc - true: descending, false: ascending
+	 * @return
+	 */
+	public boolean addOrderByColumnList(String p_label,boolean p_desc) {
+		for (int i=0; i<biView.getColumns().size(); i++){
+			BiColumn bi = (BiColumn) biView.getColumns().get(i);
+			if (bi.getLabel().equals(p_label)){
+				return(addOrderByColumnList(bi,p_desc));
+			}
+		}
+		if (aop != null) {
+			for (int i = 0; i < aop.getAggregateOrPivotList().size(); i++) {
+				if (aop.getAggregateOrPivotList().get(i).equals(p_label))
+					return addOrderByAggregateDataSetList(i, p_desc);
+			}
+		}
+		UniLog.log(String.format("addOrderByColumnList:%s fail, column not found", p_label));
+		return(false);
+	}
+	/***
+	 * append orderby col
+	 * sort result by java instead of db
+	 * @param p_col
+	 * @param p_desc
+	 * @return
+	 */
+	public boolean addOrderByColumnList(BiColumn p_col,boolean p_desc) {
+		orderby.add(new BiOrderBy(biView,(BiColumn) p_col,p_desc));
+		return(true);
+	}
+
+	public boolean addOrderByAggregateDataSetList(int p_idx,boolean p_desc) {
+		orderby.add(new AggregateDataSetOrderBy(p_idx, p_desc));
+		return(true);
+	}
+	
+	/***
+	 * it will be called after obtain resultTr
+	 * you can place non-db field handling logic here
+	 * 
+	 * @return
+	 */
+	protected ReturnMsg afterLoadSerialMap() {
+		return(ReturnMsg.defaultOk);
+	}
+	protected ReturnMsg afterLoadSerialMap2() {
+		return(ReturnMsg.defaultOk);
+	}
+	protected ReturnMsg afterLoadSerialMap3() {
+		return(ReturnMsg.defaultOk);
+	}
+	/***
+	 * query data from database
+	 * by default data is sorted by biView.getDefaultOrderBy() defined in BiView
+	 * @param p_rollback - true:rollback before query
+	 * @param p_sortFlag - sort data using java
+	 * @return
+	 */
+
+	public ReturnMsg query(boolean p_rollback, boolean p_sortFlag)
+	{
+		ReturnMsg rtn = loadSerialMap(p_rollback,true,null);
+		if (!rtn.getStatus()) {
+			UniLog.logm(this,"loadSerialMap error %s", rtn.getMsg());
+			return(rtn);
+		}
+		if (p_sortFlag){
+			sort();
+		}
+		return(ReturnMsg.defaultOk);
+	}
+	public ReturnMsg query(boolean p_rollback){
+		return(query(p_rollback, true));
+	}
+	public ReturnMsg query(){
+		return(query(true, true));
+	}
+	/***
+	 * andrew190222: clear() method is ambiguous. 
+	 * It do not clear orderby/whereclause
+	 */
+	public void clear() {
+		currentTr = null;
+		currentRec = null;
+		resultTr = null;
+		resultStatList.clear();
+		vsDelCount = 0;
+		vsUpdCount = 0;
+		vsInsCount = 0;
+		curFetchIdx = -1;
+		curLoadRecIdx = -1;
+	}
+
+	protected void saveOneObjectToResultTr(int p_row,int p_col,Object p_object) throws Exception {
+		resultTr.setRecPointer(p_row);
+		resultTr.setField(p_col,p_object);
+	}
+	protected void saveOneColumn(String p_colName,int p_idx) {
+		if(getParent() != null) {
+			UniLog.log("cannot setColumn for subLink");
+			return;
+		}
+		int tridx = p_idx;
+		ColumnAttr ca = columnAttrs.get(p_colName);
+		if(ca != null) {
+			if((ca.bc.getField() != null || ca.bc.isStoredFunction()) && ca.fdIdx > 0) {
+				try {
+					resultTr.setRecPointer(tridx);
+					ColumnCell cc = getCell(p_colName);
+					if(cc.getType() == Cell.VTYPE_DATETIME) {
+							if(sqlEngine != BiSchema.SQLENGINE_SCORPION) {
+								String ss = ca.bc.getField().getFieldType();
+								if(ss.equals("datetime") || ss.equals("timestamp")) {
+									if(DateUtil.zeroTime.after(cc.getDate())) {
+										resultTr.setField(ca.fdIdx,DateUtil.zeroTime);
+									} else {
+										resultTr.setField(ca.fdIdx,cc.getDate());
+									}
+								} else {
+									resultTr.setField(ca.fdIdx,cc.getInt());
+								}
+							} else {
+								resultTr.setField(ca.fdIdx,cc.getInt());
+							}
+					} else {
+						if(cc.getBiColumn().isAutoTranslate() /* && getSessionHelper().getLHLang().equals("SCHN")*/) {
+							String s = (String) cc.getObject();
+							resultTr.setField(ca.fdIdx,ChineseConvert.convertAuto2Bnew(s));
+						} else {
+							resultTr.setField(ca.fdIdx,cc.getObject());
+						}
+					}
+				} catch (Exception cex) {
+					UniLog.log(cex);
+				}
+			}
+		}
+	}
+	private void saveCurrentRec(CellCollection p_col)
+	{
+		saveOneRec(currentTr.recidx,p_col,false);
+	}
+	public void saveOneRecV(int p_tridx)
+	{
+		saveOneRec(resultStatList.get(p_tridx).recidx ,this.currentCol,false);
+	}
+	private void syncOneRecV(int p_tridx)
+	{
+		saveOneRec(resultStatList.get(p_tridx).recidx ,this.currentCol,true);
+//		resultStatList.get(p_tridx).outOfSync = false;
+	}
+	private void saveOneRec(int p_recidx,CellCollection col,boolean p_sync)
+	{
+		if(getView().useViewCache) {
+			Object[] newRec = resultTr.getRecord(p_recidx).clone();
+			getView().getSchema().removeSummaryCache(getView(), getView(), makeCacheKey(newRec));
+//			getView().getSchema().removeSummaryCache(getView(), getView(), makeCacheKey(newRec), newRec);
+//			resultV.set(p_recidx, newRec);
+//			resultTr.setRecord(p_recidx, newRec);
+		}
+		for(int i=0;i<selectFieldList.size();i++){
+			BiColumn c = (BiColumn) selectFieldList.get(i);
+			if(c.getField() != null || c.isStoredFunction()) {
+				try {
+					resultTr.setRecPointer(p_recidx);
+					Cell cc = col.getCell(c.getLabel());
+					if(p_sync) {
+						if(cc.getFormula() != null && cc.getMode() != cc.VMODE_PROTECT) {
+							Comparable setObj = (Comparable) cc.getSetObject();
+							Comparable cellObj = (Comparable) cc.getObject();
+							if(cellObj != null && !cellObj.equals(setObj)) {
+								cc.sync(setObj);
+							}
+						}
+					}
+					if(cc.getType() == Cell.VTYPE_DATETIME) {
+							if(sqlEngine != BiSchema.SQLENGINE_SCORPION) {
+								String ss = c.getField().getFieldType();
+								if(ss.equals("datetime") || ss.equals("timestamp")) {
+									if(DateUtil.zeroTime.after(cc.getDate())) {
+										resultTr.setField(tabList.size()+i,DateUtil.zeroTime);
+									} else {
+										resultTr.setField(tabList.size()+i,cc.getDate());
+									}
+								} else {
+									resultTr.setField(tabList.size()+i,cc.getInt());
+								}
+							} else {
+								resultTr.setField(tabList.size()+i,cc.getInt());
+							}
+					} else if(cc.getType() == Cell.VTYPE_BOOLEAN ) {
+						if(c.getField() != null && c.getField().getFieldType().equals("char"))  {
+							if(cc.getBoolean()) {
+								resultTr.setField(tabList.size()+i,"Y");
+							} else {
+								resultTr.setField(tabList.size()+i,"N");
+							}
+						} else {
+							resultTr.setField(tabList.size()+i,cc.getObject());
+						}
+					
+					} else {
+						if(c.isAutoTranslate() /* && getSessionHelper().getLHLang().equals("SCHN") */) {
+							String s = (String) cc.getObject();
+							resultTr.setField(tabList.size()+i, ChineseConvert.convertAuto2Bnew(s));
+						} else {
+							resultTr.setField(tabList.size()+i,cc.getObject());
+						}
+					}
+				} catch (Exception cex) {
+					UniLog.log(cex);
+				}
+			}
+		}
+	}
+	static com.uniinformation.utils.exprpar.Parser getFormulaParserFromHash(BiResult p_br,String p_formulaStr) {
+		Hashtable<String,com.uniinformation.utils.exprpar.Parser> formulaParserHash = p_br.formulaParserHash;
+		if(formulaParserHash == null) {
+			formulaParserHash = new Hashtable<String,com.uniinformation.utils.exprpar.Parser> ();
+			p_br.formulaParserHash = formulaParserHash;
+		}
+		com.uniinformation.utils.exprpar.Parser parser = formulaParserHash.get(p_formulaStr);
+		if(parser == null) {
+			parser = new com.uniinformation.utils.exprpar.Parser(p_br.ignoreCase,p_formulaStr);
+			formulaParserHash.put(p_formulaStr,parser);
+		}
+		return(parser);
+	}
+	void setOnLoadValue(BiCellCollection col,HashSet<BiColumn> ovList) throws Exception {
+		Hashtable<BiColumn,Object>onLoadHash = new Hashtable<BiColumn,Object>();
+		for(BiColumn c : onLoadList) {
+			Cell cc = col.getCell(c.getLabel());
+//			if(c.isformulaOnLoad() && c.getFormula() != null) {
+				/*
+				com.uniinformation.utils.exprpar.Parser parser 
+				 = new com.uniinformation.utils.exprpar.Parser(c.getFormula(),col,col);
+				*/
+				Hashtable<String,com.uniinformation.utils.exprpar.Parser> formulaParserHash = col.getBr().formulaParserHash;
+				if(formulaParserHash == null) {
+					formulaParserHash = new Hashtable<String,com.uniinformation.utils.exprpar.Parser> ();
+					col.getBr().formulaParserHash = formulaParserHash;
+				}
+				com.uniinformation.utils.exprpar.Parser parser = formulaParserHash.get(c.getFormula(parent == null));
+				if(parser == null) {
+					parser = new com.uniinformation.utils.exprpar.Parser(ignoreCase,c.getFormula(parent == null));
+					formulaParserHash.put(c.getFormula(parent == null),parser);
+				}
+				parser.setFunctInterface(col);
+				parser.setVarInterface(col);
+				Object oo = parser.evaluate();
+				if(!(oo instanceof IgnoreValue)) onLoadHash.put(c, oo);
+//				onLoadHash.put(c.getLabel(), parser.evaluate());
+//			}
+		}
+		for(BiColumn bc :onLoadHash.keySet()) {
+			col.getCell(bc.getLabel()).set(onLoadHash.get(bc));
+			if(ovList != null) ovList.add(bc);
+		}
+	}	
+//	void clearFalseOverriding(CellCollection col) throws CellException {
+//		for(int i = 0;i<selectFieldList.size();i++){ 
+//			BiColumn c = (BiColumn) selectFieldList.get(i);
+//				Cell cc = col.getCell(c.getLabel());
+//				if(cc.isOverrided()) {
+//					switch(cc.getType()) {
+//					case Cell.VTYPE_DOUBLE:
+//							if(cc.getSetDb() == cc.getDouble()) {
+//								cc.clearOverride();
+//							}
+//							break;
+//					case Cell.VTYPE_DATE:
+//							if(cc.getSetDate().equals(cc.getDate())) {
+//								cc.clearOverride();
+//							}
+//							break;
+//					case Cell.VTYPE_INT:
+//							if(cc.getSetInt() == cc.getInt()) {
+//								cc.clearOverride();
+//							}
+//							break;
+//					case Cell.VTYPE_STRING:
+//							if(cc.getSetString().equals(cc.getString())) {
+//								cc.clearOverride();
+//							}
+//							break;
+//					}
+//				}
+//		}
+//		try {
+//			setOnLoadValue(col);
+//		} catch (Exception ex) {
+//			UniLog.log(ex);
+//			throw new CellException(ex.toString());
+//		}
+//	}	
+	
+	void clearFalseOverriding(CellCollection col,Set<BiColumn> columns) throws CellException {
+		for(BiColumn c: columns) {
+				Cell cc = col.getCell(c.getLabel());
+				if(cc.isOverrided()) {
+					switch(cc.getType()) {
+					case Cell.VTYPE_DOUBLE:
+							if(cc.getSetDb() == cc.getDouble()) {
+								cc.clearOverride();
+							}
+							break;
+					case Cell.VTYPE_DATE:
+							if(cc.getSetDate().equals(cc.getDate())) {
+								cc.clearOverride();
+							}
+							break;
+					case Cell.VTYPE_INT:
+							if(cc.getSetInt() == cc.getInt()) {
+								cc.clearOverride();
+							}
+							break;
+					case Cell.VTYPE_STRING:
+							if(cc.getSetString().equals(cc.getString())) {
+								cc.clearOverride();
+							}
+							break;
+					}
+				}
+		}
+	}
+	
+	/**endLookupTabTr Start *
+	 * Load one rec, data set is incomplete/updated but fast. (much faster than fetchOneRecV)
+	 * Not include sublink record
+     * Used for display only, not for update
+	 * LV/SV must be checked
+	 * @param p_tridx - table rec index
+	 * @return true/false
+	 */
+	public boolean loadOneRecV(int p_tridx)
+	{
+		if(resultStatList.size() <= p_tridx) {
+			UniLog.log1("fatal loadOneRecV p_tridx > resultStatList size " + p_tridx + " : " + resultStatList.size());
+		}
+//		return(loadOneRec(resultStatList.get(p_tridx).recidx ,this.currentCol,false));
+		int p_recidx = resultStatList.get(p_tridx).recidx;
+//		boolean rtn = loadOneRec(resultStatList.get(p_tridx).recidx ,this.currentCol,false);
+		boolean rtn = loadOneRec(p_recidx ,this.currentCol,false);
+		return(rtn);
+	}
+	public Object getResultTrObject(boolean b2gTranslate,int p_col,int p_row) throws Exception {
+		if(resultTr == null) return(null);
+		Object s = resultTr.getField(p_col,p_row);
+		if(s instanceof Long) {
+			s = new Integer(((Long)s).intValue());
+		}
+//		if(s != null && s instanceof String && p_column.isAutoTranslate() && getSessionHelper().getLHLang().equals("SCHN")) {
+		if(b2gTranslate && getSessionHelper() != null && getSessionHelper().getLHLang().equals("SCHN") && s instanceof String ) {
+//				String s = (String) resultTr.getField(p_row,p_col);	
+				return(ChineseConvert.convertAuto2Gnew((String) s));
+		} else {
+				return(s);
+		}
+	}	
+	/*
+	Object getResultTrObject(BiColumn p_column,int p_row,int p_col) throws Exception {
+		if(p_column.isAutoTranslate() && getSessionHelper().getLHLang().equals("SCHN")) {
+				String s = (String) resultTr.getField(p_row,p_col);	
+				return(ChineseConvert.convertAuto2Gnew(s));
+		} else {
+				return(resultTr.getField(p_row,p_col));	
+		}
+	}
+	*/
+	
+	protected void addTrRecord(Object[] rec,int p_idx ) throws TableRecException {
+		resultTr.addRecord(p_idx);
+		if(rec != null) {
+		Object[] newrec = resultTr.getRecord(p_idx);
+		for(int i=0;i<rec.length;i++) {
+			newrec[i] = rec[i];
+		}		
+		}
+		resultTr.getRecord(p_idx)[0] = 0; // Serial Id of new addeded record is set to 0 2023/04/24 by DT
+	}
+	protected void delTrRecord(int p_idx ) throws TableRecException {
+		resultTr.deleteRecord(p_idx);
+	}
+	protected Object[] getTrRecord(int p_idx ) {
+		return(resultTr.getRecord(p_idx));
+	}
+	protected int getSelectFieldPosition( BiColumn bc) {
+		for(int i = 0;i<selectFieldList.size();i++){ 
+			if(bc == (BiColumn) selectFieldList.get(i)) return(i+tabList.size());
+		}
+		return(-1);
+	}
+	protected boolean loadOneRec(int p_recidx,BiCellCollection col,boolean p_isFetch) {
+		boolean rtn = loadOneRec_real(p_recidx,col,p_isFetch);
+		if(virtualMaster && resultCache != null) {
+			Object cr[] = resultCache[p_recidx];
+			if(cr != null) {
+				try {
+					for(String cacheCol : cacheHash.keySet()) {
+						col.getCell(cacheCol).set( cr[cacheHash.get(cacheCol)] );
+					}
+				} catch (Exception ex) {
+					UniLog.log(ex);
+				}
+			}
+		}
+		return(rtn);
+	}
+	protected boolean loadOneRec_real(int p_recidx,BiCellCollection col,boolean p_isFetch)
+	{
+		clearSubLink_new(col);
+//		if(currentRec != null) clearSubLink(col);
+		currentTr = null;
+		currentRec = null;
+//		biCellActionValidate.setEnable(false);
+		if(useLoadCache && !p_isFetch && (getParent() == null) && curLoadRecIdx == p_recidx) {
+//			UniLog.log("loadOneRec " + p_recidx + " cached ");
+			return(true);
+		}
+		if (fDebug) UniLog.log1("loadOneRec " + p_recidx + " reload");
+		actionEnabled = false;
+		inLoadingRec = true;
+		try {
+//			col.setSid(((Integer) resultTr.getField(0,p_recidx)).intValue(),p_recidx);	
+			col.setSid(getSidAsInteger(0,p_recidx),p_recidx);	
+			Cell sid = col.testCell("serial_id");
+//			if(sid != null) sid.set(resultTr.getField(0,p_recidx));	
+			if(sid != null) sid.set(getSidAsInteger(0,p_recidx));	
+		} catch (Exception cex) {
+			UniLog.log(cex);
+			actionEnabled = true;
+			inLoadingRec = false;
+			return(false);
+		}
+		for(int i = 0;i<selectFieldList.size();i++){ 
+			BiColumn c = (BiColumn) selectFieldList.get(i);
+			try {
+				Cell cc = col.getCell(c.getLabel());
+//				if(cc.getMode() == Cell.VMODE_OVERRIDED) cc.setMode(Cell.VMODE_PROTECTED);
+
+//				cc.set(resultTr.getField(tabList.size()+i,p_recidx));	
+//				if(cc.getFormula() == null) cc.set(resultTr.getField(tabList.size()+i,p_recidx));	
+				if(cc.getFormula() == null) cc.set(getResultTrObject(c.isAutoTranslate(),tabList.size()+i,p_recidx));	
+			} 
+			catch (Exception cex) {
+				UniLog.log(cex);
+				actionEnabled = true;
+				inLoadingRec = false;
+				return(false);
+			}
+		}
+		
+		HashSet<BiColumn> ovList = new HashSet<BiColumn>();
+		for(int i = 0;i<selectFieldList.size();i++){ 
+			BiColumn c = (BiColumn) selectFieldList.get(i);
+			try {
+				Cell cc = col.getCell(c.getLabel());
+//				if(cc.getMode() == Cell.VMODE_OVERRIDED) cc.setMode(Cell.VMODE_PROTECTED);
+
+				if(cc.getFormula() != null) {
+//					cc.sync(resultTr.getField(tabList.size()+i,p_recidx));	
+					cc.sync(getResultTrObject(c.isAutoTranslate(),tabList.size()+i,p_recidx));	
+				}
+				if(cc.isOverrided()) {
+					ovList.add(c);
+				}
+//				if(c.isProtected()) {
+//					cc.sync(resultTr.getField(tabList.size()+i,p_recidx));	
+//					cc.sync(getResultTrObject(tabList.size()+i,p_recidx));	
+//				}
+			} 
+			catch (Exception cex) {
+				UniLog.log(cex);
+				actionEnabled = true;
+				inLoadingRec = false;
+				return(false);
+			}
+		}
+		try {
+			setOnLoadValue(col,ovList);
+			clearFalseOverriding(col,ovList);
+		} catch (Exception cex) {
+			UniLog.log(cex);
+			actionEnabled = true;
+			inLoadingRec = false;
+			return(false);
+		}
+		/*
+		for(int i = 0;i<selectList.size();i++){ 
+			BiColumn c = (BiColumn) selectList.get(i);
+			try {
+				Cell cc = col.getCell(c.getLabel());
+				if(cc.getMode() == Cell.VMODE_OVERRIDED ) {
+					switch(cc.getType()) {
+					case Cell.VTYPE_DOUBLE:
+							if(cc.getSetDb() == cc.getDouble()) {
+								cc.setMode(Cell.VMODE_PROTECTED);
+							}
+							break;
+					case Cell.VTYPE_DATE:
+							if(cc.getSetDate().equals(cc.getDate())) {
+								cc.setMode(Cell.VMODE_PROTECTED);
+							}
+							break;
+					case Cell.VTYPE_INT:
+							if(cc.getSetInt() == cc.getInt()) {
+								cc.setMode(Cell.VMODE_PROTECTED);
+							}
+							break;
+					}
+				}
+			} 
+			catch (Exception cex) {
+				UniLog.log(cex);
+				return(false);
+			}
+		}
+		*/
+		actionEnabled = true;
+		inLoadingRec = false;
+		if(!p_isFetch) {
+			afterLoadCollection(p_isFetch,col);
+		} else {
+		}
+		curLoadRecIdx = p_recidx;
+		if(currentCol != col) currentCol = col;
+		return(true);
+	}
+	
+	boolean fetchOneRecFromDb(Object rec[]) throws Exception {
+		currentRec = new BiTableRec[tabList.size()];
+		for(int i = 0;i<tabList.size();i++) {
+			String sidName = tabList.get(i).getSerialId();
+			currentRec[i] =  new BiTableRec(tabList.get(i),versionAgent);
+			Object sid = rec[i];
+			if((sid == null) ||
+//					((Integer) rec[i]).intValue() <= 0
+					((sid instanceof Long ? ((Long) sid).intValue() : ((Integer) sid).intValue()) <= 0)
+					) {
+				currentRec[i].addRecord();
+				currentRec[i].setField(sidName,0);
+				currentRec[i].setRecPointer(0);
+				/*
+				if(i>0) {
+					currentRec[i] =  tabList.get(i).newBiTableRec();
+					currentRec[i].addRecord();
+					currentRec[i].setRecPointer(0);
+//					currentRec[i].setField("serial_id",0);
+					currentRec[i].setField(sidName,0);
+				}
+				*/
+				continue;
+			}
+			/*
+			currentRec[i] = su.getQueryResult(
+				"select * from "+((BiTable) tabList.get(i)).getSelectFromName()+ " where " + sidName + " = "+rec[i],
+				null);
+				*/
+//			currentRec[i] = ((BiTable) tabList.get(i)).queryBiTableRecBySerialId(su, (Integer) rec[i]);
+			currentRec[i].queryBiTableRecBySerialId(su, (Integer) rec[i]);
+			if(currentRec[i] == null || currentRec[i].getRecordCount() < 1) {
+				lastErrorMessage = "Select Record Fail, possible record deleted after previous fetch";
+				UniLog.log(lastErrorMessage);
+				currentRec[i] = null;
+				return(false);
+			}
+			currentRec[i].setRecPointer(0);
+		}
+		return(true);
+	}
+	/***
+	 * Re-load one rec from db, data set is complete but slow (much slower than loadOneRecV)
+	 * Include sublink record (detail record)
+	 * Used for update operation
+	 * LV/SV not required to check
+	 * @param p_tridx - TableRec index
+	 * @return true/false
+	 */
+	void fetchExpandedSubLinks() {
+		Vector<BiResult> sl = sublinks;
+		if(sl == null) return;
+		for(BiResult sr : sl) {
+			BiCellVector cv = (BiCellVector) sr.getRecsXX();
+			if(cv.resultStatList != null) {
+				sr.resultStatList = cv.resultStatList;
+				if(sr.resultStatList.size() > 0) {
+					sr.fetchOneRecV(0);
+				} else {
+					sr.currentCol = null;
+				}
+			}
+		}
+	}
+	public boolean fetchOneRecV(int p_tridx)
+	{
+		if(p_tridx > resultStatList.size()) {
+			UniLog.log("Fatal  resultStatList size () " + resultStatList.size() + " p_tridx " + p_tridx); 
+		}
+	
+		if(getParent() != null && !virtualDetail) {
+			currentCol = getRowCollectionV(p_tridx);
+			if(getParent().getView().linkAutoExpand(getView())) {
+				fetchExpandedSubLinks();
+			}
+			return(true);
+		}
+		return(fetchOneRec(resultStatList.get(p_tridx)));
+	}
+	
+	
+	/***
+	 * refetch all record from db to cellcollection
+	 * i.e. reset cellcollection
+	 * @return
+	 */
+	public boolean refetchCurrent() {
+		if(alwaysReloadCurrent == null) {
+			/*
+			 *  this flag is used to fixed the problem that if a lookup field is modified during update, the lookup tables should be reloaded when refetch, 
+			 *  otherwise the lookup value will be incorrect.
+			 *  currently only lookup fields that is set to autoAddSave will be modified, means that the problem will not occur.
+			 *  this will also prevent the situation that the values of the lookup table is modifed during current update(i.e. all view tables including the lookup tables should be reloaded to
+			 *  include the latest lookup table value changes.
+			 *  
+			 *  since enable alwaysReloadCurrent may have impact on performance, the default is set to disabled , should always turn on if tested ok
+			 */
+			String ss = BiConfig.getString(sh, "alwaysReloadCurrent");
+			alwaysReloadCurrent = "Y".equals(ss);
+		}
+		return(refetchCurrent(alwaysReloadCurrent));
+	}
+	private boolean refetchCurrent(boolean needReload)
+	{
+		if(currentTr == null) {
+			return(false);
+		}
+		if(needReload) {
+			try {
+				reloadOneRec(currentTr.recidx);
+				invalidateLoadCache();
+			} catch (Exception ex) {
+				UniLog.log(ex);
+				return(false);
+			}
+		}
+		return(fetchOneRec(currentTr));
+	}
+	
+	public void clearOneSublink(BiCellCollection p_col,BiResult sr) {
+			Vector<BiCellCollection> cv = p_col.getCollectionList(sr.getView().getName());
+			if(cv != null) {
+				for(BiCellCollection cc : cv) {
+					try {
+						CellCollection.clearAllTrigger(cc);
+					} catch (CellException cex) {
+						UniLog.log(cex);
+					}
+				}
+				sr.resultStatList.clear();
+				cv.clear();
+				p_col.delCollectionList(sr.getView().getName());
+			}
+	}
+	void clearSubLink_new(BiCellCollection p_col) {
+		Vector<BiResult> sl = sublinks;
+		if(sl == null) return;
+		for(BiResult sr : sl) {
+			clearOneSublink(p_col,sr);
+//			Vector<BiCellCollection> cv = p_col.getCollectionList(sr.getView().getName());
+//			if(cv != null) {
+//				for(BiCellCollection cc : cv) {
+//					try {
+//						CellCollection.clearAllTrigger(cc);
+//					} catch (CellException cex) {
+//						UniLog.log(cex);
+//					}
+//				}
+//				sr.resultStatList.clear();
+//				cv.clear();
+//				p_col.delCollectionList(sr.getView().getName());
+//			}
+		}
+		/*
+		for(int i = 0;i < sl.size();i++) {
+			BiResult sr = (BiResult) sl.get(i);
+			Vector<BiCellCollection> cv = sr.getRecsXX();
+			for(BiCellCollection cc : cv) {
+				try {
+					CellCollection.clearAllTrigger(cc);
+				} catch (CellException cex) {
+					UniLog.log(cex);
+				}
+			}
+			sr.resultStatList.clear();
+			cv.clear();
+		}
+		*/
+	}
+	void clearSubLink(BiCellCollection p_col) {
+		Vector sl = sublinks;
+		if(sl == null) return;
+		for(int i = 0;i < sl.size();i++) {
+			BiResult sr = (BiResult) sl.get(i);
+			Vector<BiCellCollection> cv = sr.getRecsXX();
+			for(BiCellCollection cc : cv) {
+				try {
+					CellCollection.clearAllTrigger(cc);
+				} catch (CellException cex) {
+					UniLog.log(cex);
+				}
+			}
+			sr.resultStatList.clear();
+			cv.clear();
+		}
+	}
+
+	public boolean fetchOneSubLink(BiCellCollection p_col,BiResult sr,Wherecl p_wherecl) {
+				
+				BiTable master = biView.getTable();
+				BiTable detail = sr.biView.getTable();
+				if (fDebug) UniLog.log("biResult get sublinks result from " + master.getName() + " to " + detail.getName());
+				BiJoin jn = master.getJoin(detail.getName());
+				Vector<BiCellCollection> cv = sr.getRecsXX();
+				for(BiCellCollection cc : cv) {
+					try {
+						CellCollection.clearAllTrigger(cc);
+					} catch (CellException cex) {
+						UniLog.log(cex);
+					}
+				}
+				cv.clear();
+				if(jn != null || (
+						(getView().linkIsVirtual(sr.getView()) || getView().linkOnDemand(sr.getView())  ) && p_wherecl != null
+						)) {
+					sr.clearCondition();
+					if(getView().linkIsVirtual(sr.getView())
+							&& getView().linkNoAddUpDateDelete(sr.getView())
+							) {
+						try {
+							selectVirtualTableDetail(sr,p_wherecl);
+						} catch (Exception ex) {
+							UniLog.log(ex);
+							return(false);
+						}
+						return(true);
+					}
+					if(jn != null) {
+					for(int n=0;n<jn.getJoinCount();n++) {
+						for(BiColumn bl : biView.getColumns()) {
+							if(bl.getField() == jn.getFromField(n)) {
+								if (fDebug) UniLog.log("Master join value = " + p_col.getCell(bl.getLabel()).getString());
+								Cell c = p_col.getCell(bl.getLabel());
+								switch(c.getType()) {
+								case Cell.VTYPE_DATE:
+									sr.currentWherecl.andUniop(jn.getToField(n).getFullName(),"=",c.getString());
+									break;
+								case Cell.VTYPE_DATETIME:
+									sr.currentWherecl.andUniop(jn.getToField(n).getFullName(),"=",c.getInt());
+									break;
+								default :	
+									if(bl.isAutoTranslate() /* && getSessionHelper().getLHLang().equals("SCHN") */) {
+										String s = (String) c.getObject();
+										sr.currentWherecl.andUniop(jn.getToField(n).getFullName(),"=",ChineseConvert.convertAuto2Bnew(s));
+									} else {
+										sr.currentWherecl.andUniop(jn.getToField(n).getFullName(),"=",c.getObject());
+									}
+									break;
+								}
+//								sr.currentWherecl.andUniop(jn.getToField(n).getFullName(),"=",currentCol.getCell(bl.getLabel()).getObject());
+							}
+						}
+					}
+					if(jn.getParsedCondition(this) != null) {
+						sr.appendWherecl(new Wherecl().appendString(jn.getParsedCondition(this)));
+					}
+					}
+					if(p_wherecl != null) {
+						sr.appendWherecl(p_wherecl);
+					}
+					if(getParent() != null ) {
+						sr.resultStatList = new Vector();
+					}
+					if(!sr.query(true).getStatus()) {
+						return(false);
+					}
+					if(getParent() != null ) {
+						((BiCellVector) cv).resultStatList = sr.resultStatList;
+					}
+					for(int k = 0;k<sr.getRowCount();k++) {
+//						BiCellCollection rc = sr.createColumnCollection(getParent() == null ? null : getParent().getCurrentCollection());
+//						BiCellCollection rc = sr.createColumnCollection(sr.currentCol);
+						BiCellCollection rc = sr.createColumnCollection(p_col);
+//						rc.setParent(p_col);
+						sr.createColumnCells(rc);
+						sr.loadOneRec(k, rc, true);
+						sr.afterLoadCollection(true,rc);
+						rc.setDirty(false);
+						cv.add(rc);
+						if(getView().linkAutoExpand(sr.getView())) {
+							UniLog.log("Sublink " + sr.getView().getName() + " set to autoexpand , fetchOneRecV(0) and fetchSublink");
+							sr.currentCol = rc;
+							sr.fetchSubLink(rc);
+						}
+					}
+					if(getView().linkAutoExpand(sr.getView())) {
+						if(sr.getRowCount() > 0) {
+							UniLog.log("Sublink " + sr.getView().getName() + " set to autoexpand , fetchOneRecV(0) and fetchSublink");
+							sr.fetchOneRecV(0);
+						}
+					}
+						if(subLinkActions != null) {
+							Vector<BiAggregateCellValueAction> v = subLinkActions.get(sr.getView().getName());
+							if(v != null) { 
+								try {
+									boolean ae = actionEnabled ;
+									actionEnabled = true;
+									for(CellValueAction ca : v) {
+										ca.cellAction_onchange(null);
+									}
+									actionEnabled = ae;
+								} catch (CellException ce ) {
+									UniLog.log(ce);
+								}
+							}
+						}
+				}
+				return(true);
+	}
+	boolean fetchSubLink(BiCellCollection p_col) {
+		Vector sl = sublinks;
+		if(sl == null) return(true);
+			for(int i = 0;i < sl.size();i++) {
+				BiResult sr = (BiResult) sl.get(i);
+				if(getView().linkOnDemand(sr.getView())) continue;
+				if(!fetchOneSubLink(p_col,sr,null)) {
+					return(false);
+				}
+			}
+			return(true);
+	}
+	boolean fetchOneRec(TrStat p_tr)
+	{
+		
+//      unremark the following line if NEW_CURRENTCOL_PER_FETCH
+//		currentCol = createColumnCollection(getParent() == null ? null : getParent().getCurrentCollection());
+//		createColumnCells(currentCol);
+		
+		BiCellCollection p_col = currentCol;
+		loadOneRec(p_tr.recidx,p_col,true);
+		actionEnabled = false;
+		try {
+//			currentBiVersion = BiSchema.getBiVersion(getView().getSchema().getAgent(), getView().getName());
+			if(!fetchOneRecFromDb(/* p_recidx */ resultTr.getRecord(p_tr.recidx))) return(false);
+		} catch (Exception ex) {
+			UniLog.log(ex);
+			lastErrorMessage = ex.toString();
+			currentRec = null;
+			return(false);
+		}
+		
+		/*
+		 Re-enabled to put fetched record content to cellcollection, not work if fetched fields are expression or stored function
+		 */
+		HashSet<BiColumn> ovList = new HashSet<BiColumn>();
+		if(getParent() == null) {
+			for(BiColumn c : biView.getColumns()) {
+				BiField f = c.getField();
+				if(f != null) {
+				try {
+					if(f != null) {
+						//UniLog.logm(this,"set cell viewTable:%s fieldTable:%s label:%s fieldObject:%s", biView.getTable().getName(), f.getTable().getName(), c.getLabel(), getFieldObject(f));
+						Cell cc = p_col.getCell(c.getLabel());
+//						if(cc.getMode() == Cell.VMODE_OVERRIDED) cc.setMode(Cell.VMODE_PROTECTED);
+						Object o = getFieldObject(c);
+						if(o != null) {
+							if(c.isProtected()) {
+								cc.sync(o);
+								if(cc.isOverrided()) ovList.add(c);
+							} else {
+								cc.set(o);
+							}
+						}
+						/*
+						if(c.isProtected()) {
+							cc.sync(getFieldObject(c));
+						} else {
+							cc.set(getFieldObject(c));
+						}
+						*/
+					}
+				} catch (CellException cex) {
+					UniLog.log(cex);
+				}
+				}
+			}
+			try {
+				setOnLoadValue(p_col,ovList);
+				clearFalseOverriding(p_col,ovList);
+			} catch (Exception cex) {
+				UniLog.log(cex);
+				return(false);
+			}
+			actionEnabled = true;
+			afterLoadCollection(true,currentCol);
+			currentCol.setDirty(false);
+			actionEnabled = false;
+		}
+		else {
+			UniLog.log(new Exception("fetch one rec should not be called for detail view") );
+		}
+		
+		currentTr = p_tr;
+		if(!fetchSubLink(p_col)) {
+			currentTr = null;
+			return(false);
+		}
+		saveCurrentRec(p_col);
+		actionEnabled = true;
+		afterFetch();
+		if(getParent() == null) {
+			currentCol.setDirty(false);
+		}
+		if(sh.dblogUpdateEnabled()) {
+			try {
+				preImage = BiCellCollectionToJsonInterface.BiCellCollectionToJSON(p_col);
+			} catch(Exception ex) {
+				UniLog.log(ex);
+				preImage = null;
+			}
+		}
+		return(true);
+	}
+
+	protected void afterFetch() {
+	}
+	public String getLastErrorMessage(){
+		return(lastErrorMessage);
+	}
+	public String getFormatedColumnValue(BiColumn c)
+	{
+		return(currentCol.getCell(c.getLabel()).getString());
+	}
+	
+	void addUpdateDeleteSubLink(BiResult sr) throws Exception{
+		Vector v;
+		int tabidx;
+		BiTable t;
+		Vector fv[];
+		BiTableRec tr;
+		if(getView().linkIsVirtual(sr.getView())) return;
+			v = sr.selectFieldList;
+			/*
+			tabidx = 0;
+			fv = new Vector();
+			for(int k = 0;k<v.size();k++) {
+				BiColumn c = (BiColumn) v.get(k);
+				BiField f = c.getField();
+				if(f != null && f.getTable().equals(sr.getView().getTable()))  {
+					fv.add(f.getName());
+				}
+			}
+			*/
+			fv = new Vector[sr.tabList.size()];
+			for(int i=0;i<fv.length;i++) {
+				fv[i] = new Vector();
+				for(int k = 0;k<v.size();k++) {
+					BiColumn c = (BiColumn) v.get(k);
+					BiField f = c.getField();
+					if(f != null && f.getTable().equals(sr.tabList.get(i))) {
+						fv[i].add(f.getName());
+					}
+				}
+			}
+			for(int j = 0;j<sr.getRowCount();j++) {
+				BiCellCollection sc = sr.getRowCollectionV(j);
+				/* 
+						 Remarked and rewrite by DT on 2017/8/19, should add to subtable instead of master table right ?
+						if(j > resultStat.size()) {
+							UniLog.log("new sublink record added . should do insert instead of update");
+							addCurrent(sc);
+							continue;
+						}
+				 */
+				/*
+						if(j > sr.resultStatList.size()) {
+							UniLog.log("new sublink record added . should do insert instead of update");
+							continue;
+						}*/
+				if(sr.resultStatList.get(j).deleted) {
+					// should use sr.deleteRecord in future to handle sublinks that has joined table and sub-sublinks
+					/*
+					if(!sr.resultStatList.get(j).inserted) {
+						sr.resultTr.setRecPointer(sr.resultStatList.get(j).recidx);
+						su.executeUpdate("delete from " + sr.getView().getTable().getDbtName(),
+								new Wherecl().andUniop("serial_id", "=",sr.resultTr.getField(tabidx)).stripAnd());
+					}
+					continue;
+					*/
+					//sublink call beforedeletecurrent, if error, abort the transaction
+					ReturnMsg rtnMsg = sr.biBeforeDeleteCurrent(sc);
+					if(rtnMsg == null || rtnMsg.getStatus()) {
+						if(!sr.resultStatList.get(j).inserted) {
+							sr.resultTr.setRecPointer(sr.resultStatList.get(j).recidx);
+							for(tabidx = 0;tabidx<sr.tabList.size();tabidx++) {
+								new BiTableRec(sr.tabList.get(tabidx),versionAgent).deleteBiTableRecBySerialId(su, (int) sr.resultTr.getField(tabidx));
+								/*
+								BiTable bt = sr.tabList.get(tabidx);
+								su.executeUpdate("delete from " + bt.getDbtName(),
+									new Wherecl().andUniop(bt.getSerialId(), "=",sr.resultTr.getField(tabidx)).stripAnd());
+									*/
+							}
+						}
+						continue;					
+					}
+					else {
+						throw new Exception("biBeforeDeleteCurrent error:" + rtnMsg);
+					}
+				}
+				if(sr.resultStatList.get(j).inserted) {
+					ReturnMsg rtnMsg2 = sr.addCurrent(sc);
+					if(rtnMsg2 != null && !rtnMsg2.getStatus()) {
+						throw new Exception("add Detail Record Error:" + rtnMsg2);
+					}
+					continue;
+				}
+				
+				if(!sc.dirty) {
+					UniLog.log("HAHA 211223 detail collection is not dirty , can skip update");
+					if(sqlEngine != BiSchema.SQLENGINE_SCORPION) continue;
+				}
+				sr.fetchOneRecFromDb(sr.resultTr.getRecord(sr.resultStatList.get(j).recidx));
+				
+//				ReturnMsg rtnMsg = sr.doAutoAddUpdateViews(sc);
+//				if(rtnMsg != null && !rtnMsg.getStatus()) {
+//					throw new Exception("AutoAddUpdate Sublink Error " + rtnMsg.getMsg());
+//				}
+				for(tabidx = 0;tabidx<sr.tabList.size();tabidx++) {
+				BiTable bt = sr.tabList.get(tabidx);
+				tr = sr.currentRec[tabidx];
+				for(int k = 0;k<v.size();k++) {
+					BiColumn c = (BiColumn) v.get(k);
+					BiField f = c.getField();
+					//UniLog.log("HAHA 20161228 " + k + c.getLabel() +  " " + f.getTable().getName() +  " - " + sr.getView().getTable().getName());
+					//if(c.isNoUpdate()) continue;
+					if(f != null && f.getTable().equals(bt))  {
+						Cell cc = sc.getCell(c.getLabel());
+						switch(cc.getType()) {
+						case Cell.VTYPE_DOUBLE:
+								double dd = cc.getDouble();
+								if(Double.isNaN(dd)) {
+									tr.setField(f.getName(),null);
+								} else {
+									tr.setField(f.getName(),dd);
+								}
+							break;
+						case Cell.VTYPE_DATETIME:
+							if(sqlEngine != BiSchema.SQLENGINE_SCORPION) {
+								String ss = f.getFieldType();
+								if(ss.equals("datetime") || ss.equals("timestamp")) {
+									if(DateUtil.zeroTime.after(cc.getDate())) {
+										tr.setField(f.getName(),DateUtil.zeroTime);
+									} else {
+										tr.setField(f.getName(),cc.getDate());
+									}
+								} else {
+									tr.setField(f.getName(),cc.getInt());
+								}
+							} else {
+								tr.setField(f.getName(),cc.getInt());
+							}
+							break;
+						case Cell.VTYPE_BOOLEAN :
+								if(f.getFieldType().equals("char")) {
+									tr.setField(f.getName(),cc.getString());
+								} else {
+									tr.setField(f.getName(),cc.getObject());
+								}
+							break;
+						default :
+							if(c.isUTF8()) {
+								tr.setField(f.getName(), new Strval(cc.getString(),"UTF8"));
+							} else {
+							if(c.isAutoTranslate() /* && getSessionHelper().getLHLang().equals("SCHN") */) {
+								String s = (String) cc.getObject();
+								tr.setField(f.getName(),ChineseConvert.convertAuto2Bnew(s));
+							} else {
+								tr.setField(f.getName(),cc.getObject());
+							}
+							}
+							break;
+						}
+//						if(cc.getType() == Cell.VTYPE_DATETIME) {
+//							tr.setField(f.getName(),cc.getInt());
+//						} 
+//						else {
+//							if(c.isAutoTranslate() /* && getSessionHelper().getLHLang().equals("SCHN") */) {
+//								String s = (String) cc.getObject();
+//								tr.setField(f.getName(),ChineseConvert.convertAuto2Bnew(s));
+//							} else {
+//								tr.setField(f.getName(),cc.getObject());
+//							}
+//						}
+					}
+				}
+
+//				su.updateByTableRec(bt.getDbtName(), tr, fv[tabidx], fv[tabidx], 
+//						new Wherecl().andUniop(sr.getView().getTable().getSerialId(), "=",tr.getField(sr.getView().getTable().getSerialId()) ).stripAnd());
+//				sr.getView().getTable().updateBiTableRecBySerialId(tr,su,fv[tabidx]);
+				tr.doUpdate(su, fv[tabidx]);
+				}
+
+				ReturnMsg rtnMsg2 = sr.biAfterAddUpdateCurrent(sc,true);
+				if(rtnMsg2 != null && !rtnMsg2.getStatus()) {
+						throw new Exception("update Detail Record Error:" + rtnMsg2);
+				}
+				/*
+				if(sr.getParent().getView().linkAutoExpand(sr.getView())) {
+					sr.addUpdateDeleteSubLinks();
+				}
+				*/
+			}
+	}
+	void addUpdateDeleteSubLinks() throws Exception {
+		Vector sl = sublinks;
+		Vector v;
+		int tabidx;
+		BiTable t;
+		Vector fv;
+		TableRec tr;
+		if (sl == null){
+			UniLog.logm(this,"sl is null");
+			return;
+		}
+		for(int i = 0;i < sl.size();i++) {
+			BiResult sr = (BiResult) sl.get(i);
+			if(getView().linkNoAddUpDateDelete(sr.getView())) continue;
+			addUpdateDeleteSubLink(sr);
+		}
+	}
+	
+	/***
+	 * reflect changes to db
+	 * @return
+	 */
+	public ReturnMsg updateCurrent()
+	{
+		if(getParent() != null) {
+			UniLog.log("Fatal Error: updateCurrent called for subLink view, not expected");
+			return(new ReturnMsg(false,"Fatal Error: updateCurrent called for subLink view, not expected"));
+		}
+		boolean alreadyBeginWork = inBeginWork();
+//		int latestBiVersion = BiSchema.getBiVersion(getView().getSchema().getAgent(), getView().getName());
+//		if( latestBiVersion > currentBiVersion) {
+//			UniLog.log("Record modified, update current aborted");
+//			return(new ReturnMsg(false,"Update Failed , The Record Has Been Modified Before Update"));
+//			
+//		}
+		try {
+			if(!alreadyBeginWork) beginWork();
+		} catch (Exception ex ) {
+			UniLog.log(ex);
+			return(new ReturnMsg(false,ex.toString()));
+		}
+		try {
+			ReturnMsg rtnMsg = null;
+//			rtnMsg = doAutoAddUpdateViews(currentCol,currentTr.recidx);
+//			if(rtnMsg != null && !rtnMsg.getStatus()) return(rtnMsg);
+			rtnMsg = doBeforeAddUpdate(currentCol,true);
+			if(rtnMsg != null && !rtnMsg.getStatus()) {
+				if(!alreadyBeginWork) rollbackWork();
+				return(rtnMsg);
+			}
+		//should loop update all table once the tabList is changed to include only tables that should do add/update/delete 
+//			int tabidx = 0;
+//			TableRec tr = currentRec[tabidx];
+//			BiTable t = (BiTable) biView.getTable();
+//			UniLog.log("update Current Record "+t.getName()+ ":" + ((Integer) tr.getField("serial_id")).intValue());
+//			Vector v = biView.getColumns();
+//			Vector fv = new Vector();
+//			for(int i = 0;i<v.size();i++) {
+//				BiColumn c = (BiColumn) v.get(i);
+//				BiField f = c.getField();
+//				if(f != null && f.getTable().equals(getView().getTable()))  {
+//					Cell cc = currentCol.getCell(c.getLabel());
+//					if(cc.getType() == Cell.VTYPE_DATETIME) {
+//						tr.setField(f.getName(),cc.getInt());
+//					} else {
+//						tr.setField(f.getName(),cc.getObject());
+//					}
+//					//UniLog.log("HAHA 2016 " + c.getLabel()+ " "+ currentCol.getCell(c.getLabel()).getObject() + " " + tr.getField(f.getName()).toString());
+//					fv.add(f.getName());
+//				}
+//			}
+//			su.updateByTableRec(t.getDbtName(), tr, fv, fv, 
+//						new Wherecl().andUniop("serial_id", "=",tr.getField("serial_id") ).stripAnd()
+//					);
+			
+			
+			for(int tabidx = 0;tabidx <tabList.size();tabidx++) {
+				BiTableRec tr = currentRec[tabidx];
+				BiTable t = tabList.get(tabidx);
+				//UniLog.log("update Current Record "+t.getName()+ ":" + ((Integer) tr.getField(t.getSerialId())).intValue());
+				UniLog.log("update Current Record "+t.getName()+ ":" + tr.getField(t.getSerialId()));  //andrew230111 serial_id can be long, dont class to int
+				Vector v = biView.getColumns();
+				Vector fv = new Vector();
+				if(tabidx > 0 ) {
+//					BiJoin jn = getView().getTable().getJoin(t);
+					BiJoin jn = t.getJoin(getView().getTable());
+					for(int n=0;n<jn.getJoinCount();n++) {
+						for(int i = 0;i<v.size();i++) {
+							BiColumn c = (BiColumn) v.get(i);
+							if(c.getField() == jn.getToField(n)) {
+								for(int j = 0;j<v.size();j++) {
+									BiColumn c2 = (BiColumn) v.get(j);
+									if(c2.getField() == jn.getFromField(n)) {
+										getCell(c2.getLabel()).set(getCell(c.getLabel()).getObject());
+									}
+								}
+							}
+						}
+					}
+				}
+				for(int i = 0;i<v.size();i++) {
+					BiColumn c = (BiColumn) v.get(i);
+					BiField f = c.getField();
+					if(f != null && f.getTable().equals(t))  {
+						Cell cc = currentCol.getCell(c.getLabel());
+//						if(cc.getType() == Cell.VTYPE_DATETIME) {
+//							tr.setField(f.getName(),cc.getInt());
+//						} else {
+//							if(c.isUTF8()) {
+//								tr.setField(f.getName(), new Strval(cc.getString(),"UTF8"));
+//							} else {
+//								if(c.isAutoTranslate() /* && getSessionHelper().getLHLang().equals("SCHN") */) {
+//									String s = (String) cc.getObject();
+//									tr.setField(f.getName(),ChineseConvert.convertAuto2Bnew(s));
+//								} else {
+//									tr.setField(f.getName(),cc.getObject());
+//								}
+//							}
+//						}
+						switch(cc.getType()) {
+						case Cell.VTYPE_DOUBLE:
+								double dd = cc.getDouble();
+								if(Double.isNaN(dd)) {
+									tr.setField(f.getName(),null);
+								} else {
+									tr.setField(f.getName(),dd);
+								}
+							break;
+						case Cell.VTYPE_DATETIME:
+							if(sqlEngine != BiSchema.SQLENGINE_SCORPION) {
+								String ss = f.getFieldType();
+								if(ss.equals("datetime") || ss.equals("timestamp")) {
+									if(DateUtil.zeroTime.after(cc.getDate())) {
+										tr.setField(f.getName(),DateUtil.zeroTime);
+									} else {
+										tr.setField(f.getName(),cc.getDate());
+									}
+								} else {
+									tr.setField(f.getName(),cc.getInt());
+								}
+							} else {
+								tr.setField(f.getName(),cc.getInt());
+							}
+							break;
+						case Cell.VTYPE_BOOLEAN :
+								if(f.getFieldType().equals("char")) {
+									tr.setField(f.getName(),cc.getString());
+								} else {
+									tr.setField(f.getName(),cc.getObject());
+								}
+							break;
+						default :
+							if(c.isSelfPick()) {
+								c.addToSelfPickList((Comparable) cc.getObject());
+							}
+							if(c.isUTF8()) {
+								tr.setField(f.getName(), new Strval(cc.getString(),"UTF8"));
+							} else {
+							if(c.isAutoTranslate() /* && getSessionHelper().getLHLang().equals("SCHN") */) {
+								String s = (String) cc.getObject();
+								tr.setField(f.getName(),ChineseConvert.convertAuto2Bnew(s));
+							} else {
+								tr.setField(f.getName(),cc.getObject());
+							}
+							}
+							break;
+						}
+						//UniLog.log("HAHA 2016 " + c.getLabel()+ " "+ currentCol.getCell(c.getLabel()).getObject() + " " + tr.getField(f.getName()).toString());
+						fv.add(f.getName());
+					}
+				}
+				if(tabidx > 0 && tr.getFieldInt(t.getSerialId()) <= 0) {
+//					su.insertByTableRec(t.getDbtName(), tr,true,t.getSerialId());
+//					t.insertBiTableRec(tr,su);
+					tr.doAdd(su);
+					int addedSid = tr.getFieldInt(t.getSerialId());
+					UniLog.log1("Record Added serial_id = " + addedSid);
+//					tr.setField(t.getSerialId(), addedSid);
+					
+//					resultTr.setRecPointer(resultStatList.get(currentTr.recidx).recidx);
+					resultTr.setRecPointer(currentTr.recidx);
+					resultTr.setField(tabidx, addedSid);
+//				****	
+				} else {
+					if(useSummaryCache) {
+						Object key	= tr.getField(t.getSerialId());
+						for(BiView sv : getView().getSummaryViews().keySet()) {
+							getView().getSchema().removeSummaryCache(getView(), sv, key);
+						}
+					}
+//					su.updateByTableRec(t.getDbtName(), tr, fv, fv, 
+//							new Wherecl().andUniop(t.getSerialId(), "=",tr.getField(t.getSerialId()) ).stripAnd()
+//					);
+//					t.updateBiTableRecBySerialId(tr,su,fv);
+					tr.doUpdate(su, fv);
+				}
+			}
+//			int tabidx = 0;
+//			TableRec tr = currentRec[tabidx];
+						
+			
+			if(getParent() == null) addUpdateDeleteSubLinks();
+			//No need to force refetch after updateCurrent ???	
+			ReturnMsg rtnMsg2 = biAfterAddUpdateCurrent(currentCol,true);
+			if(rtnMsg2 != null && !rtnMsg2.getStatus()) {
+				if(!alreadyBeginWork) rollbackWork();
+				return(rtnMsg2);
+			}
+			saveCurrentRec(currentCol);
+			
+		}  catch (Exception ex ) {
+			ex.printStackTrace();
+			// should call rollback work
+			UniLog.log("Update failed Reloading fetching from database");
+//			currentTr = null;
+//			currentRec = null
+			if(!alreadyBeginWork) rollbackWork();
+			if (ex instanceof RpcException){
+				su.close();  //andrew191122: fix broken rpcclient problem
+			}
+			if(ex instanceof SQLException) {
+				SQLException sex = (SQLException) ex;
+				return(new ReturnMsg(false,sex.getErrorCode(),"Error Update Record " + sex.toString(),true));
+			} else {
+				UniLog.log(ex);
+				return(new ReturnMsg(false,-1,"Error Update Record " + ex.toString(),true));
+			}
+		}
+		lastUpdate = new java.util.Date();
+//		BiSchema.updateBiVersion(getView().getSchema().getAgent(), getView().getName());
+		if(auditLogFlag) {
+			try {
+				JSONObject jo = BiCellCollectionToJsonInterface.BiCellCollectionToJSON(currentCol);
+				//UniLog.log1("auditLog json:%s",jo.toString(3));  //TODO log the json to file or db.
+				jo = null;
+			} catch (Exception ex) {
+				UniLog.log(ex);
+			}
+		}
+		if(needSync && getParent() == null) {
+			RecSync.updateOneRecord(sh.getAgent(), getView().getName(), currentCol);
+		}
+
+		/*
+		for(BiResult abr : brAutoAddUpdateViews.keySet()) {
+			AutoAddUpdateMap am = brAutoAddUpdateViews.get(abr);
+			abr.clearCondition();
+				try {
+			for(BiColumn fbc : am.keyCols.keySet()) {
+				BiColumn tbc = am.keyCols.get(fbc);
+					Variable v = new Variable(tbc.getLabel(),
+								abr.conditionParser
+								);
+					abr.appendCondition(
+					new Condition(
+							new Expression(v),
+							Condition.COMPARE_OP_EQ,
+							new Expression(getCell(fbc.getLabel()).getString())
+							)
+					);
+//					abr.addCustomCondition(tbc.getLabel() + " = '" + getCell(fbc.getLabel()).getString() + "'");
+			}
+			abr.query(false);
+			if(abr.getRowCount() == 1) {
+				abr.fetchOneRecV(0);
+				for(BiColumn fbc : am.updCols.keySet()) {
+					BiColumn tbc = am.updCols.get(fbc);
+					abr.getCell(tbc.getLabel()).sync(getCell(fbc.getLabel()).getObject());
+				}
+				abr.updateCurrent();
+			}
+				} catch (Exception ex) {
+					UniLog.log(ex);
+				}
+		}
+		*/
+		for(BiTable bt : getView().getAutoSaveTables()) {
+			Set<BiColumn> needUpdateColumns = getView().getAutoSaveColumns(bt);
+			BiChain ch = getView().findChain(bt);
+			BiJoin join = bt.getJoin(ch.getMaster());
+			String updStr = null;
+			Wherecl wcl = new Wherecl();
+			for(BiColumn bc : needUpdateColumns) {
+				if(updStr == null) {
+					updStr = "update " + bt.getDbtName() + " set " + bc.getField().getName() + " = ? ";
+				} else {
+					updStr += " ," + bc.getField().getName() + " = ? ";
+				}
+				wcl.appendArgument(getCell(bc.getLabel()).getObject());
+			}
+			for(int i=0;i<join.getJoinCount();i++) {
+				Cell fcell = null;
+				for(BiColumn fbc : selectFieldList) {
+					if(fbc.getField() == join.getToField(i)) {
+						fcell = getCell(fbc.getLabel());
+						break;
+					}
+				}
+				wcl.andUniop(join.getFromField(i).getName(), "=", fcell.getObject());
+			}
+			try {
+				su.executeUpdate(updStr,wcl);
+			} catch (Exception ex) {
+				UniLog.log(ex);
+			}
+//			if (p_lookupTable.getJoin(parentTable) == null || (p_lookupTable.getJoin(parentTable).isOneToOne() && getView().findChain(p_lookupTable).isAllOneOne()) ){
+		}
+		
+		if(sh.dblogUpdateEnabled()) {
+			try {
+				DbLog.dblogInsertOne(sh, getView().getName(), currentRec[0].getField(0), "update", preImage, BiCellCollectionToJsonInterface.BiCellCollectionToJSON(currentCol));
+			} catch(Exception ex) {
+				UniLog.log(ex);
+			}
+		}
+		if(!alreadyBeginWork) {
+			try {
+				commitWork();
+			} catch (Exception ex) {
+				UniLog.log(ex);
+				return(new ReturnMsg(false,ex.toString(),true));
+			}
+		}
+		return(null);
+	}
+	
+	public void unmapColumns()
+	{
+		Vector v = getColumns();
+		for(int i = 0;i<v.size();i++) {
+			Cell ce = null;
+			BiColumn c = (BiColumn) v.get(i);
+			if(getParent() != null) {
+				Vector r = getRecsXX() ;
+				for(int j = 0;j<r.size();j++) {
+					CellCollection cl = (CellCollection) r.get(j);
+					ce = cl.testCell(c.getLabel());
+					if(ce != null) ce.map(null);
+				}
+			} else {
+				ce = currentCol.testCell(c.getLabel());
+				if(virtualMaster && c.isVirtualMasterColumn()) {
+				} else {
+					if(ce != null) ce.map(null);
+				}
+			}
+		}
+		v = getSubLinks();
+		if(v != null) {
+			for(int i = 0;i < v.size();i++) {
+				BiResult br = (BiResult) v.get(i);
+				if(getParent() != null) {
+					Vector r = getRecsXX() ;
+					for(int j = 0;j<r.size();j++) {
+						currentCol = (BiCellCollection) r.get(j);
+						br.unmapColumns();
+					}
+				} else {
+					br.unmapColumns();
+				}
+			}
+		}
+	}
+	/***
+	 * obtain number of record
+	 * @return
+	 */
+	public int getRowCount()
+	{
+		return(resultStatList.size());
+	}
+	
+	public Vector<BiColumn> getListColumns()
+	{
+		return(viewList);
+	}
+	
+	public JSONArray getListColumnsAsJson() {
+		JSONArray ja = new JSONArray();
+		for(BiColumn bc : getListColumns()) {
+			JSONObject jo = new JSONObject();
+			jo.put("id", bc.getLabel());
+			jo.put("header", bc.getEngName());
+			jo.put("type", bc.getColumnType());
+			jo.put("format", bc.getFormat());
+			ja.put(jo);
+		}	
+		return(ja);
+	}
+	
+	public Vector<BiColumn> getPickColumns()
+	{
+		return(pickList);
+	}
+	Object getFieldObject (BiColumn p_c)
+	{
+		BiField p_field = p_c.getField();
+		try {
+			boolean needTranslate = p_c.isAutoTranslate() && getSessionHelper().getLHLang().equals("SCHN");
+			for(int idx = 0;idx<tabList.size();idx++) {
+				if(p_field.getTable() == tabList.get(idx)) {
+					if(needTranslate) {
+//						String s = (String) currentRec[idx].getField(p_field.getName(),0);
+						String s = (String) currentRec[idx].getField(p_field.getName());
+						return(ChineseConvert.convertAuto2Gnew(s));
+					} else {
+//						return(currentRec[idx].getField(p_field.getName(),0));
+						return(currentRec[idx].getField(p_field.getName()));
+					}
+				}
+			}
+			return(null);
+		} catch (Exception ex) {
+			UniLog.log(ex);
+			return(null);
+		}
+	}
+	
+	public Vector getExportLinks() {
+		Vector u = new Vector();
+		Vector v = sublinks;
+		if(v == null) return(null);
+		for(int i=0;i<v.size();i++) {
+			BiResult br = (BiResult) v.get(i);
+			if(biView.inExportList(br.biView)) {
+				u.add(br);
+			}
+		}
+		return(u);
+	}	
+	public Vector<BiResult> getSubLinks() {
+		return(sublinks);
+	}
+	/***
+	 * get detail record biresult
+	 * @param p_viewName
+	 * @return
+	 */
+	public BiResult getSubLink(String p_viewName) {
+		Vector v = sublinks;
+		if(v != null) {
+			for(int i = 0;i<v.size();i++) {
+				BiResult br = (BiResult) v.get(i);
+				if(br.getView().getName().equals(p_viewName)) return(br);
+			}
+			return(null);
+		} else return(null);
+	}
+	private Vector getRecsXX() {
+//		return(currentCol.getCollectionList_SingleLevel("recs"));
+//		return(recs);
+		Vector cv = getParent().currentCol.getCollectionList(getView().getName());
+		if(cv == null) {
+			cv = (Vector) new BiCellVector();
+			getParent().currentCol.addCollectionList(getView().getName(), (CellVector) cv);
+		}
+		return(cv);
+	}
+	
+	/***
+	 * this call include deleted rows
+	 * @param p_idx
+	 * @return
+	 */
+	public BiCellCollection getRowCollectionV(int p_idx) {
+		if(p_idx < 0 || p_idx >= resultStatList.size())  return(null);
+			
+		if(getParent() == null || virtualDetail){
+			loadOneRec(p_idx,currentCol,false);
+			return(currentCol);
+		}
+		else{
+			return((BiCellCollection) getRecsXX().get(resultStatList.get(p_idx).recidx));
+		}
+	}
+	public BiCellCollection getRowCollectionO(Object o) {
+		TrStat tr = getTrStatObj(o);
+		if(tr == null) return(null);
+		if(getParent() == null || virtualDetail) {
+			loadOneRec(tr.recidx,currentCol,false);
+			return(currentCol);
+		}
+		return((BiCellCollection) getRecsXX().get(tr.recidx));
+	}
+	
+	
+	/* This Method Return only the non-deleted list of records */
+	/* to get the full list of records including deleted record , one must use the following loop :- */
+//					for(int j = 0;j<sr.getRowCount();j++) {
+//						CellCollection sc = sr.getRowCollectionV(j);
+//						...
+//					}
+	public Vector<BiCellCollection> getRowCollectionList()
+	{
+		if(getParent() == null) return(null);
+		Vector u = new Vector();
+		Vector w = getRecsXX();
+		for(int i = 0; i < resultStatList.size();i++) {
+			TrStat tr = resultStatList.get(i);
+			if(!tr.deleted) u.add(w.get(tr.recidx));
+		}
+		return(u);
+	}
+	
+	public void clearCurrentRec()
+	{
+		Vector<BiColumn> v = biView.getColumns();
+		//UniLog.log("clearCurrentRec");
+		if(getParent() == null) {
+			boolean b = actionEnabled;
+			actionEnabled = false;
+			Hashtable<String,Object>defaultHash = new Hashtable<String,Object>();
+			for(int i = 0;i<v.size();i++) {
+				BiColumn c = (BiColumn) v.get(i);
+				try {
+					Cell cc = currentCol.getCell(c.getLabel());
+					if(c.getLabel().equals("tradj_loginid")) {
+						int ccc;
+						ccc = 0;
+					}
+					cc.resetValue();
+					if(c.isNoUpdate(sh) && c.isNoEntry(sh)){
+						cc.setMode(Cell.VMODE_DISPONLY);
+					} else {
+						cc.setMode(Cell.VMODE_NORMAL);
+					}
+					if(c.isProtected()) {
+//						cc.setMode(Cell.VMODE_PROTECTED);
+						cc.protect(true);
+					} else {
+//						cc.setMode(Cell.VMODE_NORMAL);
+						cc.protect(false);
+					}
+					
+					if(!StringUtils.isBlank(c.getDefaultValue())) {
+						String defaultFormula = c.getDefaultValue();
+							com.uniinformation.utils.exprpar.Parser parser 
+							= new com.uniinformation.utils.exprpar.Parser(ignoreCase,defaultFormula,currentCol,currentCol);
+						defaultHash.put(c.getLabel(),parser.evaluate());
+					}
+				} 
+				catch (Exception cex) {
+					if(cex instanceof CellException && ((CellException) cex).getExceptionType() == CellException.CELLEXCEPTION_RECORD_NOT_FOUND) {
+						UniLog.log("Trapped CellException.RECORD_NOT_FOUND Exception");
+					} else {
+						UniLog.log(cex);
+					}
+				}
+			}
+			try {
+				
+			actionEnabled = true;
+			for(String clabel:defaultHash.keySet()) {
+				currentCol.getCell(clabel).sync(defaultHash.get(clabel));
+			}
+			setOnLoadValue(currentCol,null);
+			} catch (Exception cex) {
+					//UniLog.log(cex);
+					UniLog.log1("error:" + cex.getMessage()); //andrew231106 too much invalid rec index error, better hide the stacktrace
+			}
+			actionEnabled = b;
+			Vector sl = sublinks;
+			if(sl != null) {
+				for(int i = 0;i < sl.size();i++) {
+					BiResult sr = (BiResult) sl.get(i);
+					Vector<BiCellCollection> cv = sr.getRecsXX();
+					for(BiCellCollection cc : cv) {
+						try {
+							CellCollection.clearAllTrigger(cc);
+						} catch (CellException cex) {
+							UniLog.log(cex);
+						}
+					}
+					cv.clear();
+					sr.resultStatList.clear();
+					sr.resultTr = null;
+				}
+			}
+		}
+		currentTr = null;
+		currentRec = null;
+		if(currentCol != null) {
+			currentCol.sid = 0;
+			currentCol.setDirty(false);
+		}
+		invalidateLoadRecIdx();
+	}
+	public ReturnMsg addCurrent()
+	{
+		if(getParent() != null) {
+			return(new ReturnMsg(false,"addCurrent cannot be called for child link"));
+		}
+		return(addCurrent(this.currentCol));
+	}
+	protected ReturnMsg addCurrent(BiCellCollection cl)
+	{
+		int addedSid = 0;
+		boolean alreadyBeginWork = inBeginWork();
+		try {
+			if(!alreadyBeginWork) beginWork();
+		} 
+		catch (Exception ex ) {
+			UniLog.log(ex);
+			return(new ReturnMsg(false,ex.toString()));
+		}
+		if(getParent() == null) {
+			ReturnMsg rtnMsg = doBeforeAddUpdate(cl,false);
+			if(rtnMsg != null && !rtnMsg.getStatus()) {
+				if(!alreadyBeginWork) rollbackWork();
+				return(rtnMsg);
+			}
+		}
+//		BiTable t = (BiTable) biView.getTable();
+/* 2021-02-10
+ *      with view that has OneTOne joined tables, the fields that need to be set before insert onetone table should be filled in before insert record. otherwise an empty record will be added 
+ * 
+ */
+		try {
+		for(BiTable t : tabList) {
+		TableRec tr = t.newTableRec();
+			UniLog.log("HAHA 190819 update table " + t.getName());
+			tr.addRecord();
+			tr.setField(t.getSerialId(), new Integer(0));
+			//UniLog.log("HAHA 2016 serial_id idx = " + tr.getFieldIndex("serial_id"));
+			UniLog.log("add Current Record "+t.getName()+ ":" + ((Integer) tr.getField(t.getSerialId())).intValue());
+			Vector v = biView.getColumns();
+			for(int i = 0;i<v.size();i++) {
+				BiColumn c = (BiColumn) v.get(i);
+				BiField f = c.getField();
+				if(f != null) {
+					if(f.getTable().equals(t))  {
+						Cell cc = cl.getCell(c.getLabel());
+//						UniLog.log("HAHA 190819 update cell " + cc.getCellLabel() + ":" + cc.getObject());
+//						if(cc.getType() == Cell.VTYPE_DATETIME) {
+//							tr.setField(f.getName(),cc.getInt());
+//						} 
+//						else {
+//							if(c.isAutoTranslate() /* && getSessionHelper().getLHLang().equals("SCHN") */) {
+//								String s = (String) cc.getObject();
+//								tr.setField(f.getName(),ChineseConvert.convertAuto2Bnew(s));
+//							} else {
+//								tr.setField(f.getName(),cc.getObject());
+//							}
+//						}
+						switch(cc.getType()) {
+						case Cell.VTYPE_DOUBLE:
+								double dd = cc.getDouble();
+								if(Double.isNaN(dd)) {
+									tr.setField(f.getName(),null);
+								} else {
+									tr.setField(f.getName(),dd);
+								}
+							break;
+						case Cell.VTYPE_DATETIME:
+							if(sqlEngine != BiSchema.SQLENGINE_SCORPION) {
+								String ss = f.getFieldType();
+								if(ss.equals("datetime") || ss.equals("timestamp")) {
+									if(DateUtil.zeroTime.after(cc.getDate())) {
+										tr.setField(f.getName(),DateUtil.zeroTime);
+									} else {
+										tr.setField(f.getName(),
+												new java.sql.Timestamp( cc.getDate().getTime())
+												);
+									}
+								} else {
+									tr.setField(f.getName(),cc.getInt());
+								}
+							} else {
+								tr.setField(f.getName(),cc.getInt());
+							}
+							break;
+						case Cell.VTYPE_BOOLEAN :
+								if(f.getFieldType().equals("char")) {
+									tr.setField(f.getName(),cc.getString());
+								} else {
+									tr.setField(f.getName(),cc.getObject());
+								}
+							break;
+						default :
+							if(c.isSelfPick()) {
+								c.addToSelfPickList((Comparable) cc.getObject());
+							}
+							if(c.isUTF8()) {
+								tr.setField(f.getName(), new Strval(cc.getString(),"UTF8"));
+							} else {
+							if(c.isAutoTranslate() /* && getSessionHelper().getLHLang().equals("SCHN") */) {
+								String s = (String) cc.getObject();
+								tr.setField(f.getName(),ChineseConvert.convertAuto2Bnew(s));
+							} else {
+								tr.setField(f.getName(),cc.getObject());
+							}
+							}
+							break;
+						}
+					}
+				}
+			}
+			su.insertByTableRec(t.getDbtName(), tr,true,t.getSerialId());
+			if(addedSid == 0) { //andrew211209 fix reloadCurrentBySid fail due to multiple table (e.g. edu.Student)
+				addedSid = tr.getFieldInt(t.getSerialId());
+				UniLog.log1("Record Added serial_id = " + addedSid);
+			}
+		}  
+			if(getParent() == null) addUpdateDeleteSubLinks();
+			ReturnMsg rtnMsg2 = biAfterAddUpdateCurrent(cl,false);
+			if(rtnMsg2 != null && !rtnMsg2.getStatus()) {
+				if(!alreadyBeginWork) rollbackWork();
+				return(rtnMsg2);
+			}
+			lastUpdate = new java.util.Date();
+		}
+		catch (Exception ex){
+			if(!alreadyBeginWork) rollbackWork();
+			ReturnMsg msg;
+			if(ex instanceof SQLException) {
+				SQLException sex = (SQLException) ex;
+				msg = new ReturnMsg(false,sex.getErrorCode(),sex.getMessage());
+			} else {
+				UniLog.log(ex);
+				msg = new ReturnMsg(false,-1,"Unknown Exception");
+			}
+			msg.setFatal(true);
+			return(msg);
+		}
+		if(needSync && getParent() == null) {
+			RecSync.updateOneRecord(sh.getAgent(), getView().getName(), currentCol);
+		}
+		if(getParent() == null && sh.dblogAddEnabled()) {
+			try {
+				DbLog.dblogInsertOne(sh, getView().getName(), addedSid, "add", null, BiCellCollectionToJsonInterface.BiCellCollectionToJSON(currentCol));
+			} catch (Exception cex) {
+				UniLog.log(cex);
+			}
+		}
+		if(!alreadyBeginWork) {
+			try {
+				commitWork();
+			} catch(Exception ex) {
+				UniLog.log(ex);
+				return(new ReturnMsg(false,ex.toString(),true));
+			}
+		}
+		ReturnMsg rtn = new ReturnMsg(true);
+		rtn.setData(addedSid);
+		return(rtn);
+	}
+	
+	public void clearLastUpdate() {
+		lastUpdate = null;
+	}
+	public void setLastUpdate() {
+		lastUpdate = new java.util.Date();
+	}
+	public java.util.Date getLastUpdate() {
+		return(lastUpdate);
+	}
+	/***
+	 * get select record timestamp
+	 * @return
+	 */
+	public java.util.Date getLastQuery() {
+		return(lastQuery);
+	}
+	public Vector getResultStat() {
+		return(resultStatList);
+	}
+	
+	public int getDeleteCount() {
+		return(vsDelCount);
+	}
+	public int getUpdateCount() {
+		return(vsUpdCount);
+	}
+	public int getInsertCount() {
+		return(vsInsCount);
+	}
+	
+//	public boolean isMarkedInsert(Object o) {
+//		if(o instanceof TrStat) {
+//			return(((TrStat) o).inserted);
+//		}
+//		return(false);
+//	}
+	public boolean isMarkedDelete(Object o) {
+		TrStat ts = getTrStatObj(o);
+		if (ts == null){
+			return(false);
+		}
+		return(ts.deleted);
+	}
+	public boolean isMarkedUpdate(Object o) {
+		TrStat ts = getTrStatObj(o);
+		if (ts == null){
+			return(false);
+		}
+		return(ts.updated);
+	}
+	public void unMarkAll()
+	{
+			for(int i = 0; i < resultStatList.size();i++) {
+				resultStatList.get(i).inserted = false;
+				resultStatList.get(i).updated = false;
+				resultStatList.get(i).deleted = false;
+			}
+	}
+	/***
+	 * mark record delete for main record  / sub record
+	 * need to call updateCurrent()
+	 * @param o
+	 * @param p_sw
+	 * @return
+	 */
+	public boolean markDelete(Object o,boolean p_sw) {
+		TrStat ts = getTrStatObj(o);
+		if (ts == null){
+			return(false);
+		}
+		if(p_sw) {
+			if(ts.deleted) return(true);
+			if(ts.updated) vsUpdCount--;
+			if(ts.inserted) vsInsCount--;
+			vsDelCount++;
+		} else {
+//			if(ts.inserted) return(false);
+			if(!ts.deleted) return(true);
+			if(ts.updated) vsUpdCount++;
+			if(ts.inserted) vsInsCount++;
+			vsDelCount--;
+		}
+		ts.deleted = p_sw;
+
+		if(getParent() != null) {
+			BiResult br = getParent();
+			if(br.subLinkActions != null) {
+				Vector<BiAggregateCellValueAction> v = br.subLinkActions.get(this.getView().getName());
+				if(v != null) { 
+					try {
+						for(CellValueAction ca : v) {
+							ca.cellAction_onchange(null);
+						}
+					} catch (CellException ce ) {
+						UniLog.log(ce);
+					}
+				}
+			}
+		}
+		return(true);
+	}
+
+	public TrStat getTrStatObj(Object o){
+		if (o instanceof TrStat){
+			return((TrStat) o);
+		}
+		else if (o instanceof Integer){ //get obj by index
+			return(resultStatList.elementAt((Integer)o));
+		}
+		return(null);
+	}
+	public boolean markUpdate(Object o,boolean p_sw) {
+		TrStat ts = getTrStatObj(o);
+		if (ts == null){
+			return false;
+		}
+		if(p_sw) {
+			if(ts.inserted) return(false);
+			if(!ts.deleted && !ts.updated) vsUpdCount++;
+		} else {
+			if(ts.inserted) return(false);
+			if(!ts.deleted && ts.updated) vsUpdCount--;
+		}
+		ts.updated = p_sw;
+		return(true);
+	}
+	/*
+	public boolean markInsert(Object o,boolean p_sw) {
+		TrStat ts = getTrStatObj(o);
+		if (ts == null){
+			return(false);
+		}
+		if(ts.deleted)return(false);
+		if(ts.updated)return(false);
+		if(p_sw) {
+			vsInsCount++;
+		} else {
+			vsInsCount--;
+		}
+		ts.inserted = p_sw;
+		return(true);
+	}
+	*/
+	
+	public ReturnMsg deleteCurrent () { 
+		ReturnMsg rtnMsg;
+		if(getParent() != null) {
+			UniLog.log("Fatal Error: deleteCurrent called for subLink view, not expected");
+			return(new ReturnMsg(false,"Fatal Error: updateCurrent called for subLink view, not expected"));
+		}
+		boolean alreadyBeginWork = inBeginWork();
+		boolean needDeleteDetail= false;
+		BiTable t = (BiTable) biView.getTable();
+		if(sublinks != null){
+			for(BiResult sr : sublinks) {
+				if(getView().linkDeleteByMaster(sr.getView())) {
+					needDeleteDetail= true;
+					break;
+				}
+			}
+		}
+//		}
+		try {
+			if(!alreadyBeginWork) beginWork();
+		} catch (Exception ex ) {
+			UniLog.log(ex);
+			return(new ReturnMsg(false,ex.toString()));
+		}
+		try {
+			rtnMsg = real_deleteCurrent (needDeleteDetail,t,currentTr.recidx);
+//			ReturnMsg rtnMsg = null;
+		}  catch (Exception ex ) {
+			ex.printStackTrace();
+			UniLog.log("Update failed Reloading fetching from database");
+			if(!alreadyBeginWork) rollbackWork();
+			if (ex instanceof RpcException){
+				su.close();  //andrew191122: fix broken rpcclient problem
+			}
+			if(ex instanceof SQLException) {
+				SQLException sex = (SQLException) ex;
+				return(new ReturnMsg(false,sex.getErrorCode(),"Error Update Record " + sex.toString(),true));
+			} else {
+				UniLog.log(ex);
+				return(new ReturnMsg(false,-1,"Error Update Record " + ex.toString(),true));
+			}
+		}
+		if(!alreadyBeginWork) {
+			try {
+				if(rtnMsg == null || rtnMsg.getStatus()) {
+					commitWork();
+				} else {
+					rollbackWork();
+				}
+			} catch (Exception ex) {
+				UniLog.log(ex);
+				return(new ReturnMsg(false,ex.toString(),true));
+			}
+		}
+		return(rtnMsg);
+	}
+	
+	ReturnMsg real_deleteCurrent ( boolean needDeleteDetail,BiTable t, int p_recidx) throws Exception {
+					int tabidx=0;
+					if(sh.dblogDeleteEnabled()) {
+						try {
+							preImage = BiCellCollectionToJsonInterface.BiCellCollectionToJSON(currentCol);
+						} catch (Exception ex) {
+							UniLog.log(ex);
+						}
+					}
+					ReturnMsg rtnMsg = biBeforeDeleteCurrent(currentCol);
+					if(rtnMsg == null || rtnMsg.getStatus()) {
+						if(needDeleteDetail) {
+							for(BiResult sr : sublinks) {
+								if(getView().linkDeleteByMaster(sr.getView())) {
+									for(int j = 0;j < sr.getRowCount();j++) {
+										sr.markDelete(j, true);
+									}
+									addUpdateDeleteSubLink(sr);
+								}
+							}
+						}
+						resultTr.setRecPointer(/* i */ p_recidx);
+						if(tabList.size() > 1) {
+							for(tabidx = 0;tabidx<tabList.size();tabidx++) {
+								BiTable bt = tabList.get(tabidx);
+								if(tabidx == 0 || ((Integer) resultTr.getField(tabidx)) > 0) {
+									new BiTableRec(bt,versionAgent).deleteBiTableRecBySerialId(su, (int) resultTr.getField(tabidx));
+									/*
+								su.executeUpdate("delete from " + bt.getDbtName(),
+									new Wherecl().andUniop(bt.getSerialId(), "=",resultTr.getField(tabidx)).stripAnd());
+									*/
+								}
+							}
+						} else {
+							if(useSummaryCache) {
+								Object key	= resultTr.getField(tabidx);
+								for(BiView sv : getView().getSummaryViews().keySet()) {
+									getView().getSchema().removeSummaryCache(getView(), sv, key);
+								}
+							}
+							/*
+							su.executeUpdate("delete from " + t.getDbtName(),
+									new Wherecl().andUniop(t.getSerialId(), "=",resultTr.getField(tabidx)).stripAnd());
+									*/
+							new BiTableRec(t,versionAgent).deleteBiTableRecBySerialId(su, (int) resultTr.getField(tabidx));
+						}
+						rtnMsg = biAfterDeleteCurrent(currentCol);
+						if(rtnMsg != null && !rtnMsg.getStatus()) {
+						} else {
+							if(sh.dblogDeleteEnabled()) {
+								try {
+									DbLog.dblogInsertOne(sh, getView().getName(), resultTr.getField(0), "delete", preImage, null);
+								} catch (Exception ex) {
+									UniLog.log(ex);
+								}
+							}
+						}
+					}
+					return(rtnMsg);
+	}
+	
+	public ReturnMsg batchAddUpdateDelete()
+	{
+		currentTr = null;
+		currentRec = null;
+		BiTable t = (BiTable) biView.getTable();
+		// should loop update all table once the tabList is changed to include only tables that should do add/update/delete 
+		//int tabidx = ((Integer) tablehash.get(t)).intValue();
+		int tabidx = 0;
+		int deleteFailed = 0;
+		StringBuffer errMsg =new StringBuffer(); 
+		try {
+			UniLog.log("batch add update delete "+biView.getName());
+			boolean needDeleteDetail= false;
+			if(sublinks != null){
+				for(BiResult sr : sublinks) {
+					if(getView().linkDeleteByMaster(sr.getView())) {
+						needDeleteDetail= true;
+						break;
+					}
+				}
+			}
+			for(int i=0;i<resultStatList.size();i++) {
+				if(resultStatList.get(i).updated) {
+					Vector fv = new Vector();
+					for(int j = 0;j < selectFieldList.size();j++){
+						BiColumn c = selectFieldList.get(j);
+//						if(c.isNoUpdate()) continue;
+						BiField f = c.getField();
+						if(f == null) continue;
+						if(f.getTable().equals(getView().getTable()))  {
+							fv.add(f.getName());
+						}	
+					}
+					resultTr.setRecPointer(/* i */ resultStatList.get(i).recidx);
+					su.updateByTableRec(t.getDbtName(), resultTr, fv, fv, new Wherecl().andUniop(t.getSerialId(), "=",resultTr.getField(tabidx)).stripAnd());
+				}
+				if(resultStatList.get(i).deleted) {
+					UniLog.log("do delete one record start " + i);
+					beginWork();
+					if(needDeleteDetail)
+						fetchOneRecV(i);
+					else
+						loadOneRecV(i);
+					ReturnMsg rtnMsg = real_deleteCurrent (needDeleteDetail,t,resultStatList.get(i).recidx);
+					if(rtnMsg != null && !rtnMsg.getStatus()) {
+						UniLog.log("Batch delete field " + rtnMsg.getMsg());
+						errMsg.append(rtnMsg.getMsg());
+						deleteFailed++;
+						rollbackWork();
+					} else {
+						commitWork();
+					}
+					
+					UniLog.log("do delete one record end " + i);
+//					beginWork();
+//					if(needDeleteDetail)
+//						fetchOneRecV(i);
+//					else
+//						loadOneRecV(i);
+//					if(sh.dblogDeleteEnabled()) {
+//						try {
+//							preImage = BiCellCollectionToJsonInterface.BiCellCollectionToJSON(currentCol);
+//						} catch (Exception ex) {
+//							UniLog.log(ex);
+//						}
+//					}
+//					ReturnMsg rtnMsg = biBeforeDeleteCurrent(currentCol);
+//					if(rtnMsg == null || rtnMsg.getStatus()) {
+//						if(needDeleteDetail) {
+//							for(BiResult sr : sublinks) {
+//								if(getView().linkDeleteByMaster(sr.getView())) {
+//									for(int j = 0;j < sr.getRowCount();j++) {
+//										sr.markDelete(j, true);
+//									}
+//									addUpdateDeleteSubLink(sr);
+//								}
+//							}
+//						}
+//						resultTr.setRecPointer(/* i */ resultStatList.get(i).recidx);
+//						if(tabList.size() > 1) {
+//							for(tabidx = 0;tabidx<tabList.size();tabidx++) {
+//								BiTable bt = tabList.get(tabidx);
+//								if(tabidx == 0 || ((Integer) resultTr.getField(tabidx)) > 0) {
+//									new BiTableRec(bt,versionAgent).deleteBiTableRecBySerialId(su, (int) resultTr.getField(tabidx));
+//									/*
+//								su.executeUpdate("delete from " + bt.getDbtName(),
+//									new Wherecl().andUniop(bt.getSerialId(), "=",resultTr.getField(tabidx)).stripAnd());
+//									*/
+//								}
+//							}
+//						} else {
+//							if(useSummaryCache) {
+//								Object key	= resultTr.getField(tabidx);
+//								for(BiView sv : getView().getSummaryViews().keySet()) {
+//									getView().getSchema().removeSummaryCache(getView(), sv, key);
+//								}
+//							}
+//							/*
+//							su.executeUpdate("delete from " + t.getDbtName(),
+//									new Wherecl().andUniop(t.getSerialId(), "=",resultTr.getField(tabidx)).stripAnd());
+//									*/
+//							new BiTableRec(t,versionAgent).deleteBiTableRecBySerialId(su, (int) resultTr.getField(tabidx));
+//						}
+//						rtnMsg = biAfterDeleteCurrent(currentCol);
+//						if(rtnMsg != null && !rtnMsg.getStatus()) {
+//							rollbackWork();
+//							
+//						} else {
+//							if(sh.dblogDeleteEnabled()) {
+//								try {
+//									DbLog.dblogInsertOne(sh, getView().getName(), resultTr.getField(0), "delete", preImage, null);
+//								} catch (Exception ex) {
+//									UniLog.log(ex);
+//								}
+//							}
+//							try {
+//								commitWork();
+//							} catch (Exception ex) {
+//								UniLog.log(ex);
+//								return(new ReturnMsg(false,ex.toString(),true));
+//							}
+//						}
+//					} else {
+//						UniLog.log("Batch delete field " + rtnMsg.getMsg());
+//						errMsg.append(rtnMsg.getMsg());
+//						deleteFailed++;
+//						rollbackWork();
+//					}
+				}
+			}
+			vsUpdCount = 0;
+		}  catch (Exception ex ) {
+			UniLog.log(ex);
+			rollbackWork();
+			return(new ReturnMsg(false,ex.toString()));
+		}
+		if(deleteFailed > 0){
+			return(new ReturnMsg(false,"Error " + deleteFailed + " records delete failed :" + errMsg.toString()));
+		} else {
+			return(new ReturnMsg(true));
+		}
+	}
+	
+	
+	public BiCellCollection newRowCollection() {
+		return newRowCollection(false, -1);
+	}
+	public BiCellCollection newRowCollection(boolean p_addSubRec) {
+		return newRowCollection(p_addSubRec, -1);
+	}
+	public final BiCellCollection newRowCollection(boolean p_addSubRec, int p_subRecIdx)
+	{
+		if(getParent() == null) return(null); // not linked result
+		BiCellCollection cl = createColumnCollection(getParent() == null ? null : getParent().getCurrentCollection());
+		createColumnCells(cl);
+		
+		// The following is Probably not necessary 
+		cl.setParent(getParent().currentCol);
+		
+		if (p_addSubRec) {
+			ReturnMsg rtn = addSubRecord(cl, p_subRecIdx, "");
+			UniLog.log1("addSubRecord return:%s", rtn);
+			if (!rtn.getStatus()) {
+				return null;
+			}
+		}
+		return(cl);
+	}
+	/***
+	 * add detail record
+	 * need to call updateCurrent()
+	 * @param cl
+	 * @return
+	 */
+	/* 2020-08-20 add p_dummy to verify that all caller of addSubRecord has been properly change to get ReturnMsg return instead of TrStat, should remove this p_dummy argument later when all code calling addSubRecord is properly handling the case that addSubRecord failed and a false ReturnMsg is Returned */
+	public ReturnMsg addSubRecord(CellCollection cl,String p_dummy){
+		return(addSubRecord(cl,-1,p_dummy));
+	}
+	/**
+	 * @param cl - new cell collection
+	 * @param p_insIdx - insert index. if -1, append to tail
+	 * @return
+	 */
+	public ReturnMsg addSubRecord(CellCollection cl, int p_insIdx,String p_dummy) {
+		if(getParent() == null) return(new ReturnMsg(false,"Cannot Add Subrecord to Master View"));
+		
+		Vector crec = getRecsXX();
+		TrStat tr = new TrStat(crec.size(),0);
+		crec.add(cl);
+		tr.inserted = true;
+		vsInsCount++;
+		
+		int maxRow = getParent().getView().linkMaxRow(getView());
+		if(maxRow > 0) {
+			if(resultStatList.size() >= maxRow) {
+				return(new ReturnMsg(false,"Support Upto " + maxRow + " entries only"));
+			}
+		}
+		if (p_insIdx < 0){
+			resultStatList.add(tr);
+		}
+		else{
+			resultStatList.insertElementAt(tr, p_insIdx);
+		}
+		if(getParent() != null) {
+			BiResult br = getParent();
+			if(br.subLinkActions != null) {
+				Vector<BiAggregateCellValueAction> v = br.subLinkActions.get(this.getView().getName());
+				if(v != null) { 
+					try {
+						for(CellValueAction ca : v) {
+							ca.cellAction_onchange(null);
+						}
+					} catch (CellException ce ) {
+						UniLog.log(ce);
+					}
+				}
+			}
+//20240704
+//			for(BiColumn bl : linkJoins.keySet()) {
+//				BiColumn dl = linkJoins.get(bl);
+//				ColumnCell dc = (ColumnCell) cl.getCell(dl.getLabel());
+//				try {
+//					if(dc.getFormula() == null ) {
+//						dc.setFormula(new ColumnCellFormula("super."+bl.getLabel(),dc),true);
+//					}
+//				} catch (Exception ex) {
+//					UniLog.log(ex);
+//				}
+//			}
+		}
+		ReturnMsg rtn = new ReturnMsg(true);
+		rtn.setData(tr);
+		return(rtn);
+	}
+	
+	public BiField getFieldByLabel(String p_label){
+		for (BiColumn column : (Vector<BiColumn>) biView.getColumns()){
+			if (column.label != null && column.label.equals(p_label)){
+				return(column.getField());
+			}
+		}
+		return(null);
+	}
+	
+	/*
+	boolean doBeforeAdd() {
+		return(doBeforeAdd(currentCol));
+	}
+	boolean doBeforeAdd(CellCollection col)
+	{
+		Vector v = getColumns();
+		for(int i = 0;i<v.size();i++) {
+			BiColumn cl = (BiColumn) v.get(i);
+			int rg;
+			if((rg = cl.getRgNo()) > 0) {
+				int rgno = getView().getSchema().getRg("", rg);
+				UniLog.logm(this, "getRg for %s %s %d got %d", biView.getName(),cl.getLabel(),rg,rgno);
+				if(rgno > 0) {
+					try {
+					col.getCell(cl.getLabel()).set(rgno);
+					} catch (Exception ex){
+						UniLog.log(ex);
+					}
+				}
+			}
+		}
+		return(true);
+	}
+	*/
+	protected ReturnMsg biBeforeDeleteCurrent(CellCollection col) {
+		return(ReturnMsg.defaultOk);  //andrew190218:better not return null
+	}
+	protected ReturnMsg biAfterDeleteCurrent(CellCollection col) {
+		return(ReturnMsg.defaultOk);  //andrew190218:better not return null
+	}
+	
+	/* use this for additional data processing before actual record is updated to database */
+	protected ReturnMsg biBeforeUpdateCurrent(CellCollection col) {
+		return(ReturnMsg.defaultOk);
+	}
+	
+	/* use this for additional data processing before actual record is added to database */
+	/*
+	 * 
+		**** note by DT on 2021/01/27
+		for sublinks biBeforeAddCurrent is never called. instead biBeforeUpdate Current is call because this is initiated by master view's update
+
+	 */
+	protected ReturnMsg biBeforeAddCurrent(CellCollection col)
+	{
+		return(ReturnMsg.defaultOk);
+	}
+
+	/* use this for post process validataion after add/update to database */
+	protected ReturnMsg biAfterAddUpdateCurrent(BiCellCollection col,boolean isUpdate) {
+		return(ReturnMsg.defaultOk);
+	}
+
+	/* use this for pre process validataion before add/update */
+	protected ReturnMsg biBeforeAddUpdateCurrent(BiCellCollection col,boolean isUpdate) {
+		return(ReturnMsg.defaultOk);
+	}
+
+	public void setColumnRg(CellCollection col,BiColumn cl,int rg) throws CellException {
+			int newrg = 0;
+			if(cl.getField() != null) {
+				Cell cc = col.getCell(cl.getLabel());
+				if(cc.getType() == Cell.VTYPE_STRING) {
+					String rgstr = BiUtil.extractColDecorationValue(cl.getDecoration(),"rgstr");
+					if(!StringUtils.isBlank(rgstr)) {
+						UniLog.logm(this, "getUniqueRg for %s %s %d got %d (%s)", biView.getName(),cl.getLabel(),rg,newrg,rgstr);
+						Value v = getView().getSchema().getUniqueRg(this,"", rg,
+								cl.getField().getTable().getDbtName(),
+								cl.getField().getName(),rgstr);
+						if(v == null && StringUtils.isBlank(v.toString())) {
+							throw new CellException("Get Unique Rg error");
+						}
+						cc.set(v.toString());
+						return;
+					}
+				}
+				newrg = getView().getSchema().getUniqueRg(this,"", rg,
+								cl.getField().getTable().getDbtName(),
+								cl.getField().getName(),
+								null
+							).toInt();
+				UniLog.logm(this, "getUniqueRg for %s %s %d got %d", biView.getName(),cl.getLabel(),rg,newrg);
+				if(newrg > 0) {
+					cc.set(newrg);
+					return;
+				}
+			} else {
+				newrg = getView().getSchema().getRg(this,"", rg);
+				UniLog.logm(this, "getRg for %s %s %d got %d", biView.getName(),cl.getLabel(),rg,newrg);
+				if(newrg > 0) {
+					col.getCell(cl.getLabel()).set(newrg);
+					return;
+				}
+			}
+			throw new CellException("GetRG Error ");
+//			col.getCell(cl.getLabel()).set(newrg);
+	}
+	final ReturnMsg doBeforeAddUpdate(BiCellCollection col,boolean isUpdate)
+	{
+		ReturnMsg rtnMsg2 = biBeforeAddUpdateCurrent(col,isUpdate);
+		if(rtnMsg2 != null && !rtnMsg2.getStatus() ) return(rtnMsg2);
+		Vector v = getColumns();
+		for(int i = 0;i<v.size();i++) {
+			BiColumn cl = (BiColumn) v.get(i);
+			int rg;
+//			if((rg = cl.getRgNo()) > 0 && col.getCell(cl.getLabel()).getInt() <= 0) {
+			if((rg = cl.getRgNo()) > 0) {
+				if(col.getCell(cl.getLabel()).getInt() <= 0) {
+				try {
+					setColumnRg(col,cl,rg);
+				} catch (Exception ex){
+					UniLog.log(ex);
+					return(new ReturnMsg(false,-1,ex.getMessage()));
+				}
+				}
+			}
+		}
+		rtnMsg2 = doAutoAddUpdateViews(currentCol);
+		if(rtnMsg2 != null && !rtnMsg2.getStatus()) return(rtnMsg2);
+		for(int i = 0;i<v.size();i++) {
+			BiColumn cl = (BiColumn) v.get(i);
+			try {
+			if(cl.isformulaOnSave()) {
+				if(cl.getFormula(parent == null) != null && !cl.getFormula(parent == null).equals("")) {
+					Cell c = col.getCell(cl.getLabel());
+					com.uniinformation.utils.exprpar.Parser parser 
+						= new com.uniinformation.utils.exprpar.Parser(ignoreCase,cl.getFormula(parent == null),col,col);
+					Object oo = parser.evaluate();
+//					if(!(oo instanceof IgnoreValue)) c.set(oo);
+					if(!(oo instanceof IgnoreValue)) c.sync(oo);
+//					c.set(parser.evaluate());
+				}
+			} 
+			} catch (Exception ex) {
+				UniLog.log(ex);
+				return new ReturnMsg(false,ex.toString());
+			}
+			
+		}
+		if((rtnMsg2 = validateOneRow(col,isUpdate)) != null && !rtnMsg2.getStatus()) return(rtnMsg2);
+		try {
+			Vector sl = sublinks;
+			if(sl != null) {
+				for(int i=0;i<sl.size();i++) {
+					BiResult sr = (BiResult) sl.get(i);
+					String seqColumn = sr.getView().getSeqColumn();
+					int seq=0;
+					for(int j = 0;j<sr.getRowCount();j++) {
+						if(!sr.resultStatList.get(j).deleted) {
+							//20240704
+							BiCellCollection sc = sr.getRowCollectionV(j);
+							for(BiColumn bl : sr.linkJoins.keySet()) {
+								BiColumn dl = sr.linkJoins.get(bl);
+								
+								/*
+									the value to set to the child joined field should be read from parents cellcollection
+									although the joined cell in the parent collection is inherited to the child collection.
+									it may be overrided and not equals to the parents's cell value
+									2010-02-13 , by DT
+								 */
+//								sc.getCell(dl.getLabel()).set(sc.getCell(bl.getLabel()).getObject());
+								sc.getCell(dl.getLabel()).set(col.getCell(bl.getLabel()).getObject());
+							}
+							
+							/* Important !!! 2020/09/09 */
+							/* This code shoule be removed in future, its just a in-trim , in this solution, the >= 3 level of detail record is only fetch before doBeforeUpdate is called  */
+							/* allowing codes that depends on >= 3 level of detail records can be executed propertly (because the current fetchOneRecV only fetch 2 level of records */
+							/* the recent change that the detail record vectors is store in the parents collection instead of storing in BiResult will allow fetchOneRecV to fetch all level of detail records. */
+							/* once the fetchOneRecV is updated to all levels, code for >= 3 level can executed any time after fecth, the below code is not needed any more */
+							if(sr.getSubLinks() != null) {
+//								TrStat tr = sr.getTrStatObj(j);
+								sr.currentCol = sc; // added on 2020/09/09, let sr.currentCol point to the correct collection before fetch sublink
+//								sr.fetchOneRec(tr,sc);
+								sr.fetchSubLink(sc);
+							}
+							
+							
+							
+							ReturnMsg rtnMsg = sr.doBeforeAddUpdate(sc,isUpdate);
+							if(rtnMsg != null && !rtnMsg.getStatus()) {
+//								rtnMsg = new ReturnMsg(false,"Fail at " + sr.getView().getHeader() + " row " + (j+1) + " " + rtnMsg.getMsg());
+								rtnMsg.setData(j);
+								return(rtnMsg);
+							}
+							if(seqColumn != null) {
+								sc.getCell(seqColumn).set(seq + getView().linkGetSeqStart(sr.getView()));
+								seq++;
+							}
+							if(sr.getSubLinks() != null) {
+								try {
+									sr.addUpdateDeleteSubLinks();
+								} catch (Exception ex) {
+									UniLog.log(ex);
+								}
+							}
+						}
+					}
+				}
+			}
+		} catch (CellException cex) {
+			UniLog.log(cex);
+			return(new ReturnMsg(false,cex.toString()));
+		}
+		if(isUpdate) {
+			return(biBeforeUpdateCurrent(col));
+		} else {
+			return(biBeforeAddCurrent(col));
+		}
+	}	
+	
+	
+	public Vector<BiCellCollection> getSubLinkResult(String p_subView)
+	{
+//		this list excludes those deleted records	
+		Vector sl = sublinks;
+		if(sl != null) {
+			for(int i = 0;i < sl.size();i++) {
+				BiResult sr = (BiResult) sl.get(i);
+				if(sr.getView().getName().equals(p_subView)) {
+					return(sr.getRowCollectionList());
+				}
+			}
+		}
+		return(null);
+	}
+	
+	/***
+	 * sort result by java, can call after query
+	 * it's useful for sort non db field.
+	 */
+	public void sort()
+	{
+		if(resultStatList == null) return;
+		if(orderby ==  null) return;
+		
+		if(orderby != null) {
+			//UniLog.log("HAHA orderby not null size " + orderby.size());
+			for(int i = 0;i<orderby.size();i++) {
+				//BiOrderBy ob = (BiOrderBy) orderby.get(i);
+				Object o = orderby.get(i);
+				if (o instanceof BiOrderBy) {
+					BiOrderBy ob = (BiOrderBy) o;
+					ob.trFieldIdx = -1;
+					//UniLog.log("find sortcolidx " + i + " " + ob.getColumn().getEngName());
+					for(int j = 0;j<selectFieldList.size();j++){ 
+						if(ob.getColumn().equals(selectFieldList.get(j))) {
+							ob.trFieldIdx = j;
+							UniLog.log("set sortcolidx " + i + " to " + j);
+						}	
+					}
+				}
+				else if (o instanceof AggregateDataSetOrderBy) {
+					AggregateDataSetOrderBy ob = (AggregateDataSetOrderBy) o;
+					if (aop == null || ob.trFieldIdx >= aop.getAggregateOrPivotList().size())
+						ob.trFieldIdx = -1;
+					else
+						UniLog.log("set sortaggcolidx " + i + " to " + ob.trFieldIdx);
+				}
+			}
+		}
+		
+		Collections.sort(resultStatList,new Comparator <TrStat>() {
+			public int compare(TrStat o1,TrStat o2) {
+				if(orderby == null) {
+					if(o1.recidx > o2.recidx) return(-1);
+					else
+						if(o1.recidx < o2.recidx) return(1);
+							return(0);
+				} else {
+					for(int i = 0;i<orderby.size();i++) {
+						boolean isLast = i >= orderby.size()-1;
+						Object o = orderby.get(i);
+						if (o instanceof BiOrderBy) {
+							BiOrderBy ob = (BiOrderBy) o;
+							try {
+								Object d1=null,d2=null;
+								d1 = getColumnValueFromCache(ob.getColumn().getLabel(),o1.recidx);
+								d2 = getColumnValueFromCache(ob.getColumn().getLabel(),o2.recidx);
+								if(d1 instanceof Integer) {
+									if(d2 instanceof Long ) {
+										d2 = ((Long) d2).intValue();
+									}
+								} else if(d1 instanceof Long) {
+									if(d2 instanceof Integer ) {
+										d1 = ((Long) d1).intValue();
+									}
+								}
+								/*
+								if(ob.trFieldIdx >= 0) {
+									d1 = resultTr.getField(tabList.size()+ob.trFieldIdx,o1.recidx);	
+									d2 = resultTr.getField(tabList.size()+ob.trFieldIdx,o2.recidx);	
+								} else {
+									loadOneRec(o1.recidx,BiResult.this.currentCol,false);
+									d1 = currentCol.getCell(ob.getColumn().getLabel()).getObject();
+									loadOneRec(o2.recidx,BiResult.this.currentCol,false);
+									d2 = currentCol.getCell(ob.getColumn().getLabel()).getObject();
+								}
+								*/
+								if(ob.getDesc()) {
+									if(d1 == null) {
+										if(d2 == null) {
+											if(isLast) return(0); 
+										} else return(1);
+									} else {
+										if(d2 == null) return(-1); else {
+											if(d2 instanceof Comparable) {
+												int c = ((Comparable) d2).compareTo(d1);
+												if( c != 0  || isLast) return(c);
+											} else {
+												if(isLast) return(0);
+											}
+										}
+									}
+								} else {
+									if(d1 == null) {
+										if(d2 == null) {
+											if(isLast) return(0); 
+										} else return(-1);
+									} else {
+										if(d2 == null) return(1); else {
+											if(d1 instanceof Comparable) {
+												int c = ((Comparable) d1).compareTo(d2);
+												if( c != 0  || isLast) return(c);
+											} else {
+												if(isLast) return(0);
+											}
+										}
+									}
+								}
+							} catch (TableRecException tex) {
+								UniLog.log(tex);
+								return(0);
+							}
+						}
+						else if (o instanceof AggregateDataSetOrderBy) {
+							AggregateDataSetOrderBy ob = (AggregateDataSetOrderBy) o;
+							try {
+								Comparable d1=null,d2=null;
+								if(ob.trFieldIdx >= 0) {
+									if (o1.app != null && o1.app.value != null && ob.trFieldIdx < o1.app.value.length)
+										d1 = (Comparable) o1.app.value[ob.trFieldIdx];
+									if (o2.app != null && o2.app.value != null && ob.trFieldIdx < o2.app.value.length)
+										d2 = (Comparable) o2.app.value[ob.trFieldIdx];
+								}
+								if (ob.desc) {
+									if(d1 == null) {
+										if(d2 != null) return(1);
+									} else {
+										if(d2 == null) 
+											return(-1); 
+										else {
+											return(d2.compareTo(d1));
+//											return d1 < d2 ? 1 : (d1 > d2 ? -1 : 0);
+										}
+									}
+								}
+								else {
+									if(d1 == null) {
+										if(d2 != null) return(-1);
+									} else {
+										if(d2 == null) 
+											return(1); 
+										else {
+											return(d1.compareTo(d2));
+//											return d1 < d2 ? -1 : (d1 > d2 ? 1 : 0);
+										}
+									}
+								}
+								/*
+								Double d1=null,d2=null;
+								if(ob.trFieldIdx >= 0) {
+									if (o1.app != null && o1.app.value != null && ob.trFieldIdx < o1.app.value.length)
+										d1 = (Double) o1.app.value[ob.trFieldIdx];
+									if (o2.app != null && o2.app.value != null && ob.trFieldIdx < o2.app.value.length)
+										d2 = (Double) o2.app.value[ob.trFieldIdx];
+								}
+								if (ob.desc) {
+									if(d1 == null) {
+										if(d2 != null) return(1);
+									} else {
+										if(d2 == null) 
+											return(-1); 
+										else
+											return d1 < d2 ? 1 : (d1 > d2 ? -1 : 0);
+									}
+								}
+								else {
+									if(d1 == null) {
+										if(d2 != null) return(-1);
+									} else {
+										if(d2 == null) 
+											return(1); 
+										else
+											return d1 < d2 ? -1 : (d1 > d2 ? 1 : 0);
+									}
+								}
+								*/
+							} catch (Exception tex) {
+								UniLog.log(tex);
+								return(0);
+							}
+						}
+					}
+				}
+				return(0);
+			}
+		});
+	}
+	
+	public void putUserData(String key,Object o) {
+		if(userDataHash == null) userDataHash = new Hashtable();
+		if(o == null) userDataHash.remove(key); else userDataHash.put(key,o);
+	}
+	public Object getUserData(String key)
+	{
+		if(userDataHash == null) return(null);
+		return(userDataHash.get(key));
+	}
+	
+	public SelectUtil getSelectUtil()
+	{
+		return(su);
+	}
+	
+	public int getRecLimit() {
+		return(recLimit);
+	}
+	public void setRecLimit(int p_limit) {
+		if(p_limit > 0 ) recLimit = p_limit;
+	}
+	public ColumnCell getCell(String p_cell)
+	{
+		return((ColumnCell) currentCol.testCell(p_cell));
+	}
+	
+	/***
+	 * get columncell by header description
+	 * it's not 100% accurate as hdr allow duplicate or blank
+	 * @param p_hdr
+	 * @return
+	 */
+	public ColumnCell getCellByHeader(String p_hdr) {
+		if (StringUtils.isBlank(p_hdr)) return null;
+		BiColumn col = getView().getColumnByHdr(p_hdr);
+		if (col == null) return null;
+		return getCell(col.getLabel());
+	}
+	public Cell getNativeCell(String p_cell)
+	{
+		return(currentCol.testCell(p_cell));
+	}
+	public String getCellString(String p_cell, String p_default) {
+		String cellStr = getCellString(p_cell);
+		return (cellStr != null ? cellStr : p_default);
+	}
+	
+	public boolean getCellBoolean(String p_cell) {
+		return(currentCol.getCellBoolean(p_cell));
+	}
+	public String getCellString(String p_cell)
+	{
+		Cell colCell = currentCol.testCell(p_cell);
+		if (colCell == null) {
+			return "";
+		}
+		return(colCell.getString());
+	}
+	public int getCellInt(String p_cell)
+	{
+		Cell colCell = currentCol.testCell(p_cell);
+		if (colCell == null) {
+			return 0;
+		}
+		return(colCell.getInt());
+	}
+	public double getCellDouble(String p_cell)
+	{
+		Cell colCell = currentCol.testCell(p_cell);
+		if (colCell == null) {
+			return 0.0;
+		}
+		return(colCell.getDouble());
+	}
+	/***
+	 * 
+	 * @param p_cell
+	 * @param p_checkValid true: invalid date will return null
+	 * @return null if cell not found. 
+	 */
+	public Date getCellDate(String p_cell, boolean p_checkValid)
+	{
+		Cell colCell = currentCol.testCell(p_cell);
+		if (colCell == null) {
+			return null;
+		}
+		Date date = colCell.getDate();
+		if (p_checkValid && !DateUtil.isValid(date)) {
+			return null;
+		}
+		return(date);
+	}
+	public Date getCellDate(String p_cell) {
+		return getCellDate(p_cell,false);
+		
+	}
+	
+	public BiCellCollection getCurrentCollection()
+	{
+		return(currentCol);
+	}
+
+	public void setCurrentCollection(BiCellCollection p_col)
+	{
+		currentCol = p_col;
+	}
+	
+	void setJdbcServerTimeout(int p_sec) {
+		if(sqlEngine != BiSchema.SQLENGINE_SCORPION) return;
+		Vector arglist = new Vector();
+		arglist.addElement(new Integer(0));
+		arglist.addElement(new Integer(p_sec));
+		su.getRpcClient().callSegment("rpccall_settimeout",arglist);
+		rpcTimeout = p_sec;  //keep a copy for reference only. 
+	}
+	/***
+	 * use for debug purpose only
+	 * @return
+	 */
+	public JSONObject getStatusJson(boolean p_debugLog) {
+		if(sqlEngine != BiSchema.SQLENGINE_SCORPION) return null;
+		try {
+			JSONObject jo = new JSONObject();
+			jo.put("jdbcServerPid",getJdbcServerPid());
+			jo.put("rpcTimeout", rpcTimeout);
+			jo.put("inBeginWork", inBeginWork());
+			jo.put("useTransaction", useTransaction);
+			jo.put("recordLocked", recordLocked);
+			if (p_debugLog) {
+				UniLog.log1("debug:\n%s",jo.toString(3));
+			}
+			return jo;
+		}
+		catch (Exception ex) {
+			UniLog.log1("error:"+ex.getMessage());
+			return null;
+		}
+	}
+	/***
+	 * get rpc pid
+	 * it can used for keep connection alive too
+	 * @return
+	 */
+	public int getJdbcServerPid() {
+		if(sqlEngine != BiSchema.SQLENGINE_SCORPION) return -1;
+		int pid = -1;
+		try {
+			Value v = su.getRpcClient().callSegment("callfunction", new VectorUtil() .addElement("getpid") .toVector());
+			pid = Integer.parseInt(v.toString());
+		}
+		catch(Exception ex) {
+			UniLog.log1("getpid error:%s\n",ex.getMessage());
+		}
+		return pid;
+	}
+	public boolean beginWork() throws Exception {
+		if(getParent() != null) return(false);
+		try {
+			if(su.getConnection() == null) su.init(getView().getConn());
+			if(useTransaction && !inBeginWork()) {
+				//su.executeUpdate("begin work", null);
+				setJdbcServerTimeout(BiResult.TIMEOUT_WITH_TRANSACTION);
+				su.setAutoCommit(false);
+				//beginWork = true;
+			}
+			return(true);
+		} catch (Exception ex) {
+			UniLog.log(ex);
+			return(false);
+		}
+	}
+
+	public void rollbackWork() {
+		if(getParent() != null) return;
+		recordLocked = false;
+		try {
+			if(su.getConnection() == null) return;
+			if(useTransaction && inBeginWork()) {
+				su.rollback();
+				su.setAutoCommit(true);
+				setJdbcServerTimeout(1800);
+			}
+			su.close();
+			return;
+		} catch (Exception ex) {
+			UniLog.log(ex);
+			su.close();
+			return;
+		}
+	}
+	
+	public boolean inBeginWork() {
+		try {
+			if(su.getConnection() == null) return(false);
+			return(!su.getAutoCommit());
+		} 
+		catch (Exception ex) {
+			UniLog.log(ex);
+			return(false);
+		}
+	}
+	
+	public boolean inBeginWorkWithException() throws Exception {
+		try {
+			if(su.getConnection() == null) return(false);
+			return(!su.getAutoCommit());
+		} 
+		catch (Exception ex) {
+			UniLog.log(ex);
+			throw ex;
+		}
+	}
+	
+	protected void biResultBeforeCommit() throws Exception
+	{
+		
+	}
+	public boolean commitWork() throws Exception {
+		if(getParent() != null) return(false);
+		recordLocked = false;
+		try {
+			biResultBeforeCommit();
+			//if(useTransaction && inBeginWork()) { ... }
+			if(useTransaction && inBeginWorkWithException()) {  //230508 hotfix for import dialog timeout
+				su.setAutoCommit(true);
+				setJdbcServerTimeout(1800);
+			}
+			su.close();
+			return(true);
+		} catch (Exception ex) {
+			UniLog.log(ex);
+			try {
+			  su.rollback();
+			  setJdbcServerTimeout(1800);
+			} catch (Exception ex2) {
+			  UniLog.log(ex2);
+			}
+			su.close();
+//			return(false);
+			throw (ex);
+		}
+	}
+	
+	protected HashSet<BiTable> addExtraWhereStr(Wherecl p_where,HashSet<BiTable> p_hash)
+	{
+		// return null if(no extra wherecl or the wherecl only include master table, otherwise, shoule retune the set of subtables to ensure that the generated querey string will not outer the subtable, causing incorrect result
+		return(null);
+	}
+
+	protected class PickCellAction extends CellValueAction 
+	{
+		final static int TYPE_UPDATE_PARENT = 1;
+		final static int TYPE_UPDATE_CHILD = 2;
+		int curType = -1;
+		CellCollection colCc=null;
+		BiTable curLookupTable;
+		BiTable curParentTable;
+		BiView curBiView = null;
+		public PickCellAction(int p_type, BiView p_biView, BiTable p_lookupTable, BiTable p_parentTable, CellCollection p_colCc) {
+			curType = p_type;
+			curBiView = p_biView;
+			if (curBiView == null){
+				curBiView = getView();
+			}
+			curLookupTable = p_lookupTable;
+			curParentTable = p_parentTable;
+			colCc = p_colCc;
+		}
+		boolean lookupTableIsAutoAdd(BiTable p_table) {
+			for(BiResult abr : brAutoAddUpdateViews.keySet()) {
+				if(abr.getView().getTable() == p_table) return(true);
+			}
+			return(false);
+		}
+		@Override
+		public void cellAction_onchange(Cell p_triggerCell) throws CellException {
+			if(!actionEnabled) {
+				return;
+			}
+			if(!(p_triggerCell instanceof ColumnCell)) {
+				return;
+			}
+			ColumnCell triggerColCell = ((ColumnCell) p_triggerCell);
+			BiColumn triggerCol = triggerColCell.getBiColumn();
+			BiField triggerField = triggerCol.getField();
+			BiCellCollection ccol = triggerColCell.getCollection();
+			
+			if (fDebug) UniLog.logm(this,"start triggerField:%s triggerField.table:%s lookupTable:%s parentTable:%s", triggerField, triggerField.getTable(), curLookupTable, curParentTable);
+			if (curParentTable == null){
+				UniLog.logm(this,"Error no parent table");
+				throw new CellException("Error no parent table");
+			}
+			
+			if(triggerField == null){
+				UniLog.logm(this,"Error invalid trigger field is null");
+				throw new CellException("Error invalid trigger field is null");
+			}
+			
+			if(curType == TYPE_UPDATE_PARENT && triggerField.getTable() != curLookupTable) {
+				UniLog.logm(this,"Error invalid trigger field 1");
+				throw new CellException("Error invalid trigger field 1");
+			}
+			
+			if(curType == TYPE_UPDATE_CHILD && triggerField.getTable() != curParentTable) {
+				UniLog.logm(this,"Error invalid trigger field 2");
+				throw new CellException("Error invalid trigger field 2");
+			}
+			
+			BiJoin lookupJoin = curLookupTable.getJoin(curParentTable); //find join for lookupTable -> masterBable
+			if (lookupJoin == null){
+				UniLog.logm(this,"Error invalid lookup join");
+				throw new CellException("Error invalid lookup join");
+			}
+			
+			int recIdx = 0;
+			try {
+				TableRec tr = null;
+//				BiJoin join = curLookupTable.getJoin(triggerColCell.getBiColumn().getTable());
+				BiJoin join = lookupJoin;
+				if (curType == TYPE_UPDATE_PARENT){  //update parent join field only
+					//obtain tr from cache (e.g. pick from list)
+					tr = (TableRec) triggerColCell.getCCObj("lookup_uparent_tr");
+					//221118 experimental, not work yet! for handle autoaddupdate lookup tr update
+					//TODO: if colcell autoaddupdate detected, call refreshLookupItemList to refresh lookupitemlist
+					//tr = refreshLookupItemList(tr, triggerColCell); 
+					
+					if (tr != null){
+						Vector values = (Vector) triggerColCell.getCCObj("lookup_uparent_values");
+						recIdx = values.indexOf(p_triggerCell.getObject()); //compare value, cannot handle duplicate value
+						if (recIdx < 0){
+							if (StringUtils.isBlank("" + p_triggerCell.getObject())){
+								UniLog.logm(this,"trigger cell is blank and recIdx=%d, set tr to null", recIdx);
+								tr = null;
+							}
+							else{
+								UniLog.logm(this,"Invalid rec index");
+								throw new CellException("Invalid rec index for " + curLookupTable.getName() );
+							}
+						}
+					}
+					else{ 
+						//construct tr (e.g. manual input)
+						
+						
+						UniLog.logm(this, "LookupTabTr Start");
+						if( join.size() > 1 ) {
+							Wherecl wcl = new Wherecl();
+							if(join.getParsedCondition(BiResult.this) != null) wcl.appendString(join.getParsedCondition(BiResult.this));
+							for (int i=0; i<join.size(); i++){ //TODO support composite join
+								BiField fromField = join.getFromField(i);
+								for(BiColumn jbc :selectFieldList) {
+									if(fromField == jbc.getField()) {
+
+										Object lookupObject = ccol.getCell(jbc.getLabel()).getObject();
+										if( getSessionHelper().getLHLang().equals("SCHN") && jbc.isAutoTranslate()) {
+											if(lookupObject instanceof String) {
+												lookupObject 	= ChineseConvert.convertAuto2Bnew((String) lookupObject);
+											}
+										}
+										wcl.andUniop(fromField.getFullName(), "= ", 
+											lookupObject
+//											ccol.getCell(jbc.getLabel()).getObject()
+										);
+									}
+								}
+// Fixed on 2202/07/06 By DT, cannot verified because cannot find scenerio that have lookup to join with multiple field								
+//								tr = getLookupTabTr(fromField.getTable(), wcl,ccol);
+							}
+							tr = getLookupTabTr(triggerField.getTable(), wcl,ccol);
+						} else {
+							Wherecl wcl = new Wherecl();
+							if(join.getParsedCondition(BiResult.this) != null) wcl.appendString(join.getParsedCondition(BiResult.this));
+//							tr = getLookupTabTr(triggerField.getTable(), new Wherecl().andUniop(triggerField.getFullName(), "=", p_triggerCell.getObject()).stripAnd(),triggerColCell.getCollection());
+							Object lookupObject = p_triggerCell.getObject();
+							if( getSessionHelper().getLHLang().equals("SCHN") && triggerCol.isAutoTranslate()) {
+								if(lookupObject instanceof String) {
+									lookupObject 	= ChineseConvert.convertAuto2Bnew((String) lookupObject);
+								}
+							}
+//							wcl.andUniop(triggerField.getFullName(), "=", p_triggerCell.getObject()).stripAnd();
+							wcl.andUniop(triggerField.getFullName(), "=", lookupObject).stripAnd();
+							tr = getLookupTabTr(triggerField.getTable(), wcl,triggerColCell.getCollection());
+						}
+						
+						UniLog.log1("LookupTabTr End. recordCount:%d", tr.getRecordCount());
+						if (tr.getRecordCount() > 0){
+							recIdx = 0;
+						}
+						if (tr.getRecordCount() > 1){
+							UniLog.log1("WARNING!!! likely a lookup error. recordCount:" +  tr.getRecordCount());
+						}
+					}
+				}
+				else if (curType == TYPE_UPDATE_CHILD){  //update child fields (i.e. lookup table)
+					BiField fromField = null;
+					boolean isMultiJoin = join.size() > 1;
+					BiColumn joinCols[] = null;
+					if(isMultiJoin) {
+						joinCols = new BiColumn[join.size()];
+					}
+					for (int i=0; i<join.size(); i++){ //TODO support composite join
+						BiField toField = join.getToField(i);
+						if (toField == triggerCol.getField()){
+							fromField = join.getFromField(i);
+						}
+						if(isMultiJoin) {
+							for(BiColumn jbc :getColumns()) {
+								if(toField == jbc.getField()) {
+									joinCols[i] = jbc;
+								}
+							}
+						}
+						if(joinCols != null && joinCols[i] == null) {
+							throw new CellException("Error: Required Column missing for table joins");
+						}
+					}
+					if (fromField == null){
+						UniLog.logm(this,"Invalid fromField");
+						throw new CellException("Invalid fromField");
+					}
+					
+					//obtain tr from cache (e.g. pick from list)
+					tr = (TableRec) triggerColCell.getCCObj("lookup_uchild_tr");
+					if (tr != null){
+						recIdx = -1;
+						for (int i=0; i<tr.size(); i++){
+							if(isMultiJoin) {
+								boolean matched = true;
+								for(int j=0;j<joinCols.length;j++) {
+								if (
+										!tr.getField(
+											join.getFromField(j).getName(),i).toString().
+												equals( 
+														ccol.getCell(joinCols[j].getLabel()).getString()
+												)
+										) 
+								{
+									matched = false;
+									break;
+								}
+								
+								}
+								if(matched) {
+									recIdx = i;
+									break;
+								}
+							} else {
+							if (tr.getField(fromField.getName(),i).toString().equals(p_triggerCell.getString())){  //TODO: need to handle duplicate value
+								recIdx = i;
+								break;
+							}
+							}
+						}
+	
+						if (recIdx < 0){
+							UniLog.logm(this,"Invalid rec index");
+							throw new CellException("Invalid rec index");
+						}
+						// UniLog.logm(this, "tr: " + tr);
+					}
+					else{
+						//construct tr (e.g. manual input)
+						if(isMultiJoin) {
+							Wherecl wcl = new Wherecl();
+							if(join.getParsedCondition(BiResult.this) != null) wcl.appendString(join.getParsedCondition(BiResult.this));
+							for(int i=0;i<joinCols.length;i++) {
+								Object lookupObject = ccol.getCell(joinCols[i].getLabel()).getObject();
+								if( getSessionHelper().getLHLang().equals("SCHN") && triggerCol.isAutoTranslate()) {
+									if(lookupObject instanceof String) {
+										lookupObject = ChineseConvert.convertAuto2Bnew((String) lookupObject);
+									}
+								}
+								wcl.andUniop(join.getFromField(i).getFullName(), "= ", 
+											lookupObject
+										);
+							}
+							tr = getLookupTabTr(fromField.getTable(), wcl,ccol);
+						} else {
+							Wherecl wcl = new Wherecl();
+							if(join.getParsedCondition(BiResult.this) != null) wcl.appendString(join.getParsedCondition(BiResult.this));
+//							tr = getLookupTabTr(fromField.getTable(), new Wherecl().andUniop(fromField.getFullName(), "=", p_triggerCell.getObject()).stripAnd(),ccol);
+							Object lookupObject = p_triggerCell.getObject();
+							if( getSessionHelper().getLHLang().equals("SCHN") && triggerCol.isAutoTranslate()) {
+								if(lookupObject instanceof String) {
+									lookupObject = ChineseConvert.convertAuto2Bnew((String) lookupObject);
+								}
+							}
+							tr = getLookupTabTr(fromField.getTable(), wcl.andUniop(fromField.getFullName(), "=", lookupObject).stripAnd(),ccol);
+						}
+						if (tr.getRecordCount() > 0){
+							recIdx = 0;
+						}
+						if (tr.getRecordCount() > 1){
+							UniLog.log1("WARNING!!! likely a lookup error. recordCount:" +  tr.getRecordCount());
+						}
+					}
+					
+					
+				}
+				else{
+					UniLog.logm(this,"Error invalid update type");
+					throw new CellException("Error invalid update type");
+				}
+				
+				
+				if(tr != null && tr.getRecordCount() >= 1) {
+					tr.setRecPointer(recIdx);  //fire first record only
+					
+					if (curType == TYPE_UPDATE_PARENT){
+						for(int i=0;i < lookupJoin.getJoinCount();i++) {
+							if (fDebug) UniLog.logm(this,"join:%d from:%s.%s to:%s.%s", i, lookupJoin.getFromField(i).getTable(),lookupJoin.getFromField(i), lookupJoin.getToField(i).getTable(),lookupJoin.getToField(i));
+							if(true){ //dt: skip joinfield that are "static", not yet implemented
+								for(int j=0;j<getColumns().size();j++) {
+									BiColumn bicol = getColumns().get(j);
+									if(bicol.getField() != null && bicol.getField().equals(lookupJoin.getToField(i))) {
+										//dt:use sync instead of set to invoke cell trigger and action if value changed
+										if (fDebug) UniLog.logm(this,"sync:join:%s.%s:%s", bicol.getField().getTable(),bicol.getLabel(), tr.getField(lookupJoin.getFromField(i).getName()));
+										Object o = tr.getField(lookupJoin.getFromField(i).getName());
+										if( getSessionHelper().getLHLang().equals("SCHN") && o instanceof String && getColumns().get(i).isAutoTranslate() ) {
+											o = ChineseConvert.convertAuto2Gnew(o.toString());
+										}
+//										if(lookupClearOverrideBeforSync && colCc.getCell(bicol.getLabel()).isOverrided()) {
+										if(lookupClearOverrideBeforSync) {
+											colCc.getCell(bicol.getLabel()).clearAllOverrides();
+										}
+//										}
+										colCc.getCell(bicol.getLabel()).sync(o);
+//										colCc.getCell(bicol.getLabel()).sync(tr.getField(lookupJoin.getFromField(i).getName()));
+									}
+								}
+							}
+						}
+					}
+					else if (curType == TYPE_UPDATE_CHILD){
+						for(int i=0;i<getColumns().size();i++) {
+							if (getColumns().get(i).getTable() == curLookupTable){
+								Object o = tr.getField(getColumns().get(i).getField().getName());
+								if( getSessionHelper().getLHLang().equals("SCHN") && o instanceof String && getColumns().get(i).isAutoTranslate() ) {
+									o = ChineseConvert.convertAuto2Gnew(o.toString());
+								}
+//								if(lookupClearOverrideBeforSync && colCc.getCell(getColumns().get(i).getLabel()).isOverrided()) {
+								if(lookupClearOverrideBeforSync) {
+									colCc.getCell(getColumns().get(i).getLabel()).clearAllOverrides();
+								}
+//								}
+								colCc.getCell(getColumns().get(i).getLabel()).sync(o);  //sync / set also trigger action
+//								colCc.getCell(getColumns().get(i).getLabel()).sync(tr.getField(getColumns().get(i).getField().getName()));  //sync / set also trigger action
+							}
+						}
+					}
+				}
+				else {
+					//UniLog.logm(this,"record not found");
+					//throw new CellException("Record not found");
+					
+					//lookup and record not found, clear the cell
+					//TODO: if the join is not optional && not blank, it should prompt configuration error
+//					boolean clearException = false;
+					if (curType == TYPE_UPDATE_PARENT){
+						for(int i=0;i < lookupJoin.getJoinCount();i++) {
+							UniLog.logm(this,"clear:%d from:%s.%s to:%s.%s", i, lookupJoin.getFromField(i).getTable(),lookupJoin.getFromField(i), lookupJoin.getToField(i).getTable(),lookupJoin.getToField(i));
+								for(int j=0;j<getColumns().size();j++) {
+								BiColumn bicol = getColumns().get(j);
+								if(bicol.getField() != null && bicol.getField().equals(lookupJoin.getToField(i))) {
+									UniLog.logm(this,"sync:clear %s", bicol.getLabel());
+									//colCc.getCell(bicol.getLabel()).sync((Object)"");  //not work!
+									try {
+										if( bicol.isLookup() || lookupJoin.getJoinCount() <=1) 
+											colCc.getCell(bicol.getLabel()).resetValue();
+									} catch (CellException cex ) {
+										if(cex.getExceptionType() > 0) {
+											UniLog.log("Cell.clear recursive exception catched A type " + cex.getExceptionType());
+//											clearException = true;
+										} else throw(cex);
+									}
+								}
+							}
+						}
+					}
+					else if (curType == TYPE_UPDATE_CHILD){
+						for(int i=0;i<getColumns().size();i++) {
+							if (getColumns().get(i).getTable() == curLookupTable){
+								Object orgV=null;
+								try {
+									if( !getColumns().get(i).isLookup()) 
+										colCc.getCell(getColumns().get(i).getLabel()).resetValue();
+								} catch (CellException cex ) {
+									if(cex.getExceptionType() > 0) {
+										UniLog.log("Cell.clear recursive exception catched B type " + cex.getExceptionType());
+									} else throw(cex);
+//									clearException = true;
+								}
+							}
+						}
+					}
+					if(!lookupJoin.isOptional() && !lookupTableIsAutoAdd(curLookupTable)) {
+						throw new CellException("Record Not Found",CellException.CELLEXCEPTION_RECORD_NOT_FOUND);
+					}
+				}
+			} 
+			catch (Exception ex){
+				if(ex instanceof CellException) {
+					if(((CellException) ex).getExceptionType() > 0 ) {
+						UniLog.log("Cell.clear exception catched C type " + ((CellException) ex).getExceptionType() );
+					} else {
+						//UniLog.log(ex); //andrew210119: too many exception log in clerp
+					}
+					throw((CellException) ex);
+				} else {
+					throw new CellException(ex.toString());
+				}
+			}
+			if (fDebug) UniLog.logm(this,"end");
+		}
+
+		@Override
+		public void cellAction_onfree() throws CellException {
+			UniLog.logm(this,"entered");
+		}
+	}		
+	private static class LookupTabTrCache {
+		final long ts = new Date().getTime();
+		final TableRec tr;
+		LookupTabTrCache(TableRec tr){
+			this.tr = tr;
+		}
+		public boolean isValid() {
+			return getTTL() > 0;
+		}
+		public long getTTL() {
+			return ts + LOOKUPTAB_CACHE_TTL - new Date().getTime();
+			
+		}
+	}
+		
+	protected Wherecl beforeLookupTableTr(BiTable p_lookupTable, Wherecl p_wherecl,BiCellCollection p_col)  {
+		return(p_wherecl);
+	}
+	protected TableRec getLookupTabTr(BiTable p_lookupTable, Wherecl p_wherecl,BiCellCollection p_col) throws Exception{
+		
+		if (p_lookupTable == null) {
+			throw new Exception ("lookuptable is null");
+		}
+		
+		p_wherecl = beforeLookupTableTr(p_lookupTable, p_wherecl,p_col);
+		//obtain tr from cache
+		String cacheKey = p_lookupTable.toString() + ":" + (p_wherecl == null ? "" : p_wherecl.toWhereclString());
+		if (LOOKUPTAB_CACHE_TTL > 0) {
+			LookupTabTrCache cacheTr = lookupTabTrCacheHM.get(cacheKey);
+			//UniLog.log1("check any cache: %s", cacheKey);
+			if (cacheTr != null && cacheTr.isValid()) {
+				//UniLog.log1("return a cache clone. ttl:%d", cacheTr.getTTL());
+				return (TableRec) cacheTr.tr.clone();
+			}
+			else {
+				//UniLog.log1("no cache");
+			}
+		}
+		
+		StringBuilder sqlSb = new StringBuilder();
+		sqlSb.append("select ");
+		sqlSb.append(StringUtils.join(p_lookupTable.getFields(),","));
+		sqlSb.append(" from ");
+		sqlSb.append(p_lookupTable.getDbtName());
+		if(!p_lookupTable.getDbtName().equals(p_lookupTable.getName())) {
+			sqlSb.append(" ");
+			sqlSb.append(p_lookupTable.getName());
+			sqlSb.append(" ");
+		}
+		
+		Wherecl wherecl = null;
+		if (!p_lookupTable.getWherecl().trim().equals("")){
+			if (p_wherecl == null){
+				wherecl = new Wherecl();
+				wherecl.appendString(" ( " + p_lookupTable.getWherecl() + " ) ");
+			}
+			else{
+				wherecl = (Wherecl) p_wherecl.clone();
+				wherecl.appendString(" and ( " + p_lookupTable.getWherecl() + " ) ");
+			}
+			wherecl.stripAnd();
+		}
+		else{
+			wherecl = p_wherecl;
+		}
+//		UniLog.logm(this, "sql:%s where:%s", sqlSb.toString(), wherecl);
+		TableRec tr = su.getQueryResult(sqlSb.toString(), wherecl);
+//		UniLog.logm(this, "query result: tr.size()=%d", tr.size());
+		if (tr.getRecordCount() > 1){
+			UniLog.log1("WARNING(240610) !!! likely a lookup error. recordCount:" +  tr.getRecordCount());
+		}
+		
+		//save tr to cache
+		if (LOOKUPTAB_CACHE_TTL > 0) {
+			lookupTabTrCacheHM.put(cacheKey, new LookupTabTrCache(tr));
+		}
+		
+		//save lookup extra data for refresh
+		saveLookupData(tr, new LookupData(p_lookupTable, wherecl));
+		
+		return(tr);
+	}
+	
+	public final static long LOOKUPITEMLIST_CACHE_TTL = 0; //value <= 0 disable. suggested value 60000. (experimental, disable it first)
+	private ConcurrentHashMap<String,LookupItemListObj> lookupItemListObjCacheHM = new ConcurrentHashMap<String,LookupItemListObj>();
+	private static class LookupItemListObj {
+		final long ts = new Date().getTime();
+		final Object obj;
+		LookupItemListObj(Object obj){
+			this.obj = obj;
+		}
+		public boolean isValid() {
+			return getTTL() > 0;
+		}
+		public long getTTL() {
+			return ts + LOOKUPITEMLIST_CACHE_TTL - new Date().getTime();
+		}
+	}
+	
+	private <T> void putLookupItemListObjCache(TableRec p_tr, BiColumn p_col, String p_name, T p_obj) {
+		try {
+			String key = p_col.getTable().toString() + "." + p_col.toString() + "." + p_name;  //TODO need to verify the key is good
+			UniLog.log1("key:%s obj:%s", key, p_obj.hashCode()); 
+			lookupItemListObjCacheHM.put(key, new LookupItemListObj(p_obj));
+		}
+		catch(Exception ex) {
+			UniLog.log1("error:" + ex.getMessage());
+		}
+	}
+	private <T> T getLookupItemListObjCache(TableRec p_tr, BiColumn p_col, String p_name) {
+		try {
+			String key = p_col.getTable().toString() + "." + p_col.toString() + "." + p_name;
+			LookupItemListObj cachedObj = lookupItemListObjCacheHM.get(key);
+			UniLog.log1("key:%s cachedObj:%d valid:%s", key, cachedObj != null ? cachedObj.hashCode():-1, cachedObj != null ? cachedObj.isValid():"false");
+			if (cachedObj != null && cachedObj.isValid()) {
+				return (T) cachedObj.obj;  //andrew230612 In order to save memory, it return the same object. Do not modify the data structure.
+			}
+			return null;
+		}
+		catch(Exception ex) {
+			UniLog.log1("error:" + ex.getMessage());
+			return null;
+		}
+	}
+	protected void setLookupItemList(TableRec lookupTableTr,ColumnCell colCell) throws Exception {
+		setLookupItemList(lookupTableTr, colCell, " ");
+	}	
+	protected void setLookupItemList(TableRec lookupTableTr,ColumnCell colCell, String delimiter) throws Exception {
+		String pickView = colCell.getBiColumn().getPickViewName();
+		if(pickView == null) {
+			setLookupItemListSimple(lookupTableTr,colCell);
+			return;
+		}
+		BiView pv = getView().getSchema().getViewByName(pickView);
+		if(pv == null) {
+			setLookupItemListSimple(lookupTableTr,colCell);
+			return;
+		}
+		
+		//andrew230612 experimental obtain prdList lookupValues from cache
+		if (LOOKUPITEMLIST_CACHE_TTL > 0) {
+			//try to obtain it from cache
+			GipiNamedItemList prdListCache = getLookupItemListObjCache(lookupTableTr, colCell.getBiColumn(), "prdList");
+			Vector <Object> lookupValuesCache = getLookupItemListObjCache(lookupTableTr, colCell.getBiColumn(), "lookupValues");
+			if (prdListCache != null && lookupValuesCache != null) {
+				UniLog.log1("obtain from cache");
+				colCell.setItemPropertyInterface(prdListCache);
+				colCell.setCCObj("lookup_uparent_tr", lookupTableTr);
+				colCell.setCCObj("lookup_uparent_values", lookupValuesCache);
+				return;
+			}
+		}
+		
+		
+		List<BiColumn> pl = pv.getPickList();
+		String[]fds = lookupTableTr.getFieldNames();
+		ArrayList<BiColumn> fdl = new ArrayList<BiColumn>();
+		for(BiColumn bc : pl) {
+			BiField bf = bc.getField();
+			if(bf == null) continue;
+			for(String fd : fds) {
+				/* my have issue if the pick view is compose of multiple joined tables and have multible column with same dbfName */
+				if(bf.getName().equals(fd)) {
+					fdl.add(bc);
+					break;
+				}
+			}
+		}
+		Vector <Object> lookupValues = new Vector<Object>();
+		Hashtable<Object,String> ht = new Hashtable<Object,String>();
+		for(int j = 0;j<lookupTableTr.getRecordCount();j++) {
+			lookupTableTr.setRecPointer(j);
+			Object oo = lookupTableTr.getField(colCell.getBiColumn().getField().getName());
+				lookupValues.add(oo);
+				String listString = null;
+				for(BiColumn bc : fdl) {
+					if( getSessionHelper().getLHLang().equals("SCHN") && bc.isAutoTranslate() ) {
+						if(listString == null) {
+							listString = ChineseConvert.convertAuto2Gnew(lookupTableTr.getFieldString(bc.getField().getName()));
+						} else {
+							listString += delimiter + ChineseConvert.convertAuto2Gnew(lookupTableTr.getFieldString(bc.getField().getName()));
+						}
+						
+					} else {
+						if(listString == null) {
+							listString = lookupTableTr.getFieldString(bc.getField().getName());
+						} else {
+							listString += delimiter + lookupTableTr.getFieldString(bc.getField().getName());
+						}
+					}
+				}
+				ht.put(oo,listString);
+			}
+
+			Vector<Comparable> vv = new Vector<Comparable>();
+			for(Object o : lookupValues) {
+				vv.add((Comparable) o);
+			}
+			Collections.sort(vv);
+			GipiNamedItemList prdList;
+			prdList = new GipiNamedItemList(sh != null ? sh.getAllowIgnoreEncode() : false);
+			if(enableAutoAdd && colCell.getBiColumn().isAutoAddUpdate()) {
+				prdList.appendItem( "", "New Record");
+			}
+			for(int i=0;i<vv.size();i++) {
+				prdList.appendItem( vv.get(i), ht.get(vv.get(i)));
+			}
+			colCell.setItemPropertyInterface(prdList);
+			colCell.setCCObj("lookup_uparent_tr", lookupTableTr);
+			colCell.setCCObj("lookup_uparent_values", lookupValues);
+			
+			//andrew230612 experimental store prdList lookupValues to cache
+			if (LOOKUPITEMLIST_CACHE_TTL > 0) {
+				putLookupItemListObjCache(lookupTableTr, colCell.getBiColumn(), "prdList", prdList);
+				putLookupItemListObjCache(lookupTableTr, colCell.getBiColumn(), "lookupValues", lookupValues);
+			}
+			
+			return;
+		
+	}
+	private void setLookupItemListSimple(TableRec lookupTableTr,ColumnCell colCell) throws Exception {
+		Vector <Object> lookupValues = new Vector<Object>();
+		for(int j = 0;j<lookupTableTr.getRecordCount();j++) {
+			lookupTableTr.setRecPointer(j);
+			lookupValues.add(lookupTableTr.getField(colCell.getBiColumn().getField().getName()));
+			/*
+			experimental: try to translate lookup list to schn (not work as expected)
+			BiColumn bicol = colCell.getBiColumn();
+			Object val = lookupTableTr.getField(colCell.getBiColumn().getField().getName());
+			if (bicol.isAutoTranslate() && getSessionHelper().getLHLang().equals("SCHN")) {
+				val = ChineseConvert.convertAuto2Gnew((String)val);
+			}
+			lookupValues.add(val);
+			*/
+		}
+		Vector<Comparable> vv = new Vector<Comparable>();
+		boolean needTranslateToGB = false;
+//								if(f.getFieldType().equals("char")) {
+		if(sh != null && sh.getLHLang().equals("SCHN") && colCell.getBiColumn().isAutoTranslate()) {
+			needTranslateToGB = true;
+		}
+		/*
+		if(getView().getSchema().autoTranslate) {
+			if(sh.getLHLang())
+		}
+		*/
+		for(Object o : lookupValues) {
+			if(needTranslateToGB) {
+				/*
+				vv.add( BiPair.of(o.toString(),
+									ChineseConvert.convertAuto2Gnew(o.toString())
+						));
+						*/
+				vv.add( ChineseConvert.convertAuto2Gnew(o.toString()));
+			} else
+				vv.add((Comparable) o);
+		}
+		if(needTranslateToGB) {
+			lookupValues = (Vector<Object>) vv.clone();
+		}
+		Collections.sort(vv);
+		colCell.setItemList(vv);
+		colCell.setCCObj("lookup_uparent_tr", lookupTableTr);
+		colCell.setCCObj("lookup_uparent_values", lookupValues);
+	}
+	
+	private void addLookupTabOne(BiView p_biView, BiTable p_lookupTable, BiCellCollection p_colCells){
+		Vector <BiColumn> columns = getColumns();
+		try { 
+			BiTable parentTable = getParentTable(p_biView, p_lookupTable);
+			
+			//special case: ignore one to one join
+			if (p_lookupTable.getJoin(parentTable) == null || (p_lookupTable.getJoin(parentTable).isOneToOne() && getView().findChain(p_lookupTable).isAllOneOne()) ){
+				UniLog.log1("lookupTable:%s parentTable:%s isOneToOne or is null(reverse join) , ignore addLookupTabOne", p_lookupTable.getName(), parentTable.getName());
+				return;
+			}
+			
+			boolean hasListCol = false;
+			for (BiColumn col : columns){
+				/*
+				if (col.getTable() == p_lookupTable && col.getColumnType().equals("list") && col.isLookup()){
+					hasListCol = true;
+				}
+				*/
+				if (col.getTable() == p_lookupTable && 
+						(col.getColumnType().equals("list") || col.getColumnType().equals("radio") )
+						&& col.isLookup()){
+					hasListCol = true;
+				}
+			}
+			if (fDebug) UniLog.logm(this, "tabName:%s parent:%s hasListCol:%s allowLookupItemList:%s", p_lookupTable,parentTable, hasListCol, allowLookupItemList);
+			
+			//if has list col, allow user to pick
+			TableRec lookupTableTr = null;
+			if (hasListCol && allowLookupItemList){
+				Wherecl wcl = null;
+				if (p_lookupTable.getJoin(parentTable).getParsedCondition(this) != null) {
+					wcl = new Wherecl().appendString( p_lookupTable.getJoin(parentTable).getParsedCondition(this));
+				}
+//				lookupTableTr = getLookupTabTr(p_lookupTable,wcl,null);
+				lookupTableTr = getLookupTabTr(p_lookupTable,wcl,p_colCells);
+			}
+			
+			//part 1, update parent join field
+			for(int i=0;i<columns.size();i++) {
+				BiColumn col = columns.get(i);
+				BiField field = col.getField();
+				if (field == null){
+//					UniLog.logm(this,"i:%d col:%s ignore null field", i, col);
+					continue;
+				}
+				ColumnCell colCell = getColCell(p_colCells, col);
+				if (colCell == null){
+					UniLog.logm(this,"i:%d col:%s ignore non columncell", i, col);
+					continue;
+				}
+				
+				if (field.getTable() == p_lookupTable && col.isLookup()){
+					if (
+							(col.getColumnType().equals("list") || col.getColumnType().equals("radio") )
+							&& lookupTableTr != null){
+						if (!allowLookupItemList) {
+							UniLog.log1("setLookupItemList ignore. allowLookupItemList=%s", allowLookupItemList);
+						} else {
+							setLookupItemList(lookupTableTr,colCell);
+						}
+//						Vector <Object> lookupValues = new Vector<Object>();
+//						for(int j = 0;j<lookupTableTr.getRecordCount();j++) {
+//							lookupTableTr.setRecPointer(j);
+//							lookupValues.add(lookupTableTr.getField(columns.get(i).getField().getName()));
+//						}
+//						Vector<Comparable> vv = new Vector<Comparable>();
+//						for(Object o : lookupValues) {
+//							vv.add((Comparable) o);
+//						}
+//						Collections.sort(vv);
+//						colCell.setItemList(vv);
+//						colCell.setCCObj("lookup_uparent_tr", lookupTableTr);
+//						colCell.setCCObj("lookup_uparent_values", lookupValues);
+					}
+					else{
+						if (fDebug) UniLog.logm(this,"%s nonlist, remove tr", col);
+						colCell.removeCCObj("lookup_uparent_tr");
+						colCell.removeCCObj("lookup_uparent_values");
+					}
+					
+					PickCellAction cellPickBySelect = new PickCellAction(PickCellAction.TYPE_UPDATE_PARENT, p_biView, p_lookupTable, parentTable, p_colCells);
+					colCell.addAction(cellPickBySelect);
+					if (fDebug) UniLog.logm(this,"addAction:update_parent: view:%s lookupTable:%s parentTable:%s col:%s colLabel:%s field:%s", p_biView, p_lookupTable, parentTable, col, col.getLabel(), field);
+				}
+			}		
+			
+			//part 2, update lookup table fields
+			for (int i=0; i<p_lookupTable.getJoin(parentTable).size(); i++ ){
+				BiField toField = p_lookupTable.getJoin(parentTable).getToField(i);   //remark: getColumns() required to contain join field!!
+				List<BiColumn> toColumns = BiField.getBiColumns(toField, getColumns());
+				if (toColumns.size() != 1) {
+					UniLog.logm(this, "ignore invalid toField: %s", toField);
+					continue;
+				}
+				BiColumn toCol = toColumns.get(0);
+				
+				ColumnCell toColCell = getColCell(p_colCells, toCol);
+				if (toColCell == null){
+					UniLog.logm(this,"col:%s ignore invalid toColCell:%s", toColCell);
+					continue;
+				}
+				if (
+						(toCol.getColumnType().equals("list") || toCol.getColumnType().equals("radio") )
+						&& lookupTableTr != null){
+					toColCell.setCCObj("lookup_uchild_tr", lookupTableTr);
+				}
+				else{
+					if (fDebug) UniLog.logm(this,"%s nonlist, remove tr", toCol);
+					toColCell.removeCCObj("lookup_uchild_tr");
+				}
+				if (fDebug) UniLog.logm(this,"addAction:update_child: view:%s lookupTable:%s parentTable:%s toCol:%s colLabel:%s toField:%s", p_biView, p_lookupTable, parentTable, toCol, toCol.getLabel(), toField);
+				PickCellAction cellPickBySelect = new PickCellAction(PickCellAction.TYPE_UPDATE_CHILD, p_biView, p_lookupTable, parentTable, p_colCells);
+				toColCell.addAction(cellPickBySelect);
+				
+			}
+		} 
+		catch (Exception ex){
+			UniLog.log(ex);
+		}	
+		
+	}
+	
+	private void addLookupTab(BiView p_biView, BiCellCollection p_colCc){
+		if (!p_biView.hasLookupCol()){
+			//UniLog.log1("view:%s skip addLookupTable", p_biView);
+			return;
+		}
+		if (fDebug) UniLog.logm(this, "view:%s addLookupTable start", p_biView);
+
+		HashSet<String> lookupTabs = new HashSet<String>();
+		Vector<BiColumn> biColumns = p_biView.getColumns();
+		for(int i=0;i<biColumns.size();i++) {
+			BiColumn curCol = (BiColumn) biColumns.get(i);
+			BiField curField = curCol.getField();
+			if (curField == null){
+				continue;
+			}
+			BiTable curTable = curField.getTable();
+			if (curTable == null){
+				continue;
+			}
+			//UniLog.logm(this,"DEBUG %s col.isLookup():%s isLookupTable():%s:%s", curCol, curCol.isLookup(), curTable,isLookupTable(curTable));
+			//obtain lookup table. e.g. DirectSalesDet result: mctype, stock
+			if (isLookupTable(curTable)){
+				if (!lookupTabs.contains(curTable.getName())){
+					if (fDebug) UniLog.logm(this,"assume %s is lookupTable", curTable);
+					lookupTabs.add(curTable.getName());
+					addLookupTabOne(p_biView, curTable, p_colCc);
+				}
+			}
+			
+		}
+		if (fDebug) UniLog.logm(this, "biView:%s lookupTabs count:%d", p_biView.getName(), lookupTabs.size());
+	}
+	/***
+	 * assume non view table is lookup table
+	 * @param p_table
+	 * @return
+	 */
+	public boolean isLookupTable(BiTable p_table){
+		try{
+			if (p_table == null){
+				UniLog.logm(this, "table is null");
+				return(false);
+			}
+			return(getView().getTable() != p_table);
+		}
+		catch(Exception ex){
+			ex.printStackTrace();
+			return(false);
+		}
+	}
+	public static BiTable getParentTable(BiView p_biView, BiField p_biField){
+		if (p_biField == null){
+			return(null);
+		}
+		return(getParentTable(p_biView, p_biField.getTable()));
+	}
+	public static BiTable getParentTable(BiView p_biView, BiTable p_biTable){
+		if (p_biTable == null){
+			return(null);
+		}
+		if (p_biView == null){
+			return(null);
+		}
+		BiChain biChain = p_biView.findChain(p_biTable);
+		if (biChain == null){
+			return(null);
+		}
+		return(getParentTable(biChain));
+	}
+	public static BiTable getParentTable(BiChain p_chain){
+		if (p_chain.getParent() != null){
+			CellCollection subChainCC =  p_chain.getParent().getCollection("subChains");
+			BiTable subChainTable = subChainCC == null ? null : (BiTable)subChainCC.getCollection("table");
+			return(subChainTable);
+		}
+		return(null);
+	}
+	public List<Cell> getCellByField(BiView p_biView, CellCollection p_colCells, List<BiColumn> p_columns, BiField p_field){
+		ArrayList<Cell> cellList = new ArrayList<Cell>();
+			for(int j=0;j<p_columns.size();j++) {
+				if(p_columns.get(j).getField() != null) {
+					BiTable tb = getColumns().get(j).getField().getTable();
+					if(p_columns.get(j).getField() != null && p_columns.get(j).getField().equals(p_field)) {
+						UniLog.logm(this,"table:%s col:%s table:%s", tb, p_columns.get(j));
+						cellList.add(p_colCells.getCell(p_columns.get(j).getLabel()));
+					}
+				}
+			}
+		return(cellList);
+	}
+	public static ColumnCell getColCell(CellCollection p_colCells, BiColumn p_col){
+		if (p_colCells.getCell(p_col.getLabel()) != null && p_colCells.getCell(p_col.getLabel()) instanceof ColumnCell){
+			return((ColumnCell)p_colCells.getCell(p_col.getLabel()));
+		}
+		return(null);
+	}
+	
+	public ReturnMsg lockRecordForUpdate() {
+		if(getParent() != null) return(new ReturnMsg(false,"Cannot Lock Detail Record"));
+		if(!inBeginWork()) return(new ReturnMsg(false,"No In Transaction"));
+		if(currentTr == null) return(null); // no curent record => in add record mode, return ok (i.e. null)
+		try {
+			if(/* getView().getFdUpdcnt() == null */ false) {
+			} else {
+				BiTable t = getView().getTable();
+				su.executeUpdate("update " + t.getDbtName() + " set " + t.getSerialId() + " = " + t.getSerialId() + 
+							" where " + t.getSerialId() + " = " + currentRec[0].getField(t.getSerialId()),null);
+			}
+//			int latestBiVersion = BiSchema.getBiVersion(getView().getSchema().getAgent(), getView().getName());
+//			if( latestBiVersion > currentBiVersion) {
+//				UniLog.log("Record modified, update current aborted");
+//				return(new ReturnMsg(false,"Lock Record Failed , The Record Has Been Modified Before Update"));
+//			}
+			recordLocked = true;
+			return(null);
+		} catch (Exception ex) {
+			//UniLog.log(ex);
+			UniLog.log1("error:" + ex.getMessage());
+			if (ex.toString() != null && ex.toString().contains("record is locked")){  //TODO: create helper class to translate error message
+				return(new ReturnMsg(false,"Record is locked by other user. Please try again later."));
+			}
+			return(new ReturnMsg(false,ex.toString()));
+		}
+		
+	}
+	public boolean isLocked() {
+		return(recordLocked);
+	}
+	
+	public Object getCurrentRecord() {
+		return(currentTr);
+	}
+
+	/***
+	 * Obtain number of record from db without data structure. It will clear all cached data.
+	 * i.e. select * from table
+	 * If you want to get number of record of exsiting dataset, please use getRowCount() instead
+	 * @return number of record
+	 */
+	public int getQueryRecCount() {
+		ReturnMsg rtn = loadSerialMap(true,false,null);
+		if(rtn.getStatus()) {
+			Integer I = (Integer) rtn.getData();
+			return(I);
+		}
+		return(-1);
+	}
+	
+	/***
+	 * called by loadOneRec.
+	 * allow child class modify current cell collection
+	 * @param p_isFetch - true: record detail
+	 * @param p_cc 
+	 */
+	protected void afterLoadCollection(boolean p_isFetch,BiCellCollection p_cc){
+		
+	}
+	public double sumDouble(String p_cell) {
+		double d=0.0;
+		for(CellCollection cl : getRowCollectionList()) {
+			d += cl.getCell(p_cell).getDouble();
+		}
+		return(d);
+	}
+	public void addSublinkAction(String viewName,CellValueAction ca) {
+		if(subLinkActions == null) {
+			subLinkActions = new Hashtable<String,Vector<BiAggregateCellValueAction>> ();
+		}
+		Vector v = subLinkActions.get(viewName);
+		if(v == null) {
+			v = new Vector<CellValueAction>();
+			subLinkActions.put(viewName, v);
+		}
+		v.add(ca);
+	}
+	/***
+	 * handy method to fetch record by idx
+	 * @param p_skipSubLinkRec true:without sublink record; false:with detail record but slower
+	 * @param p_idx
+	 */
+	public void fetch(boolean p_skipSubLinkRec, int p_idx){
+		if (p_skipSubLinkRec){
+			loadOneRecV(p_idx);
+		}
+		else{
+			fetchOneRecV(p_idx);
+		}
+	}	
+	/***
+	 * handy method to fetch next record
+	 * @param p_skipSubLinkRec true:without sublink record; false:with detail record but slower
+	 * @return
+	 */
+	public boolean next(boolean p_skipSubLinkRec){
+		if (curFetchIdx + 1 < getRowCount()){
+			fetch(p_skipSubLinkRec,++curFetchIdx); return(true);
+		}
+		return(false);
+	}
+	public boolean next(){
+		return(next(true)); //default skip sublink
+	}
+	/***
+	 * reset curFetchIdx
+	 */
+	/* remared by dt on 2303/04/16, beforeFist is not called by any other code, remove it to reduce confusion
+//	public void beforeFirst(){
+//		curFetchIdx = -1;
+//	}
+	
+	/* this is wrong is the sublink is sorted to different order */
+	/* should obsolete late */
+	public int getIndexByCollection(CellCollection p_col) {
+		// Only work for sublink
+		if(getParent() == null) return(-1);
+		return(getRecsXX().indexOf(p_col));
+	}
+	
+	public int getIndexByCollection_real(CellCollection p_col) {
+		// Only work for sublink
+		if(getParent() == null) return(-1);
+		int n = getRecsXX().indexOf(p_col);
+		for(int i=0;i<resultStatList.size();i++) {
+			if(resultStatList.get(i).recidx == n) return(i);
+		}
+		return(-1);
+	}
+	public SessionHelper getSessionHelper(){
+		return(sh);
+	}
+	
+	public void appendWherecl(Wherecl p_wherecl) {
+		currentWherecl.andWherecl(p_wherecl);
+	}
+	
+	public static boolean isTrStat(Object p_obj){
+		return p_obj instanceof TrStat;
+	}
+	/*
+	//andrew190520: for debug gc/memory leak
+	protected void finalize() throws Throwable {
+	     try {
+	    	 UniLog.log1("called. view:%s", getView().getName());
+	     } 
+	     finally {
+	         super.finalize();
+	     }
+	}
+	*/
+	public boolean allowDetail() {
+		return(biView.allowDetail(sh));
+	}
+	public boolean allowDelete() {
+		return(biView.allowDelete(sh));
+	}
+	public boolean allowAdd() {
+		return(biView.allowAdd(sh));
+	}
+	public boolean allowUpdate() {
+		return(biView.allowUpdate(sh));
+	}
+	
+	public boolean isActionEnabled() {
+		return(actionEnabled);
+	}
+	protected void setActionEnabled(boolean p_sw) {
+		actionEnabled = p_sw;
+	}
+	public BiResult getSubLinkByTable(String p_tabName) {
+		Vector v = sublinks;
+		if(v != null) {
+			for(int i = 0;i<v.size();i++) {
+				BiResult br = (BiResult) v.get(i);
+				if(br.getView().getTable().getName().equals(p_tabName)) return(br);
+			}
+			return(null);
+		} else return(null);
+	}
+	
+	public void setColumnRg(CellCollection col,String p_colname) throws CellException {
+		BiColumn cl = (BiColumn) getView().getColumnByLabel(p_colname);
+		if(cl == null) return;
+		int rg;
+		if((rg = cl.getRgNo()) > 0 && col.getCell(cl.getLabel()).getInt() <= 0) {
+			setColumnRg(col,cl,rg);
+			return;
+		}
+	}
+	
+	public void setUseTransaction(boolean p_sw) {
+		useTransaction = p_sw;
+	}
+
+
+	public String getColumnDisplayClass(ColumnCell p_cell) {
+		if(p_cell.getBiColumn() != null) {
+			String ss = p_cell.getBiColumn().getDisplayClass();
+			if(ss != null) {
+				com.uniinformation.utils.exprpar.Parser parser = getFormulaParserFromHash(this,ss);
+				parser.setFunctInterface(p_cell.getCollection());
+				parser.setVarInterface(p_cell.getCollection());
+				try {
+					Object oo = parser.evaluate();
+					if(!(oo instanceof IgnoreValue)) return(oo.toString());
+				} catch (Exception ex) {
+					UniLog.log(ex);
+				}
+			}
+		}
+		return(null);
+	}
+	public String getColumnDisplayString(ColumnCell p_cell) {
+//		getRadioIndexByString("Service");
+//		getRadioIndexByString("Check");
+//		getRadioIndexByString("Install");
+		String rstr;
+		if (p_cell.getType() == Cell.VTYPE_BOOLEAN) {
+			if(p_cell.getBoolean()) {
+				char c = 10003;
+				rstr = (String.valueOf(c));
+			} else {
+				char c = 10007;
+				rstr = (String.valueOf(c));
+			}
+		}
+		else if (ColumnCell.requireRadioIndex(p_cell)){
+			String str = "";
+			List il = p_cell.getItemList();
+			if(il != null) {
+				int iidx = p_cell.getInt();
+				if(iidx >= 0 && iidx < il.size()) {
+					str = il.get(iidx).toString();
+				}
+			}
+			rstr = (str);
+		}
+		else {
+			AbstractGetItemProperty gipi = p_cell.getItemPropertyInterface();
+			if(gipi != null) {
+				rstr = (gipi.getString(p_cell.getObject()));
+			}
+			else if(p_cell.getBiColumn().getColumnType().equals("time")) {
+				if (StringUtils.isNotBlank(p_cell.getBiColumn().getTimeCompEndTime()))
+					rstr = (DateUtil.dateDigtalToTimeStr(p_cell.getDate(), !p_cell.getBiColumn().getTimeCompIsShortFmt()));
+				else
+					rstr = (DateUtil.dateToTimeStr(p_cell.getDate(), !p_cell.getBiColumn().getTimeCompIsShortFmt()));
+			}
+			else rstr = p_cell.getString();
+			/*
+			else {
+				rstr = p_cell.getString();
+				if(this instanceof BiResultExcelSheet && rstr.equals("#N/A")) {
+					rstr = "";
+				}
+			}
+			*/
+		}
+
+		/*
+		//andrew220804 mode the code to ZkBiTranslateHelper
+		String str = p_cell.getString();
+		if (sh.getAllowOptionTranslate() && sh.getAllowTranslate() && StringUtils.equals(p_cell.getBiColumn().getColumnType(), "radio")) {
+			String key = p_cell.getBiResult().getView().getName() + "." + p_cell.getCellLabel() + "." + str;
+			str = ZkBiTranslateHelper.getText(sh, key, "OPTION", str);
+		}
+		return(str);
+		*/
+
+		if (StringUtils.equals(p_cell.getBiColumn().getColumnType(), "radio")) {
+			rstr = TranslateUtil.getTextByCell(sh, p_cell, rstr);
+		}
+		
+		return rstr;
+	}	
+	
+	public int getCurrentRecIdx() {
+		if(currentTr == null) return(-1); else return(resultStatList.indexOf(currentTr));
+	}
+	
+	
+
+	public CellValueAction reSequence = new CellValueAction() {
+		class Seq implements Comparable {
+			int seq;
+			int idx;
+			Seq (int p_seq,int p_idx) {
+				seq = p_seq;
+				idx = p_idx;
+			}
+			@Override
+			public int compareTo(Object o) {
+				// TODO Auto-generated method stub
+				Seq seq2 = (Seq) o;
+				if(seq < seq2.seq) return(-1);
+				if(seq > seq2.seq) return(1);
+				if(idx < seq2.idx) return(-1);
+				if(idx > seq2.idx) return(1);
+				return(0);
+			}
+		}
+		@Override
+		public void cellAction_onchange(Cell p_value) throws CellException {
+			// TODO Auto-generated method stub
+			ColumnCell cc = (ColumnCell) p_value;
+			String cLabel = cc.getCellLabel();
+			int newSeq = cc.getInt();
+			BiResult sr = cc.br;
+			BiResult br = sr.getParent();
+			if(!br.actionEnabled) return;
+			br.actionEnabled = false;
+			try {
+			CellCollection cl = cc.getCollection();
+			int n = sr.getRowCount();
+			final ArrayList<Seq> al = new ArrayList<Seq>();
+			for(int i =0;i<n;i++) {
+				CellCollection col = sr.getRowCollectionV(i);
+				Object o = sr.getTrStatObj(i);
+				if(sr.isMarkedDelete(o)) {
+					col.getCell(cLabel).set(0);;
+				} else {
+					int seq = col.getCellInt(cLabel);
+					if(col != cl) {
+						al.add(new Seq(seq,i));
+					} else {
+						UniLog.log("change col index = " + i + " col " + col + " cell " + cc);
+					}
+				}
+			}
+			if(newSeq > al.size()+1) {
+					br.actionEnabled = true;
+					throw new CellException("Index Incorrect");
+			}
+			if(al.size() > 0) {
+				Collections.sort(al);
+				for(int i=0;i<al.size();i++) {
+					CellCollection col = sr.getRowCollectionV(al.get(i).idx);
+					UniLog.log("update col index = " + al.get(i).idx + " col " + col + " cell " + col.getCell(cLabel));
+					if(i < newSeq-1) {
+						col.getCell(cLabel).set(i+1);
+					} else {
+						col.getCell(cLabel).set(i+2);
+					}
+				}
+			}
+			br.actionEnabled = true;
+			} catch (Exception ex) {
+				UniLog.log(ex);
+				br.actionEnabled = true;
+				if(ex instanceof CellException ) throw ((CellException) ex);
+			}
+		}
+		@Override
+		public void cellAction_onfree() throws CellException {
+			// TODO Auto-generated method stub
+		}
+	};
+	
+	public void setQueryIncludeNoDetail(boolean p_sw) {
+		queryIncludeNoDetail = p_sw;
+	}
+	public boolean getQueryIncludeNoDetail() {
+		return(queryIncludeNoDetail);
+	}
+
+	public Condition getCustomCondition() {
+		return(customCondition);
+	}
+	
+	
+
+	@Override
+	public Cell getCellArray(String p_cellName, int p_idx) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public CellCollection getCollection(String p_cellName) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Vector getCollectionList(String p_cellName) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+	
+	/***
+	 * for debug memory usage only
+	 * the operation is expensive
+	 * @param p_flag
+	 */
+	public void setDebugTrFlag(boolean p_flag) {
+		debugTrFlag = p_flag;
+	}	
+	
+	/***
+	 * log tr cnt and memory usage
+	 * expensive operation, call for debug only
+	 */
+	private void debugTr() {
+		if (resultTr == null || biView == null) return;
+		try {
+			int trObjSize = ObjectUtil.getObjectSize(resultTr);
+			String warningTag = "";
+			if (trObjSize > 1000000) {
+				warningTag += " larger1M";
+			}
+			if (trObjSize > 2000000) {
+				warningTag += " larger2M";
+			}
+			if (trObjSize > 5000000) {
+				warningTag += " larger5M";
+			}
+			if (trObjSize > 10000000) {
+				warningTag += " larger10M";
+			}
+			UniLog.log1("view:%s recCnt:%d size:%s%s", biView, resultTr.getRecordCount(), FileUtils.byteCountToDisplaySize(trObjSize).replaceAll("\\s", ""), warningTag);
+		}
+		catch(Exception ex) {
+			ex.printStackTrace();
+		}
+	}
+
+	/* method and declaration for export excel, should move to a seperate java file later */
+	
+	protected Hashtable<String,Integer> lookupSheetHash=null;
+	
+	int excelExportAddLookupColumnByList(ExcelPoi jxf) {
+		Integer shtIdx = lookupSheetHash.get(EXCEL_LOOKUP_SHEETNAME);
+		if(shtIdx == null) {
+			int orgidx = jxf.getCurrentSheetIndex();
+			shtIdx = jxf.excel_newSheet(EXCEL_LOOKUP_SHEETNAME);
+			if(shtIdx <= 0) return(-1);
+			jxf.excel_useSheet(orgidx);
+			lookupSheetHash.put(EXCEL_LOOKUP_SHEETNAME, shtIdx);
+		}
+		return(shtIdx);
+//		jxf.excel_useSheet(shtIdx);
+//		int nCol = jxf.excel_getColumnCount(0);
+//		return(nCol);
+	}
+	protected int excelExportAddLookupSheetByView(ExcelPoi jxf,BiView p_view,String p_whereStr) {
+		Integer shtIdx = lookupSheetHash.get(p_view.getName());
+		if(shtIdx == null) {
+			int orgidx = jxf.getCurrentSheetIndex();
+			shtIdx = jxf.excel_newSheet(p_view.getHeader());
+			if(shtIdx <= 0) return(-1);
+			jxf.excel_useSheet(shtIdx);
+			BiResult cbr = p_view.newBiResult(getSessionHelper().getLoginId(),null, null, getSessionHelper());
+			cbr.clearCondition();
+			cbr.clearOrderBy();
+			if(p_whereStr != null) cbr.addCustomCondition(p_whereStr);
+//			cbr.addOrderByColumnList("st_iname",false);
+			cbr.query();
+			Vector<BiColumn> vl = cbr.getPickColumns();
+			int[] colt = cbr.formatExportExcel (
+   					jxf,
+   					null
+   					, null,
+   					false
+   					, vl
+   					, null
+			);
+			int xr = 0;
+			for(int i=0;i<cbr.getRowCount();i++) {
+				xr = cbr.putOneRowToExceli(
+					i,
+					null,
+					null,
+					vl,
+					colt,
+					jxf,
+					xr,
+					false,
+					true,
+					null
+				);
+			}
+			cbr.postProcessExportExcel(jxf,false,vl,false);
+			lookupSheetHash.put(p_view.getName(), shtIdx);
+			jxf.excel_useSheet(orgidx);
+		}
+		return(shtIdx);
+	}
+	
+	protected void beforeFormatExportExcel(ExcelPoi jxf,boolean p_forImport,Vector<BiColumn> p_cols) {
+		
+	}
+	protected void afterExportExcel(ExcelPoi jxf,boolean p_forImport,Vector<BiColumn> p_cols) {
+	}
+	
+	protected String getExcelValidation(ExcelPoi jxf,BiColumn bc ,Vector<BiColumn> p_cols,BiCellCollection p_cl,int p_idx) {
+
+		if(bc.getPickViewName() != null && bc.getColumnType().equals("pickinput")) {
+			BiView pv = getView().getSchema().getViewByName(bc.getPickViewName());
+			int shtIdx = excelExportAddLookupSheetByView(jxf,pv,null) ;
+			List<BiColumn> pl = pv.getPickList();
+			String pcl = bc.getPickColName();
+			if(pcl == null) pcl = bc.getLabel();
+			
+			for(int i=0;i<pl.size();i++) {
+				if(pcl.equals(pl.get(i).getLabel())) {
+					int orgIdx = jxf.getCurrentSheetIndex();
+					jxf.excel_useSheet(shtIdx);
+					int rowCnt = jxf.getRowCount();
+					jxf.excel_useSheet(orgIdx);
+					return(ExcelPoi.cellRangeToString(pv.getHeader(), 1 , rowCnt , i, i, true));
+				}
+			}
+		} else {
+			if(p_cl.getCell(bc.getLabel()) == null) return(null);
+			Vector il=null;
+			AbstractGetItemProperty gipi = p_cl.getCell(bc.getLabel()).getItemPropertyInterface();
+			if(gipi != null) {
+				il = new Vector<String>();
+				for(int i=0;i<gipi.getRowCount();i++) {
+					Object o = gipi.getRow(i);
+					il.add(gipi.getString(o));
+				}
+			} else {
+				if(bc.getColumnType().equals("checkbox")) {
+					il = new Vector<String>();
+					il.add("N");
+					il.add("Y");
+				}
+			}
+			if(il == null) il = p_cl.getCell(bc.getLabel()).getItemList();
+			if(il != null) {
+			if(il.size() > 5) {
+				int luSht = excelExportAddLookupColumnByList(jxf);
+				int orgIdx = jxf.getCurrentSheetIndex();
+				try {
+					jxf.excel_useSheet(luSht);
+					int nCol = jxf.excel_getColumnCount(0); 
+					if(nCol < 0) nCol=0;
+					jxf.excel_setStringValue(0, nCol, bc.getLabel());
+					for(int i=0;i<il.size();i++) {
+						jxf.excel_setStringValue(i+1, nCol, il.get(i).toString());
+					}
+					jxf.excel_useSheet(orgIdx);
+					return(ExcelPoi.cellRangeToString(EXCEL_LOOKUP_SHEETNAME, 1 , il.size(), nCol, nCol, true));
+				} catch (Exception ex) {
+					UniLog.log(ex);
+				}
+			} else {
+				if(il.size() > 0) jxf.excel_setColumnValidation(p_idx, il);
+			}
+			}
+		}
+		return(null);
+	}
+	protected ExcelPoiFormula getExcelFormula(ExcelPoi jxf,BiColumn bc,int p_row,Vector<BiColumn> p_cols) {
+//		if(bc.getPickView() != null) {
+//			Integer shtIdx = lookupSheetHash.get(bc.getPickView());
+//			if(shtIdx != null) {
+//				BiView pv = getView().getSchema().getViewByName(bc.getPickView());
+//				List<BiColumn> pl = pv.getPickList();
+//				for(int i=0;i<pl.size();i++) {
+//					if(bc.getLabel().equals(bc.getLabel())) {
+//						return(
+//								makeExcelVlookup(p_row,p_cols.indexOf(getColumnByLabel("st_iname")),"StockItem",vvv,"st_iname","st_unit")
+//						);
+//						
+//					}
+//				}
+//			}
+//		}
+		return(null);
+	}
+	
+	
+//	public void postProcessExportExcel(ExcelPoi jxf,boolean p_forImport,Vector<BiColumn> p_cols) {
+//		postProcessExportExcel(jxf,p_forImport,p_cols,false);
+//	}
+	public void postProcessExportExcel(ExcelPoi jxf,boolean p_forImport,Vector<BiColumn> p_cols,boolean p_mergeRows) {
+		//andrew220609 ignore autoresize for mergeRows. It avoid slow autoResizeColumn bugs
+		/*
+		if (p_mergeRows) {
+			UniLog.log1("skip autoresizecolumn");
+		}
+		else {
+			UniLog.log1("process autoresizecolumn begin");
+			for(int i = 0;i<p_cols.size();i++) {
+				jxf.excel_autoResizeColumn(i);
+			}
+			UniLog.log1("process autoresizecolumn end");
+		}
+		*/
+		
+    	if(!p_forImport && "Y".equals(BiConfig.getString(sh, "ExportExcelWithHeader"))) {
+		int nCols = jxf.excel_getColumnCount(0);
+    	jxf.excel_shiftRow(0, -1, 3);
+    	Condition cond = getCustomCondition();
+    	if(cond != null) {
+    		try {
+    			jxf.excel_setCellStyle(jxf.excel_getStyleGen(null,null,"Bold",null,"center,wrapped"));
+    			jxf.excel_setStringValue(0, 0, 
+    						BiConfig.getCoName(sh, BiConfig.getDefaultCoCode(sh)) + "\r\n" + 
+    						biView.getHeader() + " Create By " + sh.getLoginId() + " On " + new Date() + "\r\n" +
+    						"Condition : " + BiCellCollection.translateCond(biView, cond.toString(),this
+    						));
+
+    		} catch (Exception ex) {
+    			UniLog.log(ex);
+    		}
+    	}
+    	jxf.excel_createFreezePane(4, 0);
+		jxf.excel_MergeCells(0, 0, 2, nCols-1);
+    	}
+    	
+    	afterExportExcel(jxf,p_forImport,p_cols);
+	}
+	public int[] formatExportExcel (
+			ExcelPoi jxf,
+			Vector <BiResult> links
+			, Vector<Integer> linksStIdx
+			, boolean p_forImport
+			, Vector<BiColumn> vvv
+			, List<Integer> aggCols
+			)
+	{
+			lookupSheetHash = new Hashtable<String,Integer>();
+   			beforeFormatExportExcel(jxf,p_forImport,vvv);
+   			
+    		Vector u = new Vector();
+    		int xc=0;
+    		for(int i = 0;i<vvv.size();i++) {
+    			BiColumn bc = (BiColumn) vvv.get(i);
+//    			u.add(bc.getEngName());
+    			u.add(TranslateUtil.getText(getSessionHelper(), bc.getCellFullName(), "LABEL", getSessionHelper().getLabel(bc)));
+    			xc++;
+    		}
+    		if(aggCols != null) {
+    			xc += aggCols.size();
+				int aopSize = aggregateOrPivotSize();
+    			for(int i=0;i<aggCols.size();i++) {
+					int colIdx = aggCols.get(i);
+					if(aopSize > colIdx) {
+						u.add( aop.getAggregateOrPivotHeader().getHeader(colIdx).toString());
+					} else {
+						u.add("AggCol_"+i);
+					}
+    			}
+    		}
+    		if(links != null) {
+    			for(int i = 0;i<links.size();i++) {
+    				BiResult sl = (BiResult) links.get(i);
+//    				Vector subCols = sl.getListColumns();
+    				List<BiColumn> subCols = null;
+    				if(p_forImport) {
+    					subCols = sl.getImportColumns();
+    				} else {
+    					subCols = sl.getExportColumns();
+    				}
+    				linksStIdx.add(new Integer(xc));
+    				for(int j = 0;j<subCols.size();j++) {
+    					BiColumn bc = (BiColumn) subCols.get(j);
+//    					u.add(bc.getEngName());
+    					u.add(TranslateUtil.getText(getSessionHelper(), bc.getCellFullName(), "LABEL", getSessionHelper().getLabel(bc)));
+    					xc++;
+    				}
+    			}
+    		}
+    		jxf.excel_setCellStyle(jxf.excel_getStyleGen(null,null,"Bold",null,"alignTop"));
+    		jxf.excel_setValues(0, 0, u);
+ 			int[] colt = new int [xc];
+    		for(int i = 0;i<vvv.size();i++) {
+    			BiColumn bc = (BiColumn) vvv.get(i);
+    			String ftype = bc.getColumnType();
+    			String fdformat = bc.getFormat();
+    			String sFormat;
+    			if(fdformat != null) {
+    				sFormat = fdformat;
+    			} else if(ftype.equals("float")) {
+    				sFormat = "0.00";
+    			} else if(ftype.equals("datetime")) {
+    				sFormat = "yyyy/mm/dd HH:mm";
+    			} else if(ftype.equals("integer")) {
+    				sFormat = "0";
+    			} else if(ftype.equals("date")) {
+    				sFormat = "yyyy/mm/dd";
+    			} else {
+    				sFormat = "General";
+    			}
+    			String sFillColor;
+				if(p_forImport) {
+					if(bc.isNoEntry(sh)) {
+//    					sFillColor = "RED";
+    					sFillColor = "GREY_25_PERCENT";
+					} else {
+						sFillColor = "AUTOMATIC";
+					}
+				} else {
+    				sFillColor = "AUTOMATIC";
+				}
+    			colt[i] = jxf.excel_getStyleGen(sFormat,sFillColor,null,null,"alignTop");
+    			jxf.excel_setDefaultColumnStyle(i, colt[i]);
+				if(p_forImport) {
+						if(bc.isNoEntry(sh) && bc.isNoUpdate(sh)) {
+						} else {
+							String validation = getExcelValidation(jxf,bc,vvv,currentCol,i);
+							if(validation != null) {
+								jxf.excel_setColumnValidation(i, validation);
+							} else {
+								/*
+								Vector il = getCell(bc.getLabel()).getItemList();
+								if(il != null) {
+									jxf.excel_setColumnValidation(i, il);
+								} else {
+								}
+								*/
+							}
+						}
+				}
+    		}
+    		if(aggCols != null) {
+				int aopSize = aggregateOrPivotSize();
+    			for(int i=0;i<aggCols.size();i++) {
+					int colIdx = aggCols.get(i);
+					if(aopSize > colIdx) {
+    					AggregateRec aggRec = getAggregateOrPivotHeader().getAggregate(i);
+    					BiColumn bc = aggRec.getBiColumn(this);
+    					if(bc == null) {
+    						colt[i+vvv.size()] = jxf.excel_getStyleGen("General","AUTOMATIC",null,null,"alignTop");
+    						jxf.excel_setDefaultColumnStyle(i+vvv.size(), colt[i+vvv.size()]);
+    						continue;
+    					}
+    		   			String ftype = bc.getColumnType();
+    	    			String fdformat = bc.getFormat();
+    	    			String sFormat;
+    	    			if(fdformat != null) {
+    	    				sFormat = fdformat;
+    	    			} else if(ftype.equals("float")) {
+    	    				sFormat = "0.00";
+    	    			} else if(ftype.equals("integer")) {
+    	    				sFormat = "0";
+    	    			} else if(ftype.equals("date")) {
+    	    				sFormat = "yyyy/mm/dd";
+    	    			} else {
+    	    				sFormat = "General";
+    	    			}
+    	    			String sFillColor;
+    					if(p_forImport) {
+    						if(bc.isNoEntry(sh)) {
+//    	    					sFillColor = "RED";
+    	    					sFillColor = "GREY_25_PERCENT";
+    						} else {
+    							sFillColor = "AUTOMATIC";
+    						}
+    					} else {
+    	    				sFillColor = "AUTOMATIC";
+    					}
+    	    			colt[i+vvv.size()] = jxf.excel_getStyleGen(sFormat,sFillColor,null,null,"alignTop");
+    	    			jxf.excel_setDefaultColumnStyle(i+vvv.size(), colt[i+vvv.size()]);
+    					if(p_forImport) {
+    							if(bc.isNoEntry(sh) && bc.isNoUpdate(sh)) {
+    							} else {
+    								String validation = getExcelValidation(jxf,bc,vvv,currentCol,i);
+    								if(validation != null) {
+    									jxf.excel_setColumnValidation(i, validation);
+    								} else {
+    									/*
+    									Vector il = getCell(bc.getLabel()).getItemList();
+    									if(il != null) {
+    										jxf.excel_setColumnValidation(i, il);
+    									} else {
+    									}
+    									*/
+    								}
+    							}
+    					}   					
+					} else {
+					}
+    			}
+    		}
+    		if(links != null) {
+    			for(int i = 0;i<links.size();i++) {
+    				BiResult sl = (BiResult) links.get(i);
+//    				Vector subCols = sl.getListColumns();
+    				List subCols ;
+    				if(p_forImport) {
+    					subCols = sl.getImportColumns();
+    				} else {
+    					subCols = sl.getExportColumns();
+    				}
+    				int nc = linksStIdx.get(i).intValue();
+    				if(nc <= 0) continue;
+    				for(int j = 0;j<subCols.size();j++) {
+    					BiColumn bc = (BiColumn) subCols.get(j);
+    					String ftype = bc.getColumnType();
+    					String fdformat = bc.getFormat();
+    					String sFormat;
+    					if(fdformat != null) {
+//    						colt[nc+j] = jxf.excel_getFormatStyle(fdformat);
+    						sFormat = fdformat;
+    					}  else if(ftype.equals("float")) {
+//    						colt[nc+j] = jxf.excel_getFormatStyle("0.00");
+    						sFormat = "0.00";
+    					} else if(ftype.equals("integer")) {
+// 							colt[nc+j] = jxf.excel_getFormatStyle("0");
+    						sFormat = "0";
+  						} else if(ftype.equals("date")) {
+//  						colt[nc+j] = jxf.excel_getFormatStyle("yyyy/mm/dd");
+    						sFormat = "yyyy/mm/dd";
+ 						} else {
+//    						colt[nc+j] = 0;
+    						sFormat = "General";
+ 						}
+    					String sFillColor;
+    					if(p_forImport) {
+    						if(bc.isNoEntry(sh)) {
+    							sFillColor = "GREY_25_PERCENT";
+    						} else {
+    							sFillColor = "AUTOMATIC";
+    						}
+    					} else {
+    						sFillColor = "AUTOMATIC";
+    					}
+    					colt[nc+j] = jxf.excel_getStyleGen(sFormat,sFillColor,null,null,null);
+    					jxf.excel_setDefaultColumnStyle(nc+j, colt[nc+j]);
+
+    					if(p_forImport) {
+    						if(bc.isNoEntry(sh) && bc.isNoUpdate(sh)) {
+    						} else {
+    							BiCellCollection scol = sl.newRowCollection();
+    							String validation = getExcelValidation(jxf,bc,vvv,scol,nc+j);
+								if(validation != null) {
+									jxf.excel_setColumnValidation(nc+j, validation);
+								} else {
+									/*
+									Vector il = getCell(bc.getLabel()).getItemList();
+									if(il != null) {
+										jxf.excel_setColumnValidation(nc+j, il);
+									} else {
+									}
+									*/
+								}
+							}
+    					}
+				
+				
+    				}
+    			}
+    		}
+    		return(colt);
+	}
+	protected int postProcessOneMasterRecord(ExcelPoi jxf,int startExcelRow,int endExcelRow)  throws Exception {
+		return(endExcelRow);
+	}
+	
+	public int putOneRowToExceli(
+				int realIdx,
+				Vector<Integer> linksStIdx,
+				Vector<BiResult> links,
+				Vector<BiColumn> vvv,
+				int[] colt,
+				ExcelPoi jxf,
+				int p_xr,
+				boolean  mergeRows,
+				boolean p_forImport,
+				List<Integer> aggCols
+			) {
+		{
+				BiResult result = this;
+				Vector u;
+				exportMode = true;
+				result.loadOneRecV(realIdx);
+				int xr;
+				int numDetailRecord = 0;
+				if(linksStIdx != null) {
+					//andrew220609: export slow due to fetchOneRecV
+					UniLog.log("Excel Export record " + realIdx);
+					result.fetchOneRecV(realIdx);
+					//for(int j = 0;j<links.size();j++) { ... }
+					for(int j = 0; links != null && j < links.size(); j++) {  //andrew221220 hotfix export null exception
+						BiResult sl = (BiResult) links.get(j);
+						xr = p_xr;
+						int tNumRecord = 0;
+//						Vector subCols = sl.getListColumns();
+						List subCols;
+						if(p_forImport) {
+							subCols = sl.getImportColumns();
+						} else {
+							subCols = sl.getExportColumns();
+						}
+						int nc = linksStIdx.get(j).intValue();
+						for(int m=0;m<sl.getRowCount();m++) {
+							CellCollection fds = sl.getRowCollectionV(m);
+							u = new Vector();
+							for(int k=0;k<subCols.size();k++) {
+								BiColumn cl = (BiColumn) subCols.get(k);
+								Cell ce = fds.testCell(cl.getLabel());
+								if(ce != null) {
+									Object o;
+									o = ce.getObject();
+									if(o instanceof java.util.Date) {
+										if(!DateUtil.isValid((java.util.Date)o)) {
+											o = null;
+										}
+										if(StringUtils.equals(cl.getColumnType(true), "time")) {
+											o = DateUtil.dateToTimeStr((java.util.Date) o , true) ;
+										}
+										if(StringUtils.equals(cl.getColumnType(true), "datetime")) {
+											o = DateUtil.dateToDateTimeStr((java.util.Date) o) ;
+										}
+									}
+									if((ce.getItemPropertyInterface() != null)) {
+										o = ce.getItemPropertyInterface().getString(o);
+									} else {
+										if(ce.getItemList() != null) {
+											if(o instanceof Integer) {
+												o = ce.getItemList().get((Integer) o);
+											}
+										} 
+									}
+									if(o instanceof Boolean) {
+										if((Boolean) o) {
+											o = "Y";
+										} else {
+											o = "N";
+										}
+									}
+									u.add(colt[nc+k]);
+									ExcelPoiFormula ef = getExcelFormula(jxf,cl,xr,vvv);
+									if(ef != null) u.add(ef); else u.add(o);
+								}
+							} 
+							jxf.excel_setValuesWithStyle(xr+1, nc, u);
+							tNumRecord++;
+							xr++;
+						}
+						if(tNumRecord > numDetailRecord) numDetailRecord = tNumRecord;
+					}
+				}
+				exportMode = false;
+				u = new Vector();
+				xr = p_xr;
+				for(int j=0;j<vvv.size();j++) {
+					u.add(colt[j]);
+					Object o;
+					BiColumn cl = ((BiColumn) vvv.get(j));
+//					Cell ce = result.getCell(((BiColumn) vvv.get(j)).getLabel());
+					Cell ce = result.getCell(cl.getCellLabel());
+					o = ce.getObject();
+					if((ce.getItemPropertyInterface() != null)) {
+						o = ce.getItemPropertyInterface().getString(o);
+					} else {
+						if(ce.getItemList() != null && o instanceof Integer) {
+							//o = ce.getItemList().get((Integer) o);   //andrew220305 hotfix. export with invalid value (e.g. radio button idx -1) will trigger ArrayIndexOutOfBoundsException
+							try {
+								o = ce.getItemList().get((Integer) o);  
+							}
+							catch(Exception ex) {
+								UniLog.log1("ignore invalid value. realIdx:%d j:%d ex:%s", realIdx, j, ex.getMessage());
+								o = null;
+							}
+							/*
+							if(ce.getItemList() != null) {
+								o = ce.getItemList().get((Integer) o);
+							}
+							*/
+						} 
+					}
+					if(o instanceof java.util.Date) {
+						if(ce.getType() == Cell.VTYPE_DATETIME) {
+							if(!DateUtil.isValidTime((java.util.Date)o)) {
+								o = null;
+							}
+						} else {
+							if(!DateUtil.isValid((java.util.Date)o)) {
+								o = null;
+							}
+						}
+						if(cl.getColumnType().equals("time")) {
+							o = DateUtil.dateToTimeStr((java.util.Date) o , true) ;
+						}
+					}
+					if(o instanceof Boolean) {
+						o = (((Boolean) o) ? "Y":"N"); 
+					}
+					/*
+					if(formulaHash.get(vvv.get(j)) != null) {
+						u.add(null); 
+					} else u.add(o);
+					*/
+					ExcelPoiFormula ef = getExcelFormula(jxf,vvv.get(j),xr+1,vvv);
+					if(ef != null) u.add(ef); else u.add(o);
+				}
+				if(aggCols != null) {
+					int aopSize = result.aggregateOrPivotSize();
+					for(int n = 0;n<aggCols.size();n++) {
+						u.add(colt[n+vvv.size()]);
+						int colIdx = aggCols.get(n);
+						if(aopSize > colIdx) {
+							Object[] vals = result.getAggregateValues(realIdx);
+							u.add(vals[colIdx]);
+						} else {
+							u.add("");
+						}
+					}
+				}
+				if(numDetailRecord == 0) {
+					jxf.excel_setValuesWithStyle(xr+1, 0, u);
+				    xr++;
+				} 
+				else {
+					xr += numDetailRecord;
+					if(!mergeRows && !p_forImport) {
+						for(int j = xr-numDetailRecord;j < xr;j++) {
+							jxf.excel_setValuesWithStyle(j+1, 0, u);
+						}
+					} else {
+						jxf.excel_setValuesWithStyle(xr-numDetailRecord+1, 0, u);
+						if(mergeRows && numDetailRecord > 1) {
+							for(int j = 0;j<u.size();j+=2) {
+								jxf.excel_MergeCells(xr-numDetailRecord+1, j/2,xr,j/2);
+							}
+						}
+					}
+				}
+				try {
+					xr = postProcessOneMasterRecord(jxf,p_xr+1,xr);
+				} catch (Exception ex) {
+					UniLog.log(ex);
+				}
+				/*
+				if((i % 10) == 0) {
+					if(progressMeter != null) {
+						int ps = ((i * 100)/ result.getRowCount());
+						UniLog.logm(this,"set Progress Bar to %d",ps);
+					}
+				}
+				*/
+				return(xr);
+		
+		}
+	}
+
+	public ExcelPoiFormula makeExcelVlookup(int p_row,int p_col,String sheetName,Vector<BiColumn> vvv,String p_key,String p_val)
+	{
+			int keyPos = vvv.indexOf(getColumnByLabel(p_key));
+			int valPos = vvv.indexOf(getColumnByLabel(p_val));
+			if(p_row >= 0 && p_col >= 0 && valPos >= 0 && keyPos >= 0) {
+				return(
+						new ExcelPoiFormula(
+								"vlookup(" 
+								+ ExcelPoi.cellRangeToString(null, p_row , p_row , p_col, p_col, false)
+								+ ","
+								+ ExcelPoi.cellRangeToString(sheetName, 1, getRowCount()+1, keyPos, valPos, true)
+								+ ","
+								+ (""+(valPos - keyPos + 1))
+								+ ",0"
+								+ ")"
+						)
+				);
+			}
+			return(null);
+	}
+	
+	public String getPickColumnCondition(ColumnCell p_cc) {
+		return(null);
+	}
+	
+	public BiColumn[] getPrimaryColumns() {
+		return(primaryColumns);
+	}
+	/*
+	public String getPrimaryKey() {
+		if(primaryColumns != null) {
+			return(primaryColumns[0].getLabel());
+		}
+		return(null);
+//		return(primaryKey);
+	}
+	*/
+	
+	public List<BiColumn> getExportColumns() {
+		Vector<BiColumn> exportList = new Vector<BiColumn>();
+		for(BiColumn bc : getView().getColumns()) {
+			if(!bc.isInvisible(sh) && bc.isInSelect() && !bc.isSkipExport()) exportList.add(bc);
+		}
+		return(exportList);
+	}
+	public List<BiColumn> getImportColumns() {
+		Vector<BiColumn> importList = new Vector<BiColumn>();
+		for(BiColumn bc : getView().getColumns()) {
+			if(!bc.isInvisible(sh) && bc.isInSelect() && !bc.isSkipImport()) importList.add(bc);
+		}
+		return(importList);
+	}
+	
+	static public JSONObject resultToJson(BiResult p_br) throws Exception {
+		JSONObject jo = new JSONObject();
+		jo.put("timestamp", DateUtil.dateToDateTimeStr(p_br.getLastQuery()));
+		jo.put("view", p_br.getView().getName());
+		jo.put("recordcount", p_br.getRowCount());
+		JSONArray ja = new JSONArray();
+		jo.put("recordList", ja);
+		for(int i=0;i<p_br.getRowCount();i++) {
+			p_br.loadOneRecV(i);
+			ja.put(BiCellCollectionToJsonInterface.BiCellCollectionToJSON(p_br.currentCol));
+		}
+		return(jo);
+	}
+
+	static public void jsonToResult(BiResult p_br,JSONObject jo) throws Exception {
+		UniLog.log("Load from json");
+		int n = jo.getInt("recordcount");
+		JSONArray ja = jo.getJSONArray("recordList");
+		for(int i=0;i<n;i++) {
+			if (i >= p_br.getRowCount()) break;
+			p_br.loadOneRecV(i);
+			int idx = p_br.getCurrentCollection().getIdx();
+			JSONObject jd = ja.getJSONObject(i);
+			for(BiColumn bc : p_br.getColumns()) {
+	            Object value = jd.opt(bc.getLabel());
+	            if(value != null) {
+	            	p_br.getCell(bc.getLabel()).set(value);
+	            }
+			}
+			for(BiColumn bc : p_br.getColumns()) {
+	            p_br.saveObjectToCacheHash(idx,bc.getLabel(),p_br.getCell(bc.getLabel()).getObject());
+			}
+		}
+	}
+	
+	public boolean columnInSelectList(BiColumn p_bl) {
+		if(selectFieldList != null && selectFieldList.contains(p_bl)) return(true);
+		return(false);
+	}
+	
+	/*
+	String makeGroupByString(BiCellCollection p_col,List <String> p_groupColumns) {
+		String s = "";
+		for(String lb : p_groupColumns) {
+			s += p_col.getCellString(lb);
+		}
+		return(s);
+	}
+	*/
+	String makeGroupByString(int p_recidx,List <String> p_groupColumns) throws Exception {
+		String s = "";
+		for(String lb : p_groupColumns) {
+			Object o = getColumnValueFromCache(lb,p_recidx);
+			if(o != null) s += o.toString();
+		}
+		return(s);
+	}
+	
+	class AggregateDataSet {
+		int firstRec=-1;
+		boolean sorted;
+		Object value[];
+		int count[];
+		List<Integer>idxs;
+	}
+	class AggregateDataSetOrderBy {
+		int trFieldIdx;
+		boolean desc;
+		public AggregateDataSetOrderBy(int p_idx, boolean p_desc) {
+			trFieldIdx = p_idx;
+			desc = p_desc;
+		}
+	}
+	
+	AggregateDataSet aggregateSubtotal = null;
+	
+	AggregateDataSet newAggregateDataSet(int idx,boolean hasPivotSubtotal,int aggCnt) {
+		AggregateDataSet aap = new AggregateDataSet();
+		aap.count = new int[idx+1];
+		aap.value = new Object[(idx+1) * aggCnt];
+		if(hasPivotSubtotal) {
+			initAppValue(aggCnt,0, aap);
+		}
+		return(aap);
+	}	
+	
+	void updateAggregateDataSet(AggregateDataSet aap,int idx,int aggCnt) {
+		if(aap.count.length <= idx) {
+			int di[] = new int[idx+1];
+//			Double da[] = new Double[(idx+1) * aggCnt];
+			Object da[] = new Object[(idx+1) * aggCnt];
+			for(int j=0;j<aap.count.length;j++) {
+				di[j] = aap.count[j];
+				for(int k=0;k<aggCnt;k++) {
+//					da[j * aggCnt + k] = (Double) aap.value[j * aggCnt + k];
+					da[j * aggCnt + k] = aap.value[j * aggCnt + k];
+				}
+			}
+			aap.value = da;
+			aap.count = di;
+		}
+	}	
+	
+	private void initAppValue(int aggCnt,int idx, AggregateDataSet aap) {
+		for(int k=0;k<aggCnt;k++) {
+			AggregateOrPivot.AggregateRec agg = aop.getAggregate(k);
+			if(agg.aggregate == AggregateOrPivot.AGGREGATES.UNIQUECAT) {
+				aap.value[idx * aggCnt + k] = new BiLinkedHashSet();
+			} else if(agg.aggregate == AggregateOrPivot.AGGREGATES.STRCAT) {
+//				aap.value[idx * aggCnt + k] = "";
+				aap.value[idx * aggCnt + k] = new ArrayList();
+			} else if(agg.aggregate == AggregateOrPivot.AGGREGATES.FIRST) {
+			} else if(agg.aggregate == AggregateOrPivot.AGGREGATES.LAST) {
+			} else {
+//				aap.value[idx * aggCnt + k] = 0.0;
+			}
+		}
+	}
+	
+	Double doAggregateSum(Double p_org, double p_val) {
+		if(Double.isNaN(p_val)) return(p_org);
+		if(p_org == null) return(p_val);
+		return (p_org + p_val);
+	}
+	
+	protected int getRealPivotColumn( AggregateOrPivot.AggregateRec agg,int idx) {
+		return(idx);
+	}
+	
+	protected int addOrGetPivotList(List<String>pivotColumns,Object colVals[],AggregateOrPivot aop) throws Exception {
+				return(aop.addOrGetPivotList(colVals));
+	}
+	
+	/* currently only support sum of single field */
+	public void computeAggregateDataSet(AggregateOrPivot p_aop) throws Exception {
+		if(p_aop == null) {
+			
+			if(aop != null) {
+				resetStatList() ;
+				aop = null;
+			}
+			return;
+		}
+		if(resultTr == null) {
+			return;
+		}
+		Hashtable<String,AggregateDataSet> rhash = null;
+		rhash = new Hashtable<String,AggregateDataSet>();
+		List<String> rlist = new ArrayList<String>();
+		resultStatList.clear();
+		aop = p_aop;
+		aop.reset();
+		aggregateSubtotal = null;
+		List<String> groupColumns = p_aop.getRowColumnIds();
+		List<String> pivotColumns = p_aop.getColColumnIds();
+		int aggCnt = p_aop.getAggsArr().size();
+		boolean hasPivotSubtotal = false;
+		if(pivotColumns.size() > 0 && aop.hasPivotSubtotal()) {
+			Object colVals[] = new Object[pivotColumns.size()];
+			aop.addOrGetPivotList(colVals);
+			hasPivotSubtotal = true;
+		}
+		for(int i = 0;i<resultTr.size();i++) {
+			AggregateDataSet aap = null;
+			String gStr = makeGroupByString(i,groupColumns);
+			int idx = 0;
+			if(pivotColumns.size() > 0) {
+				Object colVals[] = new Object[pivotColumns.size()];
+				for(int j = 0;j < colVals.length;j++) {
+//					colVals[j] = getColumnValueFromCache(pivotColumns.get(j),i);
+					colVals[j] = getFormatedValueFromCache(pivotColumns.get(j),i);
+				}
+				idx = addOrGetPivotList(pivotColumns,colVals,aop);
+//				idx = aop.addOrGetPivotList(colVals);
+			} 
+			aap = rhash.get(gStr);
+			if(aap == null) {
+				/*
+				aap = new AggregateDataSet();
+				aap.firstRec = i;
+				aap.count = new int[idx+1];
+				aap.value = new Object[(idx+1) * aggCnt];
+				if(hasPivotSubtotal) {
+					initAppValue(aggCnt,0, aap);
+				}
+				rhash.put(gStr, aap);
+				*/
+				aap = newAggregateDataSet(idx,hasPivotSubtotal,aggCnt);
+				aap.firstRec = i;
+				if(sublinks != null) {
+					aap.idxs = new ArrayList<Integer>();
+//					aap.sids.add((Integer)resultTr.getField(0,i));
+					aap.idxs.add(i);
+				}
+				rhash.put(gStr, aap);
+				rlist.add(gStr);
+			} else {
+				updateAggregateDataSet(aap,idx,aggCnt);
+				if(sublinks != null) {
+//					aap.sids.add((Integer)resultTr.getField(0,i));
+					aap.idxs.add(i);
+				}
+				/*
+				if(aap.count.length <= idx) {
+					int di[] = new int[idx+1];
+					Double da[] = new Double[(idx+1) * aggCnt];
+					for(int j=0;j<aap.count.length;j++) {
+						di[j] = aap.count[j];
+						for(int k=0;k<aggCnt;k++) {
+							da[j * aggCnt + k] = (Double) aap.value[j * aggCnt + k];
+						}
+					}
+					aap.value = da;
+					aap.count = di;
+				}
+				*/
+			}
+			if(aap.count[idx] == 0) {
+				for(int k=0;k<aggCnt;k++) {
+					initAppValue(aggCnt,idx, aap);
+					/*
+					AggregateOrPivot.AggregateRec agg = aop.getAggregate(k);
+					if(agg.aggregate == AggregateOrPivot.AGGREGATES.UNIQUECAT) {
+						aap.value[idx * aggCnt + k] = new LinkedHashSet();
+					} else if(agg.aggregate == AggregateOrPivot.AGGREGATES.STRCAT) {
+//						aap.value[idx * aggCnt + k] = "";
+						aap.value[idx * aggCnt + k] = new ArrayList();
+					} else if(agg.aggregate == AggregateOrPivot.AGGREGATES.FIRST) {
+					} else if(agg.aggregate == AggregateOrPivot.AGGREGATES.LAST) {
+					} else {
+						aap.value[idx * aggCnt + k] = 0.0;
+					}
+					*/
+				}
+			}
+			if(aggregateSubtotal == null) {
+				aggregateSubtotal = newAggregateDataSet(idx,hasPivotSubtotal,aggCnt);
+			} else {
+				updateAggregateDataSet(aggregateSubtotal,idx,aggCnt);
+			}
+			if(aggregateSubtotal.count[idx] == 0) {
+				for(int k=0;k<aggCnt;k++) {
+					initAppValue(aggCnt,idx, aggregateSubtotal);
+				}
+			}
+			try {
+				aap.count[idx] ++;
+				if(hasPivotSubtotal) {
+					aap.count[0]++;
+					aggregateSubtotal.count[0]++;
+				}
+				aggregateSubtotal.count[idx]++;
+				for( int j = 0;j<aggCnt ;j++) {
+					AggregateOrPivot.AggregateRec agg = aop.getAggregate(j);
+					int idxx = getRealPivotColumn(agg,idx);
+					if(idxx > idx) {
+						updateAggregateDataSet(aap,idxx,aggCnt) ;
+						updateAggregateDataSet(aggregateSubtotal,idxx,aggCnt);
+					}
+					switch (agg.aggregate) {
+					case UNIQUECAT:
+					((LinkedHashSet)aap.value[idxx * aggCnt + j]).add(getColumnValueFromCache(agg.varId[0],i));
+//					if(hasPivotSubtotal) ((LinkedHashSet)aap.value[j]).add(getColumnValueFromCache(agg.varId[0],i));
+					break;
+					case STRCAT:
+//					aap.value[idx * aggCnt + j] = ((String) aap.value[idx * aggCnt +j]) + ","+ getColumnValueFromCache(agg.varId[0],i);
+					((ArrayList)aap.value[idxx * aggCnt + j]).add(getColumnValueFromCache(agg.varId[0],i));
+//					if(hasPivotSubtotal) ((ArrayList)aap.value[j]).add(getColumnValueFromCache(agg.varId[0],i));
+					break;
+					case SUM:
+//						aap.value[idx * aggCnt + j] = new Double((Double) aap.value[idx * aggCnt +j] + (Double) getColumnValueFromCache(agg.varId[0],i));
+						aap.value[idxx * aggCnt + j] = doAggregateSum((Double) aap.value[idxx * aggCnt +j] , (Double) getColumnValueFromCache(agg.varId[0],i));
+						if(hasPivotSubtotal) {
+//							aap.value[j] = new Double((Double) aap.value[j] + (Double) getColumnValueFromCache(agg.varId[0],i));
+							aap.value[j] =  doAggregateSum((Double) aap.value[j] , (Double) getColumnValueFromCache(agg.varId[0],i));
+//							aggregateSubtotal.value[j] = new Double((Double) aggregateSubtotal.value[j] + (Double) getColumnValueFromCache(agg.varId[0],i));
+							aggregateSubtotal.value[j] = doAggregateSum((Double) aggregateSubtotal.value[j] , (Double) getColumnValueFromCache(agg.varId[0],i));
+						}
+//						aggregateSubtotal.value[idx * aggCnt + j] = new Double((Double) aggregateSubtotal.value[idx * aggCnt + j] + (Double) getColumnValueFromCache(agg.varId[0],i));
+						aggregateSubtotal.value[idxx * aggCnt + j] = doAggregateSum((Double) aggregateSubtotal.value[idxx * aggCnt + j] , (Double) getColumnValueFromCache(agg.varId[0],i));
+						break;
+					case COUNT:
+						aap.value[idxx * aggCnt + j] = new Double(aap.count[idxx]);
+						if(hasPivotSubtotal) {
+							aap.value[j] = new Double(aap.count[0]);
+							aggregateSubtotal.value[j] = new Double(aggregateSubtotal.count[0]);
+						}
+						aggregateSubtotal.value[idxx * aggCnt + j] = new Double(aggregateSubtotal.count[idxx]);
+						break;
+					case FIRST:
+						if(aap.value[idxx * aggCnt +j]  == null) {
+							aap.value[idxx * aggCnt + j] = getColumnValueFromCache(agg.varId[0],i);
+						}
+						if(hasPivotSubtotal) {
+							if(aap.value[j] == null) aap.value[j] = getColumnValueFromCache(agg.varId[0],i);
+//							if(aggregateSubtotal.value[j] == null) aggregateSubtotal.value[j] = getColumnValueFromCache(agg.varId[0],i);
+						}
+//						if(aggregateSubtotal.value[idx * aggCnt +j]  == null) {
+//							aggregateSubtotal.value[idx * aggCnt + j] = getColumnValueFromCache(agg.varId[0],i);
+//						}
+						break;
+					case LAST:
+						aap.value[idxx * aggCnt + j] = getColumnValueFromCache(agg.varId[0],i);
+						if(hasPivotSubtotal) {
+							aap.value[j] = getColumnValueFromCache(agg.varId[0],i);
+//							aggregateSubtotal.value[j] = getColumnValueFromCache(agg.varId[0],i);
+						}
+//						aggregateSubtotal.value[idx * aggCnt + j] = getColumnValueFromCache(agg.varId[0],i);
+						break;
+					case MIN:
+					case MAX:
+					{
+						Object oNew = getColumnValueFromCache(agg.varId[0],i);
+						if(aap.value[idxx * aggCnt +j]  == null) {
+							aap.value[idxx * aggCnt + j] = oNew;
+						} else {
+							Object oOrg = aap.value[idxx * aggCnt +j];
+							if(oOrg instanceof Comparable) {
+								switch (agg.aggregate) {
+								case MIN: if(((Comparable) oOrg).compareTo(oNew) > 0) aap.value[idxx * aggCnt + j] = oNew; break;
+								case MAX: if(((Comparable) oOrg).compareTo(oNew) < 0) aap.value[idxx * aggCnt + j] = oNew; break;
+								}
+							} else {
+								aap.value[idxx * aggCnt + j] = getColumnValueFromCache(agg.varId[0],i);
+							}
+						}
+						if(hasPivotSubtotal) {
+							if(aap.value[j] == null) {
+								aap.value[j] = oNew;
+							} else {
+								Object oOrg = aap.value[j];
+								if(oOrg instanceof Comparable) {
+									switch (agg.aggregate) {
+									case MIN: if(((Comparable) oOrg).compareTo(oNew) > 0) aap.value[j] = oNew;break;
+									case MAX: if(((Comparable) oOrg).compareTo(oNew) < 0) aap.value[j] = oNew;break;
+									} 
+								} else {
+									aap.value[j] = oNew;
+								}
+							}
+						}
+					}
+						break;
+					case EXPRESSION2:
+						break;
+					case EXPRESSION:
+						break;
+					default : throw new Exception("Invalid Aggregate");
+					}
+				}
+			} catch(Exception ex) {
+				UniLog.log(ex);
+			}
+				idx=0;	
+		}
+		if(rhash != null) {
+			AggregateEval agev = null;
+			for( int j = 0;j<aggCnt ;j++) {
+				AggregateOrPivot.AggregateRec agg = aop.getAggregate(j);
+				if(agg.getParser() != null) {
+					if(agev == null) {
+						agev = new AggregateEval(aggCnt,null);
+						for(int i=0;i<aggCnt;i++) {
+							if(aop.getAggregate(i).varId.length > 0) {
+								agev.addOneAggregateToHash(aop.getAggregate(i).varId[0], i);
+							}
+						}
+					}
+					agev.addOneAggregateExpression(agg);
+				}
+			}
+			
+			/*
+			for (Enumeration en=rhash.elements(); en.hasMoreElements(); ) {
+				AggregateDataSet aap = (AggregateDataSet) en.nextElement();
+				resultStatList.add(new TrStat(aap.firstRec,0,aap));
+				if(agev != null) {
+					agev.evalExpression(aap) ;
+				}
+			}
+			*/
+			for(String gstr:rlist) {
+				AggregateDataSet aap = rhash.get(gstr);
+				resultStatList.add(new TrStat(aap.firstRec,0,aap));
+				if(agev != null) {
+					agev.evalExpression(aap,false) ;
+				}
+			}
+			
+			
+			/*
+			 Don't eval expression at this moment, sum case not handled properly
+			 
+			if(agev != null) {
+				agev.evalExpression(aggregateSubtotal) ;
+			}
+			*/
+			if(agev != null) {
+				agev.evalExpression(aggregateSubtotal,true) ;
+			}
+		}
+
+		aop.makeAggregateOrPivotList(this,sortAggregates);
+		if(aop.getAopListOrder() != null) {
+			for(int i = 0;i<resultStatList.size();i++) {
+				getAggregateValues(i);
+			}
+			sortAggregateValues(aggregateSubtotal);
+		}
+		clearCurrentRec();
+		/*
+		aggregateOrPivotList = new VectorUtil()
+					.addElement(aggregateField)
+					.toVector();
+					*/
+	}
+	class AggregateEval implements FunctionInterface,VariableInterface {
+		
+		int aggCnt;
+		Hashtable<String,Integer> aggregateHash;
+		ArrayList<AggregateOrPivot.AggregateRec> aggregateExpressions;
+		int currAopIdx = 0;
+		AggregateDataSet aap = null;
+		public AggregateEval(int p_aggCnt,AggregateDataSet aopTotal) {
+			aggCnt = p_aggCnt;
+			aggregateHash = new Hashtable<String,Integer>();
+			aggregateExpressions = new ArrayList<AggregateOrPivot.AggregateRec>();
+		}
+		
+		void addOneAggregateToHash(String p_agg, int p_idx) {
+			aggregateHash.put(p_agg, p_idx);
+		}
+		void addOneAggregateExpression(AggregateOrPivot.AggregateRec p_agg) {
+			aggregateExpressions.add(p_agg);
+		}
+		
+		void evalExpression(AggregateDataSet p_aap,boolean expression2Only) throws Exception {
+			aap = p_aap;
+			for(AggregateOrPivot.AggregateRec aggrec : aggregateExpressions) {
+				if(expression2Only && (aggrec.aggregate != AggregateOrPivot.AGGREGATES.EXPRESSION2)) continue;
+				int aggIdx = aggregateHash.get(aggrec.varId[0]);
+				aggrec.getParser().setFunctInterface(this);
+				aggrec.getParser().setVarInterface(this);
+				if(aap != null) {
+				for(currAopIdx = 0; currAopIdx <aap.count.length;currAopIdx++) {
+					Object o = aggrec.getParser().evaluate();
+					aap.value[currAopIdx * aggCnt + aggIdx] = o;
+				}
+				}
+			}
+		}
+
+		@Override
+		public Object evalVariable(String p_varname) throws Exception {
+			// TODO Auto-generated method stub
+			Integer idx = aggregateHash.get(p_varname);
+			if(idx != null) {
+				Object o = aap.value[currAopIdx * aggCnt + idx];
+				if(o != null) return(o);
+			}
+			if(aap.firstRec >= 0) {
+				Object o = getColumnValueFromCache(p_varname,aap.firstRec);
+				if(o != null && o instanceof Double) {
+					return(o);
+				}
+			}
+			return(new Double(0.0));
+		}
+
+		@Override
+		public Object evalVariable(String p_varname, int p_idx) throws Exception {
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+		@Override
+		public Object evalFunction(String p_functName, Vector p_args) throws Exception {
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+		@Override
+		public Object evalVariableRelative(String p_varname, int p_idx) throws Exception {
+			throw new Exception("evalVariableRelative not supported");
+		}
+	}
+	public List<String> getAggregateOrPivotList() {
+		return(aop == null ? null : aop.getAggregateOrPivotList());
+	}
+    public AggregateOrPivotHeader getAggregateOrPivotHeader() {
+    	if(aop == null) return(null);
+    	return(aop.getAggregateOrPivotHeader());
+    }
+    
+	public int aggregateOrPivotSize() {
+		return(aop == null || aop.getAggregateOrPivotList() == null ? 0 : aop.getAggregateOrPivotList().size());
+	}
+
+	
+	void sortAggregateValues(AggregateDataSet app) {
+			if(app != null && !app.sorted) {
+				if(aop.getAopListOrder() != null) {
+					int n1=app.value.length;
+					Object[] da = new Object[aop.getAopListOrder().length];
+					for(int i=0;i<n1;i++) {
+						int n = aop.getAopListOrder()[i];
+						da[n] = app.value[i];
+					}
+					app.value = da;
+				}
+				app.sorted = true;
+			}
+	}
+	public Object[] getAggregateValues(int p_idx) {
+		if(resultStatList.get(p_idx).app != null) {
+			AggregateDataSet app = resultStatList.get(p_idx).app;
+			sortAggregateValues(app);
+			/*
+			if(!app.sorted) {
+				if(aop.getAopListOrder() != null) {
+					int n1=app.value.length;
+					Object[] da = new Object[aop.getAopListOrder().length];
+					for(int i=0;i<n1;i++) {
+						int n = aop.getAopListOrder()[i];
+						da[n] = app.value[i];
+					}
+					app.value = da;
+				}
+				app.sorted = true;
+			}
+			*/
+			return(app.value);
+		}
+		return(null);
+	}
+	public Object[] getAggregateSubtotal() {
+		return(aggregateSubtotal != null ? aggregateSubtotal.value : null);
+	}
+	
+	/*
+	public RpcClient getBiRpcClient() {
+		RpcClient rpc = sh.getRpcClient(); // open the rpcclient using host/ip in erpsetup.ini
+		JdbcBridge jb = new JdbcBridge();  // intentiate JdbcBridge
+		jb.setJdbcConnection(getSelectUtil().getConnection()); // set the jdbcconnection in jdbcbridge to biresult.selectutil.getconnection
+		rpc.setRpcServlet(jb.getClass().getName(), jb); // set the jdbcbridge servelet to the rpc
+		return(rpc);
+	}
+	*/
+	
+	void resetStatList() throws Exception {
+			resultStatList.clear();
+			vsDelCount = 0;
+			vsUpdCount = 0;
+			vsInsCount = 0;
+			
+			for(int i = 0;i<resultTr.size();i++) {
+				resultTr.setRecPointer(i);
+//				resultStatList.add(new TrStat(i,((Integer) resultTr.getField(0)).intValue()));
+//				resultStatList.add(new TrStat(i,((Integer) resultTr.getField(0)).intValue()));
+				resultStatList.add(new TrStat(i,getSidAsInteger(0)));
+			}
+			if (fDebug) UniLog.log("Result Set fetched, total " + resultStatList.size() + " records");
+			invalidateLoadCache();
+	}
+	
+	public BiColumn addTempColumn(String p_label,String p_header,String p_formula,String p_format,String p_fdtype,String p_aggregate,int p_fdlen,String p_addTobeforeLabel) throws CellException	 {
+		if(currentCol.testCell(p_label) != null) return(null);
+		if(tempColumnList == null) {
+			tempColumnList = new ArrayList<BiColumn>();
+		}
+		BiColumn column;
+		column = new BiColumn(getView().getSchema(),p_label,null,p_header,true,false,p_formula,"",p_format,true,false,0,p_fdtype,p_fdlen,null,null,null,null,0,0,null,p_aggregate);
+		createOneColumnCell(currentCol,column, null);
+		setColumnCellFormula(currentCol,column);
+		tempColumnList.add(column);
+		if(StringUtils.isBlank(p_aggregate)) {
+		if (StringUtils.isNotBlank(p_addTobeforeLabel)) {
+			int i;
+			for (i = 0; i < viewList.size(); i++) {
+				if (StringUtils.equals(viewList.get(i).getLabel(), p_addTobeforeLabel))
+					break;
+			}
+			viewList.add(i, column);
+		} else
+			viewList.add(column);
+		}
+		return(column);
+	}
+
+	public BiColumn addTempColumn(String p_label,String p_header,String p_formula,String p_format,String p_fdtype,String p_aggregate,int p_fdlen) throws CellException	 {
+		return addTempColumn(p_label,p_header,p_formula,p_format,p_fdtype,p_aggregate,p_fdlen,null);
+	}
+	
+	public BiColumn addAdhocColumn(String p_label,String p_header,String p_formula,String p_format,String p_fdtype,String p_aggregate) throws CellException	 {
+			String clabel;
+			if(p_label == null) {
+				for(int i=0;i<1000;i++) {
+					clabel = String.format("adhoccol_%03d", i);
+					if(tempColumnList == null || tempColumnList.indexOf(clabel) < 0) {
+						return addTempColumn(clabel,p_header,p_formula,p_format,p_fdtype,p_aggregate,0);
+					}
+				}
+				return (null);
+			} else {
+				return addTempColumn(p_label,p_header,p_formula,p_format,p_fdtype,p_aggregate,0);
+			}
+	}
+	
+	protected int getTableRecCount() {
+		return(resultTr.getRecordCount());
+	}
+
+	public void invalidateLoadRecIdx() {
+		curLoadRecIdx = -1;
+	}
+	public void invalidateLoadCache() {
+		invalidateLoadRecIdx();
+		/*
+		 obsoleted, don't use this
+		if(sh!=null && sh.getCellFormulaVersion() > 0) {
+			clearCurrentRec();
+		}
+		*/
+		resultCache = null;
+		if(getParent() == null) {
+//			resultCache = new Object[resultTr.getRecordCount()][];
+		} else {
+			if(!virtualDetail) currentCol = null;
+		}
+	}
+			
+	Hashtable<String,Integer> selectHash2;
+	Hashtable<String,Integer> cacheHash;
+	void createCacheHash() {
+		cacheHash = new Hashtable<String,Integer>();
+		int i=0;
+		/*
+			for(BiColumn ob : getColumns()) {
+				if(selectHash2.get(ob.getLabel()) == null) {
+					if(ob.isInSelect()) {
+						cacheHash.put(ob.getLabel(), i);
+						i++;
+					}
+				}
+			}
+			*/
+		/* should use getColumns to determine whether a non-database need to be saved in resultCache.  the original code use viewList that may cause some not inlist field to be non-cached */
+		/* should folloing the above logic if flag virtualMaster are to be removed */
+		for(int j = 0;j<viewList.size();j++){ 
+			BiColumn ob = viewList.get(j);
+			if(selectHash2.get(ob.getLabel()) == null) {
+				cacheHash.put(ob.getLabel(), i);
+				i++;
+			}
+		}
+	}
+	void createSelectAndCacheHash() {
+		selectHash2 = new Hashtable<String,Integer>();
+		for(int j = 0;j<selectFieldList.size();j++){ 
+			BiColumn ob = selectFieldList.get(j);
+			selectHash2.put(ob.getLabel(), j + tabList.size());
+		}
+		createCacheHash();
+	}
+	public Integer getColumnCachePositionFromHash(String p_colName) {
+		Integer fp = selectHash2.get(p_colName);
+		if(fp != null) return(fp); //* fp will not be zero as the idx is offset by tabList.size() which is at least 1
+		if(cacheHash != null) {
+			fp = cacheHash.get(p_colName);
+		}
+		return(fp);
+	}
+	
+	public Object getColumnValueFromCacheV(String p_label,int p_tridx) throws TableRecException {
+		return(getColumnValueFromCache(p_label,resultStatList.get(p_tridx).recidx ));
+	}
+	private Object getFormatedValueFromCache(String p_label,int p_recidx) throws TableRecException {
+		Object o = getColumnValueFromCache(p_label,p_recidx);
+		if(o == null) return(o);
+		String fmt = getView().getColumnByLabel(p_label).getFormat();
+		if(o instanceof Integer) {
+			String[] optList = getView().getColumnByLabel(p_label).getOptionList(sh);
+			if(optList != null) {
+				int n = (Integer) o;
+				if(n < optList.length) {
+					return(optList[n]);
+				}
+			}
+		}
+		if(fmt != null) {
+			if(o instanceof Date) {
+				if(((Date)o).after(DateUtil.minDate)) {
+					SimpleDateFormat df = new SimpleDateFormat(fmt);
+					return(df.format((Date) o));
+				} else {
+					return("");
+				}
+			}
+			if(o instanceof Double) {
+//				DecimalFormat fmt = new DecimalFormat()
+				DecimalFormat dfmt = new DecimalFormat(fmt);
+				return(dfmt.format(o));
+			}
+		}
+		return(o);
+	}
+	/*
+	void casheAllCacheColumns(int p_recidx) throws TableRecException {
+		Object cr[] = resultCache[p_recidx];
+		if(cr == null) {
+			cr = new Object[cacheHash.size()];
+			resultCache[p_recidx] = cr;
+		}
+		loadOneRec(p_recidx,BiResult.this.currentCol,false);
+		for(String cacheCol : cacheHash.keySet()) {
+			cr[cacheHash.get(cacheCol)] = getCell(cacheCol).getObject();
+		}
+	}
+	*/
+	private Object getColumnValueFromCacheOrg(String p_label,int p_recidx) throws TableRecException {
+		Integer fidx;
+		fidx = selectHash2.get(p_label);
+		if(fidx != null) {
+			return(resultTr.getField(fidx,p_recidx));	
+		}
+		if(getParent() == null && resultCache == null) {
+			resultCache = new Object[resultTr.getRecordCount()][];
+		}
+		if(resultCache == null) {
+			loadOneRec(p_recidx,BiResult.this.currentCol,false);
+			return(currentCol.getCell(p_label).getObject());
+		}
+		//Hashtable<String,Object> ht = resultCache[p_recidx];
+		Object cr[] = resultCache[p_recidx];
+		if(cr == null) {
+			//ht = new Hashtable<String,Object>();
+			cr = new Object[cacheHash.size()];
+			resultCache[p_recidx] = cr;
+		}
+		fidx = cacheHash.get(p_label);
+		if(fidx != null) {
+			Object obj = cr[fidx];
+			if(obj == null) {
+				loadOneRec(p_recidx,BiResult.this.currentCol,false);
+				obj = currentCol.getCell(p_label).getObject();
+				cr[fidx] = obj;
+			}
+			return(obj);
+		}
+		/*
+		fidx = cacheHash.get(p_label);
+		if(fidx != null) {
+			
+		}
+		*/
+		loadOneRec(p_recidx,BiResult.this.currentCol,false);
+		return(currentCol.getCell(p_label).getObject());
+	}
+	public Object getColumnValueFromCache(String p_label,int p_recidx) throws TableRecException {
+		Integer fidx;
+		fidx = selectHash2.get(p_label);
+		if(fidx != null) {
+			return(resultTr.getField(fidx,p_recidx));	
+		}
+		if(getParent() == null && resultCache == null) {
+			resultCache = new Object[resultTr.getRecordCount()][];
+		}
+		if(resultCache == null) {
+			loadOneRec(p_recidx,BiResult.this.currentCol,false);
+			return(currentCol.getCell(p_label).getObject());
+		}
+		//Hashtable<String,Object> ht = resultCache[p_recidx];
+		Object cr[] = resultCache[p_recidx];
+		if(cr == null) {
+			//ht = new Hashtable<String,Object>();
+			cr = new Object[cacheHash.size()];
+			resultCache[p_recidx] = cr;
+		}
+		fidx = cacheHash.get(p_label);
+		if(fidx != null) {
+			Object obj = cr[fidx];
+			if(obj == null) {
+				loadOneRec(p_recidx,BiResult.this.currentCol,false);
+				obj = currentCol.getCell(p_label).getObject();
+				cr[fidx] = obj;
+			}
+			return(obj);
+		}
+		/*
+		fidx = cacheHash.get(p_label);
+		if(fidx != null) {
+			
+		}
+		*/
+		loadOneRec(p_recidx,BiResult.this.currentCol,false);
+		return(currentCol.getCell(p_label).getObject());
+	}   
+    protected BiCellCollection getDefaultRowCollection() {
+    	return(getParent() == null ? currentCol : null);
+    }
+    
+    public JSONObject getAnalysedData(List<Integer> trList) throws Exception {
+    	if(aop == null) return(null);
+    	return(aop.toJson(this,trList));
+    }
+    
+    public List<String> getPivotableColumnList() {
+    	ArrayList<String> l = new ArrayList<String>();
+    	if(parent != null) return(l);
+    	for(BiColumn bc : getListColumns()) {
+    		if(bc.isPivot()) l.add(bc.getLabel());
+    	}
+    	return(l);
+    }
+    public List<BiColumn> getAggregateColumnList() {
+    	List<BiColumn> tempAggList = null;
+    	if(tempColumnList != null) {
+    		for(BiColumn bc : tempColumnList) {
+    			if(bc.isAggregate()) {
+    				if(tempAggList == null) {
+    					tempAggList = new ArrayList<BiColumn>();
+    				}
+    				tempAggList.add(bc);
+    			}
+    		}
+    	}
+    	if(tempAggList == null) return(schemaAggList);
+    	if(schemaAggList != null) {
+    		for(int i=schemaAggList.size()-1;i>=0;i--) {
+    			tempAggList.add(0,schemaAggList.get(i));
+    		}
+    	}
+    	return(tempColumnList);
+    	/*
+    	ArrayList<String> l = new ArrayList<String>();
+    	for(BiColumn bc : getListColumns()) {
+    		if(bc.isAggregate()) l.add(bc.getLabel());
+    	}
+    	return(l);
+    	*/
+    }
+    
+    public String getLinkedView(String p_colName,CellCollection p_col) {
+    	BiColumn bc = getView().getColumnByLabel(p_colName);
+    	if(bc != null) return(bc.getPickViewName());
+    	return(null);
+    }
+    public String getLinkedColumn(String p_colName) {
+    	BiColumn bc = getView().getColumnByLabel(p_colName);
+    	if(bc != null) {
+    		String linkedColumn = bc.getPickColName();
+    		if(linkedColumn != null) return(linkedColumn);
+    	}
+    	return(p_colName);
+    }
+    
+    public JSONObject getLinkedCondition(String p_colName,ColumnCell cc) {
+    	BiColumn bc = getView().getColumnByLabel(p_colName);
+	   try {
+	   		JSONObject jo = new JSONObject();
+	   		String cond = getLinkedColumn(bc.getLabel()) + " = '" + cc.getString() + "'";
+	   		jo.put("customCondition", cond);
+	   		return(jo);
+	   } catch (Exception ex) {
+	   		UniLog.log(ex);
+	   }
+	   return(null);
+    }
+    public String getLinkedUrl(String p_colName,CellCollection p_col) {
+		if(!getSessionHelper().getAllowVisitView()) return(null);
+		BiColumn bc = getView().getColumnByLabel(p_colName);
+		String visitUrl = null;
+		if(bc != null)  {
+  		if(getLinkedView(bc.getLabel(),p_col) != null) visitUrl = SessionHelper.getUrlByViewid(getSessionHelper(), getLinkedView(bc.getLabel(),p_col));
+		}
+  		/*
+  		if(visitUrl != null) {
+	   		try {
+	   			JSONObject jo = new JSONObject();
+	   			String cond = getLinkedColumn(bc.getLabel()) + " = '" + getCellString(bc.getLabel()) + "'";
+	   			jo.put("customCondition", cond);
+	   			String key = getSessionHelper().putOneTimeData( jo);
+	   			visitUrl += "&querycondition="+key;
+	   			final String url = visitUrl;
+				return(url);
+	   		} catch (Exception ex) {
+	   		UniLog.log(ex);
+	   		}
+   		}
+   		*/
+  		if (visitUrl != null) {
+  			UniLog.log1("visitUrl:%s", visitUrl);
+  		}
+  		return(visitUrl);
+    }
+    
+    public Wherecl conditionToWhereCl() throws Exception {
+		HashMap<String,Condition> conditionList = new HashMap<String,Condition> ();
+		Wherecl whereCl = new Wherecl();
+		conditionList = makeConditionList(false);
+		if(conditionList != null) {
+			Condition dbCond = conditionList.get(getView().getName()+"@"+getView().getSchema().dbLabel.toString()); 
+			if(dbCond != null) {
+				conditionParser.setParseMode(BiView.BiViewWhereclParser.GETOBJECT_MODE_FIELD);
+				try {
+					List <Object> argList = new ArrayList<Object>();
+					String ws = dbCond.toWherecl(argList);
+					whereCl.appendString(" and " + ws);
+					for(Object arg : argList) {
+						whereCl.appendArgument(arg);
+					}
+				} catch (CellException cex ) {
+					UniLog.log(cex);
+					return(null);
+				}
+				conditionParser.setParseMode(BiView.BiViewWhereclParser.GETOBJECT_MODE_COLUMN);
+			} 
+		}
+		addExtraWhereStr(whereCl,(HashSet<BiTable>)null);
+		return(whereCl);
+    }
+    
+    public void resetViewList() {
+    	viewList = (Vector<BiColumn>) schemaViewList.clone();
+    	if(tempColumnList != null) {
+    		for(BiColumn bc : tempColumnList) {
+    			viewList.add(bc);
+    		}
+    	}
+    	List<String> preferListOrders = getView().getPreferListOrders();
+    	if(preferListOrders != null) {
+    		BiColumn lastCol = null;
+    		for(String colLabel : preferListOrders) {
+    			BiColumn bc = getColumnByLabel(colLabel);
+    			if(bc != null) {
+    				moveViewColumn(bc,lastCol);
+    				lastCol = bc;
+    			}
+    		}
+    	}
+    	viewListModified = false;
+    }
+    public boolean moveViewColumn(BiColumn p_col,BiColumn p_after) {
+    	int oldidx;
+    	int newidx;
+    	if(p_col == null ) return (false);
+    	oldidx = viewList.indexOf(p_col);
+    	if(oldidx < 0) return(false);
+    	if(p_after != null) {
+    		newidx = viewList.indexOf(p_after);  
+    		if(newidx < 0) return(false);
+    	} else newidx = -1;
+    	if(oldidx == newidx || oldidx - newidx == 1) {
+    		return(true); // move col to after col itself or move col to after col's prev col always return true 
+    	}
+    	BiColumn bc = viewList.get(oldidx);
+    	viewList.remove(oldidx);
+    	if(newidx < oldidx) {
+    		newidx++;
+    	}
+    	viewList.add(newidx, bc);
+    	viewListModified = true;
+    	return(true);
+    }
+    /*
+    public boolean moveViewColumn(BiColumn p_col,BiColumn p_after) {
+    	int oldidx;
+    	int newidx;
+    	if(p_col == null || p_after == null) return (false);
+    	oldidx = viewList.indexOf(p_col);
+    	if(oldidx < 0) return(false);
+    	newidx = viewList.indexOf(p_after);
+    	if(newidx < 0) return(false);
+    	if(oldidx == newidx || oldidx - newidx == 1) return(false);
+    	BiColumn bc = viewList.get(oldidx);
+    	viewList.remove(oldidx);
+    	if(newidx < oldidx) {
+    		newidx++;
+    	}
+    	viewList.add(newidx, bc);
+    	return(true);
+    }
+    */
+    public boolean hideViewColumn(BiColumn p_col) {
+    	int idx = viewList.indexOf(p_col);
+//    	if(idx < 0) throw new Exception("Hide view volumn " + p_col.getLabel() + " not in view list");
+    	if(idx < 0) return(false);
+    	viewList.remove(idx);
+    	return(true);
+    }
+    void setLookupList(Vector<BiTable> p_lookupList) {
+    	lookupList = p_lookupList;
+    }
+    
+    public Wherecl getFieldUniqueListAppendWhere(BiColumn p_bc,Wherecl p_where) {
+    	Wherecl wcl = p_where;
+    	if(p_bc.getField() != null) {
+    		Wherecl wcl2 = p_bc.getField().getTable().getFieldUniqueListAppendWhere(p_bc.getField(), sh);
+    		if(wcl2 != null) {
+    			if(wcl == null) wcl = wcl2; else wcl.andWherecl(wcl2);
+    		}
+    	}
+    	return(wcl);
+    }
+    
+    protected String brEvalFunction(String p_functName,List p_args) {
+			return(com.uniinformation.utils.whereclpar.Function.toString(p_functName,p_args));
+    }
+	class BiResultWhereclParser extends com.uniinformation.utils.whereclpar.Parser  
+		implements com.kyoko.parser.VariableInterface,com.kyoko.parser.FunctionInterface{
+
+		@Override
+		public String toString(String p_functName, List p_args) {
+			// TODO Auto-generated method stub
+			return(brEvalFunction(p_functName,p_args));
+		}
+
+		@Override
+		public Cell evalFunction(String p_functName, Vector p_args, Object p_data) throws CellException {
+			// TODO Auto-generated method stub
+			return null;
+		}
+		@Override
+		public String toString(String p_varName,int p_idx,boolean p_idxAbsolute) {
+			return(com.uniinformation.utils.whereclpar.Variable.toString(p_varName,p_idx));
+		}
+		@Override
+		public Object collectObject(String p_varName, int p_idx, boolean p_idxAbsolute) throws CellException {
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+		@Override
+		public int getDataType(String p_varname) {
+			// TODO Auto-generated method stub
+			return 0;
+		}
+
+		@Override
+		public Object collectObject(String p_functName, List p_args) throws CellException {
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+
+		@Override
+		public Cell evalVariable(String p_varName, int p_idx, boolean p_idxAbsolute, Object p_recData)
+				throws CellException {
+			// TODO Auto-generated method stub
+			return null;
+		}
+	}
+	
+	protected String getSelectName(BiColumn bc) {
+		return(bc.getSelectName());
+	}
+	ReturnMsg doAutoAddUpdateViews(BiCellCollection col) {
+		try {
+		for(BiResult abr : brAutoAddUpdateViews.keySet()) {
+			AutoAddUpdateMap am = brAutoAddUpdateViews.get(abr);
+			/*
+			for(BiColumn fbc : am.updCols.keySet()) {
+				
+			}
+			*/
+			boolean needAddUpdate=false;
+			/*
+			if(resultTr != null) {
+			for(Integer idx : am.updCols.keySet()) {
+				BiColumn fbc = selectFieldList.get(idx);
+				Object beforeUpd = resultTr.getField(tabList.size()+idx,col.getIdx());	
+				Object afterUpd = col.getCell(fbc.getLabel()).getObject();
+				if(!beforeUpd.equals(afterUpd)) {
+					needAddUpdate = true;
+					break;
+				}
+			}
+			} else needAddUpdate = true;
+			*/
+			for(Integer idx : am.updCols.keySet()) {
+				BiColumn fbc = selectFieldList.get(idx);
+//				if(col.getCell(fbc.getLabel()).getMode() == Cell.VMODE_PROTECTED) {
+				if(col.getCell(fbc.getLabel()).isProtected()) {
+					if(col.getCell(fbc.getLabel()).isOverrided()) {
+						needAddUpdate = true;
+						break;
+					}
+				} //else needAddUpdate = true;
+			}
+			
+			if(!needAddUpdate) continue;
+			abr.clearCondition();
+			for(BiColumn fbc : am.keyCols.keySet()) {
+				BiColumn tbc = am.keyCols.get(fbc);
+					Variable v = new Variable(tbc.getLabel(),
+								abr.conditionParser
+								);
+					abr.appendCondition(
+					new Condition(
+							new Expression(v),
+							Condition.COMPARE_OP_EQ,
+							new Expression(col.getCell(fbc.getLabel()).getString())
+							)
+					);
+//					abr.addCustomCondition(tbc.getLabel() + " = '" + getCell(fbc.getLabel()).getString() + "'");
+			}
+			abr.query(false);
+			if(abr.getRowCount() == 1) {
+				abr.fetchOneRecV(0);
+				for(Integer idx : am.updCols.keySet()) {
+					BiColumn fbc = selectFieldList.get(idx);
+					BiColumn tbc = am.updCols.get(idx);
+					Object obj = col.getCell(fbc.getLabel()).getObject();
+					abr.getCell(tbc.getLabel()).sync(obj);
+				}
+				ReturnMsg rtn = abr.updateCurrent();
+				if(rtn != null && !rtn.getStatus()) {
+//					return(rtn);
+					UniLog.log("autoAddUpdate Fail " + rtn.getMsg());
+					ZkSessionHelper.showErrMsg(sh.getLabel("Unabld to Auto Update") + " " + abr.getView().getHeader());
+				} else {
+					//sh.showErrMsg(abr.getView().getHeader() + " Updated Automatically");
+					ZkSessionHelper.showMsg(abr.getView().getHeader() + " " + sh.getLabel("Updated Automatically"));
+				}
+			} else if(abr.getRowCount() == 0) {
+				abr.clearCurrentRec();
+				for(BiColumn fbc : am.keyCols.keySet()) {
+					BiColumn tbc = am.keyCols.get(fbc);
+					Object obj = col.getCell(fbc.getLabel()).getObject();
+					abr.getCell(tbc.getLabel()).sync(obj);
+				}
+				for(Integer idx : am.updCols.keySet()) {
+					BiColumn fbc = selectFieldList.get(idx);
+					BiColumn tbc = am.updCols.get(idx);
+					Object obj = col.getCell(fbc.getLabel()).getObject();
+					abr.getCell(tbc.getLabel()).sync(obj);
+				}
+				ReturnMsg rtn = abr.addCurrent();
+				if(rtn != null && !rtn.getStatus()) {
+					return(rtn);
+				} else {
+					int addedSid = (Integer) rtn.getData();
+					if(addedSid < 0) {
+						return(new ReturnMsg(false,"Fail In AutoAddUpdate : add failed, sid = 0"));
+					}
+					abr.clearCondition();
+					abr.addCustomCondition("serial_id = " + addedSid);
+					abr.query(false);
+					if(abr.getRowCount() != 1) {
+//						return(new ReturnMsg(false,"Fail In AutoAddUpdate : add failed, reload new added record failed"));
+						UniLog.log("Fail In AutoAddUpdate : add failed, reload new added record failed");
+						ZkSessionHelper.showErrMsg(sh.getLabel("Unabld to Auto Add") + " " + abr.getView().getHeader());
+					}
+					abr.fetchOneRecV(0);
+					abr.clearLastUpdate();
+					for(BiColumn fbc : am.keyCols.keySet()) {
+						ColumnCell cc = (ColumnCell) col.getCell(fbc.getLabel());
+						cc.removeCCObj("lookup_uparent_tr");
+//						cc.cl
+					}
+					for(BiColumn fbc : am.keyCols.keySet()) {
+						BiColumn tbc = am.keyCols.get(fbc);
+//						abr.getCell(tbc.getLabel()).sync(col.getCell(fbc.getLabel()).getObject());
+						col.getCell(fbc.getLabel()).sync(abr.getCell(tbc.getLabel()).getObject());
+					}
+					/*
+					for(Integer idx : am.updCols.keySet()) {
+						BiColumn fbc = selectFieldList.get(idx);
+						ColumnCell cc = (ColumnCell) col.getCell(fbc.getLabel());
+						cc.removeCCObj("lookup_uparent_tr");
+//						cc.cl
+					}
+					for(Integer idx : am.updCols.keySet()) {
+						BiColumn fbc = selectFieldList.get(idx);
+						BiColumn tbc = am.updCols.get(idx);
+//						abr.getCell(tbc.getLabel()).sync(col.getCell(fbc.getLabel()).getObject());
+						col.getCell(fbc.getLabel()).sync(abr.getCell(tbc.getLabel()).getObject());
+					}
+					*/
+					//sh.showMsg("New " + abr.getView().getHeader() + " Added");
+					ZkSessionHelper.showMsg("New %s Added", abr.getView().getHeader());
+				}
+			} else {
+//				return(new ReturnMsg(false,"Fail In AutoAddUpdate : lookup has more then one records"));
+				UniLog.log("Fail In AutoAddUpdate : lookup has more then one records");
+				ZkSessionHelper.showErrMsg(sh.getLabel("Unabld to Auto Add or Update") + " " + abr.getView().getHeader());
+			}
+		}
+		return(ReturnMsg.defaultOk);
+		} catch (Exception ex) {
+			UniLog.log(ex);
+			ZkSessionHelper.showErrMsg(sh.getLabel("Unabld to Auto Add or Update"));
+			return(ReturnMsg.defaultOk);
+		}
+	}
+	
+	private String buildLookupCacheKey(BiTable p_biTable, Wherecl p_wherecl) throws Exception {
+		return p_biTable.toString() + ":" + (p_wherecl == null ? "" : p_wherecl.toWhereclString());
+	}
+
+	//data object class for keep bitable and wherecl
+	private class LookupData {
+		final BiTable biTable;
+		final Wherecl wherecl;
+		public LookupData(BiTable p_biTable, Wherecl p_wherecl) {
+			this.biTable = p_biTable;
+			this.wherecl = p_wherecl;
+		}
+	}
+	/***
+	 * 
+	 * @param p_tr - key
+	 * @param p_lookupData - value
+	 */
+	private void saveLookupData(TableRec p_tr, LookupData p_lookupData) {
+		if (!allowLookupData || !enableAutoAdd) {
+			//if (fDebug) UniLog.log1("function disabled");
+			return;
+		}
+		try {
+			if (p_tr == null) {
+				UniLog.log1("tr is null");
+				return;
+			}
+			if (p_lookupData == null) {
+				UniLog.log1("lookupData is null");
+				return;
+			}
+			lookupDataHM.put(""+p_tr.hashCode(), p_lookupData);
+		}
+		catch(Exception ex) {
+			ex.printStackTrace();
+		}
+	}
+	
+	/***
+	 * 221118 experimental, not work yet! for handle autoaddupdate lookup tr update
+	 * @param p_tr
+	 * @param p_cell
+	 * @return
+	 */
+	private TableRec refreshLookupItemList(TableRec p_tr, ColumnCell p_cell) {
+		if (!allowLookupData || !enableAutoAdd) {
+			//if (fDebug) UniLog.log1("function disabled");
+			return p_tr;
+		}
+		try {
+			if (p_tr == null || p_cell == null) {
+				UniLog.log1("tr or cell is null, ignore update");
+				return p_tr;
+			}
+			UniLog.log1("called tr tabName:"+p_tr.getTableName()+" recCnt:" + p_tr.getRecordCount());
+			
+			BiCellCollection col = p_cell.getCollection();
+			if (col == null) {
+				UniLog.log1("col is null, ignore update");
+				return p_tr;
+			}
+			
+			//find lookupdata by tr
+			LookupData lookupData = lookupDataHM.get(""+p_tr.hashCode());	
+			if (lookupData == null) {
+				UniLog.log1("lookupData is null, ignore update");
+				return p_tr;
+			}
+
+			//remove tr cache if any
+			if (LOOKUPTAB_CACHE_TTL > 0) {
+				lookupTabTrCacheHM.remove(buildLookupCacheKey(lookupData.biTable, lookupData.wherecl));
+			}
+
+			//build a new lookup tr
+			TableRec newTr = getLookupTabTr(lookupData.biTable, lookupData.wherecl, col);
+			
+			//update lookup item list
+			if (newTr != p_tr) {
+				setLookupItemList(newTr, p_cell);
+				UniLog.log1("tr updated");
+				//ZkUtil.dumpData(newTr);
+			}
+			else {
+				UniLog.log1("tr unchanged, ignore update");
+			}
+			return newTr;
+		}
+		catch(Exception ex) {
+			ex.printStackTrace();
+			return null;
+		}
+
+	}			
+	
+//	public Vector getOptionList(BiColumn biCol, Comparable currentSelection, int mode) {
+//		if (biCol.getOptionList(sh) != null) {
+//			Vector itemList = new Vector();
+//	    	for (String opt : biCol.getOptionList(sh)){
+//	    		itemList.add(opt);
+//	    	}	
+//	    	return(itemList);
+//		}
+//		return(null);
+//	}
+	
+	private int getSidAsInteger(int p_tableidx) throws TableRecException {
+		Object o = resultTr.getField(p_tableidx);
+		if(o instanceof Long) {
+			return(((Long) o).intValue());
+		} else {
+			return(((Integer) o).intValue());
+		}
+	}
+
+	private int getSidAsInteger(int p_tableidx,int p_recidx) throws TableRecException {
+		Object o = resultTr.getField(p_tableidx,p_recidx);
+		if(o instanceof Long) {
+			return(((Long) o).intValue());
+		} else {
+			return(((Integer) o).intValue());
+		}
+	}
+	
+	public boolean isRequired(BiColumn bc) {
+		return(bc.isRequired());
+	}
+	
+	public ReturnMsg assigneValues(String p_assignment, boolean p_verifyOnly) throws Exception {
+		Condition assignment = (Condition) conditionParser.parse(p_assignment);
+		List<Condition> assignmentList = Condition.serializeCondition(false, assignment);
+		for(Condition cond : assignmentList) {
+			if(!cond.get_isPredicate()) {
+				return(new ReturnMsg(false,"Multiple Options Assignment Currently Not Supported"));
+			}
+			switch(cond.get_operator()) {
+			case Condition.COMPARE_OP_EQ:
+					break;
+			default :
+				return(new ReturnMsg(false,"Operator Not Suppoered"));
+			}
+			Expression le = cond.get_leftExpression();
+			if(le.getOperendType() != Expression.OPERENDTYPE_VARIABLE) {
+				return(new ReturnMsg(false,"Left Operend Must Be Variable"));
+			}
+			Expression re = cond.get_rightExpression();
+			Cell c = getCell(le.toString());
+			com.uniinformation.utils.exprpar.Parser parser 
+						= new com.uniinformation.utils.exprpar.Parser(ignoreCase,re.toString(),getCurrentCollection(),getCurrentCollection());
+			Object oo = parser.evaluate();
+			if(oo == null) return(ReturnMsg.defaultFail);
+			if(p_verifyOnly) {
+				if(!c.equals(oo)) return(ReturnMsg.defaultFail);
+			} else {
+				c.set(oo);
+			}
+//			Object value = re.eval(p_recData);
+		}
+		return(ReturnMsg.defaultOk);
+	}
+
+	boolean inRecal=false;
+	
+	protected void recalOneRec(HashSet<BiColumn> p_excludeList) throws Exception {
+		/*
+		Hashtable<String,Cell> cht = getCurrentCollection().getCellTable();
+		for(Cell cc : cht.values()) {
+			if(cc.getFormula() != null) cc.eval();
+		}
+		*/
+		int currentRecIdx = currentCol.getIdx(); 
+		for(BiColumn bc : biView.getColumns()) {
+			Cell cc = getCurrentCollection().getCell(bc.getLabel());
+			if((bc.getField() != null || virtualMaster) && cc.getFormula() != null) {
+				if(p_excludeList != null && p_excludeList.contains(bc)) continue;
+				/*
+				if(subLinkActions != null) {
+					boolean isAggCell = false;
+					for( Vector<BiAggregateCellValueAction> v : subLinkActions.values()) {
+						for(BiAggregateCellValueAction ba : v) {
+							if(ba.aggCell == cc) {
+								isAggCell = true;
+								break;
+							}
+						}
+						if(isAggCell) break;
+					}
+					if(isAggCell) {
+						continue;
+					}
+				}	
+				*/
+				cc.eval();
+				if(currentCol.getIdx() != currentRecIdx) {
+					loadOneRec(currentRecIdx,currentCol,false);
+				}
+				if(virtualMaster) {
+					saveObjectToCacheHash(currentRecIdx,bc.getLabel(),cc.getObject());
+				}
+			}
+		}
+	}
+
+	public boolean isOutOfSync() {
+		if(curLoadRecIdx < 0) return(false);
+		try {
+			BiCellCollection col = currentCol;
+			for(int i = 0;i<selectFieldList.size();i++){ 
+				BiColumn bc = (BiColumn) selectFieldList.get(i);
+				Cell cc = col.getCell(bc.getLabel());
+				
+					if(subLinkActions != null) {
+						boolean isAggCell = false;
+						for( Vector<BiAggregateCellValueAction> v : subLinkActions.values()) {
+							for(BiAggregateCellValueAction ba : v) {
+								if(ba.aggCell == cc) {
+									isAggCell = true;
+									break;
+								}
+							}
+							if(isAggCell) break;
+						}
+						if(isAggCell) {
+							continue;
+						}
+					}
+				
+				
+				if(cc.getFormula() != null && cc.getMode() != Cell.VMODE_PROTECT) {
+					Object o = getResultTrObject(bc.isAutoTranslate(),tabList.size()+i,curLoadRecIdx);	
+					if(!cc.equals(o)) {
+						if(cc.getString().equals("#N/A")) {
+							if(StringUtils.isBlank(((String) o))) continue;
+						}
+							return(true);
+					}
+					/*
+					Comparable setObj = (Comparable) cc.getSetObject();
+					Comparable cellObj = (Comparable) cc.getObject();
+					Comparable dbObj = (Comparable) getResultTrObject(bc.isAutoTranslate(),tabList.size()+i,curLoadRecIdx);	
+					if(cellObj != null) {
+						if( cellObj.equals(setObj) && cellObj.equals(dbObj)) {
+						} else {
+							return(true);
+						}
+					}
+					*/
+				}
+			}
+		} catch (Exception ex ) {
+			UniLog.log(ex);
+		}
+		return(false);
+	}
+
+	/*
+	boolean cellInAggregateCellValueAction(Cell cc) {
+		int x;
+		x = 0;
+		for( Vector<BiAggregateCellValueAction> v : subLinkActions.values()) {
+			for(BiAggregateCellValueAction ba : v) {
+				if(ba.aggCell == cc) {
+					return(true);
+				}
+			}
+		}
+		return(false);
+	}
+	*/
+	/*
+	boolean cellDependsOnAggregatesFunction(ColumnCell cc) {
+		
+		if(cellInAggregateCellValueAction(cc)) return(true);
+		Collection<Cell> triggerCells = cc.getTriggerCells();
+		if(triggerCells != null) {
+			for(Cell c : cc.getTriggerCells()) {
+				if(cellInAggregateCellValueAction(c)) return(true);
+			}
+		}
+		return(false);
+	}
+	*/
+	void addAllDependsColumn(ColumnCell p_cell,HashSet<BiColumn> p_columnSet) {
+		p_columnSet.add(p_cell.getBiColumn());
+		Collection<Cell> triggerCells = p_cell.getTriggerCells();
+		if(triggerCells != null) {
+			for(Cell c : p_cell.getTriggerCells()) {
+				addAllDependsColumn((ColumnCell) c, p_columnSet);
+			}
+		}
+	}
+	
+	protected void saveObjectToCacheHash(int p_recidx,String p_cellName,Object p_object) {
+		Integer colIdx = cacheHash.get(p_cellName);
+		if(colIdx == null) return;
+		if(resultCache == null) resultCache = new Object[resultTr.getRecordCount()][];
+		Object cr[] = resultCache[p_recidx];
+		if(cr == null) {
+			cr = new Object[cacheHash.size()];
+			resultCache[p_recidx] = cr;
+		}
+		cr[colIdx] = currentCol.getCell(p_cellName).getObject();
+	}
+	
+	public int recal() throws Exception {
+		HashSet<BiColumn> excludeList = null;
+		int numRecordUpdated = 0;
+		
+		if(subLinkActions != null) {
+			excludeList = new HashSet<BiColumn>();
+			for( Vector<BiAggregateCellValueAction> v : subLinkActions.values()) {
+				for(BiAggregateCellValueAction ba : v) {
+					addAllDependsColumn(ba.aggCell,excludeList);
+				}
+			}
+			/*
+			for(BiColumn bc : biView.getColumns()) {
+				boolean isAggCell = false;
+				ColumnCell cc = (ColumnCell) getCurrentCollection().getCell(bc.getLabel());
+				if(cellDependsOnAggregatesFunction(cc)) {
+					excludeList.add(bc);
+				}
+			}
+			*/
+		}	
+		
+		if(inRecal) {
+			throw new CellException("Recursive Calculation Not Supported");
+		}
+		inRecal=true;
+		try {
+		invalidateLoadCache();
+		for(int i=0;i<getRowCount();i++) {
+			loadOneRecV(i);
+			recalOneRec(excludeList);
+			/*
+			if(virtualMaster) {
+				int recidx = -1;
+				if(getParent() == null && resultCache == null) {
+					resultCache = new Object[resultTr.getRecordCount()][];
+				}
+				recidx = resultStatList.get(i).recidx;
+				Object cr[] = resultCache[recidx];
+				if(cr == null) {
+					cr = new Object[cacheHash.size()];
+					resultCache[recidx] = cr;
+				}
+				for(String cacheCol : cacheHash.keySet()) {
+					cr[cacheHash.get(cacheCol)] = getCell(cacheCol).getObject();
+				}
+			}
+			*/
+			if(isOutOfSync()) {
+				numRecordUpdated++;
+				syncOneRecV(i);
+				markUpdate(i,true);
+			}
+//			casheAllCacheColumns(i);
+		}
+		inRecal=false;
+		return(numRecordUpdated);
+		} catch (Exception ex) {
+			UniLog.log(ex);
+			inRecal = false;
+			throw(ex);
+		}
+	}
+	
+	void updateFormula(ColumnCell cc,String p_formula) throws CellException {
+		if(cc.getMode() == Cell.VMODE_PROTECT) throw new CellException("Cannot update formula for proteced column");
+		BiColumn bc = cc.getBiColumn();
+		if(bc.isformulaOnLoadOrSave()) throw new CellException("Column is set to OnLoad/OnSave, cannot update formula");
+		boolean recal = bc.getField() == null;
+		cc.setFormula(new ColumnCellFormula(p_formula,cc),recal);
+		cc.resetValue();
+	}
+
+	public void updateFormula(String p_label,String p_formula) throws CellException {
+		if(getParent() != null) throw new CellException("Cannot update columnn for sublink");
+		updateFormula(getCell(p_label),p_formula);
+		invalidateLoadCache();
+	}
+	
+	public boolean recordExist(List<String> p_cols) throws Exception {
+		Wherecl wherecl = new Wherecl();
+		StringBuffer sb = new StringBuffer();
+		sb.append("select ");
+		sb.append(getView().getTable().getSidField());
+		sb.append(" from ");
+		sb.append(getView().getTable().getDbtName());
+		for(String p_col : p_cols) {
+			wherecl.andUniop(p_col, "=", getCell(p_col).getObject());
+		}
+		String ss = getView().getTable().getWherecl();
+		if(!StringUtils.isBlank(ss)) {
+			wherecl.appendString(" and " + ss);
+		}
+		wherecl.appendString(" limit 1");
+		TableRec tr = getSelectUtil().getQueryResult(sb.toString(),wherecl);
+		return(tr.getRecordCount() > 0);
+	}
+
+	Hashtable<String,Integer> fieldPositionHash = null;
+	public Hashtable<String,Integer> getColumnObjectPositionHash() {
+		if(virtualMaster) {
+		if(fieldPositionHash == null) {
+			if(
+					(selectFieldList == null || selectFieldList.isEmpty()) &&
+					(cacheHash == null || cacheHash.isEmpty())
+					) return(null);
+			fieldPositionHash = new Hashtable<String,Integer>();
+			for(int i=0;i<selectFieldList.size();i++) {
+				BiColumn bc = selectFieldList.get(i);
+				fieldPositionHash.put(bc.getLabel(),i+tabList.size());
+			}
+		}
+		} else {
+		if(fieldPositionHash == null) {
+			if(selectFieldList == null || selectFieldList.isEmpty()) return(null);
+			fieldPositionHash = new Hashtable<String,Integer>();
+			for(int i=0;i<selectFieldList.size();i++) {
+				BiColumn bc = selectFieldList.get(i);
+				fieldPositionHash.put(bc.getLabel(),i+tabList.size());
+			}
+		}
+		}
+		return(fieldPositionHash);
+	}	
+	
+	public int getSelectListSize() {
+		return(selectFieldList.size());
+	}
+	
+	public boolean hasMarkUpdatedRecord() {
+		for(int i =0;i<getRowCount();i++) {
+			if(isMarkedUpdate(i)) return(true);
+		}
+		return(false);
+	}
+	public int getRecordCount() {
+		if(resultTr == null) return(0); else return(resultTr.getRecordCount());
+	}
+	
+	public boolean isInViewList(String p_col) {
+		for(BiColumn bc : viewList) {
+			if(bc.getLabel().equals(p_col)) return(true);
+		}
+		return(false);
+	}
+	public int listColumnPosition(String p_col) {
+		for(int i=0;i<viewList.size();i++) {
+			if(viewList.get(i).getLabel().equals(p_col)) return(i);
+		}
+		return(-1);
+	}
+	
+	
+	/* new method to export an Excel file from this biresult base on the Page preset ( the BiView of the page should be using this BiResult class */
+	public byte[] doExportToExcelByPagePreset(String presetId, String presetItemKey, String queryCondition, Map<String, Object> options) throws Exception {
+ 		List<String> hideColLabels = null;
+ 		Map<String, Boolean> orderbyLabels = new HashMap<String, Boolean>();
+		ConditionPresets cp = sh.getConditionPresets(presetId);
+		if (cp != null) {
+			ConditionFieldMap cfm = cp.getFieldMap(presetItemKey);
+			if (cfm != null) {
+				hideColLabels = cfm.getHideColLabels();
+				if (cfm.getOrderbyLabels() != null) {
+					for (Pair<String, Boolean> p : cfm.getOrderbyLabels())
+						orderbyLabels.put(p.getLeft(), p.getRight());
+				}
+				if (StringUtils.isBlank(queryCondition) && StringUtils.isNotBlank(cfm.getCustomCondition()))
+					queryCondition = cfm.getCustomCondition();
+			}
+		}
+		if (hideColLabels == null)
+			hideColLabels = new ArrayList<String>();
+		
+		if (options == null)
+			options = new HashMap<String, Object>();
+		boolean isExpWinDet = (Boolean)ObjectUtils.defaultIfNull(options.get("isExpWinDet"), false);
+		boolean isExpWinTemplate = (Boolean)ObjectUtils.defaultIfNull(options.get("isExpWinTemplate"), false);
+		boolean isExpWinMerged = (Boolean)ObjectUtils.defaultIfNull(options.get("isExpWinMerged"), false);
+		String expWinPassword = (String)options.get("expWinPassword");
+		String outFileName = (String)options.get("outFileName");
+		UniLog.log1("isExpWinDet:%b, isExpWinTemplate:%b, isExpWinMerged:%b, expWinPassword:%s, outFileName:%s", isExpWinDet, isExpWinTemplate, isExpWinMerged, expWinPassword, outFileName);
+		
+   		Vector<BiColumn> vvv = new Vector<BiColumn>();
+   		Vector<Integer> linksStIdx = null;
+    	Vector links = null;
+    	if (isExpWinDet) {
+			links = getExportLinks();
+			linksStIdx = new Vector<Integer>();
+    	}
+		Vector<BiColumn> xv = getListColumns();
+ 		if(isExpWinTemplate) {
+   			List<BiColumn> lc = getImportColumns();
+   			for (BiColumn bc : lc) {
+   				vvv.add(bc);
+   			}
+   		} else {
+   			for (BiColumn bc : xv) {
+   				if (!hideColLabels.contains(bc.getLabel()))
+   					vvv.add(bc);
+   			}
+   		}
+
+ 		InputStream is = sh.openResourceAsStream("/template/export_template.xlsx");
+    	ExcelPoi jxf = ExcelPoi.newExcelPoi(is,true); 
+   		is.close();
+   		int colt[] = formatExportExcel (
+ 			jxf,
+   			links
+   			, linksStIdx
+   			, isExpWinDet
+   			, vvv
+   			, null
+		);
+
+		clearCondition();
+		addCustomCondition(queryCondition);
+		for (BiColumn bc : vvv) {
+			if (orderbyLabels.containsKey(bc.getLabel()))
+				addOrderByColumnList(bc, orderbyLabels.get(bc.getLabel()));
+		}
+		ReturnMsg rtn = query();
+		if (!rtn.getStatus())
+			throw new Exception(rtn.getMsg());
+    	int xr = 0;
+		for (int i = 0; i < getRowCount(); i++) {
+   			xr = putOneRowToExceli(
+   					i,
+   					linksStIdx,
+   					links,
+   					vvv,
+   					colt,
+   					jxf,
+   					xr,
+   					isExpWinMerged,
+   					isExpWinTemplate,
+   					null
+   					
+			);
+		}
+  		postProcessExportExcel(jxf,isExpWinTemplate,vvv,isExpWinMerged);
+  		
+  		ByteArrayOutputStream bos = new ByteArrayOutputStream();
+  		jxf.writeWorkBook(bos);
+		if (StringUtils.isNotBlank(expWinPassword)) {
+			ByteArrayOutputStream passwordProtectedOS = null;
+			passwordProtectedOS = new ByteArrayOutputStream();
+			ZipUtil.createZip(expWinPassword, true, passwordProtectedOS, new ByteArrayInputStream(bos.toByteArray()), outFileName + ".xlsx");
+			return passwordProtectedOS.toByteArray();
+    	} else
+    		return bos.toByteArray();
+	}
+	protected class ExportToExcel {
+    	ExcelPoi jxf = null;
+    	int xr = 0;
+    	int ridx = 0;
+   		Vector<Integer> linksStIdx = null;
+    	Vector links = null;
+    	Vector<BiColumn> vvv;
+    	Hashtable<BiColumn,String>formulaHash = new Hashtable<BiColumn,String>();
+   		int colt[];
+   		String outFileName = null;
+   		boolean mergeRows;
+   		boolean exportDetail;
+   		boolean importTemplate;
+   		String password;
+		public ExportToExcel(String p_outFileName,boolean p_mergeRows,boolean p_exportDetail,boolean p_importTemplate,Vector <BiColumn> p_vvv,String p_password) throws Exception {
+			outFileName = p_outFileName;
+			mergeRows = p_mergeRows;
+			exportDetail = p_exportDetail;
+			importTemplate = p_importTemplate;
+			password = p_password;
+			vvv = p_vvv;
+			if(p_exportDetail) {
+				links = getExportLinks();
+				linksStIdx = new Vector<Integer>();
+				Vector<BiColumn> xv = getListColumns();
+			}
+			InputStream is = getSessionHelper().openResourceAsStream("/template/export_template.xlsx");
+			jxf = ExcelPoi.newExcelPoi(is,true); 
+			is.close();
+			colt = formatExportExcel (
+   					jxf,
+   					links
+   					, linksStIdx
+   					, p_importTemplate
+   					, vvv
+   					, null
+			);
+		}
+		public boolean exportToExcelOnce() {
+    		int i = ridx;
+    		int n = ridx + 50;
+    		if(n > getRowCount()) n = getRowCount();
+			for(;i<n;i++) {
+    			int realIdx = i;
+    			xr = putOneRowToExceli(
+    					realIdx,
+    					linksStIdx,
+    					links,
+    					vvv,
+    					colt,
+    					jxf,
+    					xr,
+    					mergeRows,
+    					importTemplate,
+    					null
+				);
+				if((i % 100) == 0) {
+					if(/* progressMeter != null */ true) {
+						int ps = ((i * 100)/ getRowCount());
+						UniLog.log1("excel export row:%d progress:%d",i,ps);
+					}
+				}
+				if((i % 500) == 0) {
+					System.gc();
+				}
+			}
+			ridx = i;
+    		if(ridx >= getRowCount()) {
+    			postProcessExportExcel(jxf,importTemplate,vvv,mergeRows); 
+    			return(false);
+    		} else {
+    			return(true);
+    		}
+			
+		}
+		public byte[] getResult() {
+   			try {
+   				ByteArrayOutputStream bos = new ByteArrayOutputStream();
+   			    jxf.writeWorkBook(bos);
+   			    if (!StringUtils.isEmpty(password)) {
+   			    	ByteArrayOutputStream passwordProtectedOS = new ByteArrayOutputStream();
+   			       	ZipUtil.createZip(password, true, passwordProtectedOS, new ByteArrayInputStream(bos.toByteArray()), outFileName + ".xlsx");
+   			    	passwordProtectedOS.close();
+   			    	return(passwordProtectedOS.toByteArray());
+   			    }
+   			    else{
+   			    	//Filedownload.save(bos.toByteArray(), "application/vnd.ms-excel", outFileName);
+   			    	bos.close();
+   			    	return(bos.toByteArray());
+   			    } 
+   			} catch (Exception ex) {
+   				UniLog.log(ex);
+   				return(null);
+   			}
+		}
+	}
+	
+	public int parserIgnoreCase() {
+		return(ignoreCase);
+	}
+	
+	
+	public boolean setModifiedViewList(List<String> p_list) {
+		if(p_list == null) {
+			if(!viewListModified) return(false);
+			resetViewList();
+			return(true);
+		}
+		Vector<BiColumn> orgViewList = viewList;
+		Vector<BiColumn> newViewList = new Vector<BiColumn>();
+		resetViewList();
+		for(String ss : p_list) {
+			BiColumn bc = getColumnByLabel(ss);
+			if(bc != null) {
+				if(viewList.contains(bc)) {
+					newViewList.add(bc);
+				}
+			}
+		}
+		for(BiColumn bc: viewList) {
+			if(!newViewList.contains(bc)) {
+				newViewList.add(bc);
+			}
+		}
+		boolean modified = false;
+		if(orgViewList.size() != newViewList.size()) modified = true;
+		for(int i=0;i<newViewList.size();i++) {
+			if(newViewList.get(i) != orgViewList.get(i)) {
+				modified = true;
+				break;
+			}
+		}
+		if(modified) {
+			viewList = newViewList;
+			viewListModified = true;
+			return(true);
+		} else {
+			viewList = orgViewList;
+			return(false);
+		}
+	}
+	public List<String> getModifiedViewList() {
+		if(!viewListModified) return(null);
+		ArrayList<String> mList = new ArrayList<String>();
+		for(BiColumn bc : viewList) {
+			mList.add(bc.getLabel());
+		}
+		return(mList); 
+		/*
+		boolean modified = false;
+		Vector<BiColumn> orgViewList = viewList;
+		resetViewList();
+		if(viewList.size() != orgViewList.size()) modified = true;
+		for(int i=0;i<viewList.size();i++) {
+			if(viewList.get(i) != orgViewList.get(i)) {
+				modified = true;
+				break;
+			}
+		}
+		viewList = orgViewList;
+		if(modified) {
+			ArrayList<String> mList = new ArrayList<String>();
+			for(BiColumn bc : viewList) {
+				mList.add(bc.getLabel());
+			}
+			return(mList); 
+		}else {
+			return(null);
+		}
+		*/
+	}
+	
+	public void clearAdhocolumns() {
+		if(tempColumnList == null) return;
+		for(BiColumn bc : tempColumnList) {
+			if(bc.getLabel().startsWith("adhoccol_")) {
+				int idx = viewList.indexOf(bc);
+				if(idx >= 0) {
+					viewList.remove(idx);
+				}
+			}
+		}
+		tempColumnList = null;
+	}
+	public List<BiColumn> getTempColumnList() {
+		return(tempColumnList);
+	}
+	public List<String> getAdhocColumnList() {
+		if(tempColumnList == null) return(null);
+		ArrayList<String> ahList = new ArrayList<String>();
+		for(BiColumn bc : tempColumnList) {
+			if(bc.getLabel().startsWith("adhoccol_")) {
+				ahList.add(bc.getLabel());
+			}
+		}
+		if(ahList.size() > 0) return(ahList); else return(null);
+	}
+	
+	public BiColumn getTempColumnByLabel(String p_label) {
+		if(tempColumnList == null) return(null);
+		for(BiColumn bc : tempColumnList) {
+			if(bc.getLabel().equals(p_label)) return(bc);
+		}
+		return(null);
+	}
+	
+	public void beforeBind() {
+		
+	}
+	
+	public List<Integer> getCurrentSids() throws Exception {
+		if(currentTr == null) return(null);
+		TrStat ts = currentTr;
+		List<Integer> sl = new ArrayList<Integer>();
+		if(ts.app != null) {
+			for(int i : ts.app.idxs) {
+				sl.add((Integer)resultTr.getField(0,i));
+			}
+			return(sl);
+//			return(ts.app.sids);
+		} else {
+			sl.add(ts.serial_id);
+			return(sl);
+		}
+	}
+
+	public List<Object> getCurrentColumnValues(String p_colName) throws Exception {
+		if(currentTr == null) return(null);
+		TrStat ts = currentTr;
+		List<Object> sl = new ArrayList<Object>();
+		int colPos = getSelectFieldPosition( getColumnByLabel(p_colName ));
+		if(colPos < 0) return(null);
+		if(ts.app != null) {
+			for(int i : ts.app.idxs) {
+				sl.add(resultTr.getField(colPos,i));
+			}
+			return(sl);
+//			return(ts.app.sids);
+		} else {
+			sl.add(resultTr.getField(colPos,currentTr.recidx));
+			return(sl);
+		}
+	}
+
+	void selectVirtualTableDetail(BiResult sr,Wherecl p_where) throws Exception{
+		sr.clear();
+		List<Integer>sids = getCurrentSids();
+		if(sids == null) return;
+		if(sids.size() <= 0) return;
+		BiJoin bj = getView().getTable().getJoin(sr.getView().getTable());
+		if(bj == null) return;
+		StringBuffer wstr = new StringBuffer();
+		if(!sr.virtualDetail)  {
+			sr.currentCol = sr.newRowCollection();
+			sr.virtualDetail = true;
+		}
+		
+		if(bj.getJoinCount() == 1) {
+			wstr.append(bj.getToField(0).getFullName());
+			wstr.append(" in (select distinct ");
+			wstr.append(bj.getFromField(0).getFullName());
+			wstr.append(" from ");
+			wstr.append(getView().getTable().getSelectFromName());
+			wstr.append(" where ");
+			if(sids.size() == 1) {
+				wstr.append(getView().getTable().getSidField());
+				wstr.append(" = " + sids.get(0) + ")");
+			} else {
+				wstr.append(getView().getTable().getSidField());
+				wstr.append(" in (" + sids.get(0));
+				for(int j=1;j<sids.size();j++) {
+					wstr.append(" ,"+ sids.get(j));
+				}
+				wstr.append("))");
+			}
+		} else {
+			wstr.append(sr.getView().getTable().getSidField());
+			wstr.append(" in (select distinct ");
+			wstr.append(sr.getView().getTable().getSidField());
+			wstr.append(" from ");
+			wstr.append(getView().getTable().getSelectFromName());
+			wstr.append(" , ");
+			wstr.append(sr.getView().getTable().getSelectFromName());
+			wstr.append(" where ");
+			for(int i=0;i<bj.getJoinCount();i++) {
+				wstr.append(bj.getToField(i).getFullName());
+				wstr.append(" = ");
+				wstr.append(bj.getFromField(i).getFullName());
+				wstr.append(" and ");
+			}
+			if(sids.size() == 1) {
+				wstr.append(getView().getTable().getSidField());
+				wstr.append(" = " + sids.get(0) + ")");
+			} else {
+				wstr.append(getView().getTable().getSidField());
+				wstr.append(" in (" + sids.get(0));
+				for(int j=1;j<sids.size();j++) {
+					wstr.append(" ,"+ sids.get(j));
+				}
+				wstr.append("))");
+			}
+			
+		}
+		Wherecl wcl = new Wherecl();
+		if(p_where != null) wcl.andWherecl(p_where);
+		wcl.appendString(wstr.toString());
+		sr.appendWherecl(wcl);
+		sr.query();
+	}
+	
+	public boolean needAutoConvert(BiColumn p_bc) {
+		if(sqlEngine != BiSchema.SQLENGINE_SCORPION) return(false);
+		return(!p_bc.isUTF8());
+	}
+	public boolean isVirtualMaster() {
+		return(virtualMaster);
+	}
+	
+	public boolean isVirtualMasterColumn(BiColumn bc) {
+		if(virtualMaster && bc.isVirtualMasterColumn()) return(true);
+		return(false);
+	}
+	
+//	public JSONObject saveToJson(boolean p_fetchDetail) throws Exception {
+//		JSONObject jo = new JSONObject();
+//		jo.put("timestamp", DateUtil.dateToDateTimeStr(getLastQuery()));
+//		jo.put("view", getView().getName());
+//		jo.put("recordcount", getRowCount());
+//		JSONArray ja = new JSONArray();
+//		jo.put("recordList", ja);
+//		if(p_fetchDetail && getSubLinks() != null ) {
+//			JSONObject jl = new JSONObject();
+//			for(BiResult sr : getSubLinks()) {
+//				JSONObject jx = sr.saveToJson(p_fetchDetail);
+//				jl.put(sr.getView().getName(), jx);
+//			}
+//			jo.put("sublinks", jl);
+//		}
+//		if(getParent() == null) {
+//			for(int i=0;i<getRowCount();i++) {
+//				loadOneRecV(i);
+//				ja.put(BiCellCollectionToJsonInterface.BiCellCollectionToJSON(currentCol));
+//			}
+//		} else {
+//			for(BiCellCollection bc : getRowCollectionList()) {
+//				ja.put(BiCellCollectionToJsonInterface.BiCellCollectionToJSON(bc));
+//			}
+//		}
+//		return(jo);
+//	}
+//	public void loadFromJson(JSONObject jo) throws Exception {
+//		UniLog.log("Load from json");
+//		int n = jo.getInt("recordcount");
+//		JSONArray ja = jo.getJSONArray("recordList");
+//		for(int i=0;i<n;i++) {
+//			if (i >= getRowCount()) break;
+//			loadOneRecV(i);
+//			int idx = getCurrentCollection().getIdx();
+//			JSONObject jd = ja.getJSONObject(i);
+//			for(BiColumn bc : getColumns()) {
+//	            Object value = jd.opt(bc.getLabel());
+//	            if(value != null) {
+//	            	getCell(bc.getLabel()).set(value);
+//	            }
+//			}
+//			for(BiColumn bc : getColumns()) {
+//	            saveObjectToCacheHash(idx,bc.getLabel(),getCell(bc.getLabel()).getObject());
+//			}
+//		}
+//	}
+
+//	public JSONObject saveCurrentRecordToJson() throws Exception {
+//		JBiCellCollectionToJsonInterface.BiCellCollectionToJSON(col));
+//		
+//	}
+//	public JSONObject saveCurrentRecordToJson() throws Exception {
+//		JSONObject jo = new JSONObject();
+//		jo.put("timestamp", DateUtil.dateToDateTimeStr(getLastQuery()));
+//		jo.put("view", getView().getName());
+//		saveContentToJson(currentCol,jo);
+//		return(jo);
+//	}
+//	JSONObject saveContentToJson(BiCellCollection col,JSONObject jo) throws Exception {
+//		if(jo == null) jo = new JSONObject();
+//		jo.put("columns", BiCellCollectionToJsonInterface.BiCellCollectionToJSON(col));
+//		if(getSubLinks() != null ) {
+//			JSONObject jl = new JSONObject();
+//			for(BiResult sr : getSubLinks()) {
+//				JSONArray jr = new JSONArray();
+//				for(BiCellCollection bc : sr.getRowCollectionList()) {
+//					jr.put( sr.saveContentToJson(bc,null));
+//				}
+//				jl.put(sr.getView().getName(), jr);
+//			}
+//			jo.put("sublinks", jl);
+//		}
+//		return(jo);
+//	}
+	
+//	protected Vector<TrStat> getResultStatList() {
+//		return( resultStatList );
+//	}
+	protected void setResultStatList(Vector<TrStat> p_statList) {
+		resultStatList = p_statList;
+	}
+	public JSONObject listColumnsToJson(BiCellCollection col , JSONObject p_jo) throws Exception {
+//		JSONObject jo = (p_jo == null ? new JSONObject() : p_jo);
+		JsonUtil ju = new JsonUtil(p_jo);
+		for(BiColumn bc : viewList) {
+			Cell cc = col.getCell(bc.getLabel());
+			ju.addCell(bc.getLabel(), cc);
+		}
+		return(ju.toJSONObject());
+	}
+}

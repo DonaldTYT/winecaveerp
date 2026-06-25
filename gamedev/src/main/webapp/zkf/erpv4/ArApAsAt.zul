@@ -1,0 +1,59 @@
+<zk>
+	<div style="background:white" align="center">
+		<vlayout>
+		<div style="text-align:center;">
+			<label id="rpttitle" style="font-weight: bold;font-size:30px !important;" ></label>
+		</div>
+		<hlayout>
+			<label>As At:</label>
+			<datebox id="asatdate"></datebox>
+		</hlayout>
+		<hlayout>
+			<label>Pivot:</label>
+			<checkbox id="pivotCcy" label="By CCY"></checkbox>
+			<checkbox id="pivotDuedate" label="By Due Date"></checkbox>
+		</hlayout>
+		<hlayout visible="true">
+		<!--
+			<checkbox id="showCount" label="Show Count"></checkbox>
+			-->
+			<!--
+			<checkbox id="showInvAmt" label="Show Invoice Amount"></checkbox>
+			<checkbox id="showOsAmt" label="Show Outstanding Amount"></checkbox>
+			-->
+			<radiogroup id="showaggs">
+				<radio label="Show Both Invoice and Outstanding Amount"/>
+				<radio label="Show Invoice Amount Only"/>
+				<radio label="Show Outstanding Only"/>
+			</radiogroup>
+		</hlayout>
+		</vlayout>
+	</div>
+	<hlayout>
+		<div align="center">
+		<vlayout>
+			<div height="10px"/>
+			<div height="10px"/>
+			<!--
+			<hlayout>
+				<label>Label</label>
+				<textbox id="vclabel"/>
+				<label>Formula</label>
+				<textbox id="vcformula"/>
+				<label>Type</label>
+				<textbox id="vctype"/>
+				<button width="100px" id="btCreateCol" label="Create Column"> </button>
+			</hlayout>
+			-->
+			<!--
+			<div align="center">
+				<hlayout>
+				<button width="100px" id="btPlot" label="Plot"> </button>
+				</hlayout>
+			</div>
+			-->
+		</vlayout>
+		</div>
+		<div id="cjsdiv" width="800px" height="400px" visible="false"> </div>
+	</hlayout>
+</zk>

@@ -1,0 +1,19 @@
+<zk>
+<window width="600px">
+	<vlayout>
+		<div align="center">Link Properties</div>
+		<div align="center">
+			<vlayout>
+			<hlayout>
+				<label>Condition</label>
+				<textbox id="linkCond"></textbox>
+			</hlayout>
+			<hlayout>
+			<button width="100px" id="btOK" label="OK"> </button>
+			<button width="100px" id="btCancel" label="Cancel"> </button>
+			</hlayout>
+			</vlayout>
+		</div>
+	</vlayout>
+</window>
+</zk>

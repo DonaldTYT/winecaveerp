@@ -1,0 +1,13 @@
+<zk>
+ <window>
+    <div width="250px" height="300px" align="center" style="font-size:100px!important;">
+    	<label id="fdtitle">Input Date</label>
+    	<calendar id="mcalendar" showTodayLink="true"></calendar>
+    	<div height="5px"></div>
+    	<hlayout>
+    	<button id="btOK">OK</button>
+    	<button id="btCancel">Cancel</button>
+    	</hlayout>
+    </div>
+</window>
+</zk>

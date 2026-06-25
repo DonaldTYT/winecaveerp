@@ -1,0 +1,101 @@
+<?page title="PIN Keypad" contentType="text/html;charset=UTF-8"?>
+<window id="root" title="PIN Entry" border="normal"
+        apply="com.kikyosoft.zk.devredir"
+        xmlns:w="client">
+
+    <style><![CDATA[
+      /* Center the whole view on mobile */
+      .center-screen {
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        padding: 12px;
+      }
+
+      /* Base sizes */
+      :root {
+        /* original ≈ clamp(64px, 20vw, 128px); now x1.4 for 40% larger */
+        --base-key-size: clamp(64px, 20vw, 128px);
+        --key-size: calc(var(--base-key-size) * 1.4);
+      }
+
+      /* Label & textbox ~200% larger (≈3× the earlier size) */
+      .biglabel       { font-size: clamp(24px, 6vw, 48px); text-align:center; }
+      .pinbox         { 
+        font-size: clamp(30px, 7.5vw, 60px);  /* was ~20px → now up to ~60px */
+        letter-spacing: 12px;                 /* increase spacing for readability */
+        text-align: center;
+      }
+
+      /* Keep the keypad block centered */
+      .keypad { margin-top: 12px; }
+      .keypad .z-grid { margin: 0 auto; }
+
+      /* Square keys, 40% bigger, prevent double-tap zoom */
+      .keypad .z-button {
+        width: var(--key-size);
+        aspect-ratio: 1 / 1;                 /* iOS 15+ */
+        height: auto;
+        font-size: clamp(22px, 5vw, 31px);   /* ~1.4× previous text size */
+        touch-action: manipulation;
+        margin: 6px;
+      }
+      @supports not (aspect-ratio: 1 / 1) {
+        .keypad .z-button { height: var(--key-size); }
+      }
+    ]]></style>
+
+    <script><![CDATA[
+      function _pinBox() { return zk.Widget.$("$pinBox"); }
+      function kbAppend(d){
+          var tb=_pinBox(); if(!tb) return;
+          var v=tb.getValue()||"";
+          if(v.length<6) tb.setValue(v + d);
+      }
+      function kbBack(){
+          var tb=_pinBox(); if(!tb) return;
+          var v=tb.getValue()||"";
+          if(v.length>0) tb.setValue(v.substring(0, v.length-1));
+      }
+    ]]></script>
+
+    <vlayout hflex="1" vflex="1" spacing="10px" sclass="center-screen">
+        <label sclass="biglabel" value="Enter PIN (max 6 digits)"/>
+        <textbox id="pinBox" type="password" readonly="true" maxlength="6"
+                 hflex="min" width="90%" sclass="pinbox"/>
+
+        <grid sclass="keypad" sizedByContent="true">
+            <columns>
+                <column/><column/><column/>
+            </columns>
+            <rows>
+                <row>
+                    <button label="1" w:onClick='kbAppend("1")'/>
+                    <button label="2" w:onClick='kbAppend("2")'/>
+                    <button label="3" w:onClick='kbAppend("3")'/>
+                </row>
+                <row>
+                    <button label="4" w:onClick='kbAppend("4")'/>
+                    <button label="5" w:onClick='kbAppend("5")'/>
+                    <button label="6" w:onClick='kbAppend("6")'/>
+                </row>
+                <row>
+                    <button label="7" w:onClick='kbAppend("7")'/>
+                    <button label="8" w:onClick='kbAppend("8")'/>
+                    <button label="9" w:onClick='kbAppend("9")'/>
+                </row>
+                <row>
+                    <button id="backspaceBtn" label="&lt;BS&gt;" w:onClick='kbBack()'/>
+                    <button label="0" w:onClick='kbAppend("0")'/>
+                    <button id="enterBtn" label="&lt;ENT&gt;"
+                            w:onClick='(function(){ 
+                              var tb = zk.Widget.$("$pinBox");
+                              tb.fire("onChange", {value: tb.getValue()}, {toServer:true});
+                            })()'/>
+                </row>
+            </rows>
+        </grid>
+    </vlayout>
+</window>

@@ -1,0 +1,603 @@
+<zk>
+<style>
+	.ta-main-listbox > .z-listbox-body {
+    	/* 220525 prevent listbox create vertical scrollbar. allow user to print current screen */
+		/*
+    	min-height: 200px;
+    	height: 70vh;
+    	*/
+    	min-height: 70vh;
+    }
+	.ta-main-listbox td.z-listcell {
+		vertical-align: top;
+		cursor: default;
+	}
+    div.attbox {
+    	border:1px solid grey;
+    	margin:2px;
+		min-width:200px; 
+    }
+    div.attbox {
+     	font-size:8px;
+     	line-height:16px;
+    }
+    div.attbox:first-line {
+     	font-size:14px;
+     	line-height:22px;
+    }
+    div.attbox.outrange {
+    	border:3px dashed #ff3838;
+    }
+    .attbox.present {
+		background:lightgreen;
+    }
+    .attbox.absent {
+		background:darkseagreen;
+    }
+    .attbox.leave {
+		background:lightseagreen;
+    }
+    .attbox.warn {
+		background:#F0E68C;  
+    }
+    .attbox.expired {
+		background:lightcoral;
+    }
+}
+</style>
+<zscript>
+<![CDATA[
+	String composer = "ZkBiComposerBase";
+	String classPrefix = "com.uniinformation.zkbi.";
+	if (Executions.getCurrent().getParameter("composer") != null){
+		composer = Executions.getCurrent().getParameter("composer").trim();
+	}
+	if (Executions.getCurrent().getParameter("prefix") != null){
+		classPrefix = "com.uniinformation."+Executions.getCurrent().getParameter("prefix").trim()+".";
+	}
+]]></zscript>
+		<window id="winTodayAttend" sizable="true" title="Today's Attendance" hflex="1" border="narrow" apply="${classPrefix}${composer}" xmlns:h="native">
+    		<caption style="font-size:14px">
+    			<toolbarbutton id="btnHelp" image="images/icons/zkweb/089-support-25x25.png" sclass="zkbi-header-help narrowtoolbarbutton zkbi-tbb-active" />
+       		</caption>
+			<separator height="10px"/>
+			<hbox>
+				<label value="Date:"/>
+				<datebox id="dbTargetAttend"></datebox>
+				<space/>
+				<label value="Warning Threshold:"/> 
+				<spinner id="spWarningThreshold" width="60px" value="10"/><label value="min"/>
+				<space/>
+				<button id="btRefresh" label="Refresh" tooltiptext="Obtain attendance data"></button>
+				<!--
+				<label value="Click Refresh to obtain latest attendace data" style="display:inline-block;margin-top:5px"/>
+				<button label="Test Scroll 1" onClick="Clients.scrollIntoView(item1)"></button>
+				<button label="Test Scroll 2" onClick="Clients.scrollIntoView(item2)"></button>
+				-->
+			</hbox>
+			<separator height="20px"/>
+			<hbox>
+				<label value="Refresh Time: "/>
+				<label id="lbRefreshTime" style="display:inline-block;min-width:109px" />
+				<checkbox id="cbAttendanceCompleteSession" tooltiptext="Show mark attendance complete session" label="Attendance Complete Session" checked="true" mold="switch" />
+				<checkbox id="cbFinishedSession" tooltiptext="Show finished session" label="Finished Session" checked="true" mold="switch" />
+				<checkbox id="cbSubscriptionCancelled" tooltiptext="Show subscription cancelled student" label="Subscription Cancelled" checked="true" mold="switch" />
+				<space/>
+				<checkbox id="cbProcessScanLog" tooltiptext="Process Scan Log when refresh attendance data" label="Process Scan Log" checked="true" mold="switch" />
+			</hbox>
+			<hbox>
+	   		<listbox id="lbMain" sclass="ta-main-listbox" width="100%" nonselectableTags="*" emptyMessage="Please click Refresh to obtain the latest attendace data">
+				<listhead sizable="true">
+					<listheader label="Course Session List" hflex="1"/>
+					<listheader width="90px"/>
+				</listhead>
+				<!--
+	   			<listitem id="item1">
+	   				<listcell>
+	   					<hbox>
+	   						<label value="YYYY/MM/DD HH:MM:SS"/>
+	   						<space/>
+	   						<label value="Code: COURSE_CODE"/>
+	   						<space/>
+	   						<label value="Name: COURSE_NAME"/>
+	   						<space/>
+	   					</hbox>
+	   				
+	   					<h:div style="display:flex; flex-wrap: wrap;">
+			   				<h:div class="attbox present">PRESENT STUDENT XXX<h:br/>SXXXXXX</h:div>
+			   				<h:div class="attbox absent">ABSENT STUDENT XXX<h:br/>SXXXXXX</h:div>
+			   				<h:div class="attbox leave">LEAVE STUDENT XXX<h:br/>SXXXXXX</h:div>
+			   				<h:div class="attbox warn">WARNING STUDENT XXX<h:br/>SXXXXXX</h:div>
+			   				<h:div class="attbox expired">EXPIRED STUDENT XXX<h:br/>SXXXXXX</h:div>
+			   				<h:div class="attbox expired">EXPIRED STUDENT XXX<h:br/>SXXXXXX</h:div>
+			   				<h:div class="attbox expired">EXPIRED STUDENT XXX<h:br/>SXXXXXX</h:div>
+			   				<h:div class="attbox expired">EXPIRED STUDENT XXX<h:br/>SXXXXXX</h:div>
+			   				<h:div class="attbox expired">EXPIRED STUDENT XXX<h:br/>SXXXXXX</h:div>
+			   				<h:div class="attbox expired">EXPIRED STUDENT XXX<h:br/>SXXXXXX</h:div>
+			   				<h:div class="attbox expired">EXPIRED STUDENT XXX<h:br/>SXXXXXX</h:div>
+			   				<h:div class="attbox expired">EXPIRED STUDENT XXX<h:br/>SXXXXXX</h:div>
+			   				<h:div class="attbox expired">EXPIRED STUDENT XXX<h:br/>SXXXXXX</h:div>
+			   				<h:div class="attbox expired">EXPIRED STUDENT XXX<h:br/>SXXXXXX</h:div>
+			   				<h:div class="attbox expired">EXPIRED STUDENT XXX<h:br/>SXXXXXX</h:div>
+			   				<h:div class="attbox expired">EXPIRED STUDENT XXX<h:br/>SXXXXXX</h:div>
+		   				</h:div>
+		   			</listcell>
+	   				<listcell>
+	   					<button label="Course"/>
+	   				</listcell>
+	   			</listitem>
+	   			<listitem>
+	   				<listcell>
+	   				<hbox>
+	   					<label value="2021/10/27 12:30:00"/>
+	   					<space/>
+	   					<label value="Code: COURSE_0001"/>
+	   					<space/>
+	   					<label value="Name: English Course"/>
+	   					<space/>
+	   				</hbox>
+	   				<h:div style="display:flex; flex-wrap: wrap;">
+	   				<h:div class="attbox warn">Chan Tai Man<h:br/>S000001</h:div>
+	   				<h:div class="attbox warn">Lee Ho<h:br/>S000002</h:div>
+	   				</h:div>
+	   				</listcell>
+	   				<listcell>
+	   					<button label="Course"/>
+	   				</listcell>
+	   			</listitem>
+	   			<listitem>
+	   				<listcell>
+	   				<hbox>
+	   					<label value="2021/10/27 12:30:00"/>
+	   					<space/>
+	   					<label value="Code: COURSE_0002"/>
+	   					<space/>
+	   					<label value="Name: Chinese Course"/>
+	   				</hbox>
+	   				<h:div style="display:flex; flex-wrap: wrap;">
+	   				<h:div class="attbox present">Student Name<h:br/>Student Code</h:div>
+	   				<h:div class="attbox present">Student Name<h:br/>Student Code</h:div>
+	   				<h:div class="attbox leave">Student Name<h:br/>Student Code</h:div>
+	   				<h:div class="attbox present">Student Name<h:br/>Student Code</h:div>
+	   				</h:div>
+		   			</listcell>
+	   				<listcell>
+	   					<button label="Course"/>
+	   				</listcell>
+	   			</listitem>
+	   			<listitem>
+	   				<listcell>
+	   					<hbox>
+	   						<label value="2021/10/27 12:30:00"/>
+	   						<space/>
+	   						<label value="Code: COURSE_0002"/>
+	   						<space/>
+	   						<label value="Name: Chinese Course"/>
+	   					</hbox>
+	   					<h:div style="display:flex; flex-wrap: wrap;">
+	   						<h:div class="attbox">Student Name<h:br/>Student Code</h:div>
+	   						<h:div class="attbox">Student Name<h:br/>Student Code</h:div>
+	   						<h:div class="attbox">Student Name<h:br/>Student Code</h:div>
+	   						<h:div class="attbox">Student Name<h:br/>Student Code</h:div>
+	   					</h:div>
+	   				</listcell>
+	   				<listcell>
+	   					<button label="Course"/>
+	   				</listcell>
+	   			</listitem>
+	   			<listitem>
+	   				<listcell>
+	   					<hbox>
+	   						<label value="2021/10/27 12:30:00"/>
+	   						<space/>
+	   						<label value="Code: COURSE_0002"/>
+	   						<space/>
+	   						<label value="Name: Chinese Course"/>
+	   					</hbox>
+	   					<h:div style="display:flex; flex-wrap: wrap;">
+	   						<h:div class="attbox">Student Name<h:br/>Student Code</h:div>
+	   						<h:div class="attbox">Student Name<h:br/>Student Code</h:div>
+	   						<h:div class="attbox">Student Name<h:br/>Student Code</h:div>
+	   						<h:div class="attbox">Student Name<h:br/>Student Code</h:div>
+	   					</h:div>
+	   				</listcell>
+	   				<listcell>
+	   					<button label="Course"/>
+	   				</listcell>
+	   			</listitem>
+	   			<listitem>
+	   				<listcell>
+	   					<hbox>
+	   						<label value="2021/10/27 12:30:00"/>
+	   						<space/>
+	   						<label value="Code: COURSE_0002"/>
+	   						<space/>
+	   						<label value="Name: Chinese Course"/>
+	   					</hbox>
+	   					<h:div style="display:flex; flex-wrap: wrap;">
+	   						<h:div class="attbox">Student Name<h:br/>Student Code</h:div>
+	   						<h:div class="attbox">Student Name<h:br/>Student Code</h:div>
+	   						<h:div class="attbox">Student Name<h:br/>Student Code</h:div>
+	   						<h:div class="attbox">Student Name<h:br/>Student Code</h:div>
+	   					</h:div>
+	   				</listcell>
+	   				<listcell>
+	   					<button label="Course"/>
+	   				</listcell>
+	   			</listitem>
+	   			<listitem>
+	   				<listcell>
+	   					<hbox>
+	   						<label value="2021/10/27 12:30:00"/>
+	   						<space/>
+	   						<label value="Code: COURSE_0002"/>
+	   						<space/>
+	   						<label value="Name: Chinese Course"/>
+	   					</hbox>
+	   					<h:div style="display:flex; flex-wrap: wrap;">
+	   						<h:div class="attbox">Student Name<h:br/>Student Code</h:div>
+	   						<h:div class="attbox">Student Name<h:br/>Student Code</h:div>
+	   						<h:div class="attbox">Student Name<h:br/>Student Code</h:div>
+	   						<h:div class="attbox">Student Name<h:br/>Student Code</h:div>
+	   					</h:div>
+	   				</listcell>
+	   				<listcell>
+	   					<button label="Course"/>
+	   				</listcell>
+	   			</listitem>
+	   			<listitem>
+	   				<listcell>
+	   					<hbox>
+	   						<label value="2021/10/27 12:30:00"/>
+	   						<space/>
+	   						<label value="Code: COURSE_0002"/>
+	   						<space/>
+	   						<label value="Name: Chinese Course"/>
+	   					</hbox>
+	   					<h:div style="display:flex; flex-wrap: wrap;">
+	   						<h:div class="attbox">Student Name<h:br/>Student Code</h:div>
+	   						<h:div class="attbox">Student Name<h:br/>Student Code</h:div>
+	   						<h:div class="attbox">Student Name<h:br/>Student Code</h:div>
+	   						<h:div class="attbox">Student Name<h:br/>Student Code</h:div>
+	   					</h:div>
+	   				</listcell>
+	   				<listcell>
+	   					<button label="Course"/>
+	   				</listcell>
+	   			</listitem>
+	   			<listitem>
+	   				<listcell>
+	   					<hbox>
+	   						<label value="2021/10/27 12:30:00"/>
+	   						<space/>
+	   						<label value="Code: COURSE_0002"/>
+	   						<space/>
+	   						<label value="Name: Chinese Course"/>
+	   					</hbox>
+	   					<h:div style="display:flex; flex-wrap: wrap;">
+	   						<h:div class="attbox">Student Name<h:br/>Student Code</h:div>
+	   						<h:div class="attbox">Student Name<h:br/>Student Code</h:div>
+	   						<h:div class="attbox">Student Name<h:br/>Student Code</h:div>
+	   						<h:div class="attbox">Student Name<h:br/>Student Code</h:div>
+	   					</h:div>
+	   				</listcell>
+	   				<listcell>
+	   					<button label="Course"/>
+	   				</listcell>
+	   			</listitem>
+	   			<listitem>
+	   				<listcell>
+	   					<hbox>
+	   						<label value="2021/10/27 12:30:00"/>
+	   						<space/>
+	   						<label value="Code: COURSE_0002"/>
+	   						<space/>
+	   						<label value="Name: Chinese Course"/>
+	   					</hbox>
+	   					<h:div style="display:flex; flex-wrap: wrap;">
+	   						<h:div class="attbox">Student Name<h:br/>Student Code</h:div>
+	   						<h:div class="attbox">Student Name<h:br/>Student Code</h:div>
+	   						<h:div class="attbox">Student Name<h:br/>Student Code</h:div>
+	   						<h:div class="attbox">Student Name<h:br/>Student Code</h:div>
+	   					</h:div>
+	   				</listcell>
+	   				<listcell>
+	   					<button label="Course"/>
+	   				</listcell>
+	   			</listitem>
+	   			<listitem>
+	   				<listcell>
+	   					<hbox>
+	   						<label value="2021/10/27 12:30:00"/>
+	   						<space/>
+	   						<label value="Code: COURSE_0002"/>
+	   						<space/>
+	   						<label value="Name: Chinese Course"/>
+	   					</hbox>
+	   					<h:div style="display:flex; flex-wrap: wrap;">
+	   						<h:div class="attbox">Student Name<h:br/>Student Code</h:div>
+	   						<h:div class="attbox">Student Name<h:br/>Student Code</h:div>
+	   						<h:div class="attbox">Student Name<h:br/>Student Code</h:div>
+	   						<h:div class="attbox">Student Name<h:br/>Student Code</h:div>
+	   					</h:div>
+	   				</listcell>
+	   				<listcell>
+	   					<button label="Course"/>
+	   				</listcell>
+	   			</listitem>
+	   			<listitem>
+	   				<listcell>
+	   					<hbox>
+	   						<label value="2021/10/27 12:30:00"/>
+	   						<space/>
+	   						<label value="Code: COURSE_0002"/>
+	   						<space/>
+	   						<label value="Name: Chinese Course"/>
+	   					</hbox>
+	   					<h:div style="display:flex; flex-wrap: wrap;">
+	   						<h:div class="attbox">Student Name<h:br/>Student Code</h:div>
+	   						<h:div class="attbox">Student Name<h:br/>Student Code</h:div>
+	   						<h:div class="attbox">Student Name<h:br/>Student Code</h:div>
+	   						<h:div class="attbox">Student Name<h:br/>Student Code</h:div>
+	   					</h:div>
+	   				</listcell>
+	   				<listcell>
+	   					<button label="Course"/>
+	   				</listcell>
+	   			</listitem>
+	   			<listitem>
+	   				<listcell>
+	   					<hbox>
+	   						<label value="2021/10/27 12:30:00"/>
+	   						<space/>
+	   						<label value="Code: COURSE_0002"/>
+	   						<space/>
+	   						<label value="Name: Chinese Course"/>
+	   					</hbox>
+	   					<h:div style="display:flex; flex-wrap: wrap;">
+	   						<h:div class="attbox">Student Name<h:br/>Student Code</h:div>
+	   						<h:div class="attbox">Student Name<h:br/>Student Code</h:div>
+	   						<h:div class="attbox">Student Name<h:br/>Student Code</h:div>
+	   						<h:div class="attbox">Student Name<h:br/>Student Code</h:div>
+	   					</h:div>
+	   				</listcell>
+	   				<listcell>
+	   					<button label="Course"/>
+	   				</listcell>
+	   			</listitem>
+	   			<listitem>
+	   				<listcell>
+	   					<hbox>
+	   						<label value="2021/10/27 12:30:00"/>
+	   						<space/>
+	   						<label value="Code: COURSE_0002"/>
+	   						<space/>
+	   						<label value="Name: Chinese Course"/>
+	   					</hbox>
+	   					<h:div style="display:flex; flex-wrap: wrap;">
+	   						<h:div class="attbox">Student Name<h:br/>Student Code</h:div>
+	   						<h:div class="attbox">Student Name<h:br/>Student Code</h:div>
+	   						<h:div class="attbox">Student Name<h:br/>Student Code</h:div>
+	   						<h:div class="attbox">Student Name<h:br/>Student Code</h:div>
+	   					</h:div>
+	   				</listcell>
+	   				<listcell>
+	   					<button label="Course"/>
+	   				</listcell>
+	   			</listitem>
+	   			<listitem>
+	   				<listcell>
+	   					<hbox>
+	   						<label value="2021/10/27 12:30:00"/>
+	   						<space/>
+	   						<label value="Code: COURSE_0002"/>
+	   						<space/>
+	   						<label value="Name: Chinese Course"/>
+	   					</hbox>
+	   					<h:div style="display:flex; flex-wrap: wrap;">
+	   						<h:div class="attbox">Student Name<h:br/>Student Code</h:div>
+	   						<h:div class="attbox">Student Name<h:br/>Student Code</h:div>
+	   						<h:div class="attbox">Student Name<h:br/>Student Code</h:div>
+	   						<h:div class="attbox">Student Name<h:br/>Student Code</h:div>
+	   					</h:div>
+	   				</listcell>
+	   				<listcell>
+	   					<button label="Course"/>
+	   				</listcell>
+	   			</listitem>
+	   			<listitem>
+	   				<listcell>
+	   					<hbox>
+	   						<label value="2021/10/27 12:30:00"/>
+	   						<space/>
+	   						<label value="Code: COURSE_0002"/>
+	   						<space/>
+	   						<label value="Name: Chinese Course"/>
+	   					</hbox>
+	   					<h:div style="display:flex; flex-wrap: wrap;">
+	   						<h:div class="attbox">Student Name<h:br/>Student Code</h:div>
+	   						<h:div class="attbox">Student Name<h:br/>Student Code</h:div>
+	   						<h:div class="attbox">Student Name<h:br/>Student Code</h:div>
+	   						<h:div class="attbox">Student Name<h:br/>Student Code</h:div>
+	   					</h:div>
+	   				</listcell>
+	   				<listcell>
+	   					<button label="Course"/>
+	   				</listcell>
+	   			</listitem>
+	   			<listitem>
+	   				<listcell>
+	   					<hbox>
+	   						<label value="2021/10/27 12:30:00"/>
+	   						<space/>
+	   						<label value="Code: COURSE_0002"/>
+	   						<space/>
+	   						<label value="Name: Chinese Course"/>
+	   					</hbox>
+	   					<h:div style="display:flex; flex-wrap: wrap;">
+	   						<h:div class="attbox">Student Name<h:br/>Student Code</h:div>
+	   						<h:div class="attbox">Student Name<h:br/>Student Code</h:div>
+	   						<h:div class="attbox">Student Name<h:br/>Student Code</h:div>
+	   						<h:div class="attbox">Student Name<h:br/>Student Code</h:div>
+	   					</h:div>
+	   				</listcell>
+	   				<listcell>
+	   					<button label="Course"/>
+	   				</listcell>
+	   			</listitem>
+	   			<listitem>
+	   				<listcell>
+	   					<hbox>
+	   						<label value="2021/10/27 12:30:00"/>
+	   						<space/>
+	   						<label value="Code: COURSE_0002"/>
+	   						<space/>
+	   						<label value="Name: Chinese Course"/>
+	   					</hbox>
+	   					<h:div style="display:flex; flex-wrap: wrap;">
+	   						<h:div class="attbox">Student Name<h:br/>Student Code</h:div>
+	   						<h:div class="attbox">Student Name<h:br/>Student Code</h:div>
+	   						<h:div class="attbox">Student Name<h:br/>Student Code</h:div>
+	   						<h:div class="attbox">Student Name<h:br/>Student Code</h:div>
+	   					</h:div>
+	   				</listcell>
+	   				<listcell>
+	   					<button label="Course"/>
+	   				</listcell>
+	   			</listitem>
+	   			<listitem>
+	   				<listcell>
+	   					<hbox>
+	   						<label value="2021/10/27 12:30:00"/>
+	   						<space/>
+	   						<label value="Code: COURSE_0002"/>
+	   						<space/>
+	   						<label value="Name: Chinese Course"/>
+	   					</hbox>
+	   					<h:div style="display:flex; flex-wrap: wrap;">
+	   						<h:div class="attbox">Student Name<h:br/>Student Code</h:div>
+	   						<h:div class="attbox">Student Name<h:br/>Student Code</h:div>
+	   						<h:div class="attbox">Student Name<h:br/>Student Code</h:div>
+	   						<h:div class="attbox">Student Name<h:br/>Student Code</h:div>
+	   					</h:div>
+	   				</listcell>
+	   				<listcell>
+	   					<button label="Course"/>
+	   				</listcell>
+	   			</listitem>
+	   			<listitem>
+	   				<listcell>
+	   					<hbox>
+	   						<label value="2021/10/27 12:30:00"/>
+	   						<space/>
+	   						<label value="Code: COURSE_0002"/>
+	   						<space/>
+	   						<label value="Name: Chinese Course"/>
+	   					</hbox>
+	   					<h:div style="display:flex; flex-wrap: wrap;">
+	   						<h:div class="attbox">Student Name<h:br/>Student Code</h:div>
+	   						<h:div class="attbox">Student Name<h:br/>Student Code</h:div>
+	   						<h:div class="attbox">Student Name<h:br/>Student Code</h:div>
+	   						<h:div class="attbox">Student Name<h:br/>Student Code</h:div>
+	   					</h:div>
+	   				</listcell>
+	   				<listcell>
+	   					<button label="Course"/>
+	   				</listcell>
+	   			</listitem>
+	   			<listitem>
+	   				<listcell>
+	   					<hbox>
+	   						<label value="2021/10/27 12:30:00"/>
+	   						<space/>
+	   						<label value="Code: COURSE_0002"/>
+	   						<space/>
+	   						<label value="Name: Chinese Course"/>
+	   					</hbox>
+	   					<h:div style="display:flex; flex-wrap: wrap;">
+	   						<h:div class="attbox">Student Name<h:br/>Student Code</h:div>
+	   						<h:div class="attbox">Student Name<h:br/>Student Code</h:div>
+	   						<h:div class="attbox">Student Name<h:br/>Student Code</h:div>
+	   						<h:div class="attbox">Student Name<h:br/>Student Code</h:div>
+	   					</h:div>
+	   				</listcell>
+	   				<listcell>
+	   					<button label="Course"/>
+	   				</listcell>
+	   			</listitem>
+	   			<listitem>
+	   				<listcell>
+	   					<hbox>
+	   						<label value="2021/10/27 12:30:00"/>
+	   						<space/>
+	   						<label value="Code: COURSE_0002"/>
+	   						<space/>
+	   						<label value="Name: Chinese Course"/>
+	   					</hbox>
+	   					<h:div style="display:flex; flex-wrap: wrap;">
+	   						<h:div class="attbox">Student Name<h:br/>Student Code</h:div>
+	   						<h:div class="attbox">Student Name<h:br/>Student Code</h:div>
+	   						<h:div class="attbox">Student Name<h:br/>Student Code</h:div>
+	   						<h:div class="attbox">Student Name<h:br/>Student Code</h:div>
+	   					</h:div>
+	   				</listcell>
+	   				<listcell>
+	   					<button label="Course"/>
+	   				</listcell>
+	   			</listitem>
+	   			<listitem>
+	   				<listcell>
+	   					<hbox>
+	   						<label value="2021/10/27 12:30:00"/>
+	   						<space/>
+	   						<label value="Code: COURSE_0002"/>
+	   						<space/>
+	   						<label value="Name: Chinese Course"/>
+	   					</hbox>
+	   					<h:div style="display:flex; flex-wrap: wrap;">
+	   						<h:div class="attbox">Student Name<h:br/>Student Code</h:div>
+	   						<h:div class="attbox">Student Name<h:br/>Student Code</h:div>
+	   						<h:div class="attbox">Student Name<h:br/>Student Code</h:div>
+	   						<h:div class="attbox">Student Name<h:br/>Student Code</h:div>
+	   					</h:div>
+	   				</listcell>
+	   				<listcell>
+	   					<button label="Course"/>
+	   				</listcell>
+	   			</listitem>
+	   			<listitem id="item2">
+	   				<listcell>
+	   					<hbox>
+	   						<label value="2021/10/27 12:30:00"/>
+	   						<space/>
+	   						<label value="Code: COURSE_0002"/>
+	   						<space/>
+	   						<label value="Name: Chinese Course"/>
+	   					</hbox>
+	   					<h:div style="display:flex; flex-wrap: wrap;">
+	   						<h:div class="attbox">Student Name<h:br/>Student Code</h:div>
+	   						<h:div class="attbox">Student Name<h:br/>Student Code</h:div>
+	   						<h:div class="attbox">Student Name<h:br/>Student Code</h:div>
+	   						<h:div class="attbox">Student Name<h:br/>Student Code</h:div>
+	   					</h:div>
+	   				</listcell>
+	   				<listcell>
+	   					<button label="Course"/>
+	   				</listcell>
+	   			</listitem>
+				-->
+	   		</listbox>
+	   		</hbox>
+	   		<separator height="10px"/>
+	   		<hbox>
+	   			<h:div style="padding:3px; min-width:40px;" class="attbox present">Present</h:div>
+	   			<h:div style="padding:3px; min-width:40px;" class="attbox absent">Absent</h:div>
+	   			<h:div style="padding:3px; min-width:40px;" class="attbox leave">Leave</h:div>
+	   			<h:div style="padding:3px; min-width:40px;" class="attbox warn">Warning</h:div>
+	   			<h:div style="padding:3px; min-width:40px;" class="attbox expired">Expired</h:div>
+	   			<h:div style="padding:3px; min-width:40px;" class="attbox">Within subscription period</h:div>
+	   			<h:div style="padding:3px; min-width:40px;" class="attbox outrange">Out of subscription period</h:div>
+	   			
+	   		</hbox>
+	   	</window>
+</zk>

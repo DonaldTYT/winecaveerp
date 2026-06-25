@@ -1,0 +1,131 @@
+	/*
+  	Flaticon icon font: Flaticon
+  	Creation date: 22/06/2016 15:07
+  	*/
+
+@font-face {
+  font-family: "Flaticon-ld";
+  src: url("./Flaticon-ld.eot");
+  src: url("./Flaticon-ld.eot?#iefix") format("embedded-opentype"),
+       url("./Flaticon-ld.woff") format("woff"),
+       url("./Flaticon-ld.ttf") format("truetype"),
+       url("./Flaticon-ld.svg#Flaticon") format("svg");
+  font-weight: normal;
+  font-style: normal;
+}
+
+@media screen and (-webkit-min-device-pixel-ratio:0) {
+  @font-face {
+    font-family: "Flaticon-ld";
+    src: url("./Flaticon-ld.svg#Flaticon") format("svg");
+  }
+}
+
+[class^="flaticon-ld-"]:before, [class*=" flaticon-ld-"]:before,
+[class^="flaticon-ld-"]:after, [class*=" flaticon-ld-"]:after {   
+  font-family: Flaticon-ld;
+        /*font-size: 20px;*/
+font-style: normal;
+/*margin-left: 20px;*/
+}
+
+.flaticon-ld-24-hours-delivery:before { content: "\f100"; }
+.flaticon-ld-24-hours-phone-service:before { content: "\f101"; }
+.flaticon-ld-24-hours-symbol:before { content: "\f102"; }
+.flaticon-ld-air-transport:before { content: "\f103"; }
+.flaticon-ld-airplane-around-earth:before { content: "\f104"; }
+.flaticon-ld-airplane-frontal-view:before { content: "\f105"; }
+.flaticon-ld-airplane-in-vertical-ascending-position:before { content: "\f106"; }
+.flaticon-ld-barscode-with-a-magnifier-business-symbol:before { content: "\f107"; }
+.flaticon-ld-black-delivery-small-truck-side-view:before { content: "\f108"; }
+.flaticon-ld-black-opened-umbrella-symbol-with-rain-drops-falling-on-it:before { content: "\f109"; }
+.flaticon-ld-boat-from-front-view:before { content: "\f10a"; }
+.flaticon-ld-box-of-packing-for-delivery:before { content: "\f10b"; }
+.flaticon-ld-boxes-piles-stored-inside-a-garage-for-delivery:before { content: "\f10c"; }
+.flaticon-ld-boxes-storage-for-delivery-inside-a-truck-box-from-back-view:before { content: "\f10d"; }
+.flaticon-ld-call-center-service-for-information:before { content: "\f10e"; }
+.flaticon-ld-call-center-worker-with-headset:before { content: "\f10f"; }
+.flaticon-ld-chronometer:before { content: "\f110"; }
+.flaticon-ld-clipboard-verification-symbol:before { content: "\f111"; }
+.flaticon-ld-commercial-delivery-symbol-of-a-list-on-clipboard-on-a-box-package:before { content: "\f112"; }
+.flaticon-ld-container-hanging-of-a-crane:before { content: "\f113"; }
+.flaticon-ld-container-on-a-crane:before { content: "\f114"; }
+.flaticon-ld-containers-on-oceanic-ship:before { content: "\f115"; }
+.flaticon-ld-crane:before { content: "\f116"; }
+.flaticon-ld-crane-truck:before { content: "\f117"; }
+.flaticon-ld-delivered-box-verification-symbol:before { content: "\f118"; }
+.flaticon-ld-delivery-box:before { content: "\f119"; }
+.flaticon-ld-delivery-box-and-timer:before { content: "\f11a"; }
+.flaticon-ld-delivery-box-on-a-hand:before { content: "\f11b"; }
+.flaticon-ld-delivery-box-package-opened-with-up-arrow:before { content: "\f11c"; }
+.flaticon-ld-delivery-cube-box-package-with-four-arrows-in-different-directions:before { content: "\f11d"; }
+.flaticon-ld-delivery-of-a-box:before { content: "\f11e"; }
+.flaticon-ld-delivery-pack-security-symbol-with-a-shield:before { content: "\f11f"; }
+.flaticon-ld-delivery-package:before { content: "\f120"; }
+.flaticon-ld-delivery-package-box-with-fragile-content-symbol-of-broken-glass:before { content: "\f121"; }
+.flaticon-ld-delivery-package-opened:before { content: "\f122"; }
+.flaticon-ld-delivery-package-with-umbrella-symbol:before { content: "\f123"; }
+.flaticon-ld-delivery-packages-on-a-trolley:before { content: "\f124"; }
+.flaticon-ld-delivery-packaging-box:before { content: "\f125"; }
+.flaticon-ld-delivery-packing:before { content: "\f126"; }
+.flaticon-ld-delivery-scale-with-a-box:before { content: "\f127"; }
+.flaticon-ld-delivery-time-symbol:before { content: "\f128"; }
+.flaticon-ld-delivery-time-tool:before { content: "\f129"; }
+.flaticon-ld-delivery-transportation-machine:before { content: "\f12a"; }
+.flaticon-ld-delivery-truck:before { content: "\f12b"; }
+.flaticon-ld-delivery-truck-1:before { content: "\f12c"; }
+.flaticon-ld-delivery-truck-2:before { content: "\f12d"; }
+.flaticon-ld-delivery-truck-with-circular-clock:before { content: "\f12e"; }
+.flaticon-ld-delivery-truck-with-packages-behind:before { content: "\f12f"; }
+.flaticon-ld-delivery-worker-giving-a-box-to-a-receiver:before { content: "\f130"; }
+.flaticon-ld-fragile-broken-glass-symbol-for-delivery-boxes:before { content: "\f131"; }
+.flaticon-ld-free-delivery-truck:before { content: "\f132"; }
+.flaticon-ld-frontal-truck:before { content: "\f133"; }
+.flaticon-ld-identification-for-delivery-with-bars:before { content: "\f134"; }
+.flaticon-ld-international-calling-service-symbol:before { content: "\f135"; }
+.flaticon-ld-international-delivery:before { content: "\f136"; }
+.flaticon-ld-international-delivery-business-symbol-of-world-grid-with-an-arrow-around:before { content: "\f137"; }
+.flaticon-ld-international-delivery-symbol:before { content: "\f138"; }
+.flaticon-ld-international-logistics-delivery-truck-symbol-with-world-grid-behind:before { content: "\f139"; }
+.flaticon-ld-localization-orientation-tool-of-compass-with-cardinal-points:before { content: "\f13a"; }
+.flaticon-ld-locked-package:before { content: "\f13b"; }
+.flaticon-ld-logistics-delivery-truck-and-clock:before { content: "\f13c"; }
+.flaticon-ld-logistics-delivery-truck-in-movement:before { content: "\f13d"; }
+.flaticon-ld-logistics-package:before { content: "\f13e"; }
+.flaticon-ld-logistics-transport:before { content: "\f13f"; }
+.flaticon-ld-logistics-truck:before { content: "\f140"; }
+.flaticon-ld-logistics-weight-scale:before { content: "\f141"; }
+.flaticon-ld-man-standing-with-delivery-box:before { content: "\f142"; }
+.flaticon-ld-ocean-transportation:before { content: "\f143"; }
+.flaticon-ld-package-cube-box-for-delivery:before { content: "\f144"; }
+.flaticon-ld-package-delivery:before { content: "\f145"; }
+.flaticon-ld-package-delivery-in-hand:before { content: "\f146"; }
+.flaticon-ld-package-for-delivery:before { content: "\f147"; }
+.flaticon-ld-package-on-rolling-transport:before { content: "\f148"; }
+.flaticon-ld-package-transport-for-delivery:before { content: "\f149"; }
+.flaticon-ld-package-transportation-on-a-trolley:before { content: "\f14a"; }
+.flaticon-ld-packages-storage-for-delivery:before { content: "\f14b"; }
+.flaticon-ld-packages-transportation-on-a-truck:before { content: "\f14c"; }
+.flaticon-ld-person-standing-beside-a-delivery-box:before { content: "\f14d"; }
+.flaticon-ld-phone-auricular-and-a-clock:before { content: "\f14e"; }
+.flaticon-ld-phone-auricular-and-clock-delivery-symbol:before { content: "\f14f"; }
+.flaticon-ld-placeholder-on-map-paper-in-perspective:before { content: "\f150"; }
+.flaticon-ld-protection-symbol-of-opened-umbrella-silhouette-under-raindrops:before { content: "\f151"; }
+.flaticon-ld-sea-ship:before { content: "\f152"; }
+.flaticon-ld-sea-ship-with-containers:before { content: "\f153"; }
+.flaticon-ld-search-delivery-service-tool:before { content: "\f154"; }
+.flaticon-ld-storage:before { content: "\f155"; }
+.flaticon-ld-talking-by-phone-auricular-symbol-with-speech-bubble:before { content: "\f156"; }
+.flaticon-ld-telephone:before { content: "\f157"; }
+.flaticon-ld-telephone-1:before { content: "\f158"; }
+.flaticon-ld-three-stored-boxes-for-delivery:before { content: "\f159"; }
+.flaticon-ld-train-front:before { content: "\f15a"; }
+.flaticon-ld-triangular-arrows-sign-for-recycle:before { content: "\f15b"; }
+.flaticon-ld-up-arrows-couple-sign-for-packaging:before { content: "\f15c"; }
+.flaticon-ld-verification-of-delivery-list-clipboard-symbol:before { content: "\f15d"; }
+.flaticon-ld-view-symbol-on-delivery-opened-box:before { content: "\f15e"; }
+.flaticon-ld-weight-of-delivery-package-on-a-scale:before { content: "\f15f"; }
+.flaticon-ld-weight-tool:before { content: "\f160"; }
+.flaticon-ld-woman-with-headset:before { content: "\f161"; }
+.flaticon-ld-wood-package-box-of-square-shape-for-delivery:before { content: "\f162"; }
+.flaticon-ld-world-grid-with-placeholder:before { content: "\f163"; }

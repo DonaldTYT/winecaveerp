@@ -1,0 +1,426 @@
+<zk xmlns:h="native" >
+<style dynamic="true">
+.webmenu_picon_fa
+{ 
+	font-size: 75px;
+    width: 100px;
+    height: 100px;
+    line-height: 100px;
+    text-align: center;
+    vertical-align: middle;
+    border-bottom-width: 8px;
+} 
+.webmenu_color_layout
+{
+  	display: flex;
+	display: -webkit-flex;
+	flex-direction: row;
+	-webkit-flex-direction: row;
+	flex-wrap: wrap;
+	-webkit-flex-wrap: wrap;
+	max-width: 640px;
+}
+.webmenu_color_block
+{
+  	display: flex;
+	display: -webkit-flex;
+	justify-content: center;
+	-webkit-justify-content: center;
+	align-items: center;
+  	-webkit-align-items: center;
+	width: 80px;
+	height: 28px;
+}
+.webmenu_color_block span
+{
+	font-weight: bold;
+	line-height: 16px;
+	border-bottom-style: solid;
+	border-bottom-width: 2px;
+	border-bottom-color: transparent;
+}
+.table-icons .btn {
+}
+.table-icons .btn .fa {
+	width: 25px;
+	height: 25px;
+	font-size: 25px;
+	margin: 10px;
+}
+.table-icons .btn .fa.fa1 {
+	width: 20px;
+	height: 20px;
+	font-size: 20px;
+	margin: 5px;
+}
+.iconpicker-popover .search-control {
+	width: 100% !important;
+}
+</style>
+<zscript>
+<![CDATA[
+	import com.uniinformation.webcore.*;
+	SessionHelper sessionHelper = SessionHelper.getSessionHelper();
+	if (sessionHelper.getAllowMenuColorSelector())
+		Clients.evalJavaScript("webMenuInit()");
+]]>
+</zscript>
+<script>
+<![CDATA[
+function getStyleRuleValue(selector, style) {
+	var selector_compare = selector.toLowerCase();
+ 	var selector_compare2 = selector_compare.substr(0,1)==='.' ?  selector_compare.substr(1) : '.'+selector_compare;
+
+ 	for (var i = 0; i < document.styleSheets.length; i++) {
+  		var mysheet = document.styleSheets[i];
+  		var myrules = mysheet.cssRules ? mysheet.cssRules : mysheet.rules;
+
+  		for (var j = 0; j < myrules.length; j++) {
+    		if (myrules[j].selectorText) {
+     			var check = myrules[j].selectorText.toLowerCase();
+     			switch (check) {
+      			case selector_compare  :
+      			case selector_compare2 : return myrules[j].style[style];
+     			}
+   			}
+		}
+	}
+}
+function getRgbByString(rgbStr) {
+	var rgb = rgbStr.substring(4, rgbStr.length - 1)
+         .replace(/ /g, '')
+         .split(',');
+    return {r: rgb[0], g: rgb[1], b: rgb[2]};
+}
+function rgb2Hsv(rgb) {
+    var rabs, gabs, babs, r, g, b, rr, gg, bb, h, s, v, diff, diffc, percentRoundFn;
+    r = rgb.r;
+    g = rgb.g;
+    b = rgb.b;
+    rabs = r / 255;
+    gabs = g / 255;
+    babs = b / 255;
+    v = Math.max(rabs, gabs, babs),
+    diff = v - Math.min(rabs, gabs, babs);
+    diffc = function(c) { 
+    	return (v - c) / 6 / diff + 1 / 2; 
+    };
+    percentRoundFn = function(num) { 
+    	return Math.round(num * 100) / 100; 
+    };
+    if (diff == 0) {
+        h = s = 0;
+    } else {
+        s = diff / v;
+        rr = diffc(rabs);
+        gg = diffc(gabs);
+        bb = diffc(babs);
+
+        if (rabs === v) {
+            h = bb - gg;
+        } else if (gabs === v) {
+            h = (1 / 3) + rr - bb;
+        } else if (babs === v) {
+            h = (2 / 3) + gg - rr;
+        }
+        if (h < 0) {
+            h += 1;
+        } else if (h > 1) {
+            h -= 1;
+        }
+    }
+    return {
+        h: Math.round(h * 360),
+        s: percentRoundFn(s * 100),
+        v: percentRoundFn(v * 100)
+    };
+}
+function rgb2Luma(rgb) {
+	return (0.299 * rgb.r + 0.587 * rgb.g + 0.114 * rgb.b) / 255;
+}
+function webMenuInit() {
+	//[key, [block textColor]]
+  	var colorMap = new Map([
+  		['navy', ['']],
+  		['blue', ['']],
+  		['aqua', ['']],
+  		['teal', ['']],
+  		['olive', ['']],
+  		['green', ['']],
+  		['lime', ['']],
+  		['yellow', ['']],
+  		['orange', ['']],
+  		['red', ['']],
+  		['maroon', ['']],
+  		['fuchsia', ['']],
+  		['purple', ['']],
+  		['black', ['']],
+  		['gray', ['']],
+  		['silver', ['']],
+		['cyan', ['']],
+		['darkcyan', ['']],
+		['seagreen', ['']],
+		['royalblue', ['']],
+		['cadetblue', ['']],
+		['slateblue', ['']],
+		['slategray', ['']],
+		['skyblue', ['']],
+		['peru', ['']],
+		['tan', ['']],
+		['orchid', ['']],
+		['crimson', ['']],
+		['plum', ['']],
+		['salmon', ['']],
+		['pink', ['']],
+		['gold', ['']],
+  	]);
+  	var isValidColorClass = function(prefix, cls){
+  		if (prefix.length > 0 && !cls.startsWith(prefix))
+  			return false;
+  		return colorMap.has(cls.substring(prefix.length));
+  	};
+  	var setupColorMap = function() {
+		var hsvList = [];
+  		colorMap.forEach(function(value, key, map){
+  			var rgbStr = getStyleRuleValue('.' + key, 'color');
+  			var rgb = getRgbByString(rgbStr);
+			var hsv = rgb2Hsv(rgb);
+			var luma = rgb2Luma(rgb);
+  			value[0] = luma > 0.5 ? '#000000CC' : '#FFFFFFCC';
+			hsvList.push({key: key, hsv: hsv});
+  		});
+  		hsvList.sort(function(o1, o2){
+  			var hsv1 = o1.hsv;
+  			var hsv2 = o2.hsv;
+  			if (hsv1.h < hsv2.h) return -1;
+        	if (hsv1.h > hsv2.h) return 1;
+        	if (hsv1.s < hsv2.s) return -1;
+        	if (hsv1.s > hsv2.s) return 1;
+        	if (hsv1.v < hsv2.v) return -1;
+        	if (hsv1.v > hsv2.v) return 1;
+        	return 0;	
+  		});
+  		var tcolorMap = new Map();
+  		for (var i in hsvList) {
+  			var key = hsvList[i].key;
+			tcolorMap.set(key, colorMap.get(key));
+  		}
+		colorMap = tcolorMap;
+  	};
+
+
+	var isVisible;
+	var webmImgClass = "";
+	var webmImgClassList = new Array(4); //0: f-, 1: bg-, 2: main color, 3: bb-
+  	var inputEvent;
+	var $detailGrid = jq('$detail_grid');
+	var $webmImgClass = jq('$webm_img');
+	var $webmImgPreview = $('#webm_img_preview');
+	var $webmImgPreviewPick = $('#webm_img_preview_pick');
+
+	var imgClassChanged = function() {
+		$webmImgPreview.removeClass(webmImgClass);
+		$webmImgPreview.addClass('fa webmenu_picon_fa');
+		$('.webmenu_color_block').removeClass('checked');
+		$('.webmenu_color_block span').css('border-bottom-color', 'transparent');
+		webmImgClass = "";
+		webmImgClassList = new Array(4);
+		isVisible = $detailGrid.is(':visible');
+		if (isVisible) {
+			webmImgClass = $webmImgClass.val().trim();
+			var webmImgPrefix = null;
+			if (webmImgClass.startsWith('fa-')) {
+				webmImgPrefix = 'fa-';
+			}
+			else if (webmImgClass.startsWith('flaticon-')) {
+				webmImgPrefix = 'flaticon-';
+			}
+			if (webmImgPrefix){
+				$webmImgPreview.addClass(webmImgClass);
+				
+				var cs = webmImgClass.split(/\s+/);
+  				for (var i = 0; i < cs.length; i++) {
+  					if (cs[i].startsWith(webmImgPrefix))
+						webmImgClassList[0] = cs[i];
+					else if (cs[i].startsWith('bg-') && isValidColorClass('bg-', cs[i]))
+						webmImgClassList[1] = cs[i];
+					else if (cs[i].startsWith('bb-') && isValidColorClass('bb-', cs[i]))
+						webmImgClassList[3] = cs[i];
+					else if (isValidColorClass('', cs[i]))
+						webmImgClassList[2] = cs[i];
+  				}
+				console.log('webmImgClassList', webmImgClassList);
+
+				var $colorBlock;
+				var key;
+				$webmImgPreviewPick.iconpicker('setIcon', webmImgClassList[0]);
+				if (webmImgClassList[1]) {
+					key = webmImgClassList[1].substring(3);
+					$colorBlock = $('.webmenu_color_layout.background_color').find('.webmenu_color_block[key='+ key +']');
+					$colorBlock.addClass('checked');
+					$colorBlock.find('span').css('border-bottom-color', colorMap.get(key)[0]);
+				}
+				if (webmImgClassList[2]) {
+					key = webmImgClassList[2];
+					$colorBlock = $('.webmenu_color_layout.main_color').find('.webmenu_color_block[key='+ key +']');
+					$colorBlock.addClass('checked');
+					$colorBlock.find('span').css('border-bottom-color', colorMap.get(key)[0]);
+				}
+				if (webmImgClassList[3]) {
+					key = webmImgClassList[3].substring(3);
+					$colorBlock = $('.webmenu_color_layout.border_color').find('.webmenu_color_block[key='+ key +']');
+					$colorBlock.addClass('checked');
+					$colorBlock.find('span').css('border-bottom-color', colorMap.get(key)[0]);
+				}
+			}
+			else
+				$webmImgPreviewPick.iconpicker('setIcon', 'empty');
+		}	
+		else
+			$webmImgPreviewPick.iconpicker('setIcon', 'empty');
+	};
+
+  	//setup color block layout	
+	setupColorMap();
+  	colorMap.forEach(function(value, key, map){
+  		var textColor = value[0];
+		$('.webmenu_color_layout').append('<h:div key="'+ key +'" class="webmenu_color_block bg-'+ key +'";">'
+							+ '<span style="color:'+ textColor +';">'+ key.toUpperCase() +'</span>'
+							+ '</h:div>');
+  	});
+	$webmImgPreviewPick.iconpicker({
+		arrowPrevIconClass: 'fa fa1 fa-angle-left',
+    	arrowNextIconClass: 'fa fa1 fa-angle-right',
+    	iconset: 'fontawesome4',
+    	iconsetVersion: '4.7.0',
+    	cols: $.support.touch ? 5 : 8,
+    	rows: $.support.touch ? 5 : 8,
+        //icon: 'fa-play'
+	}).on('change', function(e){
+	    if (e.icon != webmImgClassList[0] && e.icon != 'empty') {
+    		console.log('change fa', e.icon);
+  			var list = new Array(4);
+  			for (var i = 0; i < webmImgClassList.length; i++)
+  				list[i] = webmImgClassList[i];
+  			list[0] = e.icon;
+			var cls = "";
+			for (var i = 0; i < list.length; i++) {
+				if (list[i])
+					cls += " " + list[i];
+			}
+			cls = cls.trim();
+			$webmImgClass.val(cls);
+			$webmImgClass.blur();
+			clearTimeout(inputEvent);
+			imgClassChanged();
+	    }
+	});
+  	$('.webmenu_color_block').click(function(){
+  		if (!webmImgClassList[0])
+  			return;
+  		var $parent = $(this).parent();
+  		var isChecked = $(this).hasClass('checked');
+  		var list = new Array(4);
+  		for (var i = 0; i < webmImgClassList.length; i++)
+  			list[i] = webmImgClassList[i];
+  		if ($parent.hasClass('background_color'))
+			list[1] = isChecked ? null : ('bg-' + $(this).attr('key'));
+  		else if ($parent.hasClass('main_color'))
+			list[2] = isChecked ? null : $(this).attr('key');
+  		else if ($parent.hasClass('border_color'))
+			list[3] = isChecked ? null : ('bb-' + $(this).attr('key'));
+		var cls = "";
+		for (var i = 0; i < list.length; i++) {
+			if (list[i])
+				cls += " " + list[i];
+		}
+		cls = cls.trim();
+		$webmImgClass.val(cls);
+		$webmImgClass.blur();
+		clearTimeout(inputEvent);
+		imgClassChanged();
+  	});
+  	$webmImgClass.keyup(function(event){
+	  	switch (event.which) {
+		  case 9:
+		  case 13:
+		  case 38:
+		  case 40:
+			  return;
+	  	}
+		clearTimeout(inputEvent);
+	  	inputEvent = setTimeout(function(){
+			if ($webmImgClass.val().trim() !== webmImgClass)
+				imgClassChanged();
+	  	}, 500);
+  	});
+
+	zk.Widget.$('$webm_img_container').setVisible(true);
+	zk.Widget.$('$webm_color_container').setVisible(true);
+	window.setInterval(function(){
+		if ($detailGrid.is(':visible') !== isVisible || $webmImgClass.val().trim() !== webmImgClass) {
+			clearTimeout(inputEvent);
+			imgClassChanged();
+		}	
+	}, 500);
+}
+]]>
+</script>
+<grid style="text-align:left;" id="detail_grid">
+	<columns>
+      	<column align="right" valign="top">
+      		<zscript>
+        		self.width = sessionHelper.isMobile() ? "120px" : "250px";
+    		</zscript> 
+      	</column>
+      	<column />
+	</columns>
+	<rows>
+		<row>
+			<label hflex="1" id="lb_webm_rg" value="webm_rg"><custom-attributes tlkey="lb_webm_rg"></custom-attributes></label>
+			<doublebox hflex="1" style="max-width:80px" id="webm_rg"/>
+		</row>
+		<row>
+			<label hflex="1" id="lb_webm_menuid" value="webm_menuid"><custom-attributes tlkey="lb_webm_menuid"></custom-attributes></label>
+			<textbox hflex="1" style="max-width:160px" id="webm_menuid"/>
+		</row>
+		<row>
+			<label hflex="1" id="lb_webm_seq" value="webm_seq"><custom-attributes tlkey="lb_webm_seq"></custom-attributes></label>
+			<doublebox hflex="1" style="max-width:80px" id="webm_seq"/>
+		</row>
+		<row>
+			<label hflex="1" id="lb_webm_desc" value="webm_desc"><custom-attributes tlkey="lb_webm_desc"></custom-attributes></label>
+			<textbox hflex="1" style="max-width:480px" id="webm_desc"/>
+		</row>
+		<row>
+			<label hflex="1" id="lb_webm_url" value="webm_url"><custom-attributes tlkey="lb_webm_url"></custom-attributes></label>
+			<textbox hflex="1" style="max-width:800px" id="webm_url"/>
+		</row>
+		<row>
+			<vbox align="end" hflex="1">
+				<label id="lb_webm_img" value="webm_img"><custom-attributes tlkey="lb_webm_img"></custom-attributes></label>
+				<vbox id="webm_img_container" visible="false" align="center">
+					<separator spacing="5px" />
+					<h:i id="webm_img_preview" class="fa webmenu_picon_fa" aria-hidden="true" />
+					<separator spacing="5px" />
+					<h:button id="webm_img_preview_pick" class="btn btn-secondary" style="height:34px" />
+				</vbox>
+			</vbox>
+			<vbox hflex="1">
+				<textbox hflex="1" style="max-width:800px" id="webm_img"/>
+				<vbox id="webm_color_container" visible="false">
+					<label value="background color"/>
+					<h:div class="webmenu_color_layout background_color">
+					</h:div>
+					<label value="main color"/>
+					<h:div class="webmenu_color_layout main_color">
+					</h:div>
+					<label value="border color"/>
+					<h:div class="webmenu_color_layout border_color">
+					</h:div>
+				</vbox>
+			</vbox>
+		</row>
+	</rows>
+</grid>
+</zk>

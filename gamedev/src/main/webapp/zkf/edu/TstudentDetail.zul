@@ -1,0 +1,14 @@
+<zk>
+<div width="250px">
+<vlayout>
+	<hlayout>
+		json_tb<textbox id="json_tb"></textbox>
+	</hlayout>
+	<hlayout> 
+		json_cb<checkbox id="json_cb"/>
+	</hlayout>
+</vlayout>
+
+
+</div>
+</zk>

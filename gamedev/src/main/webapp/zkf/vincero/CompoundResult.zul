@@ -1,0 +1,154 @@
+<zk>
+<style>
+.MicYaheifont {
+	font-family: "Arial", Sans-serif;
+	font-weight: bold;
+	font-size: 25px;
+}
+
+.listbox {
+    display: table !important;
+    background-color: white !important;
+}
+
+.genListCell {
+	background-color: white !important;
+}
+</style>
+
+<div id="crdiv">
+
+	<vlayout sclass="zkbi-form-content">
+                
+		
+		
+		<hlayout>
+		<div width="100px"></div>
+		<vlayout>
+
+		<window style="background-color: white !important; border-radius: 10px !important" border="none" width="500px">
+		<caption label="Fill in the yellow boxes" style=" color:red; text-align:center; font-weight:bold !important; font-size: 25px !important; width:100%;"/>
+		    <grid width="100%">
+		    	<columns>
+		    		<column hflex="3"/>
+		    		<column hflex="1"/>
+		    		<column hflex="6"/>
+		    	</columns>
+		        <rows>
+		            <row style="background-color: #304496 !important; color:#FFFFFF !important;">
+		                <label style="color: #FFFFFF !important;" value="Capital (USD)" hflex="3"/>
+		                <label style="color: #FFFFFF !important;" hflex="1"/>
+		                <doublebox hflex="6 !important" id="cprtn_capital" style="background-color:#ffff00"/>
+		            </row>
+		            <row style="background-color: #304496 !important;">
+		                <label style="color: #FFFFFF !important;" hflex="3">Win Rate (%)</label>
+		                <label style="color: #FFFFFF !important;" hflex="1">(+/-2%)</label>		                
+		                <doublebox hflex="6" id="cprtn_winrate" style="background-color:#ffff00"/>
+		            </row>
+		            <row style="background-color: #304496 !important;">
+		                <label style="color: #FFFFFF !important;" value="Risk Reward Ratio" hflex="3"/>
+		                <label hflex="1"></label>
+		                <doublebox hflex="6" id="cprtn_rewardratio" style="background-color:#ffff00"/>
+		            </row>
+		            <row style="background-color: #304496 !important">
+		                <label style="color: #FFFFFF !important;" value="Risk Per Trade (%)" hflex="3"/>
+		                <label hflex="1"></label>
+		                <doublebox hflex="6" id="cprtn_riskpertrade" style="background-color:#ffff00"/>
+		            </row>
+		        </rows>
+		    </grid>
+		</window>
+
+			<div height="50px"> </div>
+			<vlayout style="background-color:#fff8f8">
+				<div style="background-color:#304496;color:white;" align="center">Result After 100 Trades</div>
+				<hlayout>
+					<div width="200px" align="right" >Win</div>
+					<div width="100px" align="right" >
+						<intbox style="text-align: right;" id="cprtn_wincount" readonly="true"/>
+					</div>
+					<div width="10px"></div>
+					<div ><label>trades</label></div>
+				</hlayout>
+				<hlayout>
+					<div width="200px" align="right" >Loss</div>
+					<div width="100px" align="right" >
+						<intbox style="text-align: right;" id="cprtn_losscount" readonly="true"/>
+					</div>
+					<div width="10px"></div>
+					<div ><label>trades</label></div>
+				</hlayout>
+				<hlayout>
+					<div width="200px" align="right" >Balance after 100 trades</div>
+					<div width="100px" align="right" >
+						<doublebox style="text-align: right;" id="cprtn_lastbal" readonly="true"/>
+					</div>
+					<div width="10px"></div>
+					<div><label>USD</label></div>
+				</hlayout>
+				<hlayout>
+					<div width="200px" align="right" >Total Gain/(Loss)</div>
+					<div width="100px" align="right" >
+						<doublebox style="text-align: right;" id="cprtn_totalpl" readonly="true"/>
+					</div>
+					<div width="10px"></div>
+					<div><label>USD</label></div>
+				</hlayout>
+				<hlayout>
+					<div width="200px" align="right" >Return Rate</div>
+					<div width="100px">
+						<doublebox style="text-align: right;" id="cprtn_rtnrate" readonly="true"/>
+					</div>
+					<div width="10px"></div>
+					<div><label>%</label></div>
+				</hlayout>
+			</vlayout>
+			<div height="50px"> </div>
+			<div align="center">
+				<button width="200px" id="btRecalWorkSheet" label="Click to Re-calculate"></button>
+				<button width="200px" id="btSaveWorkSheet" label="Save Work Sheet"></button>
+				<button width="200px" id="btLoadWorkSheet" label="Load Work Sheet"></button>
+			</div>
+		</vlayout>
+		<div width="150px"></div>
+		<vlayout>
+		<div align="center" style="color:red;"><label class="MicYaheifont !important" style="font-size:25px!important">Simulated Track Records</label></div>
+		<div align="center">
+			<listbox id="list_compoundresult" height="600px">
+			<!-- 
+			<auxhead>
+			<auxheader label="Date"/>
+			<auxheader label="Invoice No." />
+			<auxheader label="Amount" colspan="2"/>
+			</auxhead>
+			 -->
+				<listhead>
+					<listheader width="50px">Trade</listheader>
+					<listheader width="100px">Result</listheader>
+					<listheader width="100px">Risk</listheader>
+					<listheader width="100px">Gain/Loss</listheader>
+					<listheader width="100px">Balance</listheader>
+				</listhead>
+				<!-- 
+				<listitem>
+					<listcell label="1"/>
+					<listcell label="Win"/>
+					<listcell label="60"/>
+					<listcell label="90"/>
+					<listcell label="3090"/>
+				</listitem>
+				<listitem>
+					<listcell label="2"/>
+					<listcell label="Loss"/>
+					<listcell label="65"/>
+					<listcell label="-65" style="color:red!important"/>
+					<listcell label="3025"/>
+				</listitem>
+				 -->
+			</listbox>
+		</div>
+		</vlayout>
+		</hlayout>
+	</vlayout>
+</div>
+</zk>

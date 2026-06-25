@@ -1,0 +1,48 @@
+{
+  "intro.tag": "Buy Wine Online",
+  "intro.h1": "Your Perfect Bottle Awaits",
+  "intro.p": "Discover an exceptional selection of fine wines and spirits, carefully curated to suit every palate and occasion.\nEach bottle tells a story of craftsmanship, tradition, and passion; all waiting to be explored.",
+  "intro.button": "Buy Now",
+
+  "regions.tagline": "Where climate, culture, and terroir shape every bottle.",
+  "regions.h2": "Discover the World’s Finest Wine Regions",
+  "regions.p": "At Wine Cave, we provide exceptional wine and spirits consignment services tailored for industry traders and private clients around the globe. \nOur HKQAA Certified facilities ensure your collection is preserved with the utmost care and precision -Where climate, culture, and terroir shape every bottle.",
+
+  "search.h3": "All Wines",
+  "search.fullList": "Full Wine List",
+  "search.pdf": "📄 PDF List",
+  "search.excel": "🟩 Excel List",
+  "search.filters.wine": "Wine",
+  "search.filters.vintage": "Vintage",
+  "search.filters.region": "Region",
+  "search.filters.type": "Type",
+  "search.filters.country": "Country",
+  "search.filters.size": "Bottle Size",
+  "search.filters.points": "Minimum Points",
+  "search.filters.price": "Price Range",
+  "search.filters.clear": "Clear Filter",
+  "search.filters.search": "Search",
+  "search.downloadResults": "Download Search Results",
+
+  "regions.list": [
+    "Aconcagua Valley","Alsace","Beaujolais","Marlborough",
+    "Bordeaux","Burgundy","California","Olive Oil",
+    "Colchagua Valley","Douro","Jura","South Australia",
+    "Languedoc Roussillon","Loire","Maipo Valley","Tokaj",
+    "Mendoza","Mosel","Victoria","Champagne",
+    "Provence","Scotland","Western Cape","Western Australia",
+    "Southern France - Red","Southern France - White","Rhone","Piedmont",
+    "Tuscany","Veneto","Vin de Pays"
+  ],
+
+  "consent.no": "No",
+  "consent.yes": "Yes",
+
+  "stats.h3.a": "We don’t just care about wine — we care about the people behind every collection.",
+  "stats.h3.b.pre": "Our journey is built on trust, expertise, and a shared passion for excellence.",
+  "stats.h3.b.hl": "",
+  "stats.item1": "Nearly 400,000 bottles sold",
+  "stats.item2": "Transactions completed",
+  "stats.item3.unit": "Years",
+  "stats.item3": "of transaction records"
+}

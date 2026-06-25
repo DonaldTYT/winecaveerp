@@ -1,0 +1,28 @@
+<zk>
+<window width="600px" apply="com.uniinformation.zkf.winecave.ZkComposerWineList">
+	<vlayout>
+		<div align="center">Print Wine List</div>
+		<hlayout>
+			<div width="100px" align="right">
+			<label>Customer </label>
+			</div>
+			<combobox id="cust1">
+				<custom-attributes listView="wc.Customer" listColumn="vd_vcode"></custom-attributes>
+			</combobox>
+		</hlayout>
+		<div align="center">
+			<button width="100px" id="btOK" label="Print">
+			<!--
+				<custom-attributes actionHandler="com.uniinformation.erpv4.PerfJsonRpcReport" actionId="erpv4PrintInvList" actionData="{'fileName':'ap_invoice_list.pdf'}"></custom-attributes>
+				-->
+			</button>
+		</div>
+	</vlayout>
+	<div visible="false">
+		<textbox id="localccy" text="MOP"></textbox>
+		<textbox id="cocode" text="001"></textbox>
+		<textbox id="module" text="AP"></textbox>
+		<textbox id="orderby" text="1"></textbox>
+	</div>
+</window>
+</zk>

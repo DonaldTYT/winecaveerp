@@ -1,0 +1,326 @@
+<zk xmlns:h="native">
+    <style>
+        .myWfmMsgHdrDiv {
+        	.myWfmMsgHdr {
+        		font-size:14px !important;
+        		line-height: 1.3 !important;
+        		overflow-wrap: break-word;
+        	}
+		}
+        .myWfmMsgHdrDiv.user {
+        	.myWfmMsgHdr {
+        		font-size:12px !important;
+        		line-height: 1.3 !important;
+        		color: #25a2d2;
+        	}
+        }
+        .myWfmMsgHdrDiv.time {
+        	margin: 3px -3px -6px 0;
+			text-align: right;
+        	.myWfmMsgHdr {
+        		font-size:12px !important;
+        		line-height: 1.3 !important;
+        		color: grey;
+        	}
+        }
+        .myListBox {
+            background: black;
+        }
+        .zkbi-whitebg-listbox {
+        	overflow: auto;
+        }
+        .zkbi-whitebg-listbox:not(.zkbi-linkcomp-listbox):not(.jxselopt) > .z-listbox-body .z-listbox-odd .z-listcell,
+		.zkbi-whitebg-listbox:not(.zkbi-linkcomp-listbox):not(.jxselopt) > .z-listbox-body .z-listcell,
+		.zkbi-whitebg-listbox:not(.zkbi-linkcomp-listbox):not(.jxselopt) > .z-listbox-body .z-listitem-selected .z-listcell,
+		.zkbi-whitebg-listbox:not(.zkbi-linkcomp-listbox):not(.jxselopt) > .z-listbox-body, 
+		.zkbi-whitebg-listbox:not(.zkbi-linkcomp-listbox):not(.jxselopt) > .z-listbox-body .z-listbox-emptybody-content {
+        	background: #ffefbe !important;
+		}
+        .zkbi-whitebg-listbox>.z-listbox-body .z-listcell>.z-listcell-content>.z-div   {
+        	width: initial !important; 
+        }
+        .zkbi-whitebg-listbox>.z-listbox-body .z-listitem .z-listcell {
+        	border-top: 1px solid #ffefbe;
+        }
+        .myalign_right {
+        	display: flex;
+        	flex-direction: column;
+        	border-radius: 5px;
+			margin: 0 12px auto auto;
+			background: #DCF8C6;
+			padding: 5px;
+			color: black;
+			max-width: calc(100% - 24px);
+        	width: initial !important;
+			.bubble-arrow {
+      			position: absolute;
+      			width: 0;
+      			right: 14px;      
+        		bottom: 40px;
+      			z-index: -1;
+			}
+    		.bubble-arrow:after {
+      			content: "";
+      			position: absolute;
+      			border: 0 solid transparent;
+      			border-top: 9px solid #DCF8C6;
+      			border-radius: 0 20px 0;
+      			width: 15px;
+      			height: 30px;
+      			transform: rotate(45deg) scaleY(-1);
+   			}
+        }
+		.myalign_center {
+        	display: flex;
+        	flex-direction: column;
+        	border-radius: 5px;
+			margin: 0 auto;
+			background: #bfc4dc;
+			padding: 5px;
+			color: black;
+			max-width: calc(100% - 24px);
+			.bubble-arrow {
+      			position: absolute;
+      			width: 0;
+      			bottom: 42px;
+      			left: 0px;
+      			height: 0;
+      			z-index: -1;
+			}
+    		.bubble-arrow:after {
+      			content: "";
+      			position: absolute;
+      			border: 0 solid transparent;
+      			border-top: 9px solid #bfc4dc;
+      			border-radius: 0 20px 0;
+      			width: 15px;
+      			height: 30px;
+      			transform: rotate(145deg);
+   			}
+		}
+		.myalign_left {
+        	display: flex;
+        	flex-direction: column;
+        	border-radius: 5px;
+			margin: 0 0 0 12px;
+			background: #fff;
+			padding: 5px;
+			color: black;
+			max-width: calc(100% - 24px);
+			.bubble-arrow {
+      			position: absolute;
+      			width: 0;
+      			top: 0px;
+      			left: 0px;
+      			height: 0;
+      			z-index: -1;
+			}
+    		.bubble-arrow:after {
+      			content: "";
+      			position: absolute;
+      			border: 0 solid transparent;
+      			border-top: 9px solid #fff;
+      			border-radius: 0 20px 0;
+      			width: 15px;
+      			height: 30px;
+      			transform: rotate(145deg);
+   			}
+		}
+		.myVisArea {
+        	border-radius: 20px;
+			background: white;
+		}
+		
+		.myBackBtn .z-toolbarbutton-content>i {
+			font-size: 48px;
+			color: #fff;
+			text-shadow: 1px 1px 1px #000, 0px 0px 1px #000, 1px 1px 1px #000, 0px 0px 1px #000;
+		}
+		.myHeaderLayout div.z-vlayout-inner {
+			padding-bottom: 0px !important;
+		}
+		.myHeaderLayout div.z-vlayout-inner .z-hlayout {
+			line-height: 1.3;
+		}
+		.myHeaderLayout div.z-vlayout-inner .z-hlayout>.z-hlayout-inner:first-child {
+			width: 42px;
+		}
+		.myHeaderLayout div.z-vlayout-inner .z-hlayout>.z-hlayout-inner:first-child>span {
+			color: grey;
+			font-style: italic;
+			font-size: 12px !important;
+			line-height: 1.5 !important;
+		}
+		.myHeaderLayout div.z-vlayout-inner .z-hlayout.status {
+			line-height: 1.1;
+		}
+		.myHeaderLayout div.z-vlayout-inner .z-hlayout.status>.z-hlayout-inner:first-child>span {
+			line-height: 1.2 !important;
+		}
+		.myHeaderLayout div.z-vlayout-inner .z-hlayout.action {
+			line-height: 1.1;
+		}
+		.myHeaderLayout div.z-vlayout-inner .z-hlayout.action>.z-hlayout-inner:first-child>span {
+			line-height: 1.8 !important;
+		}
+		.myHeaderLayout div.z-vlayout-inner .z-hlayout.action>.z-hlayout-inner:not(:first-child)>span.z-label {
+			font-size: 18px !important;
+		}
+		.myHeaderLayout div.z-vlayout-inner .z-hlayout.action>.z-hlayout-inner:not(:first-child)>span.z-radiogroup>span.z-radio {
+			margin-right: 5px;
+		}
+		.myHeaderLayout div.z-vlayout-inner .z-hlayout.action>.z-hlayout-inner:not(:first-child)>span.z-radiogroup>span.z-radio>label.z-radio-content {
+			font-size: 18px !important;
+		}
+		.mySendTextbox {
+			width: 100%;
+  			border-radius: 100px !important;
+  			padding: 10px 54px 10px 20px; 
+  			overflow: hidden;
+  			resize: none;
+		}	
+		.narrowtoolbarbutton.z-toolbarbutton.mySendButton {
+  			position: absolute;
+		 	right: 10px; 
+		 	bottom: 8px;
+		}
+		.narrowtoolbarbutton.z-toolbarbutton.mySendButton span>i {
+			font-size: 32px !important;
+		}
+		.narrowtoolbarbutton.z-toolbarbutton.mySendButton[disabled] {
+    		background-color: initial;
+		}
+		.narrowtoolbarbutton.z-toolbarbutton.mySendButton[disabled] .z-toolbarbutton-content {
+    		color: rgba(0,0,0,0.34) !important;
+		}
+		.narrowtoolbarbutton.z-toolbarbutton.mySendButton .z-toolbarbutton-content {
+    		<!--  color: lightblue !important; -->
+    		<!-- 230707 change to more eye catching color -->
+    		color: #0093f9 !important;
+		}
+		.narrowtoolbarbutton.z-toolbarbutton.myUploadButton {
+			margin-top: 8px;
+		}
+		.narrowtoolbarbutton.z-toolbarbutton.myUploadButton span>i {
+			font-size: 32px !important;
+		}
+		.narrowtoolbarbutton.z-toolbarbutton.myUploadButton .z-toolbarbutton-content {
+    		color: #0093f9 !important;
+		}
+		.myWfmImage {
+  			position: absolute;
+		 	right: 54px; 
+		 	bottom: 0;
+		}
+		.mySwitchVlayout .z-vlayout-inner {
+			padding-bottom: 0px !important;
+		}
+		div.mytaskheader.z-hlayout {
+			border: 1px solid #d9d9d9;
+			border-bottom: none;
+			background: #fff;
+		}
+    </style>
+
+
+<div vflex="1">
+	<vlayout vflex="1">
+       	<div align="middle" id="taskDetailEmptyPage" visible="false">Please Select Record</div>
+		<div id="taskDetailPage" vflex="1">
+			<hlayout sclass="mytaskheader">
+   				<toolbarbutton id="btBackToList" visible="false" iconSclass="z-icon-arrow-left" sclass="narrowtoolbarbutton smalltoolbarbutton myBackBtn" tooltiptext="Back"/>
+				<div>
+					<vlayout sclass="myHeaderLayout">
+						<separator height="2px"/>
+						<hlayout sclass="status">
+    						<label>Job</label>
+    						<label id="nodeprop_id"></label>
+    						<space width="0px"/>
+    						<label id="nodeprop_title"></label>
+						</hlayout>
+						<hlayout sclass="status">
+    						<label>Status</label>
+    						<label id="nodeprop_jobstatus"></label>
+						</hlayout>
+						<separator height="6px"/>
+						<hlayout id="nodeprop_taskid_layout" sclass="status">
+    						<label>Task</label>
+    						<label id="nodeprop_taskid"></label>
+    						<space width="0px"/>
+    						<label id="nodeprop_task"></label>
+						</hlayout>
+						<hlayout id="nodeprop_taskstatus_layout" sclass="status">
+    						<label>Status</label>
+    						<label id="nodeprop_taskstatus"></label>
+						</hlayout>
+						<separator height="6px"/>
+						<hlayout sclass="status">
+    						<label>Return</label>
+    						<combobox width="120px"></combobox>
+    						<doublebox width="100px"></doublebox>
+    						<label>Sqm</label>
+						</hlayout>
+						<separator height="15px"/>
+						<hlayout sclass="action">
+    						<label>State</label>
+			  				<label>Start</label>
+	    					<checkbox id="nodeprop_switchstart" mold="switch"/>
+    						<space width="5px"/>
+			  				<label>Complete</label>
+	    					<checkbox id="nodeprop_switchend" mold="switch"/>
+						</hlayout>
+						<separator height="15px"/>
+						<hlayout id="nodeprop_choices_layout" sclass="action">
+    						<label>Action</label>
+   							<radiogroup id="nodeprop_choices">
+								<radio label="Choice0"/>
+								<radio label="Choice1"/>
+								<radio label="Choice2"/>
+   							</radiogroup>
+						</hlayout>
+						<separator height="5px"/>
+					</vlayout>
+				</div>
+			</hlayout>
+			<div id="visNwEventDiv" height="300px" align="middle"> 
+				<h:div style="width:95%; height:95%;" id="visNwContentDiv" class="myVisArea"></h:div>
+			</div>
+			<hlayout>
+				<div hflex="0.1">
+				</div>
+				<div width="80px"> </div>
+			</hlayout>
+			<listbox id="wfmActivity" vflex="1"> </listbox>
+			<!--
+			<div align="middle">
+				<hlayout style="margin-top:5px">
+	  				<vlayout width="100px" sclass="mySwitchVlayout">
+			  			<label>Start</label>
+	    				<checkbox id="nodeprop_switchstart" mold="switch"/>
+	  				</vlayout>
+	  				<vlayout width="100px" sclass="mySwitchVlayout">
+			  			<label>Complete</label>
+	    				<checkbox id="nodeprop_switchend" mold="switch"/>
+	  				</vlayout>
+				</hlayout>
+   				<hlayout style="margin-top:5px">
+   					<radiogroup id="nodeprop_choices">
+						<radio label="Choice0"/>
+						<radio label="Choice1"/>
+						<radio label="Choice2"/>
+   					</radiogroup>
+   				</hlayout>
+			</div>
+			-->
+			<hlayout>
+  				<toolbarbutton id="btUpload" visible="false" iconSclass="z-icon-plus" sclass="narrowtoolbarbutton smalltoolbarbutton myUploadButton" tooltiptext="Upload file"/>
+				<div style="position:relative;margin:2px 0" hflex="1">
+   					<textbox id="wfmMessage" multiline="true" rows="2" sclass="mySendTextbox"></textbox>
+   					<image id="wfmImage" visible="false" width="48px" src="images/camera.png" sclass="myWfmImage"></image>
+   					<toolbarbutton id="btSubmitChange" disabled="true" iconSclass="z-icon-paper-plane" sclass="narrowtoolbarbutton smalltoolbarbutton mySendButton" tooltiptext="Click to send"/>
+				</div>
+			</hlayout>
+		</div>
+	</vlayout>
+</div>
+</zk>

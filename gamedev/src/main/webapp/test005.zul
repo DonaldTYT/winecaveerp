@@ -1,0 +1,11 @@
+<zk>
+  <window border="normal" title="hello">
+  <div width = "400px" style="background-color:#D9D9D9;" height="100px" >
+  <hlayout>
+  <toolbarbutton label="HAHA" checked="false" mode="toggle"></toolbarbutton>
+  <toolbarbutton label="HAHA" checked="false" mode="toggle" disabled="true"></toolbarbutton>
+  <toolbarbutton label="HAHA" checked="true" mode="toggle"></toolbarbutton>
+  </hlayout>
+  </div>
+  </window>
+</zk>

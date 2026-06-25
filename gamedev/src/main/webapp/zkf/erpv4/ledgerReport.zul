@@ -1,0 +1,30 @@
+<zk>
+	<div align="center">
+		<vlayout>
+			<div height="10px"/>
+			<label>Ledger Report</label>
+			<div height="10px"/>
+			<label>Date Range </label>
+			<div>
+				<hlayout>
+					<datebox id="sdate" format="yyyy/MM/dd"></datebox>
+					<label>-</label>
+					<datebox id="edate" format="yyyy/MM/dd"></datebox>
+				</hlayout>
+			</div>
+			<div height="10px"/>
+			<checkbox id="cbIncludeNoActivity" label="Include No Activity"></checkbox>
+			<checkbox id="cbPrintDetail" label="Print Detail"></checkbox>
+			<checkbox id="cbOutputExcel" label="Output To Excel"></checkbox>
+			<label>Selection</label>
+			<label id="rptCondition"></label>
+			<div align="center">
+				<hlayout>
+				<button width="100px" id="btGenerate" label="Generate"> </button>
+				<div width="30px"/>
+				<button width="100px" id="btPrint" label="Print"> </button>
+				</hlayout>
+			</div>
+		</vlayout>
+	</div>
+</zk>
