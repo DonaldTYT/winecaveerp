@@ -1,0 +1,14 @@
+<zk>
+	<div align="left">
+		<vlayout>
+			<div>
+				<hlayout>
+					<label>Date Range </label>
+					<datebox id="stmt_sdate" format="yyyy/MM/dd"></datebox>
+					<label>-</label>
+					<datebox id="stmt_edate" format="yyyy/MM/dd"></datebox>
+				</hlayout>
+			</div>
+		</vlayout>
+	</div>
+</zk>

@@ -316,7 +316,7 @@ public class ZkBiComposerBase extends ZkBiComposerView implements Composer<Compo
 //    Menupopup menupopup;
 	protected List<String> defaultColumnOrders;
 	protected Hashtable<String,BiActionHandler> bahHash;
-    
+	protected String detailIcon = "images/icons/zkweb/039-file-3-20x20.png" ; 
     protected interface ZkBiTimerEventInterface   //TODO: need to simplify and generalized export dialog
     {
     	public void onTimerFired();
@@ -1512,7 +1512,8 @@ public class ZkBiComposerBase extends ZkBiComposerView implements Composer<Compo
     					if(!multiSelect && hasDetailButton) {
    							Toolbarbutton tbb = new Toolbarbutton();
    							tbb.setSclass("narrowtoolbarbutton");
-   							tbb.setImage("images/icons/zkweb/039-file-3-20x20.png");
+//							tbb.setImage("images/icons/zkweb/039-file-3-20x20.png");
+							tbb.setImage(detailIcon);   							
    							tbb.setTooltiptext(sessionHelper.getTtLabel("Record Detail"));
     						tbb.addEventListener(Events.ON_CLICK, itemClickListener);
     						lc.appendChild(tbb);
@@ -10294,5 +10295,9 @@ public class ZkBiComposerBase extends ZkBiComposerView implements Composer<Compo
                 	Messagebox.show(sessionHelper.getLabel("File Not Selected"));
   			}
 		}
+    }
+    
+    public Object getStateValue(String key) {
+    	return(null);
     }
 }

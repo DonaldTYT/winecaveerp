@@ -27,8 +27,9 @@ public class DynamicClassLoader extends ClassLoader{
         try {
         	if(classPath == null) {
 //        		classPath = ZkUtil.getClassRootPath();  //andrew230619 fix classpath contain classname
-        		
-        		classPath = DynamicClassLoader.class.getProtectionDomain().getCodeSource().getLocation().getPath();
+        		Class dummy = Class.forName("com.uniinformation.dynamic.dummy");
+        		classPath = dummy.getProtectionDomain().getCodeSource().getLocation().getPath();
+//        		classPath = DynamicClassLoader.class.getProtectionDomain().getCodeSource().getLocation().getPath();
         		
         		classPath = StringUtils.removeEnd(classPath , StringUtils.replaceChars(DynamicClassLoader.class.getName(),'.','/') +".class");
         		//append slash

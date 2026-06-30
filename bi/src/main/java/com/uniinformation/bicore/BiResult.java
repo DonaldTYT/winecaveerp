@@ -1772,11 +1772,21 @@ public class BiResult implements GetCellInterface {
 				
 				}
 			}
-			if(conditionList != null && conditionList.get(null) != null) {
-				Condition cond = conditionList.get(null);
+//			if(conditionList != null && conditionList.get(null) != null) {
+//				Condition cond = conditionList.get(null);
+//				for(int i=resultTr.getRecordCount()-1;i>=0;i--) {
+//					loadOneRec(i,currentCol,false);
+//					if(!cond.eval(currentCol)) {
+//						resultTr.deleteRecord(i);
+//					}
+//				}
+//			}
+			Condition nullCond = (conditionList == null ? null : conditionList.get(null));
+			nullCond = addExtraNullCond(nullCond);
+			if(nullCond != null) {
 				for(int i=resultTr.getRecordCount()-1;i>=0;i--) {
 					loadOneRec(i,currentCol,false);
-					if(!cond.eval(currentCol)) {
+					if(!nullCond.eval(currentCol)) {
 						resultTr.deleteRecord(i);
 					}
 				}
@@ -5007,7 +5017,9 @@ public class BiResult implements GetCellInterface {
 			throw (ex);
 		}
 	}
-	
+	protected Condition addExtraNullCond(Condition nullCond) {
+		return(nullCond);
+	}	
 	protected HashSet<BiTable> addExtraWhereStr(Wherecl p_where,HashSet<BiTable> p_hash)
 	{
 		// return null if(no extra wherecl or the wherecl only include master table, otherwise, shoule retune the set of subtables to ensure that the generated querey string will not outer the subtable, causing incorrect result

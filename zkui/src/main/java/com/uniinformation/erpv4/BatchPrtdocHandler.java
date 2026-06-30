@@ -58,6 +58,10 @@ public abstract class BatchPrtdocHandler extends BiActionHandler implements Prtd
 		return(ReturnMsg.defaultOk);		
 	}
 
+	protected boolean skipPrint() {
+		return(false);
+	}
+	
 	@Override
 	public ReturnMsg processAction(BiResult p_result, int p_recIdx) {
 		try {
@@ -66,7 +70,7 @@ public abstract class BatchPrtdocHandler extends BiActionHandler implements Prtd
 				if(!ok) return(new ReturnMsg(false,sh.getLabel("Fetch Record failed")));
 			}
 			br = p_result;
-			print();
+			if(!skipPrint()) print();
 			return(ReturnMsg.defaultOk);
 		} catch (Exception ex) {
 			UniLog.log(ex);
