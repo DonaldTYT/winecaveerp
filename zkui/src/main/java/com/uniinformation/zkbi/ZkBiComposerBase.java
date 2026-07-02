@@ -68,6 +68,7 @@ import org.zkoss.zk.ui.util.*;
 import org.zkoss.zk.ui.event.*;
 import org.zkoss.zk.ui.ext.ScopeListener;
 import org.zkoss.zk.ui.metainfo.ComponentDefinition;
+import org.zkoss.zk.ui.select.Selectors;
 import org.zkoss.zul.*;
 import org.zkoss.zul.Messagebox.ClickEvent;
 import org.zkoss.zul.Window.Mode;
@@ -316,7 +317,7 @@ public class ZkBiComposerBase extends ZkBiComposerView implements Composer<Compo
 //    Menupopup menupopup;
 	protected List<String> defaultColumnOrders;
 	protected Hashtable<String,BiActionHandler> bahHash;
-	protected String detailIcon = "images/icons/zkweb/039-file-3-20x20.png" ; 
+	protected String detailIcon = "images/icons/zkweb/039-file-3-20x20.png" ;
     protected interface ZkBiTimerEventInterface   //TODO: need to simplify and generalized export dialog
     {
     	public void onTimerFired();
@@ -967,7 +968,6 @@ public class ZkBiComposerBase extends ZkBiComposerView implements Composer<Compo
   		sessionHelper.logJVMStat();
   		return(result);
    	}
-   	
    	public void doAfterCompose(final Component comp) throws Exception { 
    		super.doAfterCompose(comp);
    		if(hasAUDColumn == null) hasAUDColumn = true;
@@ -1512,8 +1512,8 @@ public class ZkBiComposerBase extends ZkBiComposerView implements Composer<Compo
     					if(!multiSelect && hasDetailButton) {
    							Toolbarbutton tbb = new Toolbarbutton();
    							tbb.setSclass("narrowtoolbarbutton");
-//							tbb.setImage("images/icons/zkweb/039-file-3-20x20.png");
-							tbb.setImage(detailIcon);   							
+//   							tbb.setImage("images/icons/zkweb/039-file-3-20x20.png");
+   							tbb.setImage(detailIcon);
    							tbb.setTooltiptext(sessionHelper.getTtLabel("Record Detail"));
     						tbb.addEventListener(Events.ON_CLICK, itemClickListener);
     						lc.appendChild(tbb);
@@ -1549,12 +1549,7 @@ public class ZkBiComposerBase extends ZkBiComposerView implements Composer<Compo
     				int align = result.getCell(biColumn.getLabel()).getAlignment();
     				
     				lc = new Listcell();
-//    				Label lb = new Label(str);
-//    				if(sclass != null) lb.setSclass(sclass);
-//    				lb.setParent(lc);
-//    				lc.setParent(item);
-//    				lc.setAttribute("bclabel", biColumn.getLabel());
-       				Label lb = null;
+    				Label lb = null;
     				if(biColumn.getColumnType().equals("html")) {
     					Html h = new Html();
     					h.setContent(str);
@@ -1602,8 +1597,12 @@ public class ZkBiComposerBase extends ZkBiComposerView implements Composer<Compo
     				}
     				*/
     				//andrew220928 fix quick search highlight matched value
+    				if(biColumn.getColumnType().equals("html")) {
+    					
+    				} else {
     				if (doSearchSingle(lb.getValue(),i)){
     					ZkUtil.appendStyle(lc, "background-color:rgba(255,255,0,0.3);");
+    				}
     				}
     				
    					//ZkUtil.appendStyle(lc,"white-space:nowrap;overflow:hidden;text-overflow:ellipsis;");
@@ -1635,33 +1634,41 @@ public class ZkBiComposerBase extends ZkBiComposerView implements Composer<Compo
     			} 
     			else { //for mobile
     				BiColumn biColumn = (BiColumn) listColumns.get(i);
-    				Label lb0 = new Label(sessionHelper.getLabel(biColumn.getEngName()));
-					lb0.setValue(ZkBiTranslateHelper.getText(sessionHelper, biColumn.getCellFullName(), "LABEL", lb0.getValue()));
-    				String str = result.getCell(biColumn.getLabel()).getColumnDisplayString();
-    				Label lb = new Label(str);
-    				String sclass = result.getCell(biColumn.getLabel()).getColumnDisplayClass();
-    				if(sclass != null) {
-    					lb.setSclass(sclass);
-    				}
-    				boolean matchedFlag = doSearchSingle(lb.getValue(),i);
-    				
+    				Label lb0 = null;
+    				Label lb = null;
+    				boolean matchedFlag = false;
 					Div divRow = new Div();
     				divRow.setStyle("display:table-row;");
-    				Div divCell0 = new Div();
-    				divCell0.setStyle("display:table-cell;padding-right:10px;padding-bottom:0px;white-space:nowrap;color:#888;line-height:initial;");
-    				Div divCell = new Div();
-    				divCell.setStyle("display:table-cell;line-height:initial;");
-    				if (matchedFlag){
-    					lb0.setStyle("background-color:yellow;");
-    					lb.setStyle("background-color:yellow;");
-    				}
     				divTb.appendChild(divRow);
-    				divRow.appendChild(divCell0);
-    				divRow.appendChild(divCell);
-    				divCell0.appendChild(lb0);
-    				divCell.appendChild(lb);
-    				divCell.setAttribute("bclabel", biColumn.getLabel());
-
+    				if(biColumn.getColumnType().equals("html")) {
+    					Html h = new Html();
+    					String str = result.getCell(biColumn.getLabel()).getColumnDisplayString();
+    					h.setContent(str);
+    					h.setParent(divRow);
+    				} else {
+    					lb0 = new Label(sessionHelper.getLabel(biColumn.getEngName()));
+    					lb0.setValue(ZkBiTranslateHelper.getText(sessionHelper, biColumn.getCellFullName(), "LABEL", lb0.getValue()));
+    					String str = result.getCell(biColumn.getLabel()).getColumnDisplayString();
+    					lb = new Label(str);
+    					String sclass = result.getCell(biColumn.getLabel()).getColumnDisplayClass();
+    					if(sclass != null) {
+    						lb.setSclass(sclass);
+    					}
+    					matchedFlag = doSearchSingle(lb.getValue(),i);
+    					Div divCell0 = new Div();
+    					divCell0.setStyle("display:table-cell;padding-right:10px;padding-bottom:0px;white-space:nowrap;color:#888;line-height:initial;");
+	    				Div divCell = new Div();
+	    				divCell.setStyle("display:table-cell;line-height:initial;");
+	    				if (matchedFlag){
+	    					lb0.setStyle("background-color:yellow;");
+    						lb.setStyle("background-color:yellow;");
+	    				}
+	    				divRow.appendChild(divCell0);
+    					divRow.appendChild(divCell);
+    					divCell0.appendChild(lb0);
+    					divCell.appendChild(lb);
+    					divCell.setAttribute("bclabel", biColumn.getLabel());
+    				}
     				if (biColumn.isExcludeForMobile() || 
     						(sessionHelper.getMobileMaxCol() > 0 && colDisplayedCnt>=sessionHelper.getMobileMaxCol() && !matchedFlag)){
     					divRow.setSclass("zkbi-hide-mobile-exclude");
@@ -2385,7 +2392,9 @@ public class ZkBiComposerBase extends ZkBiComposerView implements Composer<Compo
     		    public void onZkBiEvent(Event event) throws Exception {
     		    	if(multiSelect) {
     		    		UniLog.log("multiselect mode, ignore click action");
+    		    		if(!sessionHelper.useNewMobileScreenAdjust()) {
     		    		showWarnMsg(sessionHelper.getLabel("Batch mode not allowed to select record"));
+    		    		}
     		    		return;
     		    	} 
     		    	//round 1: obtain trStat from attribute (handle open toolbar button)
@@ -2818,7 +2827,11 @@ public class ZkBiComposerBase extends ZkBiComposerView implements Composer<Compo
     			batchModeToggleButton.addEventListener("onClick", new ZkBiEventListener(){
     				public void onZkBiEvent(Event arg0) throws Exception {
     					UniLog.log("Toogle multiple select change to " + !multiSelect);
-    					setMultiSelectMode(!multiSelect,result);
+    					if(result.getView().newBatchUpdate())  {
+    						setMultiSelectMode(true,result);
+    					} else {
+    						setMultiSelectMode(!multiSelect,result);
+    					}
     					setBatchModeToogleButton(multiSelect,result);
 //    					setMultiSelect(!multiSelect,result);
 //   						setSelectIdx(-1,null);
@@ -3301,6 +3314,29 @@ public class ZkBiComposerBase extends ZkBiComposerView implements Composer<Compo
 	    	setListheaderWidth(result, adjustWidthFlag);
     	} 
     	else {  //for mobile
+    		if( result.getSessionHelper().useNewMobileScreenAdjust()) {
+    			batchModeToggleButton = new Toolbarbutton();
+    			batchModeToggleButton.setId("tbMultiSelect");
+    			batchModeToggleButton.setVisible(false);
+    			if (condDiv != null){
+    				queryBar.insertBefore(batchModeToggleButton,condDiv);
+    			}
+    			else{
+    				queryBar.appendChild(batchModeToggleButton);
+    			}
+    			batchModeToggleButton.addEventListener("onClick", new ZkBiEventListener(){
+    				public void onZkBiEvent(Event arg0) throws Exception {
+    					UniLog.log("Toogle multiple select change to " + !multiSelect);
+    					if(result.getView().newBatchUpdate())  {
+    						setMultiSelectMode(true,result);
+    					} else {
+    						setMultiSelectMode(!multiSelect,result);
+    					}
+    					setBatchModeToogleButton(multiSelect,result);
+    				}
+    			});
+    			UniLog.log("Add batch handling for mobile device");
+    		}
     		Listheader browser_listheader = new Listheader();
     		browser_listheader.setParent(listhead);
     	}
@@ -3825,7 +3861,7 @@ public class ZkBiComposerBase extends ZkBiComposerView implements Composer<Compo
 				    	}
 				    	
         			}
-        			listModelList.clearSelection();
+        			if(!p_result.getView().newBatchUpdate()) listModelList.clearSelection();
         			//String strMsg = sessionHelper.getLabel("Records Updated");
         			String strMsg = sessionHelper.getLabel(String.format("%d Records Updated", uptCnt));
         			Messagebox.show(
@@ -3843,7 +3879,21 @@ public class ZkBiComposerBase extends ZkBiComposerView implements Composer<Compo
         			        		UniLog.log(ex);
         			        		Messagebox.show(ex.toString());
         			        	}
-       			        		refresh(p_result,masterWin,(MultiSortMap)mMultiSortMap.clone(),false);
+        			        	if(p_result.getView().newBatchUpdate()) {
+        			        		try {
+        			        		for(Object o : selection) {
+        			        			int listIdx = getListIdxByObj(listModelList, o);
+        			        			int idx = getTrIdxByObj(listModelList, o, -1);
+        			        			p_result.reloadOneRecV(idx);
+        			        			refreshListItems(p_result.getTrStatObj(idx));
+        			        		}
+        			        		} catch (Exception ex) {
+        			        			UniLog.log(ex);
+        			        			Messagebox.show(ex.toString());
+        			        		}
+        			        	} else {
+        			        		refresh(p_result,masterWin,(MultiSortMap)mMultiSortMap.clone(),false);
+        			        	}
         			        } else {
         			        	UniLog.log("Confirm Canceled rollback work");
         			        	p_result.rollbackWork();
@@ -3925,7 +3975,7 @@ public class ZkBiComposerBase extends ZkBiComposerView implements Composer<Compo
     		btnBatchActionBack.addEventListener("onClick",
     			new ZkBiEventListener() {
         			public void onZkBiEvent(Event event) throws Exception {
-						setMultiSelectMode(false,p_result);
+        				if(!p_result.getView().newBatchUpdate()) setMultiSelectMode(false,p_result);
 						setBatchActionConfirmBar(false,p_result);
 						setActionConfirmBar(true,p_result);
         			}
@@ -5074,7 +5124,105 @@ public class ZkBiComposerBase extends ZkBiComposerView implements Composer<Compo
 	        abHelper.addButton(btRecalUpd);
     	}
     	
-    	String ggg = BiConfig.getString(getSessionHelper(),"InvPaperType");
+//    	String ggg = Erpv4Config.getString(getSessionHelper(),"InvPaperType");
+    	for(int i=0;i<10;i++) {
+    		String ss = ((ZkSessionHelper) getSessionHelper()).getViewExtraViewAction(result.getView().getName(),i);
+    		if(ss == null) break;
+    		String ss2[] = ss.split(","); // 0 : buttonLabel, 1 : buttonIcon, 2 : accessKey, 3 : classPath
+			try {
+				final BiActionHandler bah;
+				Class[]	paramTypes = new Class[]{ZkBiComposerBase.class};
+				bah = (BiActionHandler) DynamicClassLoader.newInstance(ss2[3],paramTypes,this);
+//				Button viewActionButton = addBatchBiActionHandler(result,true,BiActionHandler.ActionAccessMode_Custom, ss2[2],"btExtraBatchAction_"+i,sessionHelper.getBtLabel(ss2[0]),ss2[1],bah);
+				Button viewActionButton =  new ZkBiButton();
+		        viewActionButton.setLabel(sessionHelper.getBtLabel(ss2[0]));
+		        viewActionButton.setId("btExtraViewAction_"+i);
+		        
+		        viewActionButton.addEventListener("onClick",
+		            new EventListener() {
+		    			@Override
+		    			public void onEvent(Event arg0) throws Exception {
+		    				UniLog.log(arg0.getTarget().getId()+ " clicked");
+		    				
+		        			ReturnMsg rtn = bah.beforeAction(result,0);
+		        			if(rtn != null && !rtn.getStatus()) {
+		      					Messagebox.show(
+		   							rtn.getMsg(),
+		   							sessionHelper.getLabel("Error Message"), Messagebox.OK, Messagebox.ERROR);
+		       					return;
+		        			}
+		               		if (bah.isUseAsync()) {
+//								Map<String, Object> m = new HashMap<String, Object>();
+//		               			showProgressPanel(true, (ev) -> {
+//		               				m.put("requestStop", true);
+//		               			});
+//		               			setProgressPanelProgress(String.format("Load Record: %d/%d", 0, selection.size()), 0);
+//		               			Iterator<?> it = btn.getEventListeners("onBiAction").iterator();
+//		               			while (it.hasNext())
+//		               				it.remove();
+//		               			Iterator<?> it1 = selection.iterator();
+//		               			m.put("selectionIdx", -1);
+//								m.put("startTime", System.currentTimeMillis());
+//								btn.addEventListener("onBiAction", (ev) -> {
+//									UniLog.log1("event:%s, data:%s", ev, ev.getData());
+//									while (it1.hasNext()) {
+//										if (m.containsKey("requestStop"))
+//											return;
+//										Object o = it1.next();
+//										m.put("selectionIdx", (int)m.get("selectionIdx") + 1);
+//										int idx = /* listModelList.indexOf(o);*/ getTrIdxByObj(listModelList, o);
+//										p_result.loadOneRecV(idx);
+//										ReturnMsg rtn1 = p_handler.processAction(p_result,idx);
+//										UniLog.log1("Load Record:%d,%d", m.get("selectionIdx"), selection.size());
+//										setProgressPanelProgress(String.format("Load Record: %d/%d", (int)m.get("selectionIdx") + 1, selection.size()), ((int)m.get("selectionIdx") + 1) * 100 / selection.size());
+//										if(rtn1 != null && !rtn1.getStatus()) {
+//											hideProgressPanel();
+//											Messagebox.show(rtn1.getMsg(), sessionHelper.getLabel("Error Message"), Messagebox.OK, Messagebox.ERROR);
+//											return;
+//										}
+//										long currentTime = System.currentTimeMillis();
+//										if (currentTime - (long)m.get("startTime") > 5000) {
+//											Events.echoEvent("onBiAction", btn, null);
+//											m.put("startTime", currentTime);
+//											return;
+//										}
+//									}
+//									p_handler.afterActionAsync((rtn1) -> {
+//										if (rtn1 != null && !rtn1.getStatus())
+//					          				Messagebox.show(rtn1.getMsg(), sessionHelper.getLabel("Error Message"), Messagebox.OK, Messagebox.ERROR);
+//										p_handler.afterActionCallback(p_result,rtn1);
+//									});
+//								});
+//								Events.sendEvent("onBiAction", btn, null);
+		               		} else {
+			            		rtn = bah.processAction(result,currSelectIdxXX);
+			            		if(rtn != null && !rtn.getStatus()) {
+			            			Messagebox.show(
+			            					rtn.getMsg(),
+			            			sessionHelper.getLabel("Error Message"), Messagebox.OK, Messagebox.ERROR);
+			            			return;
+			            		}
+		               			rtn = bah.afterAction(result);
+		               			if(rtn != null && !rtn.getStatus()) {
+		      						Messagebox.show(rtn.getMsg(), sessionHelper.getLabel("Error Message"), Messagebox.OK, Messagebox.ERROR);
+		   					    	return;
+		  			    		}
+		               		}	
+		    			}
+		            }
+		        );
+		        
+		        abHelper.addButton(viewActionButton, "fa-user");
+				if(!bah.isVisible(result, true)) viewActionButton.setVisible(false);
+				if(bah.isDisabled(result, true)) viewActionButton.setDisabled(true);
+//				if(bahHash == null) {
+//					bahHash = new Hashtable<String,BiActionHandler>();
+//				}
+//				bahHash.put("btExtraViewAction_"+i, bah);
+			} catch (Exception ex){
+				UniLog.log(ex);
+			}
+    	}
     	for(int i=0;i<10;i++) {
     		String ss = ((ZkSessionHelper) getSessionHelper()).getViewExtraBatchAction(result.getView().getName(),i);
     		if(ss == null) break;
@@ -6375,6 +6523,13 @@ public class ZkBiComposerBase extends ZkBiComposerView implements Composer<Compo
    		 								*/
    		 							}
    		 						}
+   		 					if("WEBCAM".equals(barcodeScanner)) {
+   		 						Clients.evalJavaScript(
+   		 								"if (window.ZkBiCamera) {" +
+   		 								"  ZkBiCamera.close();" +
+   		 								"}"
+   		 						);
+   		 					}
    		 					}
    		 					if (event.getName() != null && event.getName().equals("onBarcodeAttached")){
    		 						String devid = (String) event.getData();
@@ -6446,7 +6601,29 @@ public class ZkBiComposerBase extends ZkBiComposerView implements Composer<Compo
    		 		barcodeScannerImg.addEventListener("onClick",
    		 			new ZkBiEventListener() {
    		 				public void onZkBiEvent(Event event) throws Exception {
-   		 					if("ONDEMAND".equals(barcodeScanner)) {
+   		 					if("WEBCAM".equals(barcodeScanner)) {
+   		 						if(sessionHelper.isMobile()) {
+			Clients.evalJavaScript(
+     					"if (window.ZkBiCamera) {" +
+     					"  ZkBiCamera.open({" +
+     					"    mode: 'scanner'," +
+     					"    autoStopAfterScan: true," +
+     					"    onScan: function(text) {" +
+                        "       var zkComp = getMainComp();" +
+                        "       if (zkComp !== null && typeof zAu !== 'undefined'){" + 
+                        "          zAu.send(new zk.Event(zkComp, 'onBarcodeNotify', text, {toServer:true}));" +
+                        "       }"+
+     					"    }" +
+     					"  });" +
+     					"} else {" +
+     					"  alert('Camera scanner script is not loaded.');" +
+     					"}"
+     				);
+   		 						} else {
+   		 							
+   		 						}
+   		 						
+   		 					} else if("ONDEMAND".equals(barcodeScanner)) {
    		 						/*
    		 						if(
    		 								sessionHelper.isMobile() &&
@@ -7296,7 +7473,9 @@ public class ZkBiComposerBase extends ZkBiComposerView implements Composer<Compo
 //					ZkUtil.setupSelect2(conditionPresetListbox, true, false);
 //				}
 			} else if (event.getName().equals("onSetupEmbedSearch")) {
-				setupEmbedSearch((String)event.getData(), (BiResult)event.getTarget().getAttribute("biResult"));
+				String presetKey = (String) event.getData();
+    			ConditionFieldMap cfm = mConditionPresets.getFieldMap(presetKey);
+				setupEmbedSearch(presetKey, cfm != null ? cfm.getNoembedcolumn() : null, (BiResult)event.getTarget().getAttribute("biResult"));
 			}
 		}
     };
@@ -7972,6 +8151,7 @@ public class ZkBiComposerBase extends ZkBiComposerView implements Composer<Compo
     				@Override
 					public void onEvent(Event event) throws Exception {
     					String qfm = sessionHelper.getURLParam("qfm");
+//    					String[] qfs = (String[])sessionHelper.getURLParams().get("qf");
     					String[] qfs = (String[])getURLParams().get("qf");
     					UniLog.log1("event:%s, qf:%s, qfm:%s", event, qfs, qfm);
    						cbSearchBox.setChecked(!StringUtils.equalsIgnoreCase(qfm, "or"));
@@ -9868,7 +10048,7 @@ public class ZkBiComposerBase extends ZkBiComposerView implements Composer<Compo
     /*
      * Embed advanced search to main list
      * */
-    private void setupEmbedSearch(String preset, final BiResult result) {
+    private void setupEmbedSearch(String preset, List<String> noembedColumnList, final BiResult result) {
     	UniLog.log1("setupEmbedSearch preset:%s,result:%s", preset, result);
     	if (zkbiListTop == null || result == null || !sessionHelper.getAllowEmbedSearch() || isWidget()) return;
     	final String embedSearchParam = ZkUtil.getURLParamFromComp(rootComp, "embedsearch");
@@ -9936,7 +10116,8 @@ public class ZkBiComposerBase extends ZkBiComposerView implements Composer<Compo
 					String oldCondition = cfm.getCustomCondition();
 
 					ZkBiAdvSearch advSearch = (ZkBiAdvSearch)zkbiEmbedSearchDiv.getAttribute("advSearchObject");
-					advSearch.restoreEmbedConditionBlocks(gbEmbed1, divCondition1, oldCondition);
+					if (advSearch.restoreEmbedConditionBlocks(gbEmbed1, divCondition1, oldCondition))
+						hideNoembedColumnComps((List<String>)zkbiEmbedSearchDiv.getAttribute("noembedColumnList"), divCondition1);
 
 					inputFieldsList.customCondition = oldCondition;
 					biBaseRefresh(result);
@@ -9983,7 +10164,9 @@ public class ZkBiComposerBase extends ZkBiComposerView implements Composer<Compo
     		ZkBiAdvSearch advSearch = getAdvSearchForSetupEmbedSearch(preset, result, embedSearchParam);
     		zkbiEmbedSearchDiv.setAttribute("advSearchObject", advSearch);
     		zkbiEmbedSearchDiv.setAttribute("preset", preset);
-    		b = advSearch.restoreEmbedConditionBlocks(gbEmbed, divCondition, inputFieldsList.customCondition);
+    		zkbiEmbedSearchDiv.setAttribute("noembedColumnList", noembedColumnList);
+    		if (b = advSearch.restoreEmbedConditionBlocks(gbEmbed, divCondition, inputFieldsList.customCondition))
+    			hideNoembedColumnComps(noembedColumnList, divCondition);
     	}
     	else
     		b = false;
@@ -10006,6 +10189,22 @@ public class ZkBiComposerBase extends ZkBiComposerView implements Composer<Compo
 			if (isIncludeEmbedSearch() && zkbiEmbedSearchDiv.getAttribute("oldHeight") != null)
 				Events.echoEvent("onCustomAfterSize", zkbiEmbedSearchDiv, new AfterSizeEvent(Events.ON_AFTER_SIZE, zkbiEmbedSearchDiv, 0, (Integer)zkbiEmbedSearchDiv.getAttribute("oldHeight")));
     	}
+    }
+    
+    private void hideNoembedColumnComps(List<String> noembedColumnList, Div divCondition) {
+  		UniLog.log1("noembedColumnList:%s", noembedColumnList);
+   		if (noembedColumnList != null && !noembedColumnList.isEmpty()) {
+   			Selectors.find(divCondition, "hlayout").stream().filter(hl -> hl.getAttribute("biColumn") != null).map(hl -> (Hlayout)hl).forEach(hl -> {
+   				BiColumn bc = (BiColumn)hl.getAttribute("biColumn");
+   				UniLog.log1("bcLabel:%s", bc.getLabel());
+   				if (noembedColumnList.contains(bc.getLabel())) {
+   					Div connectorComp = (Div)hl.getAttribute("connectorComp");
+   					if (connectorComp != null)
+   						connectorComp.setVisible(false);
+   					hl.setVisible(false);
+   				}
+   			});
+   		}
     }
 
     protected class ZkBiAdvSearchForG2 extends ZkBiAdvSearch {
@@ -10247,45 +10446,47 @@ public class ZkBiComposerBase extends ZkBiComposerView implements Composer<Compo
 	}
 
     protected class ImportWithReloadButtonEventListener extends ZkBiComposerBase.ImportButtonEventListener {
-    	private String template, reloadDataButtonName;
-		public ImportWithReloadButtonEventListener(BiResult result, String template, String reloadDataButtonName) {
+    	private String template, reloadDataButtonName, removeAllRecordCondition;
+		public ImportWithReloadButtonEventListener(BiResult result, String template, String reloadDataButtonName, String removeAllRecordCondition) {
 			super(result);
 			this.template = template;
 			this.reloadDataButtonName = reloadDataButtonName;
+			this.removeAllRecordCondition = removeAllRecordCondition;
 		}
    		public void onZkBiEvent(Event event) throws Exception {
    			UniLog.log("Import button pressed");
    			ZkBiFileuploadDlg.get(template, new UploadEventListener());
    		}
 		public class UploadEventListener extends ZkBiComposerBase.ImportButtonEventListener.UploadEventListener {
-			private void markDeleteAllItems(boolean b) {
-				for (Object o : listModelList){
-					int listIdx = getListIdxByObj(listModelList,o);
-					Object ts = o;
-					if (ts instanceof TrStatFilter)
-						ts = ((TrStatFilter)ts).getTrStatIdx();
-					result.markDelete(ts, b);
-					listModelList.set(listIdx, o);
-				}
-			}
 			@Override
     		public void onZkBiEvent(final UploadEvent event) {
 				UniLog.log1("event:%s, targetid:%s", event, event.getTarget().getId());
                 org.zkoss.util.media.Media media = event.getMedia();
                 if(media != null) {
-                	if (StringUtils.equals(event.getTarget().getId(), reloadDataButtonName) && !listModelList.isEmpty()) {
-                		ZkBiMsgbox.show(ZkBiMsgbox.Type.question, "確定要刪除所有記錄？", new String[] {sessionHelper.getBtLabel("Ok"), sessionHelper.getBtLabel("Cancel") }, new ZkBiEventListener<Event>() {
+                	if (StringUtils.equals(event.getTarget().getId(), reloadDataButtonName)) {
+                		ZkBiMsgbox.show(ZkBiMsgbox.Type.question, sessionHelper.getLabel("Are you sure you want to delete all records?"), new String[] {sessionHelper.getBtLabel("Ok"), sessionHelper.getBtLabel("Cancel") }, new ZkBiEventListener<Event>() {
 							@Override
 							public void onZkBiEvent(Event event1) throws Exception {
 								ZkBiMsgboxButton btn = (ZkBiMsgboxButton) event1.getTarget();
 								if (btn.getIdx() == 0) {
-									markDeleteAllItems(true);
-									if (!saveChangeCheck(result)) {
-										markDeleteAllItems(false);
-										return;
-									}
-									if (saveChangeConfirm(result))
+									BiResult sr = null;
+									try {
+										sr = BiResultHelper.create(sessionHelper, result.getView().getName(), removeAllRecordCondition, -1, null);
+										for (int i = 0; i < sr.getRowCount(); i++) {
+											sr.fetchOneRecV(i);
+											sr.markDelete(sr.getTrStatObj(i), true);
+										}
+										ReturnMsg rtn = sr.batchAddUpdateDelete();
+										if (rtn != null && !rtn.getStatus())
+											throw new Exception(rtn.getMsg());
+										refresh(result,masterWin,-1,true,true); 
 										UploadEventListener.super.onZkBiEvent(event);
+									} catch (Exception e) {
+										ZkBiMsgbox.show(ZkBiMsgbox.Type.error, e.getMessage());
+									} finally {
+										if (sr != null)
+											sr.close();
+									}
 								}
 							}
                 		});

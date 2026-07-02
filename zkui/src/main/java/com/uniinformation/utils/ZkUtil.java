@@ -1280,11 +1280,16 @@ public class ZkUtil extends BiUtil{
 					
 //					if (p_adjustCompWidth /* && !p_sessionHelper.isMobile() */){
 // change back to disable this for mobile device, need to investigate more , 2025/10/02 Donald 
-					if(winWidth.get() > 1000) offset = -300;
-					if (p_adjustCompWidth && !p_sessionHelper.isMobile() ){
+//					if(winWidth.get() > 1000) offset = -300;
+//					if (p_adjustCompWidth && !p_sessionHelper.isMobile() ){
+//						UniLog.log1("winWidth:%d, offset:%d, p_adjustCompWidthOffset:%d", winWidth.get(), offset, p_adjustCompWidthOffset);
+//						delayAutoAdjustWinWidthOne(p_comp, winWidth.get() + offset + p_adjustCompWidthOffset);
+//					}
+					if (p_adjustCompWidth  && !p_sessionHelper.useNewMobileScreenAdjust()){
 						UniLog.log1("winWidth:%d, offset:%d, p_adjustCompWidthOffset:%d", winWidth.get(), offset, p_adjustCompWidthOffset);
 						delayAutoAdjustWinWidthOne(p_comp, winWidth.get() + offset + p_adjustCompWidthOffset);
-					}
+					}	
+					
 				}
 			}
 		});

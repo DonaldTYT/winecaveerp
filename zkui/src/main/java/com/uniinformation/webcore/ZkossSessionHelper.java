@@ -323,4 +323,8 @@ public class ZkossSessionHelper extends SessionHelper {
 	public String getViewExtraJxFormAction(String p_viewid,int idx) {
 		return(BiConfig.getString(this, JxZkBiBase.replaceViewName(p_viewid)+"_ViewExtraJxFormAction_"+idx));
 	}
+	
+	public String getViewExtraViewAction(String p_viewid,int idx) {
+		return(BiConfig.getString(this, JxZkBiBase.replaceViewName(p_viewid)+"_ViewExtraViewAction_"+idx));
+	}
 }

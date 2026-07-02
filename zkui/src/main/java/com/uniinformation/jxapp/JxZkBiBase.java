@@ -25,6 +25,7 @@ import java.util.Vector;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang.math.NumberUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.json.JSONException;
 import org.json.JSONObject;
 import org.zkoss.zk.ui.Component;
 import org.zkoss.zk.ui.Executions;
@@ -125,6 +126,7 @@ import com.uniinformation.zkcomp.ZkBiFdiv2;
 import com.uniinformation.zkf.ZkfAction;
 import com.uniinformation.cell.AbstractGetItemProperty;
 import com.uniinformation.utils.AttachmentUploadInterface;
+import com.uniinformation.utils.BcTagUtil;
 import com.uniinformation.utils.BiMedia;
 import com.uniinformation.utils.BiUtil;
 import com.uniinformation.utils.DynamicClassLoader;
@@ -2503,7 +2505,7 @@ public class JxZkBiBase extends JxZkBase
     static public JxZkBiBase buildDetailWindow(final BiResult result,final Component dWin, boolean p_isMobile,boolean p_hasAUDColumn,JxZkBiBaseCallback zkcb,Map<String,Object> p_urlParams) 
     {
     	BiResult brAttach=null;
-    	boolean useCompDiv = false;
+    	boolean useCompDiv = false, useCompFdiv2 = false;
     	try{
 			ZkBiRecordCopy recordCopy = null;
     		if(!(dWin instanceof IdSpace)) {
@@ -2652,6 +2654,7 @@ public class JxZkBiBase extends JxZkBase
 				}
 			}
 			useCompDiv = "Y".equals(SessionHelper.getURLParamAsString("useCompDiv",paramMap));
+			useCompFdiv2 = "Y".equals(SessionHelper.getURLParamAsString("useCompFdiv2",paramMap));
 			
 			ArrayList<Integer> rowCntAtCol=null;
 			ArrayList<Integer> colCntAtRow=null;
@@ -2821,14 +2824,21 @@ public class JxZkBiBase extends JxZkBase
 		    				if(curColIdx > colCntAtRow.get(j)) colCntAtRow.set(j,curColIdx);
 		    			}
 		    			
-		    			ZkBiDiv biDiv = new ZkBiDiv();
-//		    			ZkBiFdiv biDiv = new ZkBiFdiv();
-		    			//biDiv.setWidth("800px");
-//		    			biDiv.setCompWidth("600px");
-		    			biDiv.setLabelWidth("200px");
-		    			biDiv.setJxId(biColumn.getLabel());
-		    			biDiv.setContainerStyle("display:flex");
-   			    		ce.appendChild(biDiv);
+		    			if (useCompFdiv2) {
+		    				ZkBiDiv biDiv = new ZkBiFdiv2();
+		    				biDiv.setLabelWidth("200px");
+		    				biDiv.setJxId(biColumn.getLabel());
+   			    			ce.appendChild(biDiv);
+		    			} else {
+		    				ZkBiDiv biDiv = new ZkBiDiv();
+//		    				ZkBiFdiv biDiv = new ZkBiFdiv();
+		    				//biDiv.setWidth("800px");
+//		    				biDiv.setCompWidth("600px");
+		    				biDiv.setLabelWidth("200px");
+		    				biDiv.setJxId(biColumn.getLabel());
+		    				biDiv.setContainerStyle("display:flex");
+   			    			ce.appendChild(biDiv);
+		    			}
 		    			div = (Div) dWin.getFellowIfAny("compdiv_"+biColumn.getLabel(),true);
 
 		    		}
@@ -2992,6 +3002,9 @@ public class JxZkBiBase extends JxZkBase
 						
 						Row contentRow = new Row();
 						org.zkoss.zul.Cell lcol = new org.zkoss.zul.Cell();
+						if(p_isMobile && sessionHelper.useNewMobileScreenAdjust()) {
+							lcol.setStyle("padding-left:0;padding-right:0;");
+						}
 						if(dDerac == null) {
 							dDerac = new DetailDecoration(dWin,p_isMobile,sessionHelper,useCompDiv);
 						}
@@ -4130,6 +4143,10 @@ public class JxZkBiBase extends JxZkBase
 	public void setUpdateAndClose(CloseAction p_action) {
 		defaultUpdateCloseAction = p_action;
 	}
+	public static String replaceViewName(String p_vname) {
+		return(p_vname.replace(".", "_"));
+	}
+	
 	protected boolean addToolBarButton(String p_id,String p_label,String p_icon) {
 		IdSpace isp = (IdSpace) getNativeComponent();
 		Button btn = null;
@@ -4198,7 +4215,10 @@ public class JxZkBiBase extends JxZkBase
 		gipi.setItemMode(BiGetItemProperty.GETITEM_MODE_PICK);
 		p_selopt.jxAdd("pickListBox").setItemListInterface( gipi);
 		p_selopt.setUserData(gipi);
-		p_selopt.setPopupWidth(""+gipi.getRowWidth()+"px");
+		if(p_br.getSessionHelper().isMobile()) {
+		} else {
+			p_selopt.setPopupWidth(""+gipi.getRowWidth()+"px");
+		}
 		p_selopt.modalForm();
 	}		
 	
@@ -4229,7 +4249,10 @@ public class JxZkBiBase extends JxZkBase
 		}
 	}
 	public void onBarcode(String p_barcode) {
-		
+		JSONObject jo = BcTagUtil.getParamsFromBcTag(p_barcode.trim());
+		if(jo != null) {
+			messageBox("Please Close Detail Page First");
+		}
 	}
 
 	protected void afterPickField(String p_FieldName) {

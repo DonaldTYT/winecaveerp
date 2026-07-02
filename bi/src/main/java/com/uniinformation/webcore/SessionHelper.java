@@ -393,6 +393,7 @@ abstract public class SessionHelper {
     String logoutURL = null;
     private boolean enableAutoChineseConvert=false;
 	private String rootMenu="menu_main.html";
+	private boolean newMobileScreenAdjust=false;
 	private static UserAgentAnalyzer userAgentAnalyzeruaa = UserAgentAnalyzer.newBuilder()
 					    .withCache(10000)
 					    .hideMatcherLoadStats()
@@ -1294,6 +1295,9 @@ abstract public class SessionHelper {
 		}
 		if(ini.getString("useNewImport","N").equals("Y")) {
 			useNewImport=true;
+		}
+		if(ini.getString("newMobileScreenAdjust","N").equals("Y")) {
+			newMobileScreenAdjust=true;
 		}
 		
 		Cell.useCorrectDateCompare = ini.getString("useCorrectCellDateCompare","N").endsWith("Y");
@@ -5632,5 +5636,10 @@ abstract public class SessionHelper {
 		return(null);
 	}
 	public void publishEventQueue(Object p_que,String p_eventStr,Object p_data) {
+	}
+	public boolean useNewMobileScreenAdjust() {
+		if(!isMobile()) return(false);
+		if(!useJxFormG2) return(false);
+		return(newMobileScreenAdjust);
 	}
 }
