@@ -1,6 +1,7 @@
 package com.uniinformation.jxapp.erpv4ext;
 
 import java.util.ArrayList;
+
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
@@ -11,55 +12,68 @@ import java.util.Vector;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
+import org.apache.commons.lang3.tuple.Triple;
 import org.zkoss.zk.ui.Component;
-import org.zkoss.zk.ui.event.AfterSizeEvent;
-import org.zkoss.zk.ui.event.EventListener;
-import org.zkoss.zk.ui.event.Events;
 import org.zkoss.zk.ui.util.Clients;
-import org.zkoss.zul.Listbox;
 
-import com.google.common.collect.Lists;
-import com.kyoko.common.DateUtil;
-import com.kyoko.common.ReturnMsg;
 import com.uniinformation.bicore.BiCellCollection;
 import com.uniinformation.bicore.BiGetItemProperty;
 import com.uniinformation.bicore.BiResult;
 import com.uniinformation.bicore.ColumnCell;
+import com.uniinformation.bicore.erpv4ext.BiResultLeaveApplication;
+import com.uniinformation.bicore.erpv4ext.BiResultLeaveApplication.LeaveCal;
+import com.uniinformation.cell.AbstractGetItemProperty;
 import com.uniinformation.cell.Cell;
 import com.uniinformation.cell.CellCollection;
-import com.uniinformation.jx.JxActionListener;
 import com.uniinformation.jx.JxField;
-import com.uniinformation.jx.zk.JxZkGadgetProvider;
 import com.uniinformation.jx.zk.ZkJxPickInput;
-import com.uniinformation.jxapp.JxSelOpt;
 import com.uniinformation.jxapp.JxZkBiBase;
-import com.uniinformation.cell.AbstractGetItemProperty;
+import com.kyoko.common.DateUtil;
 import com.uniinformation.utils.GsonUtil;
 import com.uniinformation.utils.ListUtil;
+import com.kyoko.common.ReturnMsg;
 import com.uniinformation.utils.TableRec;
-import com.uniinformation.utils.TrGetItemProperty;
 import com.uniinformation.utils.UniLog;
 import com.uniinformation.utils.Wherecl;
-import com.uniinformation.webcore.SessionHelper;
+import com.uniinformation.utils.ZkUtil.PickByTableTrForm;
 import com.uniinformation.zkbi.ZkBiAbstractLongOp;
 import com.uniinformation.zkbi.ZkBiCellValueMapper;
 
-public class LeaveApplication extends JxZkBiBase {
-	private static final int MINUTES_PER_LEAVEUNIT = 45;
-	private static final int DAYS_PER_YEAR = 365;
-	private static final int YEAR_TO_IGNORE_MAX_CARRYFORWARD = 2047;
-	public static final int LEAVE_EXPIRE_YEAR = 2;
-	public static final int LEAVEUNIT_PER_DAY = 10;
-	public static final int LEAVEUNIT_PER_HALFDAY = 5;
-	public static final int LEAVEUNIT_MAX_CARRYFORWARD = 40;
-	private static final int LEAVEUNIT_MIN_INCREMENT = 1;
-	private static final double LEAVEUNIT_INCREMENT_ROUNDING = 0.5;
+import static com.uniinformation.bicore.erpv4ext.BiResultLeaveApplication.MINUTES_PER_LEAVEUNIT;
+import static com.uniinformation.bicore.erpv4ext.BiResultLeaveApplication.DAYS_PER_YEAR;
+import static com.uniinformation.bicore.erpv4ext.BiResultLeaveApplication.YEAR_TO_IGNORE_MAX_CARRYFORWARD;
+import static com.uniinformation.bicore.erpv4ext.BiResultLeaveApplication.LEAVE_EXPIRE_YEAR;
+import static com.uniinformation.bicore.erpv4ext.BiResultLeaveApplication.LEAVEUNIT_PER_DAY;
+import static com.uniinformation.bicore.erpv4ext.BiResultLeaveApplication.LEAVEUNIT_PER_HALFDAY;
+import static com.uniinformation.bicore.erpv4ext.BiResultLeaveApplication.DAYS_PER_YEAR;
+import static com.uniinformation.bicore.erpv4ext.BiResultLeaveApplication.LEAVEUNIT_MAX_CARRYFORWARD;
+import static com.uniinformation.bicore.erpv4ext.BiResultLeaveApplication.LEAVEUNIT_MIN_INCREMENT;
+import static com.uniinformation.bicore.erpv4ext.BiResultLeaveApplication.LEAVEUNIT_INCREMENT_ROUNDING;
 
-	public static final Date START_TIME_IN_DAY = new Date(-DateUtil.getGmtOffset());
-	public static final Date END_TIME_IN_DAY = new Date(48 * 3600000 - DateUtil.getGmtOffset());
-	public static final Date MAX_TIME_IN_DAY = new Date(32 * 3600000 - DateUtil.getGmtOffset());
-	public static final Date MAX_DATE = DateUtil.dateTimeStrToDate("2047/12/31");
-	public static final int MAX_MINUTE_IN_DAY = 24 * 60;
+import static com.uniinformation.bicore.erpv4ext.BiResultLeaveApplication.START_TIME_IN_DAY;
+import static com.uniinformation.bicore.erpv4ext.BiResultLeaveApplication.END_TIME_IN_DAY;
+import static com.uniinformation.bicore.erpv4ext.BiResultLeaveApplication.MAX_TIME_IN_DAY;
+import static com.uniinformation.bicore.erpv4ext.BiResultLeaveApplication.MAX_DATE;
+import static com.uniinformation.bicore.erpv4ext.BiResultLeaveApplication.MAX_MINUTE_IN_DAY;
+
+
+
+public class LeaveApplication extends JxZkBiBase {
+//	private static final int MINUTES_PER_LEAVEUNIT = 45;
+//	private static final int DAYS_PER_YEAR = 365;
+//	private static final int YEAR_TO_IGNORE_MAX_CARRYFORWARD = 9999;
+//	public static final int LEAVE_EXPIRE_YEAR = 2;
+//	public static final int LEAVEUNIT_PER_DAY = 10;
+//	public static final int LEAVEUNIT_PER_HALFDAY = 5;
+//	public static final int LEAVEUNIT_MAX_CARRYFORWARD = 40;
+//	private static final int LEAVEUNIT_MIN_INCREMENT = 1;
+//	private static final double LEAVEUNIT_INCREMENT_ROUNDING = 0.5;
+//
+//	public static final Date START_TIME_IN_DAY = new Date(-DateUtil.getGmtOffset());
+//	public static final Date END_TIME_IN_DAY = new Date(48 * 3600000 - DateUtil.getGmtOffset());
+//	public static final Date MAX_TIME_IN_DAY = new Date(36 * 3600000 - DateUtil.getGmtOffset());
+//	public static final Date MAX_DATE = DateUtil.dateTimeStrToDate("2037/12/31");
+//	public static final int MAX_MINUTE_IN_DAY = 24 * 60;
 
 	LeaveCal leaveCal;
 
@@ -92,7 +106,10 @@ public class LeaveApplication extends JxZkBiBase {
 			leaveCal.clearLvUtilList("");
 			leaveCal.genCalLeave("AL", eid, almaxd1);
 			leaveCal.genCalLeave("CL", eid, almaxd1);
-			Vector<BiCellCollection> recs = getBr().getSubLinkResult("erpv4ext.LeaveApplicationDet");
+			//leaveCal.dumpLvUtilList() ;
+			Vector<BiCellCollection> recs = getBr().getSubLinkResult(
+					((BiResultLeaveApplication) getBr()).getLeaveAppliationDetViewName()
+					);
 			for (BiCellCollection cc : recs) {
 				String ltype = cc.getString("lv_ltype");
 				String stfd = cc.getString("lv_stfd");
@@ -106,7 +123,8 @@ public class LeaveApplication extends JxZkBiBase {
 				cc.getCell("lvx_nldays").set(NumberUtils.toDouble(getLeaveUnit2LvStr(nlunit)));
 				setupOnOffDetailCell(cc);
 			}
-			calLeaveRemain();
+			//calLeaveRemain();
+			((BiResultLeaveApplication) getBr()).calLeaveRemain();
 		} catch (Exception ex) {
 			UniLog.log(ex);
 		}
@@ -131,7 +149,8 @@ public class LeaveApplication extends JxZkBiBase {
 	protected void afterDeleteLink(BiResult sr, int idx) {
 		super.afterDeleteLink(sr, idx);
 		try {
-			calLeaveRemain();
+			//calLeaveRemain();
+			((BiResultLeaveApplication) getBr()).calLeaveRemain();
 		} catch (Exception ex) {
 			UniLog.log(ex);
 		}
@@ -141,7 +160,8 @@ public class LeaveApplication extends JxZkBiBase {
 	protected void afterUnDeleteLink(BiResult sr,int idx) {
 		super.afterUnDeleteLink(sr, idx);
 		try {
-			calLeaveRemain();
+			//calLeaveRemain();
+			((BiResultLeaveApplication) getBr()).calLeaveRemain();
 		} catch (Exception ex) {
 			UniLog.log(ex);
 		}
@@ -304,24 +324,21 @@ public class LeaveApplication extends JxZkBiBase {
 			final BiCellCollection cl = bcc.getCollection();
 			UniLog.log1("onValueChanged p_ctype:%d, label:%s, mapper:%s", p_ctype, bcc.getCellLabel(), bcc.getMapper());
 			if (p_ctype == GIPI_PULLDOWN_OPENED) {
+//				super.onValueChanged(p_value, p_ctype);
 				if (StringUtils.equals(bcc.getCellLabel(), "lv_reason")) {
 					try {
 						ZkJxPickInput pickComp = (ZkJxPickInput)getCellComponent(bcc);
 						if (pickReasonForm == null) {
-							pickReasonForm = new PickByTableTrForm(sessionHelper, new String[] {"lvrs_name", "lvrs_desc"}, new PickByTableTrForm.PickByTableTrFormCallback() {
-								public void callback(Object[] rec, TableRec tr, Object userData) {
-									try {
-										BiCellCollection cl = (BiCellCollection) userData;
-										cl.getCell("lv_reason").set((String)rec[tr.getFieldIndex("lvrs_name")]);
-										cl.getCell("lvx_nopaid").set(StringUtils.equals((String)rec[tr.getFieldIndex("lvrs_nopay")], "Y"));
-										calNlDaysNlUnit(cl);
-									} catch (Exception e) {
-										UniLog.log(e);
-									}
-								}
+							pickReasonForm = new PickByTableTrForm(sessionHelper, new String[] { "lvrs_name", "lvrs_desc" }, new String[] {"hflex=min", "hflex=1;halign=left"}, () -> {
+								return Triple.of(getBr().getSelectUtil(), "select lvrs_name, lvrs_desc, lvrs_nopay from leavereason order by lvrs_name", null);
+							}, (rec, tr, userData) -> {
+								BiCellCollection cl1 = (BiCellCollection)userData;
+								cl1.getCell("lv_reason").set((String)rec[tr.getFieldIndex("lvrs_name")]);
+								cl1.getCell("lvx_nopaid").set(StringUtils.equals((String)rec[tr.getFieldIndex("lvrs_nopay")], "Y"));
+								calNlDaysNlUnit(cl1);
 							});
 						}
-						pickReasonForm.bindComponent(pickComp, cl, bigibr, "select lvrs_name, lvrs_desc, lvrs_nopay from leavereason order by lvrs_name", null);
+						pickReasonForm.bindComponent(pickComp, cl, false);
 					}
 					catch (Exception ex) {
 						UniLog.log(ex);
@@ -381,7 +398,8 @@ public class LeaveApplication extends JxZkBiBase {
 						double cc = bcc.getDouble();
 						cl.getCell("lv_leaveunit").set(getLvStr2LeaveUnit(String.valueOf(cc)));
 						//cal AL/CL
-						calLeaveRemain();
+						//calLeaveRemain();
+						((BiResultLeaveApplication) getBr()).calLeaveRemain();
 					}
 				}
 				catch (Exception ex) {
@@ -436,10 +454,12 @@ public class LeaveApplication extends JxZkBiBase {
 			}
 
 			//cal AL/CL
-			calLeaveRemain();
+			//calLeaveRemain();
+			((BiResultLeaveApplication) getBr()).calLeaveRemain();
 		}
 	}
 	
+	/*
 	private void calLeaveRemain() throws Exception {
 		getBr().getCell("emx_ralstr").set(calLeaveRemain("AL"));
 		getBr().getCell("emx_rclstr").set(calLeaveRemain("CL"));
@@ -493,7 +513,7 @@ public class LeaveApplication extends JxZkBiBase {
 			}
 		}
 	}
-
+	 */
 	
 	
 	private static class RlvItem {
@@ -511,6 +531,7 @@ public class LeaveApplication extends JxZkBiBase {
 		int used;
 	}
 	
+	/*
 	public static class LeaveCal {
 
 		private List<LvUtilItem> lvUtilList = new ArrayList<LvUtilItem>();
@@ -523,6 +544,20 @@ public class LeaveApplication extends JxZkBiBase {
 		private String em_alstday;
 		
 		private Map<String, Object> userMap = new HashMap<String, Object>();
+		
+		public void dumpLvUtilList() {
+			UniLog.log("LvUtilList Start");
+			for(LvUtilItem lvi : lvUtilList) {
+				UniLog.log(
+						lvi.code + " " 
+						+ lvi.unit + " "
+						+ lvi.used + " "
+						+ DateUtil.dateToDateTimeStr(lvi.date) + " "
+						+ DateUtil.dateToDateTimeStr(lvi.expire) 
+						);
+			}
+			UniLog.log("LvUtilList end");
+		}
 	
 		public LeaveCal(BiResult br, CellCollection emCc) {
 			this.br = br;
@@ -678,7 +713,17 @@ public class LeaveApplication extends JxZkBiBase {
 								r2 += item.used - item.unit;
 						}
 					}
-					date0 = DateUtil.nextday(date0, (int)Math.floor((r1 + p_leaveunit - r0) / LEAVEUNIT_PER_DAY));
+					//
+					//  the following line of code is remarked because
+					//  it is added to let annual leave application for more that one days can use lvUtilItem accross year
+					//  e.g. on Dec 30 2025 , if user has 2 days annual leave left, he can apply annual leave for 10 days because after the first 2 day
+					//  he can use the annual leave for 2026
+					//  but the currenly implementatin has 2 missing things
+					//  1) it cannot handble public holiday and sunday for the leave period 
+					//  2) if the applied date only have very few days to accross year, and the user have large number of AL remain, whether he can use all
+					//  the remaining al in 2025 is unclear
+					//
+//					date0 = DateUtil.nextday(date0, (int)Math.floor((r1 + p_leaveunit - r0) / LEAVEUNIT_PER_DAY));
 				}
 				if (r0 > 0) {
 					for (idx1 = idx1 - 1; idx1 >= idx0; idx1--) {
@@ -823,7 +868,7 @@ public class LeaveApplication extends JxZkBiBase {
 				}
 			}
 		}
-	}
+	}*/
 	
 	//Customer Specific routine to calculate the annual leave days of whole year base on date joined
 	private static int customGetAnnualLeave(Date p_stdate, int yy, Date p_enddate, int p_sal, int p_mal, int p_ofs, String p_stday) throws Exception {
@@ -1039,7 +1084,7 @@ public class LeaveApplication extends JxZkBiBase {
 		showErrorNotification(msg, cl.getCell(key));
 	}
 
-	public static class ListGetItemProperty extends AbstractGetItemProperty {
+	/*public static class ListGetItemProperty extends AbstractGetItemProperty {
 		private List<String> widthList;
 		private List<String[]> valueList;
 
@@ -1161,5 +1206,5 @@ public class LeaveApplication extends JxZkBiBase {
 			gipiForm.setUserData(userData);
 			gipiForm.jxAdd("pickListBox").setItemListInterface(gipi);
 		}
-	}
+	}*/
 }

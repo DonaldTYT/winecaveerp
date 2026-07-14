@@ -156,7 +156,8 @@ public class ZkBiComposerBase extends ZkBiComposerView implements Composer<Compo
     protected Hlayout actionBar;
     Hbox confirmBar;
     protected Button btnDelete;
-	protected JxZkBiBase detailForm;
+//	private JxZkBiBase detailForm;
+	private String detailFormName;
 	String viewid;
 	String helpid;
 	String presetid;
@@ -1320,8 +1321,9 @@ public class ZkBiComposerBase extends ZkBiComposerView implements Composer<Compo
     	UniLog.log("do_bi_browse result:"+result);
     	buildQueryWindow(result,comp);
     	
-    	if (buildDetailFormDuringInitFlag && detailForm == null){
-    		detailForm = buildDetailWindow(result);
+    	if (buildDetailFormDuringInitFlag && detailFormName == null){
+    		JxZkBiBase detailForm = buildDetailWindow(result);
+    		detailFormName = detailForm.getSkin().getInstanceName();
     		detailForm.closeForm();
     	}
     	
@@ -1479,7 +1481,6 @@ public class ZkBiComposerBase extends ZkBiComposerView implements Composer<Compo
     	}
     	return(idx);
     }
-
     protected List<Object> getSelectionInListOrder(ListModelList p_lml, java.util.Set p_selection){
     	List<Object> orderedSelection = new ArrayList<Object>();
     	if (p_lml == null || p_selection == null || p_selection.size() <= 0) {
@@ -1493,6 +1494,7 @@ public class ZkBiComposerBase extends ZkBiComposerView implements Composer<Compo
     	}
     	return orderedSelection;
     }
+    
     
     /**
      * obtain listbox index by trStat/trStatFilter Object
@@ -2379,8 +2381,8 @@ public class ZkBiComposerBase extends ZkBiComposerView implements Composer<Compo
 		 			Events.postEvent("onClose", expWin, null);
 		 			return;
 	 			}
-	 			if (detailForm != null && detailForm.isFormVisible()){
-		 			detailForm.doClose(true, true);
+	 			if (detailFormName != null && getDetailForm().isFormVisible()){
+		 			getDetailForm().doClose(true, true);
 		 			return;
 	 			}
 	 			Clients.evalJavaScript("closeParentWindow()");
@@ -6528,8 +6530,8 @@ public class ZkBiComposerBase extends ZkBiComposerView implements Composer<Compo
    		 						String barcode = (String) event.getData();
    		 						UniLog.log("got scanned barcode ["+barcode+ "]");
    		 						if(inDetailForm) {
-   		 							if(detailForm != null) {
-   		 								detailForm.onBarcode(barcode);
+   		 							if(detailFormName != null) {
+   		 								getDetailForm().onBarcode(barcode);
    		 							}
    		 						} else {
    		 							if(!barcode.equals("")) {
@@ -7850,7 +7852,7 @@ public class ZkBiComposerBase extends ZkBiComposerView implements Composer<Compo
     void changeDetailSubHeader(BiResult p_result) {
     	//remark: if need to show navigationbar properly, need to define view.primarykey
     	if(p_result.getPrimaryColumns() != null) {
-    		addSubHeader(p_result.getCellString(p_result.getPrimaryColumns().toString()));
+   // 		addSubHeader(p_result.getCellString(p_result.getPrimaryColumns().toString()));
     	} else {
     		//addSubHeader(""+p_result.getCurrentCollection().getSid());  //andrew220825: it's a bit misleading to show serial_id in navigationbar
     		addSubHeader(sessionHelper.getLabel("Record Details"), sessionHelper.isAdminUser() ? String.format(sessionHelper.getLabel("Record Sid:%d"), p_result.getCurrentCollection().getSid()) : "");
@@ -7863,10 +7865,10 @@ public class ZkBiComposerBase extends ZkBiComposerView implements Composer<Compo
 //    	} else {
 //    		addSubHeader("Record Details");
 //    	}
-		if(detailForm == null) {
+		if(detailFormName == null) {
 			JxZkBiBase dw = buildDetailWindow(p_result);
 			if(dw != null) {
-					detailForm = dw;
+					detailFormName = dw.getSkin().getInstanceName();
 					dw.setIsMobile(isMobile());
 					dw.bindCellCollection(p_result,dw.displayOnlyWhenUpdate ? JxZkBiBase.MODE_DISPLAY : JxZkBiBase.MODE_UPDATE);
 					dw.translateAllComp(p_result);
@@ -7875,6 +7877,7 @@ public class ZkBiComposerBase extends ZkBiComposerView implements Composer<Compo
 			}
 		}
 		else {
+			JxZkBiBase detailForm = getDetailForm();
 			detailForm.bindCellCollection(p_result,detailForm.displayOnlyWhenUpdate ? JxZkBiBase.MODE_DISPLAY : JxZkBiBase.MODE_UPDATE);
 			detailForm.translateAllComp(p_result);
 //			detailForm.doModalUpdate(this);
@@ -7887,10 +7890,10 @@ public class ZkBiComposerBase extends ZkBiComposerView implements Composer<Compo
     }
     public boolean doAddOneRow(XulElement p_win,BiResult p_result) {
     	addSubHeader("Add Record");
-		if(detailForm == null) {
+		if(detailFormName == null) {
 				JxZkBiBase dw = buildDetailWindow(p_result);
 				if(dw != null) {
-					detailForm = dw;
+					detailFormName = dw.getSkin().getInstanceName();
 					dw.setIsMobile(isMobile());
 					dw.bindCellCollection(p_result,JxZkBiBase.MODE_ADD);
 					dw.translateAllComp(p_result);
@@ -7899,10 +7902,10 @@ public class ZkBiComposerBase extends ZkBiComposerView implements Composer<Compo
 				}
 		} 
 		else {
-			detailForm.bindCellCollection(p_result,JxZkBiBase.MODE_ADD);
-			detailForm.translateAllComp(p_result);
+			getDetailForm().bindCellCollection(p_result,JxZkBiBase.MODE_ADD);
+			getDetailForm().translateAllComp(p_result);
 			//detailForm.doModalAdd(this);
-			detailForm.doAdd();
+			getDetailForm().doAdd();
 		}
 		//detailForm.changeMode(p_result, JxZkBiBase.MODE_ADD, JxZkBiBase.getDetailWindow(masterWin, p_result)); //moved to bindCellCollection
 		return(true);
@@ -8452,8 +8455,8 @@ public class ZkBiComposerBase extends ZkBiComposerView implements Composer<Compo
 				Events.postEvent("onClose", expWin, null);
 				return;
 			}
-			if (detailForm != null && detailForm.isFormVisible()){
-				detailForm.doClose(true);
+			if (detailFormName != null && getDetailForm().isFormVisible()){
+				getDetailForm().doClose(true);
 				return;
 			}
 			break;
@@ -10521,5 +10524,10 @@ public class ZkBiComposerBase extends ZkBiComposerView implements Composer<Compo
     
     public Object getStateValue(String key) {
     	return(null);
+    }
+    
+    public JxZkBiBase getDetailForm() {
+		JxZkGadgetProvider pvdr = (JxZkGadgetProvider) sessionHelper.getSessionData("jxzkgadgetprovider");
+		if(pvdr != null) return((JxZkBiBase) pvdr.jxGetForm(detailFormName)); else return(null);
     }
 }

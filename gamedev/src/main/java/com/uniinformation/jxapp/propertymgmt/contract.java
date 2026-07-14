@@ -3,7 +3,6 @@ package com.uniinformation.jxapp.propertymgmt;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.stream.Stream;
 
 import com.kyoko.common.DateUtil;
 import com.uniinformation.bicore.BiCellCollection;
@@ -47,5 +46,6 @@ public class contract extends JxZkBiBase {
 				return null;
 			});
 		}
+		disableDeleteLink(p_br, "propertymgmt.contractmonth");
 	}
 }

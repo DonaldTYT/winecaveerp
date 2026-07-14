@@ -55,7 +55,7 @@ public class ZkBiComposerMStock extends ZkBiComposerBase {
       								result.fetchOneRecV(currentFetchedIdx);
       								if(result.getCellString("st_barcode").equals("")) {
       									result.getCell("st_barcode").update(barcode);
-      									detailForm.setDirtyFlag(true);
+      									getDetailForm().setDirtyFlag(true);
       									return;
       								}  else {
       									ZkBiMsgbox.show(ZkBiMsgbox.Type.error,"Please clear previouse barcode Firest");

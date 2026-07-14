@@ -21,8 +21,11 @@ import com.uniinformation.jxapp.JxZkBiBase;
 import com.uniinformation.utils.UniLog;
 import com.uniinformation.zkbi.ZkBiEventListener;
 import com.uniinformation.bicore.erpv4ext.BiResultEmployee;
-import static com.uniinformation.jxapp.erpv4ext.LeaveApplication.LEAVE_EXPIRE_YEAR;
-import static com.uniinformation.jxapp.erpv4ext.LeaveApplication.LEAVEUNIT_MAX_CARRYFORWARD;
+//import static com.uniinformation.jxapp.erpv4ext.LeaveApplication.LEAVE_EXPIRE_YEAR;
+//import static com.uniinformation.jxapp.erpv4ext.LeaveApplication.LEAVEUNIT_MAX_CARRYFORWARD;
+import static com.uniinformation.bicore.erpv4ext.BiResultLeaveApplication.LEAVE_EXPIRE_YEAR;
+import static com.uniinformation.bicore.erpv4ext.BiResultLeaveApplication.LEAVEUNIT_MAX_CARRYFORWARD;
+import static com.uniinformation.bicore.erpv4ext.BiResultLeaveApplication.MAX_DATE;
 
 public class Employee extends JxZkBiBase {
 
@@ -151,9 +154,9 @@ public class Employee extends JxZkBiBase {
 	private ReturnMsg validationRecord(boolean isUpdate) throws Exception {
 		Date startDate = getBr().getCellDate("em_stdate");
 		Date endDate = getBr().getCellDate("em_enddate");
-		if (!DateUtil.isDateNull(startDate) && startDate.compareTo(LeaveApplication.MAX_DATE) >= 0)
+		if (!DateUtil.isDateNull(startDate) && startDate.compareTo(MAX_DATE) >= 0)
 			return(new ReturnMsg(false,"Invalid Join Date",true));
-		if (!DateUtil.isDateNull(endDate) && endDate.compareTo(LeaveApplication.MAX_DATE) >= 0)
+		if (!DateUtil.isDateNull(endDate) && endDate.compareTo(MAX_DATE) >= 0)
 			return(new ReturnMsg(false,"Invalid Leave Date",true));
 		if (!DateUtil.isDateNull(startDate) && !DateUtil.isDateNull(endDate) && startDate.compareTo(endDate) > 0)
 			return(new ReturnMsg(false,"Leave Date cannot be less than Join Date",true));

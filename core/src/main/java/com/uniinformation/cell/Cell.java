@@ -2,8 +2,8 @@ package com.uniinformation.cell;
 
 import java.io.*;
 import java.util.*;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicInteger;
+//import java.util.concurrent.atomic.AtomicBoolean;
+//import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateUtils;
@@ -22,7 +22,7 @@ public class Cell implements Serializable
 	transient private boolean ignoreTimeZone = false;
 //	static int cdCount;
 //	static int cdCount;
-	private static final AtomicInteger atomicCdCount = new AtomicInteger();
+//	private static final AtomicInteger atomicCdCount = new AtomicInteger();
 
 	private class CellDetail implements Serializable {
 	   static final long serialVersionUID = 7779990684696159528L;
@@ -60,14 +60,14 @@ public class Cell implements Serializable
 		}
 		*/
 		public CellDetail() {
-	        atomicCdCount.incrementAndGet();
+//	        atomicCdCount.incrementAndGet();
 //			cdCount++;
 		}
-        protected void finalize() throws Throwable{
-	         super.finalize();
-	         atomicCdCount.decrementAndGet();
-//           cdCount--;
-	    }
+//        protected void finalize() throws Throwable{
+//	         super.finalize();
+//	         atomicCdCount.decrementAndGet();
+//	         //cdCount--;
+//	    }
 	}
 	static final long serialVersionUID = 3388772845523613363L;
 	public  static final int VTYPE_INT			= 0;
@@ -149,22 +149,22 @@ public class Cell implements Serializable
 	*/
 
 //	static int cellCount;
-	private static final AtomicInteger atomicCellCount = new AtomicInteger();
+//	private static final AtomicInteger atomicCellCount = new AtomicInteger();
 	//transient private Parser parser;
 	public Cell() {
-		atomicCellCount.incrementAndGet();
+//		atomicCellCount.incrementAndGet();
 		jxValueType = VTYPE_NULL;
 		jxValueMode = VMODE_NORMAL;
 //		cellCount++;
 	}
-    protected void finalize() throws Throwable{
-        super.finalize();
-//        cellCount--;
-		atomicCellCount.decrementAndGet();
-    }
+//    protected void finalize() throws Throwable{
+//        super.finalize();
+//        //cellCount--;
+//		atomicCellCount.decrementAndGet();
+//    }
 	
 	public Cell(Object o) {
-		atomicCellCount.incrementAndGet();
+//		atomicCellCount.incrementAndGet();
 		if(o instanceof String) {
 			xJxValue((String) o ,VMODE_NORMAL);
 		}
@@ -192,6 +192,10 @@ public class Cell implements Serializable
 			cd.pairObj = (CellPair) o;
 			xJxValue(((CellPair) o).toString() ,VMODE_NORMAL);
 		}
+		if(o instanceof byte[]) {
+			jxValueType = VTYPE_BYTEARRAY;
+			xJxValue((byte[]) o ,VMODE_NORMAL);
+		}
 		if(o == null) {
 			UniLog.log("cell type null");
 		} else if(jxValueType < 0) {
@@ -201,49 +205,49 @@ public class Cell implements Serializable
 	}
 	public Cell(String strval)
 	{
-		atomicCellCount.incrementAndGet();
+//		atomicCellCount.incrementAndGet();
 		xJxValue(strval,VMODE_NORMAL);
 //		cellCount++;
 	}
 	public Cell(int intval)
 	{
-		atomicCellCount.incrementAndGet();
+//		atomicCellCount.incrementAndGet();
 		xJxValue(intval,VMODE_NORMAL);
 //		cellCount++;
 	}
 	public Cell(double dbval)
 	{
-		atomicCellCount.incrementAndGet();
+//		atomicCellCount.incrementAndGet();
 		xJxValue(dbval,VMODE_NORMAL);
 //		cellCount++;
 	}
 	public Cell(boolean boolval)
 	{
-		atomicCellCount.incrementAndGet();
+//		atomicCellCount.incrementAndGet();
 		xJxValue(boolval,VMODE_NORMAL);
 //		cellCount++;
 	}
 	public Cell(byte[] baval)
 	{
-		atomicCellCount.incrementAndGet();
+//		atomicCellCount.incrementAndGet();
 		xJxValue(baval,VMODE_NORMAL);
 //		cellCount++;
 	}
 	public Cell(java.util.Date dateval)
 	{
-		atomicCellCount.incrementAndGet();
+//		atomicCellCount.incrementAndGet();
 		xJxValue(dateval,VMODE_NORMAL);
 //		cellCount++;
 	}
 	public Cell(java.util.Date dateval,int p_mode)
 	{
-		atomicCellCount.incrementAndGet();
+//		atomicCellCount.incrementAndGet();
 		xJxValue(dateval,p_mode);
 //		cellCount++;
 	}
 	public Cell(CellObjWrapper p_val)
 	{
-		atomicCellCount.incrementAndGet();
+//		atomicCellCount.incrementAndGet();
 		xJxValue(p_val,VMODE_NORMAL);
 //		cellCount++;
 	}
@@ -295,7 +299,7 @@ public class Cell implements Serializable
 	}
 	public Cell(String strval,int p_mode, Vector p_itemlist)
 	{
-		atomicCellCount.incrementAndGet();
+//		atomicCellCount.incrementAndGet();
 		initcd();
 		xJxValue(strval,p_mode);
 		cd.itemList = p_itemlist;
@@ -303,7 +307,7 @@ public class Cell implements Serializable
 	}
 	public Cell(String strval,int p_mode, Vector p_itemlist, CellValidation p_validation)
 	{
-		atomicCellCount.incrementAndGet();
+//		atomicCellCount.incrementAndGet();
 		initcd();
 		xJxValue(strval,p_mode);
 		cd.itemList = p_itemlist;
@@ -312,19 +316,19 @@ public class Cell implements Serializable
 	}
 	public Cell(String strval,int p_mode)
 	{
-		atomicCellCount.incrementAndGet();
+//		atomicCellCount.incrementAndGet();
 		xJxValue(strval,p_mode);
 //		cellCount++;
 	}
 	public Cell(int intval,int p_mode)
 	{
-		atomicCellCount.incrementAndGet();
+//		atomicCellCount.incrementAndGet();
 		xJxValue(intval,p_mode);
 //		cellCount++;
 	}
 	public Cell(int intval,int p_mode,CellValidation p_validation)
 	{
-		atomicCellCount.incrementAndGet();
+//		atomicCellCount.incrementAndGet();
 		initcd();
 		xJxValue(intval,p_mode);
 		cd.validation = p_validation;
@@ -332,13 +336,13 @@ public class Cell implements Serializable
 	}
 	public Cell(double dbval,int p_mode)
 	{
-		atomicCellCount.incrementAndGet();
+//		atomicCellCount.incrementAndGet();
 		xJxValue(dbval,p_mode);
 //		cellCount++;
 	}
 	public Cell(double dbval,int p_mode, CellValidation p_validation)
 	{
-		atomicCellCount.incrementAndGet();
+//		atomicCellCount.incrementAndGet();
 		initcd();
 		xJxValue(dbval,p_mode);
 		cd.validation = p_validation;
@@ -366,7 +370,7 @@ public class Cell implements Serializable
 	}
 	public Cell(boolean boolval,int p_mode)
 	{
-		atomicCellCount.incrementAndGet();
+//		atomicCellCount.incrementAndGet();
 		xJxValue(boolval,p_mode);
 //		cellCount++;
 	}
@@ -669,6 +673,8 @@ public class Cell implements Serializable
 			set((java.util.Date) o);
 		}  else if( o instanceof Boolean) {
 			set(((Boolean) o).booleanValue());
+		}  else if( o instanceof byte[]) {
+			setBaVal((byte[])o);
 		}  else if( o instanceof Cell ) {
 			set(((Cell ) o).getObject());
 		}
@@ -2520,11 +2526,13 @@ public class Cell implements Serializable
 	
 	static public int getCellCount() {
 //		return(cellCount);
-		return(atomicCellCount.get());
+//		return(atomicCellCount.get());
+		return(0);
 	}
 	static public int getCdCount() {
 //		return(cdCount);
-		return(atomicCdCount.get());
+//		return(atomicCdCount.get());
+		return(0);
 	}
 	public boolean isTimeOnly() {
 		return(ignoreTimeZone);

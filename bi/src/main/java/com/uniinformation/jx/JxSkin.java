@@ -20,12 +20,12 @@ public abstract class JxSkin
 	{
 		return(JxGadgetProvider.getProvider());
 	}
-	protected void finalize()
-	{
-		fields.clear();
-		fields = null;
-		jxskinname = null;
-	}
+//	protected void finalize()
+//	{
+//		fields.clear();
+//		fields = null;
+//		jxskinname = null;
+//	}
 	public JxSkinElement getField(String p_fieldname)
 	{
 		return((JxSkinElement)fields.get(p_fieldname));

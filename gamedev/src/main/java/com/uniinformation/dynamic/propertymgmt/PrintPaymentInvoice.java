@@ -29,6 +29,8 @@ import com.uniinformation.zkbi.ZkBiComposerBase;
 
 public class PrintPaymentInvoice extends BatchPrtdocHandler {
 	private JxZkBiBase jxf;
+	protected boolean needUpdatePrintCount = true;
+	protected String docCode;
 	public PrintPaymentInvoice() {
 		super(null);
 		// TODO Auto-generated constructor stub
@@ -45,13 +47,16 @@ public class PrintPaymentInvoice extends BatchPrtdocHandler {
 		if(docCnt > 0) {
         	if(docCnt > 0) ppj.newContent();
 		}
-		int printCnt = br.getCellInt("col_v") + 1;
-		br.getCell("col_v").set(printCnt);
-		br.updateCurrent();
-		if (biBase != null)
-			biBase.biBaseRefreshListitems(br.getCurrentRecord());
-		else if (jxf != null)
-			jxf.refreshCurrentBiBaseListitem();
+		int printCnt = br.getCellInt("col_v");
+		if (needUpdatePrintCount) {
+			printCnt++;
+			br.getCell("col_v").set(printCnt);
+			br.updateCurrent();
+			if (biBase != null)
+				biBase.biBaseRefreshListitems(br.getCurrentRecord());
+			else if (jxf != null)
+				jxf.refreshCurrentBiBaseListitem();
+		}
     	SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
     	SimpleDateFormat sdf1 = new SimpleDateFormat("yyyy-MM");
     	SimpleDateFormat sdf2 = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
@@ -188,6 +193,7 @@ public class PrintPaymentInvoice extends BatchPrtdocHandler {
 		
 		ppj.addBottomField("bottomLeft9f", "系統產生的收據，無需簽署。System generated receipt, no signature is required.", 0, 30);
 		ppj.addBottomField("bottomRight9f", "打印時間 Print time: " + sdf2.format(new Date()), 0, 30);
+		ppj.addBottomImage("logo", "getimage://RECEIPT_STAMP_" + cocode, 430, docCode.equals("GENINV01A5") ? 340 : 900, 166, 0);
 	}
 
 	private void addDetailRow(String...p) throws JSONException {
@@ -211,7 +217,7 @@ public class PrintPaymentInvoice extends BatchPrtdocHandler {
 	@Override
 	protected ReturnMsg initPrtdoc() {
 		try {
-			String docCode = "GENINV01";
+			docCode = "GENINV01";
 			String cocode = Erpv4Config.getDefaultCoCode(sh);
 			ppj = PrtdocJson.newPrtdocJson(	
     				cocode,

@@ -142,13 +142,36 @@ public class ZkBiComposerPayitemReport extends ZkBiComposerAggregateReport {
 			try {
 				ZkJxQueryInput ie = new ZkJxQueryInput();
 				ie.setType(ZkJxQueryInput.TYPE_STRING, sessionHelper);
-				TrGetItemProperty gipi = new TrGetItemProperty(Lists.newArrayList("col_d"));
+				/*TrGetItemProperty gipi = new TrGetItemProperty(Lists.newArrayList("col_d"));
 				if (!getSessionHelper().hasAccessRight("#allproperty")) {
 					String ss = StringUtils.defaultString(Erpv4Config.getLcDesc(sessionHelper, Erpv4Config.getDefaultLcrg(sessionHelper)));
 					gipi.setTableRec(result.getSelectUtil().getQueryResult("select distinct col_d from payitem where col_b = ? order by col_d", new Wherecl().appendArgument(ss)));
 				} else
-					gipi.setTableRec(result.getSelectUtil().getQueryResult("select distinct col_d from payitem order by col_d"));
+					gipi.setTableRec(result.getSelectUtil().getQueryResult("select distinct col_d from payitem order by col_d"));*/
+				TrGetItemProperty gipi = new TrGetItemProperty(Lists.newArrayList("mpy_month"));
+				if (!getSessionHelper().hasAccessRight("#allproperty")) {
+					String ss = StringUtils.defaultString(Erpv4Config.getLcDesc(sessionHelper, Erpv4Config.getDefaultLcrg(sessionHelper)));
+					gipi.setTableRec(result.getSelectUtil().getQueryResult("select distinct mpy_month from monthpayment where mpy_propertyname = ? order by mpy_month", new Wherecl().appendArgument(ss)));
+				} else
+					gipi.setTableRec(result.getSelectUtil().getQueryResult("select distinct mpy_month from monthpayment order by mpy_month"));
 				ie.setAttribute("stringListboxWidth", "139px");
+				ie.setGiPi(gipi);
+				ie.setMaxlength(bc.getColumnLength());
+				return ie;
+			} catch (Exception e) {
+				UniLog.log(e);
+				return null;
+			}
+		} else if (StringUtils.equals(bc.getLabel(), "col_c")) {
+			try {
+				ZkJxQueryInput ie = new ZkJxQueryInput();
+				ie.setType(ZkJxQueryInput.TYPE_STRING, sessionHelper);
+				TrGetItemProperty gipi = new TrGetItemProperty(Lists.newArrayList("col_c"));
+				if (!getSessionHelper().hasAccessRight("#allproperty")) {
+					String ss = StringUtils.defaultString(Erpv4Config.getLcDesc(sessionHelper, Erpv4Config.getDefaultLcrg(sessionHelper)));
+					gipi.setTableRec(result.getSelectUtil().getQueryResult("select distinct col_c from payitem where col_b = ? order by col_c", new Wherecl().appendArgument(ss)));
+				} else
+					gipi.setTableRec(result.getSelectUtil().getQueryResult("select distinct col_c from payitem order by col_c"));
 				ie.setGiPi(gipi);
 				ie.setMaxlength(bc.getColumnLength());
 				return ie;

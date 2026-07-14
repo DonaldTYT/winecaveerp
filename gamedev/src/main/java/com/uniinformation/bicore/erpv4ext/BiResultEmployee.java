@@ -117,7 +117,7 @@ public class BiResultEmployee extends BiResult {
 				su.executeUpdate("insert into emgrade (emg_eid, emg_stdate, emg_enddate, emg_deptrg, emg_postrg, emg_graderg, emg_emtyperg, emg_wgtype, emg_includepay, emg_poststatus, emg_tranreason, emg_wage, emg_shiftcode) values(?,?,?,?,?,?,?,?,?,?,?,?,?)",
 					new Wherecl().appendArgument(eid)
 								.appendArgument(joinDate)
-								.appendArgument(LeaveApplication.MAX_DATE)
+								.appendArgument(BiResultLeaveApplication.MAX_DATE)
 								.appendArgument(deptRg)
 								.appendArgument(postRg)
 								.appendArgument(gradeRg)

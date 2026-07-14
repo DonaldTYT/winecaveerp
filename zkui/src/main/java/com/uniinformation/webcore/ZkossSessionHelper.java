@@ -238,13 +238,27 @@ public class ZkossSessionHelper extends SessionHelper {
     	return session != null ? (HttpSession) session.getNativeSession() : null;
     }
 
-    /*
     public static HttpServletRequest getCurrentHttpServletRequest() {
     	Execution execution = Executions.getCurrent();
     	return execution != null ? (HttpServletRequest) execution.getNativeRequest() : null;
     }
-    */
+    
 
+//    @Override
+//	public Map<String,Object> getURLParams(){
+//			Map pmap = Executions.getCurrent().getParameterMap();
+//			return(pmap);
+//    }
+    
+    @Override
+    protected void cleanSessionObject(Object o) {
+		if(o instanceof JxZkGadgetProvider) {
+			UniLog.log("Calling JxZkGadgetProvider Cleanup");
+			((JxZkGadgetProvider) o).providerCleanUp();
+		}
+    }
+    
+    @Override
 	public String getWebContentRealPath(String p_path, boolean p_withSeparator){
 		if(Executions.getCurrent() != null) {
   		    return getWebContentRealPath((HttpServletRequest)Executions.getCurrent().getNativeRequest(), p_path, p_withSeparator);
@@ -281,14 +295,6 @@ public class ZkossSessionHelper extends SessionHelper {
 		return rootPath;
     }
     
-    
-    @Override
-    protected void cleanSessionObject(Object o) {
-		if(o instanceof JxZkGadgetProvider) {
-			UniLog.log("Calling JxZkGadgetProvider Cleanup");
-			((JxZkGadgetProvider) o).providerCleanUp();
-		}
-    }
     
 	public static void showMsg(String p_format, Object...p_args){
 		ZkUtil.showMsg(p_format, p_args);

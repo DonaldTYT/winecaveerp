@@ -19,11 +19,11 @@ public class PrintPaymentInvoiceA5 extends PrintPaymentInvoice {
 	@Override
 	protected ReturnMsg initPrtdoc() {
 		try {
-			String docCode = "GENINV01A5";
+			docCode = "GENINV01A5";
 			String cocode = Erpv4Config.getDefaultCoCode(sh);
 			ppj = PrtdocJson.newPrtdocJson(	
     				cocode,
-    				"A4P",
+    				"A5L",
     			    docCode,
     			    "erpv4_printDocument"
 			);

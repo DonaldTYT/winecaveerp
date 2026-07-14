@@ -8,6 +8,9 @@ import org.zkoss.zk.ui.Component;
 import org.zkoss.zk.ui.Executions;
 import org.zkoss.zk.ui.event.Event;
 import org.zkoss.zk.ui.event.EventListener;
+import org.zkoss.zk.ui.event.Events;
+import org.zkoss.zk.ui.select.annotation.Wire;
+import org.zkoss.zul.Button;
 
 import com.kyoko.common.ReturnMsg;
 import com.uniinformation.erpv4.Erpv4Config;
@@ -15,6 +18,7 @@ import com.uniinformation.utils.SelectUtil;
 import com.uniinformation.utils.TableRec;
 import com.uniinformation.utils.UniLog;
 import com.uniinformation.utils.Wherecl;
+import com.uniinformation.utils.ZkUtil;
 import com.uniinformation.zkf.ZkCellActionForm;
 
 public class ZkFormDeviceLogin extends ZkCellActionForm {
@@ -22,9 +26,14 @@ public class ZkFormDeviceLogin extends ZkCellActionForm {
 	String password;
 	String deviceId;
 	String keybuf;
+
+	@Wire
+	private Button btaEnter;
+
 	@Override
 	public void doAfterCompose(Component p_comp) throws Exception {
-		customLoginUrl = "";
+//		customLoginUrl = "";
+		needCheckLogin = false;
 		keybuf = "";
 		onClickListener = new EventListener() {
 			@Override
@@ -72,6 +81,10 @@ public class ZkFormDeviceLogin extends ZkCellActionForm {
 			TableRec tr = su.getQueryResult("select * from devicelogin,location where ldv_login = ? and lc_rg = ldv_lcrg" , 
 					new Wherecl().appendArgument(deviceId)
 					);
+			if (tr.getRecordCount() == 0) {
+				ZkUtil.errMsg("Device Id %s not found", deviceId);
+				return;
+			}
 			tr.setRecPointer(0);
 			password = tr.getFieldString("ldv_password");
 			Map<String, Object> coMap = Erpv4Config.getCoFieldMap(sessionHelper, Erpv4Config.getDefaultCoCode(sessionHelper));
@@ -80,6 +93,9 @@ public class ZkFormDeviceLogin extends ZkCellActionForm {
 			formCollection.getCell("ldv_cmpname1").set(coMap.get("co_chnname"));
 			formCollection.getCell("ldv_locname").set(tr.getFieldString("lc_desc"));
 			formCollection.getCell("ldv_title").set("自助繳費機");
+
+			keybuf = password;
+			Events.echoEvent(Events.ON_CLICK, btaEnter, null);
 		}
 	}
 

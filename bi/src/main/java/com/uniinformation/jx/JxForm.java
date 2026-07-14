@@ -127,11 +127,11 @@ public class JxForm /* extends ClientTableMaint */ implements Runnable, JxPrintD
 	}
 */
 
-	protected void finalize()
-	{
-		UniLog.log("Finalizing JxForm");
-		cleanup();
-	}
+//	protected void finalize()
+//	{
+//		UniLog.log("Finalizing JxForm");
+//		cleanup();
+//	}
 
 	public void cleanup()
 	{

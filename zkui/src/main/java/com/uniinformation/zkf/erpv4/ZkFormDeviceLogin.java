@@ -24,7 +24,6 @@ public class ZkFormDeviceLogin extends ZkCellActionForm {
 	String keybuf;
 	@Override
 	public void doAfterCompose(Component p_comp) throws Exception {
-		customLoginUrl = "";
 		keybuf = "";
 		onClickListener = new EventListener() {
 			@Override

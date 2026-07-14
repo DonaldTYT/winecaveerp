@@ -1,38 +1,36 @@
 package com.uniinformation.jxapp.erpv4ext;
 
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.Triple;
 import org.zkoss.zk.ui.Component;
 import org.zkoss.zk.ui.event.Event;
 import org.zkoss.zk.ui.event.Events;
 import org.zkoss.zul.Button;
 
-import com.kyoko.common.DateUtil;
-import com.kyoko.common.ReturnMsg;
 import com.uniinformation.bicore.BiCellCollection;
 import com.uniinformation.bicore.BiGetItemProperty;
 import com.uniinformation.bicore.BiResult;
 import com.uniinformation.bicore.ColumnCell;
+import com.uniinformation.bicore.erpv4ext.BiResultLeaveApplication;
 import com.uniinformation.cell.CellCollection;
-import com.uniinformation.cell.CellException;
 import com.uniinformation.cell.CellVector;
 import com.uniinformation.jx.JxField;
 import com.uniinformation.jx.zk.ZkJxPickInput;
 import com.uniinformation.jxapp.JxZkBiBase;
+import com.kyoko.common.DateUtil;
 import com.uniinformation.utils.ListUtil;
+import com.kyoko.common.ReturnMsg;
 import com.uniinformation.utils.TableRec;
 import com.uniinformation.utils.UniLog;
 import com.uniinformation.utils.Wherecl;
+import com.uniinformation.utils.ZkUtil.PickByListForm;
+import com.uniinformation.utils.ZkUtil.PickByTableTrForm;
 import com.uniinformation.webcore.SessionHelper;
 import com.uniinformation.zkbi.ZkBiEventListener;
 import com.uniinformation.zkbi.ZkBiMsgbox;
-import static com.uniinformation.jxapp.erpv4ext.LeaveApplication.PickByTableTrForm;
-import static com.uniinformation.jxapp.erpv4ext.LeaveApplication.PickByTableTrForm.PickByTableTrFormCallback;
-import static com.uniinformation.jxapp.erpv4ext.LeaveApplication.PickByListForm;
-import static com.uniinformation.jxapp.erpv4ext.LeaveApplication.PickByListForm.PickByListFormCallback;
 
 public class PromotionTrans extends JxZkBiBase {
 
@@ -47,7 +45,7 @@ public class PromotionTrans extends JxZkBiBase {
 				Date lastStartDate = getBr().getCellDate("emg_xlaststdate");
 				Date nextStartDate = getBr().getCellDate("emg_xnextstdate");
 				if (!DateUtil.isDateNull(startDate)) {
-					if (startDate.compareTo(LeaveApplication.MAX_DATE) >= 0)
+					if (startDate.compareTo(BiResultLeaveApplication.MAX_DATE) >= 0)
 						LeaveApplication.showErrorNotification("Invalid Date", (Component)field.getNativeObject());
 					else if (!DateUtil.isDateNull(lastStartDate) && startDate.compareTo(lastStartDate) <= 0)
 						LeaveApplication.showErrorNotification("Take Office Date must be more than Last Take Office Date", (Component)field.getNativeObject());
@@ -101,7 +99,7 @@ public class PromotionTrans extends JxZkBiBase {
 			return new ReturnMsg(false, "Please input Reason", true);
 		if (DateUtil.isDateNull(startDate))
 			return new ReturnMsg(false, "Please input Take Office Date", true);
-		if (startDate.compareTo(LeaveApplication.MAX_DATE) >= 0)
+		if (startDate.compareTo(BiResultLeaveApplication.MAX_DATE) >= 0)
 			return new ReturnMsg(false, "Invalid Take Office Date", true);
 		if (isUpdate) {
 			if (!DateUtil.isDateNull(lastStartDate) && startDate.compareTo(lastStartDate) <= 0)
@@ -123,33 +121,24 @@ public class PromotionTrans extends JxZkBiBase {
 		private PickByListForm pickForm;
 		public PickWgtTypeListener(SessionHelper sh, final JxZkBiBase biBase, final JxField fdWgtype) {
 			pickComp = (ZkJxPickInput)fdWgtype.getNativeObject();
-			pickComp.setPopupWidth("180px");
-			pickForm = new PickByListForm(sh, 
-				new String[] {"50px", "100px"}, 
-				new ArrayList<String[]>() {{
-					add(new String[] {"H", "hourly"});
-					add(new String[] {"D", "daily"});
-					add(new String[] {"W", "weekly"});
-					add(new String[] {"B", "biweekly"});
-					add(new String[] {"M", "monthly"});
-				}},
-				new PickByListFormCallback() { 
-					public void callback(String[] rec, Object userData) {
-						try {
-							fdWgtype.getJxValue().set(rec[0]);
-							biBase.setDirtyFlag(true);
-						} catch (CellException e) {
-							UniLog.log(e);
-						}
-					}
-				}
-			);
+			pickComp.setPopupWidth("150px");
+			pickForm = new PickByListForm(sh, new String[] {"hflex=min", "hflex=1;halign=left"}, () -> {
+				return new String[][] {
+					{"H", "hourly"},
+		            {"D", "daily"},
+		            {"W", "weekly"},
+		            {"B", "biweekly"},
+		            {"M", "monthly"}};
+			}, (rec, userData) -> {
+				fdWgtype.getJxValue().set(rec[0]);
+				biBase.setDirtyFlag(true);
+			});
 			pickComp.addEventListener(Events.ON_OPEN, this);
 		}
 		@Override
 		public void onZkBiEvent(Event event) throws Exception {
 			UniLog.log1("emg_wgtype event:%s", event);
-			pickForm.bindComponent(pickComp, null);
+			pickForm.bindComponent(pickComp, null, false);
 		}
 	};
 
@@ -166,12 +155,12 @@ public class PromotionTrans extends JxZkBiBase {
 			}
 			try {
 				p_br.getCell("emg_eid").set(eid);
-				p_br.getCell("emg_enddate").set(LeaveApplication.MAX_DATE);
+				p_br.getCell("emg_enddate").set(BiResultLeaveApplication.MAX_DATE);
 				TableRec tr = p_br.getSelectUtil().getQueryResult("select emg_stdate, emg_deptrg, emg_postrg, emg_graderg, emg_emtyperg, emg_wgtype, emg_includepay from emgrade"
 						+ " where emg_eid = ? and emg_enddate = ?", 
 						new Wherecl()
 							.appendArgument(eid)
-							.appendArgument(LeaveApplication.MAX_DATE));
+							.appendArgument(BiResultLeaveApplication.MAX_DATE));
 				if (tr.getRecordCount() > 0) {
 					tr.setRecPointer(0);
 					p_br.getCell("emg_xlaststdate").set(tr.getFieldDate("emg_stdate"));
@@ -208,7 +197,7 @@ public class PromotionTrans extends JxZkBiBase {
 					jxSetEnable("emg_poststatus", false);
 					jxSetEnable("emg_tranreason", false);
 				}
-				if (endDate.compareTo(LeaveApplication.MAX_DATE) < 0)
+				if (endDate.compareTo(BiResultLeaveApplication.MAX_DATE) < 0)
 					p_br.getCell("emg_xnextstdate").set(DateUtil.nextday(endDate));
 				if (startDate.compareTo(joinDate) > 0) {
 					TableRec tr = p_br.getSelectUtil().getQueryResult("select emg_stdate from emgrade where emg_eid = ? and emg_enddate = ?", 
@@ -256,17 +245,13 @@ public class PromotionTrans extends JxZkBiBase {
 					try {
 						ZkJxPickInput pickComp = (ZkJxPickInput)LeaveApplication.getCellComponent(bcc);
 						if (pickCodeForm == null) {
-							pickCodeForm = new PickByTableTrForm(sessionHelper, new String[] {"inci_code", "inci_compdesc"}, new PickByTableTrFormCallback() {
-								public void callback(Object[] rec, TableRec tr, Object userData) {
-									try {
-										((BiCellCollection)userData).getCell("emic_code").set((String)rec[tr.getFieldIndex("inci_code")]);
-									} catch (CellException e) {
-										UniLog.log(e);
-									}
-								}
+							pickCodeForm = new PickByTableTrForm(sessionHelper, new String[] {"inci_code", "inci_compdesc"}, new String[] {"hflex=min", "hflex=1;halign=left"}, () -> {
+								return Triple.of(bigibr.getSelectUtil(), "select inci_code, inci_compdesc from incomeitem order by inci_code", null);
+							}, (rec, tr, userData) -> {
+								((BiCellCollection)userData).getCell("emic_code").set((String)rec[tr.getFieldIndex("inci_code")]);
 							});
 						}
-						pickCodeForm.bindComponent(pickComp, cl, bigibr, "select inci_code, inci_compdesc from incomeitem order by inci_code", null);
+						pickCodeForm.bindComponent(pickComp, cl, false);
 					}
 					catch (Exception e) {
 						UniLog.log(e);
@@ -278,7 +263,7 @@ public class PromotionTrans extends JxZkBiBase {
 			else {
 				if (StringUtils.equals(bcc.getCellLabel(), "emic_code")) {
 					ZkJxPickInput pickComp = (ZkJxPickInput) LeaveApplication.getCellComponent(bcc);
-					pickComp.setPopupWidth("600px");
+					pickComp.setPopupWidth("500px");
 				}
 			}
 		}
@@ -307,17 +292,13 @@ public class PromotionTrans extends JxZkBiBase {
 					try {
 						ZkJxPickInput pickComp = (ZkJxPickInput)LeaveApplication.getCellComponent(bcc);
 						if (pickCodeForm == null) {
-							pickCodeForm = new PickByTableTrForm(sessionHelper, new String[] {"deci_code", "deci_compdesc"}, new PickByTableTrFormCallback() {
-								public void callback(Object[] rec, TableRec tr, Object userData) {
-									try {
-										((BiCellCollection)userData).getCell("emde_code").set((String)rec[tr.getFieldIndex("deci_code")]);
-									} catch (CellException e) {
-										UniLog.log(e);
-									}
-								}
+							pickCodeForm = new PickByTableTrForm(sessionHelper, new String[] {"deci_code", "deci_compdesc"}, new String[] {"hflex=min", "hflex=1;halign=left"}, () -> {
+								return Triple.of(bigibr.getSelectUtil(), "select deci_code, deci_compdesc from deductionitem order by deci_code", null);
+							}, (rec, tr, userData) -> {
+								((BiCellCollection)userData).getCell("emde_code").set((String)rec[tr.getFieldIndex("deci_code")]);
 							});
 						}
-						pickCodeForm.bindComponent(pickComp, cl, bigibr, "select deci_code, deci_compdesc from deductionitem order by deci_code", null);
+						pickCodeForm.bindComponent(pickComp, cl, false);
 					}
 					catch (Exception e) {
 						UniLog.log(e);
@@ -329,7 +310,7 @@ public class PromotionTrans extends JxZkBiBase {
 			else {
 				if (StringUtils.equals(bcc.getCellLabel(), "emde_code")) {
 					ZkJxPickInput pickComp = (ZkJxPickInput) LeaveApplication.getCellComponent(bcc);
-					pickComp.setPopupWidth("600px");
+					pickComp.setPopupWidth("500px");
 				}
 			}
 		}
@@ -358,17 +339,13 @@ public class PromotionTrans extends JxZkBiBase {
 					try {
 						ZkJxPickInput pickComp = (ZkJxPickInput)LeaveApplication.getCellComponent(bcc);
 						if (pickCodeForm == null) {
-							pickCodeForm = new PickByTableTrForm(sessionHelper, new String[] {"peni_code", "peni_compdesc"}, new PickByTableTrFormCallback() {
-								public void callback(Object[] rec, TableRec tr, Object userData) {
-									try {
-										((BiCellCollection)userData).getCell("empe_code").set((String)rec[tr.getFieldIndex("peni_code")]);
-									} catch (CellException e) {
-										UniLog.log(e);
-									}
-								}
+							pickCodeForm = new PickByTableTrForm(sessionHelper, new String[] {"peni_code", "peni_compdesc"}, new String[] {"hflex=min", "hflex=1;halign=left"}, () -> {
+								return Triple.of(bigibr.getSelectUtil(), "select peni_code, peni_compdesc from pensionitem order by peni_code", null);
+							}, (rec, tr, userData) -> {
+								((BiCellCollection)userData).getCell("empe_code").set((String)rec[tr.getFieldIndex("peni_code")]);
 							});
 						}
-						pickCodeForm.bindComponent(pickComp, cl, bigibr, "select peni_code, peni_compdesc from pensionitem order by peni_code", null);
+						pickCodeForm.bindComponent(pickComp, cl, false);
 					}
 					catch (Exception e) {
 						UniLog.log(e);
@@ -380,7 +357,7 @@ public class PromotionTrans extends JxZkBiBase {
 			else {
 				if (StringUtils.equals(bcc.getCellLabel(), "empe_code")) {
 					ZkJxPickInput pickComp = (ZkJxPickInput) LeaveApplication.getCellComponent(bcc);
-					pickComp.setPopupWidth("600px");
+					pickComp.setPopupWidth("500px");
 				}
 			}
 		}

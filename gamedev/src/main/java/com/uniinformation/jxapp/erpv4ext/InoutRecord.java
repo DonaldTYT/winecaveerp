@@ -1,11 +1,11 @@
 package com.uniinformation.jxapp.erpv4ext;
 
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Vector;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
 import org.zkoss.zk.ui.event.Event;
@@ -16,23 +16,23 @@ import org.zkoss.zul.Hbox;
 import org.zkoss.zul.Label;
 import org.zkoss.zul.Listbox;
 
-import com.kyoko.common.DateUtil;
-import com.kyoko.common.ReturnMsg;
 import com.uniinformation.bicore.BiCellCollection;
 import com.uniinformation.bicore.BiGetItemProperty;
 import com.uniinformation.bicore.BiResult;
 import com.uniinformation.bicore.ColumnCell;
 import com.uniinformation.bicore.erpv4ext.BiResultInoutRecord;
+import com.uniinformation.bicore.erpv4ext.BiResultLeaveApplication;
 import com.uniinformation.cell.Cell;
 import com.uniinformation.cell.CellCollection;
-import com.uniinformation.cell.CellException;
 import com.uniinformation.jx.JxField;
 import com.uniinformation.jx.zk.ZkJxPickInput;
 import com.uniinformation.jxapp.JxZkBiBase;
-import com.uniinformation.jxapp.erpv4ext.LeaveApplication.PickByListForm;
+import com.kyoko.common.DateUtil;
 import com.uniinformation.utils.ListUtil;
+import com.kyoko.common.ReturnMsg;
 import com.uniinformation.utils.UniLog;
 import com.uniinformation.utils.ZkUtil;
+import com.uniinformation.utils.ZkUtil.PickByListForm;
 import com.uniinformation.zkbi.ZkBiAbstractLongOp;
 import com.uniinformation.zkbi.ZkBiEventListener;
 import com.uniinformation.zkbi.ZkBiMsgbox;
@@ -190,7 +190,7 @@ public class InoutRecord extends JxZkBiBase {
 				}
 				if (StringUtils.isNotBlank(flag) && !inoutFlagMap.containsKey(flag))
 					return new ReturnMsg(false, String.format("Type '%s' not found", flag), true);
-				if (!DateUtil.isDateNull(time) && time.compareTo(LeaveApplication.END_TIME_IN_DAY) >= 0)
+				if (!DateUtil.isDateNull(time) && time.compareTo(BiResultLeaveApplication.END_TIME_IN_DAY) >= 0)
 					return new ReturnMsg(false, "Invalid Time", true);
 			}
 		} catch (Exception ex) {
@@ -226,25 +226,21 @@ public class InoutRecord extends JxZkBiBase {
 					try {
 						ZkJxPickInput pickComp = (ZkJxPickInput)LeaveApplication.getCellComponent(bcc);
 						if (pickFlagForm == null) {
-							List<String[]> list = new ArrayList<>();
-							for (Map.Entry<String, String> entry : inoutFlagMap.entrySet())
-								list.add(new String[] { entry.getKey(), entry.getValue() });
+							List<String[]> list = inoutFlagMap.entrySet().stream().map(e -> new String[] {e.getKey(), e.getValue()}).collect(Collectors.toList());
+							list.add(0, new String[] { "", "" });
 							pickFlagForm = new PickByListForm(sessionHelper, 
-								new String[] {"50px", "120px"}, 
-								list,
-								(String[] rec, Object userData) -> {
-									try {
-										((BiCellCollection)userData).getCell("atd_flag").set((String)rec[0]);
-										((BiCellCollection)userData).getCell("atd_xflagdesc").set((String)rec[1]);
-										cl.getCell("atd_adate").set(DateUtil.today());
-										setDirtyFlag(true);
-									} catch (CellException e) {
-										UniLog.log(e);
-									}
+								new String[] {"hflex=min", "hflex=1;halign=left"}, 
+								() -> list.stream().toArray(String[][]::new),
+								(rec, userData) -> {
+									BiCellCollection cl1 = (BiCellCollection)userData;
+									cl1.getCell("atd_flag").set((String)rec[0]);
+									cl1.getCell("atd_xflagdesc").set((String)rec[1]);
+									cl1.getCell("atd_adate").set(DateUtil.today());
+									setDirtyFlag(true);
 								}
 							);
 						}
-						pickFlagForm.bindComponent(pickComp, cl);
+						pickFlagForm.bindComponent(pickComp, cl, false);
 					}
 					catch (Exception e) {
 						UniLog.log(e);
@@ -268,7 +264,7 @@ public class InoutRecord extends JxZkBiBase {
 							Date date = cl.getDate("atd_date");
 							Date time = cl.getDate("atd_time");
 							if (bcc.getCellLabel().equals("atd_time")) {
-								if (bcc.getDate().compareTo(LeaveApplication.END_TIME_IN_DAY) >= 0)
+								if (bcc.getDate().compareTo(BiResultLeaveApplication.END_TIME_IN_DAY) >= 0)
 									LeaveApplication.showErrorNotification("Invalid time", bcc);
 							}
 							cl.getCell("atd_atime").set(AttendanceRecord.unionDateTime(date, time));
@@ -283,7 +279,7 @@ public class InoutRecord extends JxZkBiBase {
 			if (p_ctype == GIPI_CELL_MAPPED) {
 				if (StringUtils.equals(bcc.getCellLabel(), "atd_flag")) {
 					ZkJxPickInput pickComp = (ZkJxPickInput) LeaveApplication.getCellComponent(bcc);
-					pickComp.setPopupWidth("200px");
+					pickComp.setPopupWidth("120px");
 				}
 			}
 			if (p_ctype != GIPI_CELL_MAPPED && p_ctype != GIPI_PULLDOWN_OPENED && p_ctype != GIPI_PULLDOWN_CLOSED)

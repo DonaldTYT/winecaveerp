@@ -20,11 +20,11 @@ public abstract class JxGadgetProvider
 	
 	
 
-	protected void finalize()
-	{
-		UniLog.log("finalize JxGadgetProvider");
-		providerCleanUp();
-	}
+//	protected void finalize()
+//	{
+//		UniLog.log("finalize JxGadgetProvider");
+//		providerCleanUp();
+//	}
 	public void providerCleanUp()
 	{
 		UniLog.log("JxGadgetProvider CleanUp");

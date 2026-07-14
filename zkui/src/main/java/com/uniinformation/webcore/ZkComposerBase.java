@@ -34,7 +34,9 @@ public class ZkComposerBase implements Composer<Component> {
   	protected boolean autoWire = true;
   	protected boolean accessOkFlag = false; //for abort the doAfterCompose execution.
   	protected String desktopId = "";
-  	protected String customLoginUrl = null;
+//  removed by DT on 260215 because it is never been used and actually don't work in most case. Its bacause the the zul is normall invoked by a jsp zul loader with have code to do a sendRedirect if not logged in. the sendRedirect is the "the First One Lockked" that once committed, cannot be overrided by subsequent calls.
+//  protected String customLoginUrl = null;
+  	protected boolean needCheckLogin = true;
   	//private Map<String,Object> urlParams = new HashMap<String, Object>(); //andrew210507 logic moved to sessionHelper
   	private Map<String,Object> urlParams = new HashMap<String, Object>();
 	@Override
@@ -73,9 +75,10 @@ public class ZkComposerBase implements Composer<Component> {
 			
 		});
 		
-		if(!sessionHelper.isLogin()) {
+		if(needCheckLogin && !sessionHelper.isLogin()) {
    			UniLog.log("sessionHelper not logged in");
-   			if(customLoginUrl != null && StringUtils.isBlank(customLoginUrl)) {
+//   			if(customLoginUrl != null && StringUtils.isBlank(customLoginUrl)) {
+   			if(false) {
    				
    			} else {
    				redirectToLogin();
@@ -202,13 +205,14 @@ public class ZkComposerBase implements Composer<Component> {
 	}
 
     public void redirectToLogin() {
-    	if(customLoginUrl != null) {
-    		if(!StringUtils.isBlank(customLoginUrl)) {
-    			Executions.getCurrent().sendRedirect(customLoginUrl);
-    		}
-    	} else {
-    		Executions.getCurrent().sendRedirect("/login.html");
-    	}
+//    	if(customLoginUrl != null) {
+//    		if(!StringUtils.isBlank(customLoginUrl)) {
+//    			Executions.getCurrent().sendRedirect(customLoginUrl);
+//    		}
+//    	} else {
+//    		Executions.getCurrent().sendRedirect("/login.html");
+//    	}
+   		Executions.getCurrent().sendRedirect("/login.html");
     }
     public Map<String,Object> getURLParams(){
     	return urlParams;

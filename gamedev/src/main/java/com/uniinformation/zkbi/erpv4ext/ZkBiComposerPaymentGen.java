@@ -6,8 +6,11 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.Vector;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.stream.Stream;
 
 import org.apache.commons.lang3.StringUtils;
 import org.zkoss.zk.ui.Component;
@@ -25,14 +28,15 @@ import org.zkoss.zul.Radiogroup;
 import org.zkoss.zul.Toolbarbutton;
 import org.zkoss.zul.Window;
 
-import com.kyoko.common.DateUtil;
 import com.uniinformation.bicore.BiResult;
+import com.uniinformation.bicore.erpv4ext.BiResultLeaveApplication;
 import com.uniinformation.jxapp.erpv4ext.LeaveApplication;
-import com.uniinformation.utils.GsonUtil;
+import com.kyoko.common.DateUtil;
 import com.uniinformation.utils.SelectUtil;
 import com.uniinformation.utils.TableRec;
 import com.uniinformation.utils.UniLog;
 import com.uniinformation.utils.Wherecl;
+import com.uniinformation.utils.TranslateUtil;
 import com.uniinformation.utils.ZkUtil;
 import com.uniinformation.utils.exprpar.FunctionInterface;
 import com.uniinformation.utils.exprpar.Parser;
@@ -42,7 +46,9 @@ import com.uniinformation.zkbi.ZkBiEventListener;
 import com.uniinformation.zkbi.ZkBiHelpDialog;
 import com.uniinformation.zkbi.ZkBiMsgbox;
 import com.uniinformation.zkbi.ZkBiMsgbox.ZkBiMsgboxButton;
-import com.uniinformation.zkbi.ZkBiTranslateHelper;
+
+import static com.uniinformation.utils.ZkUtil.throwConsumer;
+import static com.uniinformation.utils.ZkUtil.throwFunction;
 
 public class ZkBiComposerPaymentGen extends ZkComposerBase {
 	public static final String PAYMENT_TYPE_INCOME = "01";
@@ -65,23 +71,24 @@ public class ZkBiComposerPaymentGen extends ZkComposerBase {
 	@Wire
 	private Button btStart;
 	
-	private IncomeItem[] incomeItemArr;
-	private DeductionItem[] deductionItemArr;
-	private PensionItem[] pensionItemArr;
-	private List<PmdCtrl> pmdCtrlList = new ArrayList<PmdCtrl>();
-	private List<PaymentDet> paymentDetList = new ArrayList<PaymentDet>();
-	private List<PaymentItem> paymentItemList = new ArrayList<PaymentItem>();
-	private List<PaymentItemDet> paymentItemDetList = new ArrayList<PaymentItemDet>();
+	private MainItem[] incomeItemArr;
+	private MainItem[] deductionItemArr;
+	private MainItem[] pensionItemArr;
+	private PaymentMaster lpm;
+	private List<PaymentDet> paymentDetList = new ArrayList<>();
+	private List<PaymentItem> paymentItemList = new ArrayList<>();
+	private List<PaymentItemDet> paymentItemDetList = new ArrayList<>();
+	private SelectUtil suQuery, suUpdate;
 
 	@Override
 	public void doAfterCompose(Component p_comp) throws Exception {
 		super.doAfterCompose(p_comp);
 		UniLog.log1("called");
 
-		final BiResult br = sessionHelper.newBiResult("erpv4ext.Employee");
+		suQuery = sessionHelper.newBiResult("erpv4ext.Employee").getSelectUtil();
 		try {
 			//fill Employee Code
-			TableRec tr = br.getSelectUtil().getQueryResult("select em_eid, em_nickname, em_midname, em_surname, em_csurname, em_cmidname from employee order by em_eid");
+			TableRec tr = suQuery.getQueryResult("select em_eid, em_nickname, em_midname, em_surname, em_csurname, em_cmidname from employee order by em_eid");
 			for (int i = 0; i < tr.getRecordCount(); i++) {
 				tr.setRecPointer(i);
 				final String emid = tr.getFieldString("em_eid");
@@ -94,7 +101,7 @@ public class ZkBiComposerPaymentGen extends ZkComposerBase {
 				final String cname = StringUtils.isBlank(em_nickname) ? (em_csurname + em_cmidname) : (em_csurname + em_cmidname + " (" + em_nickname + ")");
 				s2Emid.appendChild(new Listitem(emid + " - " + (StringUtils.equalsAny(sessionHelper.getLHLang(), "TCHN", "SCHN") ? cname :  ename)){{setValue(emid);}});
 			}
-			tr = br.getSelectUtil().getQueryResult("select dpmt_rg, dpmt_code, dpmt_name from deptmt order by dpmt_code");
+			tr = suQuery.getQueryResult("select dpmt_rg, dpmt_code, dpmt_name from deptmt order by dpmt_code");
 			for (int i = 0; i < tr.getRecordCount(); i++) {
 				tr.setRecPointer(i);
 				final int rg = tr.getFieldInt("dpmt_rg");
@@ -102,7 +109,7 @@ public class ZkBiComposerPaymentGen extends ZkComposerBase {
 				final String name = tr.getFieldString("dpmt_name");
 				s2Dept.appendChild(new Listitem(code + " - " + name){{setValue(rg);}});
 			}
-			tr = br.getSelectUtil().getQueryResult("select pp_start, pp_end from payperiod order by pp_start desc");
+			tr = suQuery.getQueryResult("select pp_start, pp_end from payperiod order by pp_start desc");
 			for (int i = 0; i < tr.getRecordCount(); i++) {
 				tr.setRecPointer(i);
 				final Date startDate = tr.getFieldDate("pp_start");
@@ -136,9 +143,9 @@ public class ZkBiComposerPaymentGen extends ZkComposerBase {
 		for (Radio rd : rgWhenExist.getItems()) {
 			String v = rd.getLabel();
 			rd.setValue(v);
-			rd.setLabel(ZkBiTranslateHelper.getText(sessionHelper, "ERPV4EXT.PAYMENTGEN.RD_WHENEX_" + v.toUpperCase(), "OPTION", v));
+			rd.setLabel(TranslateUtil.getText(sessionHelper, "ERPV4EXT.PAYMENTGEN.RD_WHENEX_" + v.toUpperCase(), "OPTION", v));
 		}
-		winPaymentGen.setTitle(ZkBiTranslateHelper.getText(sessionHelper, "ZkBiPaymentGen_01", "MENU", "Payment Generation"));
+		winPaymentGen.setTitle(TranslateUtil.getText(sessionHelper, "ZkBiPaymentGen_01", "MENU", "Payment Generation"));
 
 		Toolbarbutton btnHelp = (Toolbarbutton) winPaymentGen.query("#btnHelp");
 		String helpId = StringUtils.defaultIfBlank(Executions.getCurrent().getParameter("helpid"), "edu.TodayAttendance");
@@ -206,7 +213,7 @@ public class ZkBiComposerPaymentGen extends ZkComposerBase {
 					emIdList.add((String)li.getValue());
 				if (s2Dept.getSelectedItem() != null) {
 					int dprg = s2Dept.getSelectedItem().getValue();
-					TableRec tr = br.getSelectUtil().getQueryResult("select emg_eid from emgrade where emg_deptrg = ? and emg_stdate <= ? and emg_enddate >= ?", 
+					TableRec tr = suQuery.getQueryResult("select emg_eid from emgrade where emg_deptrg = ? and emg_stdate <= ? and emg_enddate >= ?", 
 							new Wherecl().appendArgument(dprg).appendArgument(payEndDate).appendArgument(payStartDate));
 					Set<String> emIdList1 = new LinkedHashSet<String>();
 					for (int i = 0; i < tr.getRecordCount(); i++) {
@@ -226,23 +233,23 @@ public class ZkBiComposerPaymentGen extends ZkComposerBase {
 							UniLog.log1("confirm %s", event);
 							ZkBiMsgboxButton btn = (ZkBiMsgboxButton) event.getTarget();
 							if (btn.getName().equals("Ok")) {
-								TableRec tr = br.getSelectUtil().getQueryResult("select em_eid from employee where em_stdate <= ? and (em_enddate = '' or em_enddate >= ?) order by em_eid", 
+								TableRec tr = suQuery.getQueryResult("select em_eid from employee where em_stdate <= ? and (em_enddate = '' or em_enddate >= ?) order by em_eid", 
 										new Wherecl().appendArgument(payEndDate).appendArgument(payStartDate));
 								for (int i = 0; i < tr.getRecordCount(); i++) {
 									tr.setRecPointer(i);
 									emIdList.add(tr.getFieldString("em_eid"));
 								}
-								startGenerate(br, emIdList, payStartDate, payEndDate, payDate, whenExistStatus);
+								startGenerate(emIdList, payStartDate, payEndDate, payDate, whenExistStatus);
 							}
 						}
 					});
 				} else
-					startGenerate(br, emIdList, payStartDate, payEndDate, payDate, whenExistStatus);
+					startGenerate(emIdList, payStartDate, payEndDate, payDate, whenExistStatus);
 			}
 		});
 	}
 	
-	private void startGenerate(BiResult brQuery, Set<String> emIdList, Date payStartDate, Date payEndDate, Date payDate, String whenExistStatus) {
+	private void startGenerate(Set<String> emIdList, Date payStartDate, Date payEndDate, Date payDate, String whenExistStatus) {
 		UniLog.log1("emIdList size:%s, payStartDate:%s, payEndDate:%s, payDate:%s, whenExistStatus:%s", emIdList.size(), payStartDate, payEndDate, payDate, whenExistStatus);
 		int ok = 0, skip = 0, overwrite = 0, fail = 0;
 		String err = null;
@@ -251,7 +258,7 @@ public class ZkBiComposerPaymentGen extends ZkComposerBase {
 		for (String emid : emIdList) {
 			UniLog.log1("validateOne emid:%s", emid);
 			try {
-				switch (validateOne(brQuery, emid, payStartDate, whenExistStatus)) {
+				switch (validateOne(emid, payStartDate, whenExistStatus)) {
 					case 1:
 						genEmIdList.add(emid);
 						break;
@@ -283,25 +290,29 @@ public class ZkBiComposerPaymentGen extends ZkComposerBase {
 			}
 		}
 		
+		BiResult brUpdate = sessionHelper.newBiResult("erpv4ext.Employee");
+		suUpdate = brUpdate.getSelectUtil();
 		for (String emid : genEmIdList) {
 			UniLog.log1("generateOne emid:%s", emid);
-			BiResult br = null;
 			try {
-				br = sessionHelper.newBiResult("erpv4ext.Employee");
-				generateOne(brQuery, br, emid, payStartDate, payEndDate, payDate);
+				brUpdate.beginWork();
+				lockTables();
+				calPayment(emid, payStartDate, payEndDate, payDate);
+				brUpdate.commitWork();
 				if (overwriteEmIdList.contains(emid))
 					overwrite++;
 				else
 					ok++;
-			}
-			catch (Exception ex) {
+			} catch (Exception ex) {
 				UniLog.log(ex);
 				err = StringUtils.defaultIfBlank(ex.getMessage(), ex.toString()) + String.format(" (Employee Code: %s)", emid);
-				if (br != null)
-					br.rollbackWork();
+				if (brUpdate != null)
+					brUpdate.rollbackWork();
 				fail++;
 			}
 		}
+		brUpdate.close();
+
 		StringBuilder sb = new StringBuilder();
 		if (ok > 0)
 			sb.append(String.format("- %d record added\n", ok));
@@ -321,256 +332,198 @@ public class ZkBiComposerPaymentGen extends ZkComposerBase {
 	}
 
 	//return: {1: add, 0: skip, 2: overwrite, 3: record exist for abort}
-	private int validateOne(BiResult brQuery, String emid, Date payStartDate, String whenExistStatus) throws Exception {
-		TableRec tr = brQuery.getSelectUtil().getQueryResult("select pm_confirmstatus from paymentmaster where pm_eid = ? and pm_date = ?", 
-				new Wherecl().appendArgument(emid).appendArgument(payStartDate));
-		if (tr.getRecordCount() > 0) {
-			tr.setRecPointer(0);
-			int pmConfirmStatus = tr.getFieldInt("pm_confirmstatus");
-			if (pmConfirmStatus == 1) //已过账
+	private int validateOne(String emid, Date payStartDate, String whenExistStatus) throws Exception {
+		return ZkUtil.getFirstTableRec(suQuery, "select pm_confirmstatus from paymentmaster where pm_eid = ? and pm_date = ?", 
+														new Wherecl().appendArgument(emid).appendArgument(payStartDate)).map(throwFunction(tr -> {
+			if (tr.getFieldInt("pm_confirmstatus") == 1) //已过账
 				return 0;
-			if (StringUtils.equals(whenExistStatus, "Abort"))
+			else if (Objects.equals(whenExistStatus, "Abort"))
 				return 3;
-			else if (StringUtils.equals(whenExistStatus, "Skip"))
+			else if (Objects.equals(whenExistStatus, "Skip"))
 				return 0;
-			return 2;
-		}
-		return 1;
+			else
+				return 2;
+		})).orElse(1);
 	}
 	
-	private void generateOne(BiResult brQuery, BiResult br, String emid, Date payStartDate, Date payEndDate, Date payDate) throws Exception {
-		SelectUtil suQuery = brQuery.getSelectUtil();
-		SelectUtil su = br.getSelectUtil();
-		br.beginWork();
-		lockTables(su);
-		calPayment(suQuery, su, emid, payStartDate, payEndDate, payDate);
-		br.commitWork();
+	private void lockTables() throws Exception {
+		UniLog.log("lockTables");
+		suUpdate.executeUpdate("lock table paymentmaster in share mode", null);
+		suUpdate.executeUpdate("lock table leave in share mode", null);
+		suUpdate.executeUpdate("lock table attendance in share mode", null);
+		suUpdate.executeUpdate("lock table employee in share mode", null);
 	}
 	
-	private void lockTables(SelectUtil su) throws Exception {
-		UniLog.log1("lockTables");
-		su.executeUpdate("lock table paymentmaster in share mode", null);
-		su.executeUpdate("lock table leave in share mode", null);
-		su.executeUpdate("lock table attendance in share mode", null);
-		su.executeUpdate("lock table employee in share mode", null);
-	}
-	
-	private void calPayment(SelectUtil suQuery, SelectUtil su, String p_eid, Date p_stdate, Date p_enddate, Date p_paydate) throws Exception {
+	private void calPayment(String p_eid, Date p_stdate, Date p_enddate, Date p_paydate) throws Exception {
 		UniLog.log1("Calculating Payment for %s...", p_eid);
-		TableRec tr = suQuery.getQueryResult("select * from incomeitem");
-		incomeItemArr = new IncomeItem[tr.getRecordCount()];
-		for (int i = 0; i < incomeItemArr.length; i++) {
-			tr.setRecPointer(i);
-			IncomeItem item = incomeItemArr[i] = new IncomeItem();
-			item.code = tr.getFieldString("inci_code");
-			item.formula = tr.getFieldString("inci_formula");
-			item.iswage = StringUtils.equals(tr.getFieldString("inci_iswage"), "Y");
-			item.istaxible = StringUtils.equals(tr.getFieldString("inci_istaxible"), "Y");
-			item.isrelavent = StringUtils.equals(tr.getFieldString("inci_isrelavent"), "Y");
-			item.overridable = StringUtils.equals(tr.getFieldString("inci_overridable"), "Y");
+		if (incomeItemArr == null) {
+			incomeItemArr = ZkUtil.getTableRecStream(suQuery, "select * from incomeitem").map(c -> {
+				MainItem item = new MainItem(PAYMENT_TYPE_INCOME);
+				item.code = c.getString("inci_code");
+				item.formula = c.getString("inci_formula");
+				item.iswage = Objects.equals(c.getString("inci_iswage"), "Y");
+				item.istaxible = Objects.equals(c.getString("inci_istaxible"), "Y");
+				item.isrelavent = Objects.equals(c.getString("inci_isrelavent"), "Y");
+				item.overridable = Objects.equals(c.getString("inci_overridable"), "Y");
+				return item;
+			}).toArray(MainItem[]::new);
 		}
-		tr = suQuery.getQueryResult("select * from deductionitem");
-		deductionItemArr = new DeductionItem[tr.getRecordCount()];
-		for (int i = 0; i < deductionItemArr.length; i++) {
-			tr.setRecPointer(i);
-			DeductionItem item = deductionItemArr[i] = new DeductionItem();
-			item.code = tr.getFieldString("deci_code");
-			item.formula = tr.getFieldString("deci_formula");
-			item.iswage = StringUtils.equals(tr.getFieldString("deci_iswage"), "Y");
-			item.istaxible = StringUtils.equals(tr.getFieldString("deci_istaxible"), "Y");
-			item.isrelavent = StringUtils.equals(tr.getFieldString("deci_isrelavent"), "Y");
-			item.overridable = StringUtils.equals(tr.getFieldString("deci_overridable"), "Y");
+
+		if (deductionItemArr == null) {
+			deductionItemArr = ZkUtil.getTableRecStream(suQuery, "select * from deductionitem").map(c -> {
+				MainItem item = new MainItem(PAYMENT_TYPE_DEDUCTION);
+				item.code = c.getString("deci_code");
+				item.formula = c.getString("deci_formula");
+				item.iswage = Objects.equals(c.getString("deci_iswage"), "Y");
+				item.istaxible = Objects.equals(c.getString("deci_istaxible"), "Y");
+				item.isrelavent = Objects.equals(c.getString("deci_isrelavent"), "Y");
+				item.overridable = Objects.equals(c.getString("deci_overridable"), "Y");
+				return item;
+			}).toArray(MainItem[]::new);
 		}
-		tr = suQuery.getQueryResult("select * from pensionitem");
-		pensionItemArr = new PensionItem[tr.getRecordCount()];
-		for (int i = 0; i < pensionItemArr.length; i++) {
-			tr.setRecPointer(i);
-			PensionItem item = pensionItemArr[i] = new PensionItem();
-			item.code = tr.getFieldString("peni_code");
-			item.formula = tr.getFieldString("peni_formula");
-			item.iswage = StringUtils.equals(tr.getFieldString("peni_iswage"), "Y");
-			item.overridable = StringUtils.equals(tr.getFieldString("peni_overridable"), "Y");
+
+		if (pensionItemArr == null) {
+			pensionItemArr = ZkUtil.getTableRecStream(suQuery, "select * from pensionitem").map(c -> {
+				MainItem item = new MainItem(PAYMENT_TYPE_PENSION);
+				item.code = c.getString("peni_code");
+				item.formula = c.getString("peni_formula");
+				item.iswage = Objects.equals(c.getString("peni_iswage"), "Y");
+				item.overridable = Objects.equals(c.getString("peni_overridable"), "Y");
+				return item;
+			}).toArray(MainItem[]::new);
 		}
-		pmdCtrlList.clear();
-		for (IncomeItem item : incomeItemArr) {
-			if (StringUtils.equals(item.code, "OT")) {
-				item.stdate = DateUtil.prevMonthStart(p_stdate);
-				item.enddate = DateUtil.prevMonthEnd(p_stdate);
-				PmdCtrl pdmc = new PmdCtrl();
-				pdmc.stdate = item.stdate;
-				pdmc.enddate = item.enddate;
-				pmdCtrlList.add(0, pdmc);
-			} else {
-				item.stdate = p_stdate;
-				item.enddate = p_enddate;
-			}
-			item.flag = encodePmflagFromIncome(item);
-		}
-		for (DeductionItem item : deductionItemArr) {
-			item.stdate = p_stdate;
-			item.enddate = p_enddate;
-			item.flag = encodePmflagFromDeduction(item);
-		}
-		for (PensionItem item : pensionItemArr)
-			item.flag = encodePmflagFromPension(item);
-		PmdCtrl pdmc = new PmdCtrl();
-		pdmc.stdate = p_stdate;
-		pdmc.enddate = p_enddate;
-		pmdCtrlList.add(0, pdmc);
+
+		PmdCtrl pmdc1 = new PmdCtrl();
+		pmdc1.stdate = p_stdate;
+		pmdc1.enddate = p_enddate;
+		AtomicReference<PmdCtrl> pmdc2 = new AtomicReference<>();
+		Stream.of(incomeItemArr, deductionItemArr, pensionItemArr).flatMap(Arrays::stream).forEach(item -> {
+			if (Objects.equals(item.type, PAYMENT_TYPE_INCOME) && Objects.equals(item.code, "OT")) {
+				//item.stdate = DateUtil.prevMonthStart(p_stdate);
+				//item.enddate = DateUtil.prevMonthEnd(p_stdate);
+				if (pmdc2.get() == null) {
+					PmdCtrl pmdc = new PmdCtrl();
+					pmdc.stdate = DateUtil.nextday(DateUtil.prevmonth(p_enddate, 2));
+					pmdc.enddate = DateUtil.prevday(p_stdate);
+					pmdc2.set(pmdc);
+				}
+				item.pmdc = pmdc2.get();
+			} else
+				item.pmdc = pmdc1;
+			item.encodeFlag();
+		});
 		
 		
-		tr = suQuery.getQueryResult("select * from employee where em_eid = ?", new Wherecl().appendArgument(p_eid));
-		if (tr.getRecordCount() == 0)
-			throw new Exception("Employee record not found");
-		tr.setRecPointer(0);
-		Employee lem = new Employee();
-		lem.eid = p_eid;
-		lem.stdate = tr.getFieldDate("em_stdate");
-		lem.birth = tr.getFieldDate("em_birth");
+		lpm = ZkUtil.getFirstTableRec(suQuery, "select * from employee where em_eid = ?", new Wherecl().appendArgument(p_eid)).map(throwFunction(tr -> {
+			deletePayment(p_eid, p_stdate);
+			PaymentMaster pm = new PaymentMaster();
+			pm.eid = p_eid;
+			pm.emstdate = tr.getFieldDate("em_stdate");
+			pm.embirth = tr.getFieldDate("em_birth");
+			pm.date = p_stdate;
+			pm.edate = p_enddate;
+			pm.paydate = p_paydate;
+			return pm;
+		})).orElseThrow(() -> new Exception("Employee record not found"));
 		
-		//paymentmaster, paymentdet, paymentitem, paymentitemdet
-		deletePayment(su, p_eid, p_stdate);
-		PaymentMaster lpm = new PaymentMaster();
-		lpm.eid = p_eid;
-		lpm.date = p_stdate;
-		lpm.edate = p_enddate;
-		lpm.paydate = p_paydate;
 		paymentDetList.clear();
 		paymentItemList.clear();
 		paymentItemDetList.clear();
-		for (PmdCtrl pmdc : pmdCtrlList) {
-			tr = suQuery.getQueryResult("select * from emgrade where emg_eid = ? and emg_stdate <= ? and emg_enddate >= ?", 
-					new Wherecl().appendArgument(p_eid).appendArgument(pmdc.enddate).appendArgument(pmdc.stdate));
-			Date tmpdate1 = DateUtil.monthStart(pmdc.stdate);
-			Date tmpdate2 = DateUtil.monthEnd(pmdc.enddate);
-			int tmpmonthdays = (int)((tmpdate2.getTime() - tmpdate1.getTime()) / 86400000) + 1;
-			for (int i = 0; i < tr.getRecordCount(); i++) {
-				tr.setRecPointer(i);
-				Date emg_stdate = tr.getFieldDate("emg_stdate");
-				Date emg_enddate = tr.getFieldDate("emg_enddate");
-				String emg_wgtype = tr.getFieldString("emg_wgtype");
-				double emg_wage = tr.getFieldDouble("emg_wage");
+		for (PmdCtrl pmdc : Arrays.asList(pmdc2.get(), pmdc1)) {
+			if (pmdc == null)
+				continue;
+			int tmpmonthdays = (int)((pmdc.enddate.getTime() - pmdc.stdate.getTime()) / 86400000) + 1;
+			ZkUtil.getTableRecStream(suQuery, "select * from emgrade where emg_eid = ? and emg_stdate <= ? and emg_enddate >= ?", 
+					new Wherecl().appendArgument(p_eid).appendArgument(pmdc.enddate).appendArgument(pmdc.stdate)).forEach(throwConsumer(c -> {
+				Date emg_stdate = c.getDate("emg_stdate");
+				Date emg_enddate = c.getDate("emg_enddate");
+				String emg_wgtype = c.getString("emg_wgtype");
+				double emg_wage = c.getDouble("emg_wage");
 				PaymentDet pyparam = new PaymentDet();
 				paymentDetList.add(pyparam);
-				pyparam.eid = lpm.eid;
-				pyparam.date = lpm.date;
-				pyparam.stdate = pmdc.stdate;
-				pyparam.enddate = pmdc.enddate;
+				pyparam.pmdc = pmdc;
 				pyparam.monthdays = tmpmonthdays;
 				pyparam.emgstdate = emg_stdate;
-				if (emg_stdate.compareTo(pmdc.stdate) > 0)
-					tmpdate1 = emg_stdate;
-				else 
-					tmpdate1 = pmdc.stdate;
-				if (emg_enddate.compareTo(pmdc.enddate) < 0)
-					tmpdate2 = emg_enddate;
-				else 
-					tmpdate2 = pmdc.enddate;
+				Date tmpdate1 = emg_stdate.compareTo(pmdc.stdate) > 0 ? emg_stdate : pmdc.stdate;
+				Date tmpdate2 = emg_enddate.compareTo(pmdc.enddate) < 0 ? emg_enddate : pmdc.enddate;
 				pyparam.ndays = (int)((tmpdate2.getTime() - tmpdate1.getTime()) / 86400000) + 1;
-				if (StringUtils.equals(emg_wgtype, "M"))
+				switch (emg_wgtype) {
+				case "M":
 					pyparam.basemsal = emg_wage;
-				else if (StringUtils.equals(emg_wgtype, "D"))
+					break;
+				case "D":
 					pyparam.basedsal = emg_wage;
-				else if (StringUtils.equals(emg_wgtype, "W"))
+					break;
+				case "W":
 					pyparam.basewsal = emg_wage;
-				else if (StringUtils.equals(emg_wgtype, "B"))
+					break;
+				case "B":
 					pyparam.basewsal = emg_wage / 2;
-				else if (StringUtils.equals(emg_wgtype, "H"))
+					break;
+				case "H":
 					pyparam.basehsal = emg_wage;
-				getAttendance(suQuery, tmpdate1, tmpdate2, pyparam);
-				calIncomeOnePeriod(suQuery, lem, lpm, pyparam);
-			}
-		}
-		for (PmdCtrl pmdc : pmdCtrlList) {
-			int j = -1;
-			for (int i = 0; i < paymentDetList.size(); i++) {
-				PaymentDet item = paymentDetList.get(i);
-				if (item.stdate.compareTo(pmdc.stdate) == 0 && item.enddate.compareTo(pmdc.enddate) == 0) {
-					j = i;
 					break;
 				}
-			}
-			if (j >= 0) {
-				for (; j < paymentDetList.size(); j++) {
-					PaymentDet pyparam = paymentDetList.get(j);
-					if (pyparam.stdate.compareTo(pmdc.stdate) != 0 || pyparam.enddate.compareTo(pmdc.enddate) != 0) 
-						break;
-					calDeductionOnePeriod(suQuery, lem, lpm, pyparam);
-				}
-			}
+				getAttendance(tmpdate1, tmpdate2, pyparam);
+			}));
 		}
-		int j = -1;
-		for (int i = 0; i < paymentDetList.size(); i++) {
-			PaymentDet item = paymentDetList.get(i);
-			if (item.stdate.compareTo(p_stdate) == 0 && item.enddate.compareTo(p_enddate) == 0) {
-				j = i;
-				break;
-			}
-		}
-		if (j >= 0) {
-			for (; j < paymentDetList.size(); j++) {
-				PaymentDet pyparam = paymentDetList.get(j);
-				if (pyparam.stdate.compareTo(p_stdate) != 0 || pyparam.enddate.compareTo(p_enddate) != 0)
-					break;
-				countPensionOnePeriod(suQuery, pyparam);
-			}
-			for (PaymentItem pmi : paymentItemList) {
-				if (StringUtils.equals(pmi.type, PAYMENT_TYPE_PENSION))
-					calPensionOneType(suQuery, lem, lpm, pmi);
-			}
-		}
-		insertData(suQuery, su, lpm);
+		paymentDetList.stream().forEach(throwConsumer(pyparam -> {
+			pyparam.addPaymentItem();
+		}));
+		paymentItemDetList.stream().forEach(throwConsumer(pmdi -> {
+			pmdi.addToPaymentMasterPaymentDetPaymentItem();
+		}));
+		paymentItemList.stream().forEach(throwConsumer(pmi -> {
+			pmi.calPensionOneType();
+		}));
+		insertData();
 	}
 	
-	private static void deletePayment(SelectUtil su, String p_eid, Date p_date) throws Exception {
-		su.executeUpdate("delete from paymentitemdet where pmdi_eid = ? and pmdi_date = ?", new Wherecl().appendArgument(p_eid).appendArgument(p_date));
-		su.executeUpdate("delete from paymentitem where pmi_eid = ? and pmi_date = ?", new Wherecl().appendArgument(p_eid).appendArgument(p_date));
-		su.executeUpdate("delete from paymentdet where pmd_eid = ? and pmd_date = ?", new Wherecl().appendArgument(p_eid).appendArgument(p_date));
-		su.executeUpdate("delete from paymentmaster where pm_eid = ? and pm_date = ?", new Wherecl().appendArgument(p_eid).appendArgument(p_date));
+	private void deletePayment(String p_eid, Date p_date) throws Exception {
+		suUpdate.executeUpdate("delete from paymentitemdet where pmdi_eid = ? and pmdi_date = ?", new Wherecl().appendArgument(p_eid).appendArgument(p_date));
+		suUpdate.executeUpdate("delete from paymentitem where pmi_eid = ? and pmi_date = ?", new Wherecl().appendArgument(p_eid).appendArgument(p_date));
+		suUpdate.executeUpdate("delete from paymentdet where pmd_eid = ? and pmd_date = ?", new Wherecl().appendArgument(p_eid).appendArgument(p_date));
+		suUpdate.executeUpdate("delete from paymentmaster where pm_eid = ? and pm_date = ?", new Wherecl().appendArgument(p_eid).appendArgument(p_date));
 	}
 	
-	private static void getAttendance(SelectUtil suQuery, Date p_stdate, Date p_enddate, PaymentDet pyparam) throws Exception {
-		TableRec tr = suQuery.getQueryResult("select * from leave where lv_eid = ? and lv_sdate <= ? and lv_edate >= ? and lv_ltype = 'No Paid' order by lv_sdate, lv_edate", 
-				new Wherecl().appendArgument(pyparam.eid).appendArgument(p_enddate).appendArgument(p_stdate));
-		int cc = 0;
-		for (int i = 0; i < tr.getRecordCount(); i++) {
-			tr.setRecPointer(i);
-			Date lv_sdate = tr.getFieldDate("lv_sdate");
-			Date lv_edate = tr.getFieldDate("lv_edate");
-			String lv_stfd = tr.getFieldString("lv_stfd");
-			String lv_enfd = tr.getFieldString("lv_enfd");
+	private void getAttendance(Date p_stdate, Date p_enddate, PaymentDet pyparam) throws Exception {
+		pyparam.nopaydays = ZkUtil.getTableRecStream(suQuery, "select * from leave where lv_eid = ? and lv_sdate <= ? and lv_edate >= ? and lv_ltype = 'No Paid' order by lv_sdate, lv_edate", 
+				new Wherecl().appendArgument(lpm.eid).appendArgument(p_enddate).appendArgument(p_stdate)).mapToInt(cell -> {
+			int cc = 0;
+			Date lv_sdate = cell.getDate("lv_sdate");
+			Date lv_edate = cell.getDate("lv_edate");
+			String lv_stfd = cell.getString("lv_stfd");
+			String lv_enfd = cell.getString("lv_enfd");
 			for (Date tmpdate1 = lv_sdate; tmpdate1.compareTo(lv_edate) <= 0; tmpdate1 = DateUtil.nextday(tmpdate1)) {
 				if (tmpdate1.compareTo(p_stdate) >= 0 && tmpdate1.compareTo(p_enddate) <= 0) {
 					if (tmpdate1.compareTo(lv_sdate) == 0) {
 						if (StringUtils.equals(lv_stfd, "F"))
-							cc += LeaveApplication.LEAVEUNIT_PER_DAY;
+							cc += BiResultLeaveApplication.LEAVEUNIT_PER_DAY;
 						else if (StringUtils.equals(lv_stfd, "H"))
-							cc += LeaveApplication.LEAVEUNIT_PER_HALFDAY;
+							cc += BiResultLeaveApplication.LEAVEUNIT_PER_HALFDAY;
 					} else if (tmpdate1.compareTo(lv_edate) == 0) {
 						if (StringUtils.equals(lv_enfd, "F"))
-							cc += LeaveApplication.LEAVEUNIT_PER_DAY;
+							cc += BiResultLeaveApplication.LEAVEUNIT_PER_DAY;
 						else if (StringUtils.equals(lv_enfd, "H"))
-							cc += LeaveApplication.LEAVEUNIT_PER_HALFDAY;
+							cc += BiResultLeaveApplication.LEAVEUNIT_PER_HALFDAY;
 					} else
-						cc += LeaveApplication.LEAVEUNIT_PER_DAY;
+						cc += BiResultLeaveApplication.LEAVEUNIT_PER_DAY;
 				}
 			}
-		}
-		pyparam.nopaydays = cc;
+			return cc;
+		}).sum();
 
-		tr = suQuery.getQueryResult("select * from attendance where at_eid = ? and at_date between ? and ?", 
-				new Wherecl().appendArgument(pyparam.eid).appendArgument(p_stdate).appendArgument(p_enddate));
-		for (int i = 0; i < tr.getRecordCount(); i++) {
-			tr.setRecPointer(i);
-			int at_late = tr.getFieldInt("at_late");
-			int at_reallate = tr.getFieldInt("at_reallate");
-			int at_ot = tr.getFieldInt("at_ot");
-			int at_sot = tr.getFieldInt("at_sot");
-			int at_othr = tr.getFieldInt("at_othr");
-			int at_nowork = tr.getFieldInt("at_nowork");
-			int at_wktime = tr.getFieldInt("at_wktime");
-			boolean at_manualot = StringUtils.equals(tr.getFieldString("at_manualot"), "Y");
-			boolean at_flag1 = StringUtils.equals(tr.getFieldString("at_flag1"), "Y");
+		ZkUtil.getTableRecStream(suQuery, "select * from attendance where at_eid = ? and at_date between ? and ?", 
+				new Wherecl().appendArgument(lpm.eid).appendArgument(p_stdate).appendArgument(p_enddate)).forEach(cell -> {
+			int at_late = cell.getInt("at_late");
+			int at_reallate = cell.getInt("at_reallate");
+			int at_ot = cell.getInt("at_ot");
+			int at_sot = cell.getInt("at_sot");
+			int at_othr = cell.getInt("at_othr");
+			int at_nowork = cell.getInt("at_nowork");
+			int at_wktime = cell.getInt("at_wktime");
+			boolean at_manualot = Objects.equals(cell.getString("at_manualot"), "Y");
+			boolean at_flag1 = Objects.equals(cell.getString("at_flag1"), "Y");
 			if (at_late > 0) {
 				if (at_reallate > 0) {
 					pyparam.latedays++;
@@ -585,10 +538,7 @@ public class ZkBiComposerPaymentGen extends ZkComposerBase {
 				pyparam.hotdays++;
 				pyparam.hotmins += at_ot;
 			}
-			if (at_manualot)
-				cc = at_othr;
-			else
-				cc = at_sot;
+			int cc = at_manualot ? at_othr : at_sot;
 			if (cc > 0) {
 				if (at_flag1) {
 					pyparam.xotdays++;
@@ -606,278 +556,38 @@ public class ZkBiComposerPaymentGen extends ZkComposerBase {
 				pyparam.wkdays++;
 				pyparam.wkmins += at_wktime;
 			}
-		}
+		});
 	}
 	
-	//create paymentitem, paymentitemdet for Income Item
-	private void calIncomeOnePeriod(SelectUtil suQuery, Employee lem, PaymentMaster lpm, PaymentDet pyparam) throws Exception {
-		TableRec tr = suQuery.getQueryResult("select * from emincome where emic_eid = ? and emic_date = ?", 
-				new Wherecl().appendArgument(pyparam.eid).appendArgument(pyparam.emgstdate));
-		for (int i = 0; i < tr.getRecordCount(); i++) {
-			tr.setRecPointer(i);
-			String emic_code = tr.getFieldString("emic_code");
-			String emic_formula = tr.getFieldString("emic_formula");
-			IncomeItem inci = null;
-			for (IncomeItem item : incomeItemArr) {
-				if (item.stdate.compareTo(pyparam.stdate) == 0 && item.enddate.compareTo(pyparam.enddate) == 0 && StringUtils.equals(item.code, emic_code)) {
-					inci = item;
-					break;
-				}
-			}
-			if (inci != null) {
-				PaymentItem pmi = null;
-				for (PaymentItem item : paymentItemList) {
-					if (item.date.compareTo(pyparam.date) == 0 && StringUtils.equals(item.type, PAYMENT_TYPE_INCOME) && StringUtils.equals(item.code, emic_code)) {
-						pmi = item;
-						break;
-					}
-				}
-				if (pmi == null) {
-					pmi = new PaymentItem();
-					paymentItemList.add(pmi);
-					pmi.eid = pyparam.eid;
-					pmi.date = pyparam.date;
-					pmi.stdate = pyparam.stdate;
-					pmi.enddate = pyparam.enddate;
-					pmi.type = PAYMENT_TYPE_INCOME;
-					pmi.code = inci.code;
-					pmi.flag = inci.flag;
-					pmi.optional = inci.overridable;
-				}
-				PaymentItemDet pmdi = new PaymentItemDet();
-				paymentItemDetList.add(pmdi);
-				pmdi.eid = pmi.eid;
-				pmdi.date = pmi.date;
-				pmdi.stdate = pmi.stdate;
-				pmdi.enddate = pmi.enddate;
-				pmdi.type = pmi.type;
-				pmdi.code = pmi.code;
-				pmdi.emgstdate = pyparam.emgstdate;
-				//calculate paymentitemdetail from formula
-				pmdi.amount = evalFormula(suQuery, lem, lpm, pyparam, inci.code, StringUtils.defaultIfBlank(emic_formula, inci.formula));
-				//sum to paymentmaster
-				//sum to paymentdet
-				//sum to paymentitem
-				addToPaymentMasterPaymentDetPaymentItem(lpm, pyparam, pmi, pmdi);
-			}
-		}
-	}
 	
-	//create paymentitem, paymentitemdet for Deduction Item
-	private void calDeductionOnePeriod(SelectUtil su, Employee lem, PaymentMaster lpm, PaymentDet pyparam) throws Exception {
-		TableRec tr = su.getQueryResult("select * from emdeduction where emde_eid = ? and emde_date = ?", 
-				new Wherecl().appendArgument(pyparam.eid).appendArgument(pyparam.emgstdate));
-		for (int i = 0; i < tr.getRecordCount(); i++) {
-			tr.setRecPointer(i);
-			String emde_code = tr.getFieldString("emde_code");
-			String emde_formula = tr.getFieldString("emde_formula");
-			DeductionItem deci = null;
-			for (DeductionItem item : deductionItemArr) {
-				if (item.stdate.compareTo(pyparam.stdate) == 0 && item.enddate.compareTo(pyparam.enddate) == 0 && StringUtils.equals(item.code, emde_code)) {
-					deci = item;
-					break;
-				}
-			}
-			if (deci != null) {
-				PaymentItem pmi = null;
-				for (PaymentItem item : paymentItemList) {
-					if (item.date.compareTo(pyparam.date) == 0 && StringUtils.equals(item.type, PAYMENT_TYPE_DEDUCTION) && StringUtils.equals(item.code, emde_code)) {
-						pmi = item;
-						break;
-					}
-				}
-				if (pmi == null) {
-					pmi = new PaymentItem();
-					paymentItemList.add(pmi);
-					pmi.eid = pyparam.eid;
-					pmi.date = pyparam.date;
-					pmi.stdate = pyparam.stdate;
-					pmi.enddate = pyparam.enddate;
-					pmi.type = PAYMENT_TYPE_DEDUCTION;
-					pmi.code = deci.code;
-					pmi.flag = deci.flag;
-					pmi.optional = deci.overridable;
-				}
-				PaymentItemDet pmdi = new PaymentItemDet();
-				paymentItemDetList.add(pmdi);
-				pmdi.eid = pmi.eid;
-				pmdi.date = pmi.date;
-				pmdi.stdate = pmi.stdate;
-				pmdi.enddate = pmi.enddate;
-				pmdi.type = pmi.type;
-				pmdi.code = pmi.code;
-				pmdi.emgstdate = pyparam.emgstdate;
-				//calculate paymentitemdetail from formula
-				pmdi.amount = evalFormula(su, lem, lpm, pyparam, deci.code, StringUtils.defaultIfBlank(emde_formula, deci.formula));
-				//sum to paymentmaster
-				//sum to paymentdet
-				//sum to paymentitem
-				addToPaymentMasterPaymentDetPaymentItem(lpm, pyparam, pmi, pmdi);
-			}
-		}
-	}
-	
-	//create paymentitem for Pension Item
-	private void countPensionOnePeriod(SelectUtil su, PaymentDet pyparam) throws Exception {
-		TableRec tr = su.getQueryResult("select * from empension where empe_eid = ? and empe_date = ?", 
-				new Wherecl().appendArgument(pyparam.eid).appendArgument(pyparam.emgstdate));
-		for (int i = 0; i < tr.getRecordCount(); i++) {
-			tr.setRecPointer(i);
-			String empe_code = tr.getFieldString("empe_code");
-			PensionItem peni = null;
-			for (PensionItem item : pensionItemArr) {
-				if (StringUtils.equals(item.code, empe_code)) {
-					peni = item;
-					break;
-				}
-			}
-			if (peni != null) {
-				PaymentItem pmi = null;
-				for (PaymentItem item : paymentItemList) {
-					if (item.date.compareTo(pyparam.date) == 0 && StringUtils.equals(item.type, PAYMENT_TYPE_PENSION) && StringUtils.equals(item.code, empe_code)) {
-						pmi = item;
-						break;
-					}
-				}
-				if (pmi == null) {
-					pmi = new PaymentItem();
-					paymentItemList.add(pmi);
-					pmi.eid = pyparam.eid;
-					pmi.date = pyparam.date;
-					pmi.stdate = pyparam.stdate;
-					pmi.enddate = pyparam.enddate;
-					pmi.type = PAYMENT_TYPE_PENSION;
-					pmi.code = peni.code;
-					pmi.flag = peni.flag;
-					pmi.optional = peni.overridable;
-				}
-				pmi.ndays += pyparam.ndays;
-			}
-		}
-	}
-	
-	private void calPensionOneType(SelectUtil su, Employee lem, PaymentMaster lpm, PaymentItem pmi) throws Exception {
-		PensionItem peni = null;
-		for (PensionItem item : pensionItemArr) {
-			if (StringUtils.equals(item.code, pmi.code)) {
-				peni = item;
-				break;
-			}
-		}
-		if (peni != null) {
-			double tmpf = evalFormula(su, lem, lpm, null, peni.code, peni.formula);
-			char[] flagc = flagStrToCharArray(pmi.flag);
-			switch (flagc[PAYAMOUNT_IDX_EPENSION]) {
-				case '+':
-					pmi.pension = tmpf;
-					lpm.epension += tmpf;
-					break;
-				case '-':
-					pmi.pension = -tmpf;
-					lpm.epension -= tmpf;
-					break;
-			}
-			switch (flagc[PAYAMOUNT_IDX_RPENSION]) {
-				case '+':
-					pmi.pension = tmpf;
-					lpm.rpension += tmpf;
-					break;
-				case '-':
-					pmi.pension = -tmpf;
-					lpm.rpension -= tmpf;
-					break;
-			}
-		}
-	}
-	
-	private static void addToPaymentMasterPaymentDetPaymentItem(PaymentMaster lpm, PaymentDet pyparam, PaymentItem pmi, PaymentItemDet pmdi) {
-		char[] flagc = flagStrToCharArray(pmi.flag);
-		switch (flagc[PAYAMOUNT_IDX_RINCOME]) {
-			case '+':
-				pyparam.rincome += pmdi.amount;
-				pmi.rincome += pmdi.amount;
-				lpm.rincome += pmdi.amount;
-				break;
-			case '-':
-				pyparam.rdeduction -= pmdi.amount;
-				pmi.rincome -= pmdi.amount;
-				lpm.rincome -= pmdi.amount;
-				break;
-		}
-		switch (flagc[PAYAMOUNT_IDX_OINCOME]) {
-			case '+':
-				pyparam.oincome += pmdi.amount;
-				pmi.oincome += pmdi.amount;
-				lpm.oincome += pmdi.amount;
-				break;
-			case '-':
-				pyparam.odeduction -= pmdi.amount;
-				pmi.oincome -= pmdi.amount;
-				lpm.oincome -= pmdi.amount;
-				break;
-		}
-		switch (flagc[PAYAMOUNT_IDX_EPENSION]) {
-			case '+':
-				pmi.pension += pmdi.amount;
-				lpm.epension += pmdi.amount;
-				break;
-			case '-':
-				pmi.pension -= pmdi.amount;
-				lpm.epension -= pmdi.amount;
-				break;
-		}
-		switch (flagc[PAYAMOUNT_IDX_RPENSION]) {
-			case '+':
-				pmi.pension += pmdi.amount;
-				lpm.rpension += pmdi.amount;
-				break;
-			case '-':
-				pmi.pension -= pmdi.amount;
-				lpm.rpension -= pmdi.amount;
-				break;
-		}
-		switch (flagc[PAYAMOUNT_IDX_TAXIBLE]) {
-			case '+':
-				lpm.taxible += pmdi.amount;
-				break;
-			case '-':
-				lpm.taxible -= pmdi.amount;
-				break;
-		}
-		switch (flagc[PAYAMOUNT_IDX_RELAVENT]) {
-			case '+':
-				lpm.eoawages += pmdi.amount;
-				break;
-			case '-':
-				lpm.eoawages -= pmdi.amount;
-				break;
-		}
-	}
-	
-	private void insertData(SelectUtil suQuery, SelectUtil su, PaymentMaster pm) throws Exception {
-		UniLog.log1("insertData eid:%s, date:%s", pm.eid, pm.date);
+	private void insertData() throws Exception {
+		UniLog.log1("insertData eid:%s, date:%s", lpm.eid, lpm.date);
 		for (PaymentItem pmi : paymentItemList) {
 			//UniLog.log1("pmi:%s", GsonUtil.objToStr(pmi, PaymentItem.class));
-			su.executeUpdate("insert into paymentitem (pmi_eid, pmi_date, pmi_type, pmi_code, pmi_stdate, pmi_enddate, pmi_ndays, pmi_flag, pmi_override, pmi_rincome, pmi_oincome, pmi_pension) "
+			suUpdate.executeUpdate("insert into paymentitem (pmi_eid, pmi_date, pmi_type, pmi_code, pmi_stdate, pmi_enddate, pmi_ndays, pmi_flag, pmi_override, pmi_rincome, pmi_oincome, pmi_pension) "
 					+ "values (?,?,?,?,?,?,?,?,?,?,?,?)", new Wherecl()
-						.appendArgument(pmi.eid).appendArgument(pmi.date).appendArgument(pmi.type).appendArgument(pmi.code).appendArgument(pmi.stdate)
-						.appendArgument(pmi.enddate).appendArgument(pmi.ndays).appendArgument(pmi.flag).appendArgument("")
+						.appendArgument(lpm.eid).appendArgument(lpm.date).appendArgument(pmi.mainitem.type).appendArgument(pmi.mainitem.code).appendArgument(pmi.pmdc.stdate)
+						.appendArgument(pmi.pmdc.enddate).appendArgument(pmi.ndays).appendArgument(pmi.mainitem.flag).appendArgument("")
 						.appendArgument(pmi.rincome).appendArgument(pmi.oincome).appendArgument(pmi.pension));
 		}
 		for (PaymentItemDet pmdi : paymentItemDetList) {
 			//UniLog.log1("pmdi:%s", GsonUtil.objToStr(pmdi, PaymentItemDet.class));
 			if (pmdi.amount != 0) {
-				su.executeUpdate("insert into paymentitemdet (pmdi_eid, pmdi_date, pmdi_type, pmdi_code, pmdi_stdate, pmdi_enddate, pmdi_emgstdate, pmdi_amount) " 
+				PaymentItem pmi = pmdi.pmi;
+				PaymentDet pyparam = pmdi.pyparam;
+				PmdCtrl pmdc = pyparam.pmdc;
+				suUpdate.executeUpdate("insert into paymentitemdet (pmdi_eid, pmdi_date, pmdi_type, pmdi_code, pmdi_stdate, pmdi_enddate, pmdi_emgstdate, pmdi_amount) " 
 					+ "values (?,?,?,?,?,?,?,?)", new Wherecl()
-						.appendArgument(pmdi.eid).appendArgument(pmdi.date).appendArgument(pmdi.type).appendArgument(pmdi.code).appendArgument(pmdi.stdate)
-						.appendArgument(pmdi.enddate).appendArgument(pmdi.emgstdate).appendArgument(pmdi.amount));
+						.appendArgument(lpm.eid).appendArgument(lpm.date).appendArgument(pmi.mainitem.type).appendArgument(pmi.mainitem.code).appendArgument(pmdc.stdate)
+						.appendArgument(pmdc.enddate).appendArgument(pyparam.emgstdate).appendArgument(pmdi.amount));
 			}
 		}
 		for (PaymentDet pmd : paymentDetList) {
+			PmdCtrl pmdc = pmd.pmdc;
 			//UniLog.log1("pmd:%s", GsonUtil.objToStr(pmd, PaymentDet.class));
-			su.executeUpdate("insert into paymentdet (pmd_eid, pmd_date, pmd_stdate, pmd_enddate, pmd_monthdays, pmd_emgstdate, pmd_ndays, pmd_basemsal, pmd_basewsal, pmd_basedsal, pmd_basehsal, pmd_otdays, pmd_otmins, pmd_hotdays, pmd_hotmins, pmd_xotdays, pmd_xotmins, pmd_latedays, pmd_latemins, pmd_eldays, pmd_elmins, pmd_nowdays, pmd_nowmins, pmd_wkdays, pmd_wkmins, pmd_nopaydays, pmd_rincome, pmd_oincome, pmd_rdeduction, pmd_odeduction, pmd_epension, pmd_rpension) " 
+			suUpdate.executeUpdate("insert into paymentdet (pmd_eid, pmd_date, pmd_stdate, pmd_enddate, pmd_monthdays, pmd_emgstdate, pmd_ndays, pmd_basemsal, pmd_basewsal, pmd_basedsal, pmd_basehsal, pmd_otdays, pmd_otmins, pmd_hotdays, pmd_hotmins, pmd_xotdays, pmd_xotmins, pmd_latedays, pmd_latemins, pmd_eldays, pmd_elmins, pmd_nowdays, pmd_nowmins, pmd_wkdays, pmd_wkmins, pmd_nopaydays, pmd_rincome, pmd_oincome, pmd_rdeduction, pmd_odeduction, pmd_epension, pmd_rpension) " 
 					+ "values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)", new Wherecl()
-					.appendArgument(pmd.eid).appendArgument(pmd.date).appendArgument(pmd.stdate).appendArgument(pmd.enddate).appendArgument(pmd.monthdays)
+					.appendArgument(lpm.eid).appendArgument(lpm.date).appendArgument(pmdc.stdate).appendArgument(pmdc.enddate).appendArgument(pmd.monthdays)
 					.appendArgument(pmd.emgstdate).appendArgument(pmd.ndays).appendArgument(pmd.basemsal).appendArgument(pmd.basewsal).appendArgument(pmd.basedsal)
 					.appendArgument(pmd.basehsal).appendArgument(pmd.otdays).appendArgument(pmd.otmins).appendArgument(pmd.hotdays).appendArgument(pmd.hotmins)
 					.appendArgument(pmd.xotdays).appendArgument(pmd.xotmins).appendArgument(pmd.latedays).appendArgument(pmd.latemins).appendArgument(pmd.eldays)
@@ -885,135 +595,106 @@ public class ZkBiComposerPaymentGen extends ZkComposerBase {
 					.appendArgument(pmd.nopaydays).appendArgument(pmd.rincome).appendArgument(pmd.oincome).appendArgument(pmd.rdeduction) 
 					.appendArgument(pmd.odeduction).appendArgument(0.0).appendArgument(0.0));
 		}
-		TableRec tr = su.getQueryResult("select pm_date, pm_method from paymentmaster where pm_eid = ? and pm_date < ? order by 1 desc", 
-				new Wherecl().appendArgument(pm.eid).appendArgument(pm.date));
-		pm.method = "";
-		if (tr.getRecordCount() > 0) {
-			tr.setRecPointer(0);
-			String tmpmethod = tr.getFieldString("pm_method");
-			pm.method = tmpmethod;
-		}
+		lpm.method = ZkUtil.getFirstTableRec(suQuery, "select pm_date, pm_method from paymentmaster where pm_eid = ? and pm_date < ? order by 1 desc", 
+																	new Wherecl().appendArgument(lpm.eid).appendArgument(lpm.date))
+							.map(throwFunction(tr -> tr.getFieldString("pm_method"))).orElse("");
 		//UniLog.log1("pm:%s", GsonUtil.objToStr(pm, PaymentMaster.class));
-		su.executeUpdate("insert into paymentmaster (pm_eid, pm_date, pm_edate, pm_paydate, pm_confirmstatus, pm_otdays, pm_otmins, pm_hotdays, pm_hotmins, pm_xotdays, pm_xotmins, pm_latedays, pm_latemins, pm_eldays, pm_elmins, pm_nowdays, pm_nowmins, pm_wkdays, pm_wkmins, pm_nopaydays, pm_rincome, pm_oincome, pm_epension, pm_rpension, pm_taxible, pm_eoawages) " 
-				+ "values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)", new Wherecl()
-				.appendArgument(pm.eid).appendArgument(pm.date).appendArgument(pm.edate).appendArgument(pm.paydate).appendArgument(0)
+		suUpdate.executeUpdate("insert into paymentmaster (pm_eid, pm_date, pm_edate, pm_paydate, pm_confirmstatus, pm_otdays, pm_otmins, pm_hotdays, pm_hotmins, pm_xotdays, pm_xotmins, pm_latedays, pm_latemins, pm_eldays, pm_elmins, pm_nowdays, pm_nowmins, pm_wkdays, pm_wkmins, pm_nopaydays, pm_rincome, pm_oincome, pm_epension, pm_rpension, pm_taxible, pm_eoawages, pm_method) " 
+				+ "values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)", new Wherecl()
+				.appendArgument(lpm.eid).appendArgument(lpm.date).appendArgument(lpm.edate).appendArgument(lpm.paydate).appendArgument(0)
 				.appendArgument(0).appendArgument(0).appendArgument(0).appendArgument(0).appendArgument(0)
 				.appendArgument(0).appendArgument(0).appendArgument(0).appendArgument(0).appendArgument(0)
 				.appendArgument(0).appendArgument(0).appendArgument(0).appendArgument(0).appendArgument(0)
-				.appendArgument(pm.rincome).appendArgument(pm.oincome).appendArgument(pm.epension).appendArgument(pm.rpension).appendArgument(pm.taxible)
-				.appendArgument(pm.eoawages));
+				.appendArgument(lpm.rincome).appendArgument(lpm.oincome).appendArgument(lpm.epension).appendArgument(lpm.rpension).appendArgument(lpm.taxible)
+				.appendArgument(lpm.eoawages).appendArgument(lpm.method));
 	}
 	
-	private static String encodePmflagFromIncome(IncomeItem item) {
-		StringBuilder sb = new StringBuilder();
-		for (int i = 0; i < MAX_PMI_FLAG; i++) {
-			switch (i) {
-				case PAYAMOUNT_IDX_RINCOME:
-					sb.append(item.iswage ? "+" : ".");
-					break;
-				case PAYAMOUNT_IDX_OINCOME:
-					sb.append(!item.iswage ? "+" : ".");
-					break;
-				case PAYAMOUNT_IDX_TAXIBLE:
-					sb.append(item.istaxible ? "+" : ".");
-					break;
-				case PAYAMOUNT_IDX_RELAVENT:
-					sb.append(item.isrelavent ? "+" : ".");
-					break;
-				default:
-					sb.append(".");
-					break;
-			}
-		}
-		return sb.toString();
-	}
-	
-	private static String encodePmflagFromDeduction(DeductionItem item) {
-		StringBuilder sb = new StringBuilder();
-		for (int i = 0; i < MAX_PMI_FLAG; i++) {
-			switch (i) {
-				case PAYAMOUNT_IDX_RINCOME:
-					sb.append(item.iswage ? "-" : ".");
-					break;
-				case PAYAMOUNT_IDX_OINCOME:
-					sb.append(!item.iswage ? "-" : ".");
-					break;
-				case PAYAMOUNT_IDX_TAXIBLE:
-					sb.append(item.istaxible ? "-" : ".");
-					break;
-				case PAYAMOUNT_IDX_RELAVENT:
-					sb.append(item.isrelavent ? "-" : ".");
-					break;
-				default:
-					sb.append(".");
-					break;
-			}
-		}
-		return sb.toString();
-	}
-	
-	private static String encodePmflagFromPension(PensionItem item) {
-		StringBuilder sb = new StringBuilder();
-		for (int i = 0; i < MAX_PMI_FLAG; i++) {
-			switch (i) {
-				case PAYAMOUNT_IDX_EPENSION:
-					sb.append(item.iswage ? "+" : ".");
-					break;
-				case PAYAMOUNT_IDX_RPENSION:
-					sb.append(!item.iswage ? "+" : ".");
-					break;
-				default:
-					sb.append(".");
-					break;
-			}
-		}
-		return sb.toString();
-	}
-	
-	private static double evalFormula(SelectUtil su, Employee lem, PaymentMaster lpm, PaymentDet pyparam, String code, String formula) throws Exception {
-		Parser parser = new Parser(0,formula);
-		MyParserCallback cb = new MyParserCallback(su, lem, lpm, pyparam);
+	private double evalFormula(PaymentDet pyparam, String code, String formula) throws Exception {
+		Parser parser = new Parser(0, formula);
+		MyParserCallback cb = new MyParserCallback(pyparam);
 		parser.setFunctInterface(cb);
 		parser.setVarInterface(cb);
 		double r = (Double)parser.evaluate();
 		UniLog.log1("code:%s, formula:%s, r:%f", code, formula, r);
 		return r;
 	}
-	
-	public static char[] flagStrToCharArray(String s) {
-		return Arrays.copyOf(StringUtils.defaultString(s).toCharArray(), ZkBiComposerPaymentGen.MAX_PMI_FLAG);
-	}
-	
-	private static class IncomeItem {
-		Date stdate;
-		Date enddate;
-		String flag;
-		String code;
-		String formula;
-		boolean iswage;
-		boolean istaxible;
-		boolean isrelavent;
-		boolean overridable;
-	}
-	
-	private static class DeductionItem {
-		Date stdate;
-		Date enddate;
-		String flag;
-		String code;
-		String formula;
-		boolean iswage;
-		boolean istaxible;
-		boolean isrelavent;
-		boolean overridable;
-	}
 
-	private static class PensionItem {
+	public static char[] flagStrToCharArray(String s) {
+		return Arrays.copyOf(StringUtils.defaultString(s).toCharArray(), MAX_PMI_FLAG);
+	}
+	
+	private static class MainItem {
+		String type;
 		String flag;
 		String code;
 		String formula;
 		boolean iswage;
+		boolean istaxible;
+		boolean isrelavent;
 		boolean overridable;
+		PmdCtrl pmdc;
+		public MainItem(String type) {
+			this.type = type;
+		}
+		public void encodeFlag() {
+			StringBuilder sb = new StringBuilder();
+			for (int i = 0; i < MAX_PMI_FLAG; i++) {
+				switch (type) {
+				case PAYMENT_TYPE_INCOME:
+					switch (i) {
+						case PAYAMOUNT_IDX_RINCOME:
+							sb.append(iswage ? "+" : ".");
+							break;
+						case PAYAMOUNT_IDX_OINCOME:
+							sb.append(!iswage ? "+" : ".");
+							break;
+						case PAYAMOUNT_IDX_TAXIBLE:
+							sb.append(istaxible ? "+" : ".");
+							break;
+						case PAYAMOUNT_IDX_RELAVENT:
+							sb.append(isrelavent ? "+" : ".");
+							break;
+						default:
+							sb.append(".");
+							break;
+					}
+					break;
+				case PAYMENT_TYPE_DEDUCTION:
+					switch (i) {
+						case PAYAMOUNT_IDX_RINCOME:
+							sb.append(iswage ? "-" : ".");
+							break;
+						case PAYAMOUNT_IDX_OINCOME:
+							sb.append(!iswage ? "-" : ".");
+							break;
+						case PAYAMOUNT_IDX_TAXIBLE:
+							sb.append(istaxible ? "-" : ".");
+							break;
+						case PAYAMOUNT_IDX_RELAVENT:
+							sb.append(isrelavent ? "-" : ".");
+							break;
+						default:
+							sb.append(".");
+							break;
+					}
+					break;
+				case PAYMENT_TYPE_PENSION:
+					switch (i) {
+						case PAYAMOUNT_IDX_EPENSION:
+							sb.append(iswage ? "+" : ".");
+							break;
+						case PAYAMOUNT_IDX_RPENSION:
+							sb.append(!iswage ? "+" : ".");
+							break;
+						default:
+							sb.append(".");
+							break;
+					}
+					break;
+				}
+			}
+			flag = sb.toString();
+		}
 	}
 	
 	private static class PmdCtrl {
@@ -1021,14 +702,10 @@ public class ZkBiComposerPaymentGen extends ZkComposerBase {
 		Date enddate;
 	}
 	
-	private static class Employee {
-		String eid;
-		Date stdate;
-		Date birth;
-	}
-	
 	private static class PaymentMaster {
 		String eid;
+		Date emstdate;
+		Date embirth;
 		Date date;
 		Date edate;
 		Date paydate;
@@ -1038,46 +715,171 @@ public class ZkBiComposerPaymentGen extends ZkComposerBase {
 		double taxible, eoawages;
 	}
 	
-	private static class PaymentDet {
-		String eid;
-		Date date; //selected startdate
-		Date stdate, enddate; //PmdCtrl startdate/enddate
+	private class PaymentDet {
+		PmdCtrl pmdc;
 		Date emgstdate;
 		int monthdays;
 		int ndays, latedays, latemins, eldays, elmins, hotdays, hotmins, xotdays, xotmins, otdays, otmins, nowdays, nowmins, wkdays, wkmins, nopaydays;
 		double basemsal, basedsal, basewsal, basehsal, rincome, oincome, rdeduction, odeduction;
+
+		public void addPaymentItem() throws Exception {
+			ZkUtil.getTableRecStream(suQuery, "select * from emincome where emic_eid = ? and emic_date = ?", 
+					new Wherecl().appendArgument(lpm.eid).appendArgument(emgstdate)).forEach(c -> {
+				addPaymentItem(incomeItemArr, c.getString("emic_code"), c.getString("emic_formula"));
+			});
+			ZkUtil.getTableRecStream(suQuery, "select * from emdeduction where emde_eid = ? and emde_date = ?", 
+					new Wherecl().appendArgument(lpm.eid).appendArgument(emgstdate)).forEach(c -> {
+				addPaymentItem(deductionItemArr, c.getString("emde_code"), c.getString("emde_formula"));
+			});
+			ZkUtil.getTableRecStream(suQuery, "select * from empension where empe_eid = ? and empe_date = ?", 
+					new Wherecl().appendArgument(lpm.eid).appendArgument(emgstdate)).forEach(c -> {
+				addPaymentItem(pensionItemArr, c.getString("empe_code"), null);
+			});
+		}
+
+		private void addPaymentItem(MainItem[] mainitems, String code, String formula) {
+			Arrays.stream(mainitems)
+					.filter(item -> item.pmdc == pmdc && Objects.equals(item.code, code))
+					.findFirst().ifPresent(mainitem -> {
+				PaymentItem pmi = paymentItemList.stream()
+						.filter(item -> item.pmdc == pmdc && item.mainitem == mainitem)
+						.findFirst().orElse(null);
+				if (pmi == null) {
+					pmi = new PaymentItem();
+					paymentItemList.add(pmi);
+					pmi.pmdc = pmdc;
+					pmi.mainitem = mainitem;
+				}
+				switch (mainitem.type) {
+				case PAYMENT_TYPE_INCOME:
+				case PAYMENT_TYPE_DEDUCTION:
+					PaymentItemDet pmdi = new PaymentItemDet();
+					paymentItemDetList.add(pmdi);
+					pmdi.pmi = pmi;
+					pmdi.pyparam = this;
+					pmdi.formula = StringUtils.defaultIfBlank(formula, mainitem.formula);
+					break;
+				case PAYMENT_TYPE_PENSION:
+					pmi.ndays += ndays;
+					break;
+				}
+			});
+		}
 	}
 	
-	private static class PaymentItem {
-		boolean optional;
-		String eid;
-		Date date, stdate, enddate;
-		String type;
-		String code;
-		String flag;
+	private class PaymentItem {
+		PmdCtrl pmdc;
+		MainItem mainitem;
 		double rincome, oincome, pension;
 		int ndays;
+
+		public void calPensionOneType() throws Exception {
+			if (!Objects.equals(mainitem.type, PAYMENT_TYPE_PENSION))
+				return;
+			double tmpf = evalFormula(null, mainitem.code, mainitem.formula);
+			char[] flagc = flagStrToCharArray(mainitem.flag);
+			switch (flagc[PAYAMOUNT_IDX_EPENSION]) {
+				case '+':
+					pension = tmpf;
+					lpm.epension += tmpf;
+					break;
+				case '-':
+					pension = -tmpf;
+					lpm.epension -= tmpf;
+					break;
+			}
+			switch (flagc[PAYAMOUNT_IDX_RPENSION]) {
+				case '+':
+					pension = tmpf;
+					lpm.rpension += tmpf;
+					break;
+				case '-':
+					pension = -tmpf;
+					lpm.rpension -= tmpf;
+					break;
+			}
+		}
 	}
 
-	private static class PaymentItemDet {
-		String eid;
-		Date date, stdate, enddate;
-		Date emgstdate;
-		String type;
-		String code;
+	private class PaymentItemDet {
+		PaymentDet pyparam;
+		PaymentItem pmi;
+		String formula;
 		double amount;
+
+		public void addToPaymentMasterPaymentDetPaymentItem() throws Exception {
+			MainItem mainitem = pmi.mainitem;
+			if (!StringUtils.equalsAny(mainitem.type, PAYMENT_TYPE_INCOME, PAYMENT_TYPE_DEDUCTION))
+				return;
+			amount = evalFormula(pyparam, mainitem.code, formula);
+			char[] flagc = flagStrToCharArray(mainitem.flag);
+			switch (flagc[PAYAMOUNT_IDX_RINCOME]) {
+				case '+':
+					pyparam.rincome += amount;
+					pmi.rincome += amount;
+					lpm.rincome += amount;
+					break;
+				case '-':
+					pyparam.rdeduction -= amount;
+					pmi.rincome -= amount;
+					lpm.rincome -= amount;
+					break;
+			}
+			switch (flagc[PAYAMOUNT_IDX_OINCOME]) {
+				case '+':
+					pyparam.oincome += amount;
+					pmi.oincome += amount;
+					lpm.oincome += amount;
+					break;
+				case '-':
+					pyparam.odeduction -= amount;
+					pmi.oincome -= amount;
+					lpm.oincome -= amount;
+					break;
+			}
+			switch (flagc[PAYAMOUNT_IDX_EPENSION]) {
+				case '+':
+					pmi.pension += amount;
+					lpm.epension += amount;
+					break;
+				case '-':
+					pmi.pension -= amount;
+					lpm.epension -= amount;
+					break;
+			}
+			switch (flagc[PAYAMOUNT_IDX_RPENSION]) {
+				case '+':
+					pmi.pension += amount;
+					lpm.rpension += amount;
+					break;
+				case '-':
+					pmi.pension -= amount;
+					lpm.rpension -= amount;
+					break;
+			}
+			switch (flagc[PAYAMOUNT_IDX_TAXIBLE]) {
+				case '+':
+					lpm.taxible += amount;
+					break;
+				case '-':
+					lpm.taxible -= amount;
+					break;
+			}
+			switch (flagc[PAYAMOUNT_IDX_RELAVENT]) {
+				case '+':
+					lpm.eoawages += amount;
+					break;
+				case '-':
+					lpm.eoawages -= amount;
+					break;
+			}
+		}
 	}
 	
-	private static class MyParserCallback implements FunctionInterface, VariableInterface {
-		SelectUtil suQuery;
-		Employee lem;
-		PaymentMaster lpm;
+	private class MyParserCallback implements FunctionInterface, VariableInterface {
 		PaymentDet pyparam;
 		
-		public MyParserCallback(SelectUtil suQuery, Employee lem, PaymentMaster lpm, PaymentDet pyparam) {
-			this.suQuery = suQuery;
-			this.lem = lem;
-			this.lpm = lpm;
+		public MyParserCallback(PaymentDet pyparam) {
 			this.pyparam = pyparam;
 		}
 		
@@ -1103,21 +905,21 @@ public class ZkBiComposerPaymentGen extends ZkComposerBase {
 			else if (StringUtils.equals(p_varname, "oincome"))
 				return lpm.oincome;
 			else if (StringUtils.equals(p_varname, "nopaydays") && pyparam != null)
-				return pyparam.nopaydays / LeaveApplication.LEAVEUNIT_PER_DAY;
+				return pyparam.nopaydays / BiResultLeaveApplication.LEAVEUNIT_PER_DAY;
 			else if (StringUtils.equals(p_varname, "joindate"))
-				return lem.stdate.getTime() / 86400000;
+				return lpm.emstdate.getTime() / 86400000;
 			else if (StringUtils.equals(p_varname, "penddate"))
 				return lpm.edate.getTime() / 86400000;
 			else if (StringUtils.equals(p_varname, "pstdate"))
 				return lpm.date.getTime() / 86400000;
 			else if (StringUtils.equals(p_varname, "over18date")) {
-				if (!DateUtil.isValid(lem.birth)) {
-					UniLog.log1("Error getting Employee Brithday %s %s", lem.eid, lem.birth);
+				if (!DateUtil.isValid(lpm.embirth)) {
+					UniLog.log1("Error getting Employee Brithday %s %s", lpm.eid, lpm.embirth);
 					return 0;
 				}
-				int mm = DateUtil.getMonth(lem.birth);
-				int yy = DateUtil.getYear(lem.birth);
-				int dd = DateUtil.getDay(lem.birth);
+				int mm = DateUtil.getMonth(lpm.embirth);
+				int yy = DateUtil.getYear(lpm.embirth);
+				int dd = DateUtil.getDay(lpm.embirth);
 				if (mm == 2 && dd == 29)
 					dd = 28;
 				yy += 18;
@@ -1171,14 +973,9 @@ public class ZkBiComposerPaymentGen extends ZkComposerBase {
 					tmpdate1 = DateUtil.monthStart(DateUtil.nextmonth(lpm.date, cc));
 				else 
 					tmpdate1 = lpm.date;
-				double tmpf = 0.0;
-				TableRec tr = suQuery.getQueryResult("select pm_rincome from paymentmaster where pm_eid = ? and pm_date = ?", 
-						new Wherecl().appendArgument(lem.eid).appendArgument(tmpdate1));
-				if (tr.getRecordCount() > 0) {
-					tr.setRecPointer(0);
-					tmpf = tr.getFieldDouble("pm_rincome");
-				}
-				return tmpf;
+				return ZkUtil.getFirstTableRec(suQuery, "select pm_rincome from paymentmaster where pm_eid = ? and pm_date = ?", 
+																		new Wherecl().appendArgument(lpm.eid).appendArgument(tmpdate1))
+							.map(throwFunction(tr -> tr.getFieldDouble("pm_rincome"))).orElse(0.0);
 			}
 			UniLog.log1("Function %s not found", p_functName);
 			return null;

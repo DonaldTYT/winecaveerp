@@ -2,6 +2,7 @@ package com.uniinformation.utils;
 
 import java.io.File;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 import java.util.function.DoubleFunction;
@@ -12,6 +13,8 @@ import java.util.function.IntPredicate;
 import java.util.function.LongFunction;
 import java.util.function.Predicate;
 import java.util.function.ToIntFunction;
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
@@ -25,6 +28,7 @@ import com.kyoko.common.ReturnMsg;
 import com.uniinformation.bicore.BiColumn;
 import com.uniinformation.bicore.ColumnCell;
 import com.uniinformation.cell.Cell;
+import com.uniinformation.cell.CellCollection;
 import com.uniinformation.jx.JxField;
 import com.uniinformation.webcore.SessionHelper;
 
@@ -593,5 +597,79 @@ public class BiUtil {
 	}
 	public static String getSessionHelperLabel(JxField fd, String defaultStr) {
 		return (fd != null && fd.getJxValue() != null) ? getSessionHelperLabel(fd.getJxValue(), defaultStr) : defaultStr;
+	}
+	
+	public static TableRec getTableRec(SelectUtil su, String sql, Object... args) throws Exception {
+		return su.getQueryResult(sql, buildWhereclByArgs(args));
+	}
+	
+	public static Optional<TableRec> getFirstTableRec(TableRec tr) throws TableRecException {
+		if (tr.getRecordCount() > 0) {
+			tr.setRecPointer(0);
+			return Optional.of(tr);
+		}
+		return Optional.empty();
+	}
+
+	public static Optional<TableRec> getFirstTableRec(SelectUtil su, String sql, Wherecl wherecl) throws Exception {
+		return getFirstTableRec(su.getQueryResult(sql, wherecl, 1));
+	}
+
+	public static Optional<TableRec> getFirstTableRec(SelectUtil su, String sql, Object... args) throws Exception {
+		return getFirstTableRec(su, sql, buildWhereclByArgs(args));
+	}
+	
+	public static boolean hasTableRec(TableRec tr) throws TableRecException {
+		return tr.getRecordCount() > 0;
+	}
+
+	public static boolean hasTableRec(SelectUtil su, String sql, Wherecl wherecl) throws Exception {
+		return hasTableRec(su.getQueryResult(sql, wherecl, 1));
+	}
+
+	public static boolean hasTableRec(SelectUtil su, String sql, Object... args) throws Exception {
+		return hasTableRec(su, sql, buildWhereclByArgs(args));
+	}
+	public static Wherecl buildWhereclByArgs(Object... args) {
+		Wherecl w = new Wherecl();
+		for (Object o : args)
+			w.appendArgument(o);
+		return w;
+	}
+	
+	public static Runnable safeRunnable(CheckedRunnable cb) {
+		return () -> {
+			try {
+				cb.run();
+			} catch (Exception e) {
+				UniLog.log(e);
+			}
+		};
+	}
+	public static int executeInsertIntoSql(SelectUtil su, String tabName, List<String> fieldNameList, Wherecl wherecl) throws Exception {
+			StringBuilder sb = new StringBuilder("insert into ");
+			sb.append(tabName);
+			sb.append("(");
+			sb.append(String.join(",", fieldNameList));
+			sb.append(") values (");
+			sb.append(String.join(",", Stream.generate(() -> "?").limit(fieldNameList.size()).toArray(String[]::new)));
+			sb.append(")");
+			UniLog.log1("sql:%s, wherecl:%s", sb, wherecl.getValues());
+			return su.executeUpdate(sb.toString(), wherecl);
+	    }	
+	public static <T> Stream<T> getTableRecStream(TableRec tr, CheckedFunction<Integer, T> cb) {
+		return IntStream.range(0, tr.getRecordCount()).mapToObj(throwIntFunction(cb));
+	}
+
+	public static Stream<CellCollection> getTableRecStream(TableRec tr) {
+		return getTableRecStream(tr, tr::toCellCollection);
+	}
+
+	public static Stream<CellCollection> getTableRecStream(SelectUtil su, String sql, Wherecl wherecl) throws Exception {
+		return getTableRecStream(su.getQueryResult(sql, wherecl));
+	}
+
+	public static Stream<CellCollection> getTableRecStream(SelectUtil su, String sql, Object... args) throws Exception {
+		return getTableRecStream(su, sql, buildWhereclByArgs(args));
 	}
 }

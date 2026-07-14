@@ -2,6 +2,7 @@ package com.uniinformation.zkbi.erpv4ext;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
+import org.apache.commons.lang3.tuple.Triple;
 import org.zkoss.zk.ui.Component;
 import org.zkoss.zk.ui.event.Event;
 import org.zkoss.zk.ui.event.EventListener;
@@ -18,6 +19,7 @@ import com.uniinformation.utils.TableRec;
 import com.uniinformation.utils.UniLog;
 import com.uniinformation.utils.Wherecl;
 import com.uniinformation.utils.ZkUtil;
+import com.uniinformation.utils.ZkUtil.PickByTableTrForm;
 import com.uniinformation.zkbi.ZkBiComposerBase;
 import com.uniinformation.zkbi.ZkBiEventListener;
 import com.uniinformation.zkbi.ZkBiMsgbox;
@@ -25,8 +27,6 @@ import com.uniinformation.zkbi.ZkBiMsgbox.ZkBiMsgboxButton;
 import com.uniinformation.zkbi.ZkBiSearchHelper.TrStatFilter;
 import com.uniinformation.zkcomp.ZkBiButton;
 import com.uniinformation.zkcomp.ZkBiButtonGroup;
-import static com.uniinformation.jxapp.erpv4ext.LeaveApplication.PickByTableTrForm;
-import static com.uniinformation.jxapp.erpv4ext.LeaveApplication.PickByTableTrForm.PickByTableTrFormCallback;
 
 import java.util.Date;
 import java.util.HashSet;
@@ -34,6 +34,7 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicReference;
 
 public class ZkBiComposerPromotionTransHdr extends ZkBiComposerBase {
 	private Button clickedSalaryItemButton;
@@ -146,32 +147,32 @@ public class ZkBiComposerPromotionTransHdr extends ZkBiComposerBase {
 			hl.appendChild(lb);
 			hl.appendChild(pickComp);
 			pickComp.setWidth("100px");
-			pickComp.setPopupWidth("600px");
+			pickComp.setPopupWidth("500px");
 			pickComp.addEventListener(Events.ON_OPEN, new ZkBiEventListener<Event>() {
 				PickByTableTrForm pickCodeForm;
 				@Override
 				public void onZkBiEvent(Event event) throws Exception {
 					try {
 						String[] selectFields = null;
-						String sqlStr = null;
+						AtomicReference<String> sqlStr = new AtomicReference<>();
 						if (StringUtils.endsWith(clickedSalaryItemButton.getId(), "SalaryItem")) {
 							selectFields = new String[] {"inci_code", "inci_compdesc"};
-							sqlStr = "select inci_code, inci_compdesc from incomeitem order by inci_code";
+							sqlStr.set("select inci_code, inci_compdesc from incomeitem order by inci_code");
 						} else if (StringUtils.endsWith(clickedSalaryItemButton.getId(), "DeductionItem")) {
 							selectFields = new String[] {"deci_code", "deci_compdesc"};
-							sqlStr = "select deci_code, deci_compdesc from deductionitem order by deci_code";
+							sqlStr.set("select deci_code, deci_compdesc from deductionitem order by deci_code");
 						} else if (StringUtils.endsWith(clickedSalaryItemButton.getId(), "ProvidentFundItem")) {
 							selectFields = new String[] {"peni_code", "peni_compdesc"};
-							sqlStr = "select peni_code, peni_compdesc from pensionitem order by peni_code";
+							sqlStr.set("select peni_code, peni_compdesc from pensionitem order by peni_code");
 						}
 						if (pickCodeForm == null) {
-							pickCodeForm = new PickByTableTrForm(sessionHelper, selectFields, new PickByTableTrFormCallback() {
-								public void callback(Object[] rec, TableRec tr, Object userData) {
-									pickComp.setText((String)rec[0]);
-								}
+							pickCodeForm = new PickByTableTrForm(sessionHelper, selectFields, new String[] {"hflex=min", "hflex=1;halign=left"}, () -> {
+								return Triple.of(br.getSelectUtil(), sqlStr.get(), null);
+							}, (rec, tr, userData) -> {
+								pickComp.setText((String)rec[0]);
 							});
 						}
-						pickCodeForm.bindComponent(pickComp, null, br, sqlStr, null);
+						pickCodeForm.bindComponent(pickComp, null, false);
 					}
 					catch (Exception e) {
 						UniLog.log(e);

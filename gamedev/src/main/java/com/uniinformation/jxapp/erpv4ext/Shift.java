@@ -4,6 +4,9 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Vector;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import org.apache.commons.lang.math.NumberUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -12,25 +15,24 @@ import org.zkoss.zk.ui.event.Events;
 import org.zkoss.zul.Label;
 import org.zkoss.zul.Checkbox;
 
-import com.kyoko.common.DateUtil;
-import com.kyoko.common.ReturnMsg;
 import com.uniinformation.bicore.BiCellCollection;
 import com.uniinformation.bicore.BiGetItemProperty;
 import com.uniinformation.bicore.BiResult;
 import com.uniinformation.bicore.ColumnCell;
-import com.uniinformation.jx.JxActionListener;
+import com.uniinformation.bicore.erpv4ext.BiResultLeaveApplication;
 import com.uniinformation.jx.JxField;
-import com.uniinformation.jx.zk.JxZkGadgetProvider;
 import com.uniinformation.jx.zk.ZkJxPickInput;
-import com.uniinformation.jxapp.JxSelOpt;
 import com.uniinformation.jxapp.JxZkBiBase;
 import com.uniinformation.rpccall.Value;
+import com.kyoko.common.DateUtil;
 import com.uniinformation.utils.ListUtil;
+import com.kyoko.common.ReturnMsg;
+import com.uniinformation.utils.SelectUtil;
 import com.uniinformation.utils.TableRec;
-import com.uniinformation.utils.TrGetItemProperty;
 import com.uniinformation.utils.UniLog;
-import com.uniinformation.utils.VectorUtil;
 import com.uniinformation.utils.ZkUtil;
+import com.uniinformation.utils.BiUtil.CheckedConsumer2;
+import com.uniinformation.utils.ZkUtil.PickByListForm;
 import com.uniinformation.webcore.GridHelper;
 import com.uniinformation.webcore.SessionHelper;
 import com.uniinformation.zkbi.ZkBiEventListener;
@@ -102,9 +104,9 @@ public class Shift extends JxZkBiBase {
 				return new ReturnMsg(false, "Start Time cannot be empty", true);
 			if (DateUtil.isDateNull(endTime))
 				return new ReturnMsg(false, "End Time cannot be empty", true);
-			if (startTime.compareTo(LeaveApplication.MAX_TIME_IN_DAY) >= 0)
+			if (startTime.compareTo(BiResultLeaveApplication.MAX_TIME_IN_DAY) >= 0)
 				return new ReturnMsg(false, "Invalid time", true);
-			if (endTime.compareTo(LeaveApplication.MAX_TIME_IN_DAY) >= 0)
+			if (endTime.compareTo(BiResultLeaveApplication.MAX_TIME_IN_DAY) >= 0)
 				return new ReturnMsg(false, "Invalid time", true);
 			if (startTime.compareTo(endTime) >= 0)
 				return new ReturnMsg(false, "Start Time must be less than End Time", true);
@@ -138,7 +140,7 @@ public class Shift extends JxZkBiBase {
 						Date startTime = cc.getCell("emsftd_sttime").getDate();
 						Date endTime = cc.getCell("emsftd_endtime").getDate();
 						if (!DateUtil.isDateNull(startTime) && !DateUtil.isDateNull(endTime)) {
-							if (bcc.getDate().compareTo(LeaveApplication.MAX_TIME_IN_DAY) >= 0)
+							if (bcc.getDate().compareTo(BiResultLeaveApplication.MAX_TIME_IN_DAY) >= 0)
 								LeaveApplication.showErrorNotification("Invalid time", bcc);
 							else if (startTime.compareTo(endTime) >= 0)
 								LeaveApplication.showErrorNotification("Start Time must be less than End Time", bcc);
@@ -205,34 +207,22 @@ public class Shift extends JxZkBiBase {
 	public static void setupShiftArrange(final SessionHelper sh, final JxZkBiBase biBase, final BiResult br, final String rgKey, final Map<String, Object> map) {
 		ZkBiMsgboxButton[] btns = new ZkBiMsgboxButton[] {new ZkBiMsgboxButton(sh.getBtLabel("Ok")),new ZkBiMsgboxButton(sh.getBtLabel("Cancel"))};
 		try {
-			JxSelOpt tjxf = (JxSelOpt)map.get("jxSelOpt");
-			TrGetItemProperty tgipi = (TrGetItemProperty)map.get("trGetItemProperty");
-
-			if (tjxf == null) {
-				JxZkGadgetProvider pvdr = (JxZkGadgetProvider) sh.getSessionData("jxzkgadgetprovider");
-				tgipi = new TrGetItemProperty(
-						new VectorUtil()
-							.addElement("emsft_code")
-							.addElement("emsft_name")
-							.toVector()
-					);
-				tjxf = JxSelOpt.createJxSelOpt(pvdr);
-				final JxSelOpt tjxf1 = tjxf;
-				final TrGetItemProperty tgipi1 = tgipi;
-				tjxf.setOnSelectAction(new JxActionListener() {
-					public void actionPerformed(JxField fd) {
-						Object[] rec = (Object[]) fd.getValue();
-						TableRec tr = tgipi1.getTableRec();
-						ZkJxPickInput comp = (ZkJxPickInput) tjxf1.getUserData();
-						comp.setText((String)rec[tr.getFieldIndex("emsft_code")]);
-						tjxf1.closeForm();
-					}
-				});
-				map.put("jxSelOpt", tjxf);
-				map.put("trGetItemProperty", tgipi);
+			/*AtomicReference<PickByTableTrForm> pickShiftCodeForm = new AtomicReference<>((PickByTableTrForm)map.get("pickShiftCodeForm"));
+			if (pickShiftCodeForm.get() == null) {
+				pickShiftCodeForm.set(new PickByTableTrForm(sh, new String[] { "emsft_code", "emsft_name" }, new String[] {"width=50px", "hflex=1;halign=left"}, () -> {
+					return Triple.of(br.getSelectUtil(), "select emsft_code, emsft_name from emshiftmaster order by emsft_code", null);
+				}, (rec, tr, userData) -> {
+					ZkJxPickInput comp = (ZkJxPickInput) userData;
+					comp.setText((String)rec[tr.getFieldIndex("emsft_code")]);
+				}));
+			}*/
+			AtomicReference<PickByListForm> pickShiftCodeForm = new AtomicReference<>((PickByListForm)map.get("pickShiftCodeForm"));
+			if (pickShiftCodeForm.get() == null) {
+				pickShiftCodeForm.set(getPickShiftCodeForm(sh, br.getSelectUtil(), (rec, userData) -> {
+					ZkJxPickInput comp = (ZkJxPickInput) userData;
+					comp.setText(rec[0]);
+				}));
 			}
-			final JxSelOpt tjxf1 = tjxf;
-			final TrGetItemProperty tgipi1 = tgipi;
 
 			final ZkJxPickInput[][] zjpis = new ZkJxPickInput[7][3];
 			for (int i = 0; i < zjpis.length; i++) {
@@ -242,16 +232,9 @@ public class Shift extends JxZkBiBase {
 					zjpi.setReadonly(true);
 					zjpi.setWidth("60px");
 					zjpi.setPopupWidth("450px");
-					zjpi.addEventListener(Events.ON_OPEN, new ZkBiEventListener<Event>() {
-						@Override
-						public void onZkBiEvent(Event event) throws Exception {
-							UniLog.log1("zkpi open:%s", event);
-							zjpi.setJxZkForm(tjxf1);
-							TableRec tr = br.getSelectUtil().getQueryResult("select emsft_code, emsft_name from emshiftmaster order by emsft_code", null);
-							tgipi1.setTableRec(tr);
-							tjxf1.setUserData(zjpi);
-							tjxf1.jxAdd("pickListBox").setItemListInterface(tgipi1);
-						}
+					zjpi.addEventListener(Events.ON_OPEN, event -> {
+						UniLog.log1("zkpi open:%s", event);
+						pickShiftCodeForm.get().bindComponent(zjpi, zjpi, false);
 					});
 					zjpis[i][j] = zjpi;
 				}
@@ -309,5 +292,18 @@ public class Shift extends JxZkBiBase {
 		} catch (Exception e) {
 			UniLog.log1("setupShiftArrange Error:%s", e.getMessage());
 		}
+	}
+	
+	public static PickByListForm getPickShiftCodeForm(SessionHelper sh, SelectUtil su, CheckedConsumer2<String[], Object> cb) throws Exception {
+		TableRec tr = su.getQueryResult("select emsft_code, emsft_name from emshiftmaster where emsft_code <> '-' order by emsft_code");
+		List<String[]> list = IntStream.range(0, tr.getRecordCount()).mapToObj(ZkUtil.throwIntFunction(i -> {
+			tr.setRecPointer(i);
+			return new String[] {tr.getFieldString("emsft_code"), tr.getFieldString("emsft_name")};
+		})).collect(Collectors.toList());
+		list.addAll(list.stream().map(ss -> {
+			return new String[] {"-" + ss[0], ss[1]};
+		}).collect(Collectors.toList()));
+		list.add(new String[] {"-", "-"});
+		return new PickByListForm(sh, new String[] {"width=50px", "hflex=1;halign=left"}, () -> list.stream().toArray(String[][]::new), cb);
 	}
 }

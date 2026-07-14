@@ -18,16 +18,18 @@ import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.io.IOUtils;
+import org.apache.poi.util.IOUtils;
 import org.json.JSONObject;
+
+//import com.uniinformation.rest.propertymgmt.PropmgmtRS;
 
 public class CryptoUtil {
 	final private static String ALGORITHM = "AES";
 	final private static String TRANSFORMATION = "AES/CBC/PKCS5PADDING";
 	final private static boolean debug = false;
 
-	public static String encryptToBase64(byte[] p_key, byte[] p_data, boolean p_urlSafeFlag){
-		byte[] eBytes = encrypt(p_key, p_data, null, true);
+	public static String encryptToBase64(byte[] p_key, byte[] p_data, byte[] p_ivBytes, boolean p_hashFlag, boolean p_urlSafeFlag){
+		byte[] eBytes = encrypt(p_key, p_data, p_ivBytes, p_hashFlag);
 		if (p_urlSafeFlag){
 			return Base64.encodeBase64URLSafeString(eBytes);
 		}
@@ -35,8 +37,17 @@ public class CryptoUtil {
 			return Base64.encodeBase64String(eBytes);
 		}
 	}
+	public static String encryptToBase64(byte[] p_key, byte[] p_data, boolean p_hashFlag, boolean p_urlSafeFlag){
+		return encryptToBase64(p_key, p_data, null, p_hashFlag, p_urlSafeFlag);
+	}
+	public static byte[] decryptFromBase64(byte[] p_key, String p_eDataWithIvString, boolean p_hashFlag) {
+		return(decrypt(p_key, Base64.decodeBase64(p_eDataWithIvString), p_hashFlag));
+	}
+	public static String encryptToBase64(byte[] p_key, byte[] p_data, boolean p_urlSafeFlag){
+		return encryptToBase64(p_key, p_data, null, true, p_urlSafeFlag);
+	}
 	public static byte[] decryptFromBase64(byte[] p_key, String p_eDataWithIvString) {
-		return(decrypt(p_key, Base64.decodeBase64(p_eDataWithIvString), true));
+		return decryptFromBase64(p_key, p_eDataWithIvString, true);
 	}
 	
 	/***
@@ -189,7 +200,13 @@ public class CryptoUtil {
 	}
 	
 	private static void selfTest() throws Exception{
-		byte[] keys = "zsk2kxap235zsk2kxap235cs8xnpp22-".getBytes("UTF-8");   //256 bit
+//		String eString = encryptToBase64(PropmgmtRS.PAYMENT_RECEIPT_KEYS, "01-006043".getBytes("UTF-8"), false, true);
+//		UniLog.logm(null, "eString:[%s]", eString);
+//		UniLog.logm(null, "decrypt:[%s]", new String(decryptFromBase64(PropmgmtRS.PAYMENT_RECEIPT_KEYS,  eString, false), "UTF-8"));
+		
+		
+		
+		/*byte[] keys = "zsk2kxap235zsk2kxap235cs8xnpp22-".getBytes("UTF-8");   //256 bit
 		//byte[] keys = "xap235cs8xnpp22-".getBytes("UTF-8");  //128bit
 		
 		//test case: simple encoding/decoding
@@ -249,7 +266,7 @@ public class CryptoUtil {
 		FileUtils.writeByteArrayToFile(
 				new File("/tmp/a.decrypted_from_b64.pdf"), 
 			    decryptFromBase64(keys,FileUtils.readFileToString(new File("/tmp/a.pdf.encb64"),"UTF-8")),
-			    false);
+			    false);*/
 	}
 	public static void main(String[] args) throws Exception{
 		selfTest();

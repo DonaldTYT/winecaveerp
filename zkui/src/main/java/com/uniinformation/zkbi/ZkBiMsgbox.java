@@ -3,13 +3,12 @@ package com.uniinformation.zkbi;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.function.Consumer;
 
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.zkoss.zk.ui.Component;
+import org.zkoss.zk.ui.HtmlBasedComponent;
 import org.zkoss.zk.ui.event.Event;
 import org.zkoss.zk.ui.event.EventListener;
 import org.zkoss.zk.ui.event.Events;
@@ -22,11 +21,12 @@ import org.zkoss.zul.Space;
 import org.zkoss.zul.Vbox;
 import org.zkoss.zul.Window;
 
-import com.uniinformation.utils.MapUtil;
 import com.uniinformation.utils.UniLog;
+import com.uniinformation.utils.TranslateUtil;
 import com.uniinformation.utils.ZkUtil;
 import com.uniinformation.webcore.SessionHelper;
 import com.uniinformation.webcore.ZkSessionHelper;
+import static com.uniinformation.utils.ZkUtil.CheckedConsumer2;
 /***
  * for construct message dialog 
  * - it's enhanced version of ZkUtil.buildMessageboxDlg for replace zk Messagebox.show()
@@ -50,6 +50,8 @@ public class ZkBiMsgbox {
 	public enum Type { info, question, warning, error };
 	Type type = Type.info;
 	boolean buildFlag = false;
+	
+	Consumer<Event> closeWinCallback;
 	
 	public static class ZkBiMsgboxButton extends Button{
 		int idx = -1;
@@ -181,12 +183,15 @@ public class ZkBiMsgbox {
 		msgboxWin = new Window();
 		msgboxWin.setParent(ZkUtil.getMainComp());
 		msgboxWin.setClosable(true);
+		msgboxWin.setSclass("zkbi-messagebox-window");
 		msgboxWin.setStyle("max-width:90%");  //andrew231107 fix msgbox too wide
 		msgboxWin.addEventListener(Events.ON_CLOSE, new ZkBiEventListener<Event>(){
 			public void onZkBiEvent(Event event) throws Exception {
 				event.getTarget().setVisible(false);
 				event.stopPropagation();
 				msgboxWin.detach();
+				if (closeWinCallback != null)
+					closeWinCallback.accept(event);
 		}});
 		
 		
@@ -287,18 +292,18 @@ public class ZkBiMsgbox {
 		return this;
 	}
 	
-	public ZkBiMsgbox setCloseEventListener(EventListener<Event> listener) {
-		ZkUtil.setEventListener(msgboxWin, Events.ON_CLOSE, listener);
-		return this;
-	}
-	
 	public ZkBiMsgbox setPosition(String pos) {
 		msgboxWin.setPosition(pos);
 		return this;
 	}
 
-	public ZkBiMsgbox setWinEventListener(String name, EventListener<?> listener) {
-		ZkUtil.setEventListener(msgboxWin, name, listener);
+	public ZkBiMsgbox setCloseWinCallback(Consumer<Event> cb) {
+		closeWinCallback = cb;
+		return this;
+	}
+	
+	public ZkBiMsgbox setClosable(boolean closable) {
+		msgboxWin.setClosable(closable);
 		return this;
 	}
 	
@@ -334,7 +339,7 @@ public class ZkBiMsgbox {
 		//String content = p_content;
 		
 		//translate the content
-		String content = ZkBiTranslateHelper.getText(sh, p_content, "PATTERN", p_content);
+		String content = TranslateUtil.getText(sh, p_content, "PATTERN", p_content);
 		//UniLog.log1("translate %s -> %s", p_content, content);
 		
 		//handle newline
@@ -388,7 +393,7 @@ public class ZkBiMsgbox {
 		el = p_el;
 		return this;
 	}
-	
+
 	public ZkBiMsgbox setType(Type p_type) {
 		type = p_type;
 		return this;
@@ -449,10 +454,10 @@ public class ZkBiMsgbox {
 		}
 	}
 	
-	
 	public static void show(Type p_type, String p_content) {
 		try {
-			new ZkBiMsgbox().setType(p_type).setContent(p_content).setButtons(new String[] {"Close"}).build().doModal();
+			ZkBiMsgbox mb = new ZkBiMsgbox().setType(p_type).setContent(p_content);
+			mb.setButtons(new String[] {mb.sh.getBtLabel("Close")}).build().doModal();
 		}
 		catch(Exception ex) {
 			ex.printStackTrace();
@@ -460,11 +465,58 @@ public class ZkBiMsgbox {
 	}
 	public static void show(String p_content) {
 		try {
-			new ZkBiMsgbox().setContent(p_content).setButtons(new String[] {"Close"}).build().doModal();
+			ZkBiMsgbox mb = new ZkBiMsgbox().setContent(p_content);
+			mb.setButtons(new String[] {mb.sh.getBtLabel("Close")}).build().doModal();
 		}
 		catch(Exception ex) {
 			ex.printStackTrace();
 		}
+	}
+
+	public static void show(Type p_type, String p_content, CheckedConsumer2<Event, ZkBiMsgboxButton> cb, String... btnNames) {
+		show(p_type, p_content, btnNames, new ZkBiEventListener<Event>() {
+			@Override
+			public void onZkBiEvent(Event event) throws Exception {
+				cb.accept(event, (ZkBiMsgboxButton)event.getTarget());
+			}
+		});
+	}
+
+	public static void show(String p_content, CheckedConsumer2<Event, ZkBiMsgboxButton> cb, String... btnNames) {
+		show(p_content, btnNames, new ZkBiEventListener<Event>() {
+			@Override
+			public void onZkBiEvent(Event event) throws Exception {
+				cb.accept(event, (ZkBiMsgboxButton)event.getTarget());
+			}
+		});
+	}
+
+	public static void show(Component p_content, CheckedConsumer2<Event, ZkBiMsgboxButton> cb, String... btnNames) {
+		show(p_content, btnNames, new ZkBiEventListener<Event>() {
+			@Override
+			public void onZkBiEvent(Event event) throws Exception {
+				cb.accept(event, (ZkBiMsgboxButton)event.getTarget());
+			}
+		});
+	}
+
+	public static ZkBiMsgbox build(Component p_content, CheckedConsumer2<Event, ZkBiMsgboxButton> cb, String... btnNames) throws Exception {
+		return new ZkBiMsgbox().setContent(p_content).setButtons(btnNames).setEventListener(new ZkBiEventListener<Event>() {
+			@Override
+			public void onZkBiEvent(Event event) throws Exception {
+				if (cb != null)
+					cb.accept(event, (ZkBiMsgboxButton)event.getTarget());
+			}
+		}).build();
+	}
+
+	public static ZkBiMsgbox build2(HtmlBasedComponent p_content, double margin, double maxWidth, CheckedConsumer2<Event, ZkBiMsgboxButton> cb, String... btnNames) throws Exception {
+		if (StringUtils.isBlank(p_content.getWidth()))
+			p_content.setWidth(String.format("calc(100%% - %fpx)", margin * 2));
+		ZkUtil.appendStyle(p_content, String.format("margin-left:%fpx", margin));
+		ZkBiMsgbox mbbuild = build(p_content, cb, btnNames);
+		mbbuild.appendStyle(String.format("width:100%%;max-width:%fpx", maxWidth)).setVboxStyle(String.format("margin:%fpx 0 %fpx 0", margin, margin));
+		return mbbuild;
 	}
 
 	public static Component buildMsgboxContentComp(String message) {

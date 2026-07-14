@@ -3436,45 +3436,6 @@ public class ZkUtil extends BiUtil{
 		return IntStream.range(0, tr.getRecordCount()).mapToObj(throwIntFunction(cb));
 	}
 
-	public static Stream<CellCollection> getTableRecStream(TableRec tr) {
-		return getTableRecStream(tr, tr::toCellCollection);
-	}
-
-	public static Stream<CellCollection> getTableRecStream(SelectUtil su, String sql, Wherecl wherecl) throws Exception {
-		return getTableRecStream(su.getQueryResult(sql, wherecl));
-	}
-
-	public static Stream<CellCollection> getTableRecStream(SelectUtil su, String sql) throws Exception {
-		return getTableRecStream(su, sql, null);
-	}
-	
-	public static Optional<TableRec> getFirstTableRec(TableRec tr) throws TableRecException {
-		if (tr.getRecordCount() > 0) {
-			tr.setRecPointer(0);
-			return Optional.of(tr);
-		}
-		return Optional.empty();
-	}
-
-	public static Optional<TableRec> getFirstTableRec(SelectUtil su, String sql, Wherecl wherecl) throws Exception {
-		return getFirstTableRec(su.getQueryResult(sql, wherecl, 1));
-	}
-
-	public static Optional<TableRec> getFirstTableRec(SelectUtil su, String sql) throws Exception {
-		return getFirstTableRec(su, sql, null);
-	}
-
-	public static boolean hasTableRec(TableRec tr) throws TableRecException {
-		return tr.getRecordCount() > 0;
-	}
-
-	public static boolean hasTableRec(SelectUtil su, String sql, Wherecl wherecl) throws Exception {
-		return hasTableRec(su.getQueryResult(sql, wherecl, 1));
-	}
-
-	public static boolean hasTableRec(SelectUtil su, String sql) throws Exception {
-		return hasTableRec(su, sql, null);
-	}
 	
 	public static <T extends Component> T getFellowWithNullId(Component comp, String id) {
 		T cp = (T)comp.getFellow(id, true);

@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.Vector;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
@@ -21,6 +22,7 @@ import org.apache.commons.lang.math.NumberUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.zkoss.zk.ui.Component;
 import org.zkoss.zk.ui.Executions;
+import org.zkoss.zk.ui.Sessions;
 import org.zkoss.zk.ui.event.AfterSizeEvent;
 import org.zkoss.zk.ui.event.Event;
 import org.zkoss.zk.ui.event.EventListener;
@@ -38,6 +40,7 @@ import org.zkoss.zul.Listitem;
 import org.zkoss.zul.Timer;
 
 import com.google.gson.reflect.TypeToken;
+import com.kyoko.common.DateUtil;
 import com.kyoko.crypto.SHA256withRSA;
 import com.kyoko.utils.UrlUtils;
 import com.uniinformation.bicore.BiCellCollection;
@@ -56,6 +59,7 @@ import com.uniinformation.utils.Wherecl;
 import com.uniinformation.utils.ZkUtil;
 import com.uniinformation.utils.BiUtil.CheckedConsumer4;
 import com.uniinformation.utils.BiUtil.CheckedConsumer5;
+import com.uniinformation.webcore.SessionHelper;
 import com.uniinformation.zkbi.ZkBiEventListener;
 import com.uniinformation.zkbi.ZkBiMsgbox;
 import com.uniinformation.zkbi.ZkBiMsgbox.ZkBiMsgboxButton;
@@ -117,13 +121,16 @@ public class ZkFormEpayment extends ZkCellActionForm {
 			STATE_CHECKPAYMENT,STATE_WAITPAYMENT,STATE_CHECKSCANSLIP,STATE_WAITSCANSLIP,STATE_WAITMORESLIP}
 	static int maxA = 4; 
 	static int maxB = 12; 
-	static enum BANK {
-		OFF("關閉"), TAIFUNG("大豐銀行"), BOC("中國銀行");
+	public static enum BANK {
+		OFF("關閉"), CASH("現金"), TAIFUNG("大豐銀行"), BOC("中國銀行");
 		final String name;
 		BANK(String name) {
 			this.name = name;
 		}
-		static BANK fromIndex(int index) throws Exception {
+		public String getName() {
+			return name;
+		}
+		public static BANK fromIndex(int index) throws Exception {
 			BANK[] bs = values();
 			if (index >= 0 && index < bs.length)
 				return bs[index];
@@ -142,8 +149,9 @@ public class ZkFormEpayment extends ZkCellActionForm {
 	RUNSTATE currentState;
 
 	private Timer payMntTimer;
+	private Epayment epayment;
 	
-	private static class C2BItem {
+	public static class C2BItem {
 		BANK bank;
 		CompletableFuture<Void> urlFuture;
 		String outTradeNo, url, urlErrMsg;
@@ -151,9 +159,6 @@ public class ZkFormEpayment extends ZkCellActionForm {
 		Map<String, Object> paymentMap;
 		boolean ok;
 	}
-	private C2BItem curC2BItem;
-	private ExecutorService c2bThreadPool = Executors.newSingleThreadExecutor();
-	private ZkBiMsgbox c2bCancelDialog;
 	
 	void displayAndWaitB_org(TableRec tr,String labelField,int pageIdx) throws Exception {
 		btGroupA.setVisible(false);
@@ -381,13 +386,15 @@ public class ZkFormEpayment extends ZkCellActionForm {
 				//double rfeePerMonth = bc.getCellDouble("pu_resfeepermon");
 				double mfeePerMonth = 0.0, rfeePerMonth = 0.0;
 				List<Map<String, Object>> jlist = GsonUtil.convertToObject(bc.getCellString("pu_jsondet"), new TypeToken<List<Map<String, Object>>>(){}.getType());
-				for (Map<String, Object> m : jlist) {
-					String constart = (String)m.get("constart");
-					String conend = MonthUtil.nextNmonth(constart, (int)(double)(m.get("noofmonth")));
-					if (StringUtils.isNotBlank(mfrom) && mfrom.compareTo(constart) >= 0 && mfrom.compareTo(conend) < 0)
-						mfeePerMonth = (double)m.get("mgtfeepermon");
-					if (StringUtils.isNotBlank(rfrom) && rfrom.compareTo(constart) >= 0 && rfrom.compareTo(conend) < 0)
-						rfeePerMonth = (double)m.get("resfeepermon");
+				if (jlist != null && !jlist.isEmpty()) {
+					for (Map<String, Object> m : jlist) {
+						String constart = (String)m.get("constart");
+						String conend = MonthUtil.nextNmonth(constart, (int)(double)(m.get("noofmonth")));
+						if (StringUtils.isNotBlank(mfrom) && mfrom.compareTo(constart) >= 0 && mfrom.compareTo(conend) < 0)
+							mfeePerMonth = (double)m.get("mgtfeepermon");
+						if (StringUtils.isNotBlank(rfrom) && rfrom.compareTo(constart) >= 0 && rfrom.compareTo(conend) < 0)
+							rfeePerMonth = (double)m.get("resfeepermon");
+					}
 				}
 				//UniLog.log1("mstart:%s, rstart:%s, mfrom:%s, rfrom:%s, mfeePerMonth:%f, rfeePerMonth:%f", mstart, rstart, mfrom, rfrom, mfeePerMonth, rfeePerMonth);
 
@@ -892,6 +899,7 @@ public class ZkFormEpayment extends ZkCellActionForm {
 								paymentBr.syncPayItemFromPayUnit(null);
 								setupPayMonthButtonAttribute();
 							}
+							paymentBr.syncPaymentFromPayItem(false);
 							displayUnitList();
 							if (!DISABLE_WAITMORESLIP) {
 								if("WEBCAM".equals(barcodeScanner)) {
@@ -939,6 +947,7 @@ public class ZkFormEpayment extends ZkCellActionForm {
 							col.getCell("pu_floor").set(floorTr.getFieldString("pfloor"));
 							col.getCell("pu_flat").set(unitTr.getFieldString("punit"));
 							paymentBr.syncPayItemFromPayUnit(null);
+							paymentBr.syncPaymentFromPayItem(false);
 							boolean allowMore = displayUnitList();
 							if(!allowMore) {
 								if("WEBCAM".equals(barcodeScanner)) {
@@ -1037,8 +1046,8 @@ public class ZkFormEpayment extends ZkCellActionForm {
 				if (butId.equals("barcodeS1") && ev.getName().equals("onPostQrCodeData1")) {
 					UniLog.log1("STATE_WAITPAYMENT qrCodeData received %s", ev.getData());
 					double actualFee = paymentBr.getCellDouble("vcol_actualfee");
-					Map<String, Object> m = b2cPayment(BANK.fromIndex(devTr.getFieldInt("lc_epayment")), actualFee, (String)ev.getData());
-					String errMsg = paymentFinish(m);
+					Map<String, Object> m = epayment.b2cPayment(BANK.fromIndex(devTr.getFieldInt("lc_epayment")), actualFee, (String)ev.getData());
+					String errMsg = epayment.paymentFinish(m, true);
 					if (errMsg == null)
 						currentState = RUNSTATE.STATE_CHECKTYPE;
 					else {
@@ -1110,7 +1119,13 @@ public class ZkFormEpayment extends ZkCellActionForm {
 		devTr = su.getQueryResult("select * from devicelogin,location where ldv_login = ? and lc_rg = ldv_lcrg" , 
 					new Wherecl().appendArgument(deviceId)
 					);
+		if (devTr.getRecordCount() == 0)
+			return;
 		devTr.setRecPointer(0);
+		if (!Objects.equals(devTr.getFieldString("ldv_type"), "PMS Kiosk")) {
+			ZkUtil.errMsg("訪問被拒絕");
+			return;
+		}
 		{
 			String ss = Erpv4Config.getString(sessionHelper,"PROPMGMT_GROUPB4_THESHOLD");
 			if(!StringUtils.isBlank(ss)) GROUPB4_THESHOLD = Integer.parseInt(ss);
@@ -1124,6 +1139,8 @@ public class ZkFormEpayment extends ZkCellActionForm {
 			}
 		}
 		Erpv4Config.setDefaultLcrg(sessionHelper, devTr.getFieldInt("ldv_lcrg"));
+		if (devTr.getFieldInt("lc_epayment") < 2)
+			return;
 		
 		uiTimer = new Timer();
 		uiTimer.stop();
@@ -1134,10 +1151,8 @@ public class ZkFormEpayment extends ZkCellActionForm {
 		uiTimer.setRunning(true);
 		uiTimer.setRepeats(false);
 		
-		if(formCollection == null) {
-			int cc = 1;
-			cc = 0;
-		}
+		if (formCollection == null)
+			return;
 		Map<String, Object> coMap = Erpv4Config.getCoFieldMap(sessionHelper, Erpv4Config.getDefaultCoCode(sessionHelper));
 		//formCollection.getCell("ldv_cmpname").set(Erpv4Config.getCoName(sessionHelper, Erpv4Config.getDefaultCoCode(sessionHelper)));
 		formCollection.getCell("ldv_cmpname").set(coMap.get("co_coname"));
@@ -1172,481 +1187,554 @@ public class ZkFormEpayment extends ZkCellActionForm {
 			payMntTimer = ZkUtil.delayJs(payMntTimer, rootComp, null, 100, "payMonthButtons.show()");
 		});
 		
+		ZkUtil.timerEvent(null, rootComp, 900000, true, true, () -> {
+			Sessions.getCurrent().setMaxInactiveInterval(-1);
+			return false;
+		});
+		epayment = new Epayment(sessionHelper, paymentBr, rootComp, ldv_exit, deviceId, ZkFormPadPayment.getPrintPageCount(paymentBr, devTr.getFieldString("ldv_login")), () -> { uiTimer.stop(); uiTimer.start(); }, () -> {
+			currentState = RUNSTATE.STATE_CHECKTYPE;
+			try {
+				processState(null);
+			} catch (Exception e) {
+				UniLog.log(e);
+			}
+		});
 		EventQueues.lookup("EpaymentNotify", EventQueues.APPLICATION, true).subscribe(event -> {
-			UniLog.log1("EpaymentNotify name:%s, data:%s, curC2BItem:%s", event.getName(), event.getData(), curC2BItem);
+			UniLog.log1("EpaymentNotify name:%s, data:%s, curC2BItem:%s", event.getName(), event.getData(), epayment.getCurC2BItem());
 			if (StringUtils.equalsAny(event.getName(), "onTaifungNotify", "onBocpayNotify") && event.getData() instanceof Map)
-				c2bPaymentGetNotify(StringUtils.equals(event.getName(), "onBocpayNotify") ? BANK.BOC : BANK.TAIFUNG, (Map<String, String>)event.getData());
+				epayment.c2bPaymentGetNotify(StringUtils.equals(event.getName(), "onBocpayNotify") ? BANK.BOC : BANK.TAIFUNG, (Map<String, String>)event.getData());
 		});
 		
 		processState(null);
 	}
-	
-	private Map<String, Object> b2cPayment(BANK bank, double fee, String authCode) throws Exception {
-		return bank == BANK.BOC ? bocpayB2cPayment(fee, authCode) : bank == BANK.TAIFUNG ? taifungB2cPayment(fee, authCode) : MapUtil.of("errMsg", "支付失敗");
-	}
-	
-	private Map<String, Object> taifungB2cPayment(double fee, String authCode) throws Exception {
-		String outTradeNo = addEPaymentRecord("taifung");
-        Map<String, String> m = new HashMap<>();
-        m.put("service", "pay.qrcode.micropay");
-        m.put("out_trade_no", outTradeNo);
-        m.put("total_fee", String.valueOf((int)(fee * 100)));
-        m.put("auth_code", authCode);
 
-        boolean b = SHA256withRSA.taifungPayment(m, sessionHelper);
-        String rtnCode = m.get("rtnCode");
-        String rtnMsg = m.get("rtnMsg");
-        String resultCode = m.get("resultCode");
-        int tryCount = 10;
-        while (!b && ((StringUtils.isBlank(rtnCode) && StringUtils.isNotBlank(rtnMsg)) || StringUtils.equalsAny(rtnCode, "N1", "S1") || (StringUtils.equals(rtnCode, "00") && StringUtils.equalsAny(resultCode, "0", "1"))) && --tryCount > 0) {
-        	Thread.sleep(5000);
-        	UniLog.log1("payment failed (rtnCode:%s, resultCode:%s, tryCount:%d), query payment", m.get("rtnCode"), m.get("resultCode"), tryCount);
-        	m = new HashMap<>();
-        	m.put("service", "pay.qrcode.chnquery");
-        	m.put("out_trade_no", outTradeNo);
-        	b = SHA256withRSA.taifungPayment(m, sessionHelper);
-        	rtnCode = (String)m.get("rtnCode");
-        	rtnMsg = (String)m.get("rtnMsg");
-        	resultCode = (String)m.get("resultCode");
-        	if (!b && StringUtils.equals(rtnCode, "00") && StringUtils.equalsAny(resultCode, "0", "1"))
-        		tryCount++;
-        }
-		return updateEPaymentRecord(BANK.TAIFUNG, m, b);
-	}
+	public static class Epayment {
+		private SessionHelper sessionHelper;
+		private BiResult paymentBr;
+		private Component rootComp;
+		private Runnable restartTimerCb, finishCb;
+		private Button ldv_exit;
+		private String deviceId;
+		private int printPageCnt;
+		private C2BItem curC2BItem;
+		private ExecutorService c2bThreadPool = Executors.newSingleThreadExecutor();
+		private ZkBiMsgbox c2bCancelDialog;
 
-	private Map<String, Object> bocpayB2cPayment(double fee, String authCode) throws Exception {
-		String outTradeNo = addEPaymentRecord("bocpay");
-        Map<String, String> m = new HashMap<>();
-        m.put("service", "B2CPay");
-        m.put("requestId", outTradeNo);
-        m.put("amount", String.valueOf((int)(fee * 100)));
-        m.put("authCode", authCode);
+		public Epayment(SessionHelper sessionHelper, BiResult paymentBr, Component rootComp, Button ldv_exit, String deviceId, int printPageCnt, Runnable restartTimerCb, Runnable finishCb) {
+			this.sessionHelper = sessionHelper;
+			this.paymentBr = paymentBr;
+			this.rootComp = rootComp;
+			this.ldv_exit = ldv_exit;
+			this.deviceId = deviceId;
+			this.printPageCnt = printPageCnt;
+			this.restartTimerCb = restartTimerCb;
+			this.finishCb = finishCb;
+		}
+		
+		public C2BItem getCurC2BItem() {
+			return curC2BItem;
+		}
 
-        boolean b = SHA256withRSA.bocpayPayment(m, sessionHelper);
-        String resultCode = m.get("resultCode");
-        String resultMsg = m.get("resultMessage");
-        int valTime = Math.max(NumberUtils.toInt((String)m.get("valTime")), 60);
-        int tryCount = 10;
-        while (!b && ((StringUtils.isBlank(resultCode) && StringUtils.isNotBlank(resultMsg)) || StringUtils.equalsAny(resultCode, "Z", "A")) && --tryCount > 0 && valTime > 0) {
-        	Thread.sleep(5000);
-        	UniLog.log1("payment failed (rtnCode:%s, resultCode:%s, tryCount:%d), query payment", m.get("rtnCode"), m.get("resultCode"), tryCount);
-        	m = new HashMap<>();
-        	m.put("requestId", outTradeNo);
-        	m.put("service", "OrderQuery");
-        	b = SHA256withRSA.bocpayPayment(m, sessionHelper);
-        	resultCode = (String)m.get("resultCode");
-        	resultMsg = (String)m.get("resultMessage");
-        	if (!b && StringUtils.equalsAny(resultCode, "Z", "A")) {
-        		valTime -= 5;
-        		tryCount++;
-        	}
-        }
-        m.put("out_trade_no", outTradeNo);
-		return updateEPaymentRecord(BANK.BOC, m, b);
-	}
-	
-	private void c2bPayment(BANK bank, double fee) {
-		C2BItem item = new C2BItem();
-		item.bank = bank;
-		(item.urlFuture = CompletableFuture.runAsync(() -> {
-			try {
-				CompletableFuture<Void> self = item.urlFuture;
-				if (item != curC2BItem) {
-					self.cancel(true);
+		public Map<String, Object> b2cPayment(BANK bank, double fee, String authCode) throws Exception {
+			return bank == BANK.BOC ? bocpayB2cPayment(fee, authCode) : bank == BANK.TAIFUNG ? taifungB2cPayment(fee, authCode) : MapUtil.of("errMsg", "支付失敗");
+		}
+		
+		private Map<String, Object> taifungB2cPayment(double fee, String authCode) throws Exception {
+			String outTradeNo = addEPaymentRecord("taifung");
+	        Map<String, String> m = new HashMap<>();
+	        m.put("service", "pay.qrcode.micropay");
+	        m.put("out_trade_no", outTradeNo);
+	        m.put("total_fee", String.valueOf((int)(fee * 100)));
+	        m.put("auth_code", authCode);
+
+	        boolean b = SHA256withRSA.taifungPayment(m, sessionHelper, paymentBr.getSelectUtil());
+	        String rtnCode = m.get("rtnCode");
+	        String rtnMsg = m.get("rtnMsg");
+	        String resultCode = m.get("resultCode");
+	        int tryCount = 10;
+	        while (!b && ((StringUtils.isBlank(rtnCode) && StringUtils.isNotBlank(rtnMsg)) || StringUtils.equalsAny(rtnCode, "N1", "S1") || (StringUtils.equals(rtnCode, "00") && StringUtils.equalsAny(resultCode, "0", "1"))) && --tryCount >= 0) {
+	        	Thread.sleep(5000);
+	        	UniLog.log1("payment failed (rtnCode:%s, resultCode:%s, tryCount:%d), query payment", m.get("rtnCode"), m.get("resultCode"), tryCount);
+	        	m = new HashMap<>();
+	        	m.put("service", "pay.qrcode.chnquery");
+	        	m.put("out_trade_no", outTradeNo);
+	        	b = SHA256withRSA.taifungPayment(m, sessionHelper, paymentBr.getSelectUtil());
+	        	rtnCode = (String)m.get("rtnCode");
+	        	rtnMsg = (String)m.get("rtnMsg");
+	        	resultCode = (String)m.get("resultCode");
+	        	//if (!b && StringUtils.equals(rtnCode, "00") && StringUtils.equalsAny(resultCode, "0", "1"))
+	        	//	tryCount++;
+	        }
+			return updateEPaymentRecord(BANK.TAIFUNG, m, b);
+		}
+
+		private Map<String, Object> bocpayB2cPayment(double fee, String authCode) throws Exception {
+			String outTradeNo = addEPaymentRecord("bocpay");
+	        Map<String, String> m = new HashMap<>();
+	        m.put("service", "B2CPay");
+	        m.put("requestId", outTradeNo);
+	        m.put("amount", String.valueOf((int)(fee * 100)));
+	        m.put("authCode", authCode);
+	        if (Objects.equals(Erpv4Config.getString(sessionHelper, "bocpay_use_notifyurl"), "Y"))
+	        	m.put("notifyUrl", "/propertymgmt/rest/propmgmt/pmnotice/bocpay");
+
+	        boolean b = SHA256withRSA.bocpayPayment(m, sessionHelper, paymentBr.getSelectUtil());
+	        String resultCode = m.get("resultCode");
+	        String resultMsg = m.get("resultMessage");
+	        int valTime = Math.max(NumberUtils.toInt((String)m.get("valTime")), 60);
+	        int tryCount = 10;
+	        while (!b && ((StringUtils.isBlank(resultCode) && StringUtils.isNotBlank(resultMsg)) || StringUtils.equalsAny(resultCode, "Z", "A")) && --tryCount >= 0 && valTime > 0) {
+	        	Thread.sleep(5000);
+	        	UniLog.log1("payment failed (rtnCode:%s, resultCode:%s, tryCount:%d), query payment", m.get("rtnCode"), m.get("resultCode"), tryCount);
+	        	m = new HashMap<>();
+	        	m.put("requestId", outTradeNo);
+	        	m.put("service", "OrderQuery");
+	        	b = SHA256withRSA.bocpayPayment(m, sessionHelper, paymentBr.getSelectUtil());
+	        	resultCode = (String)m.get("resultCode");
+	        	resultMsg = (String)m.get("resultMessage");
+	        	if (!b && StringUtils.equalsAny(resultCode, "Z", "A")) {
+	        		valTime -= 5;
+	        		tryCount++;
+	        	}
+	        }
+	        m.put("out_trade_no", outTradeNo);
+			return updateEPaymentRecord(BANK.BOC, m, b);
+		}
+		
+		private void c2bPayment(BANK bank, double fee) {
+			C2BItem item = new C2BItem();
+			item.bank = bank;
+			(item.urlFuture = CompletableFuture.runAsync(() -> {
+				try {
+					CompletableFuture<Void> self = item.urlFuture;
+					if (item != curC2BItem) {
+						self.cancel(true);
+						return;
+					}
+			        switch (item.bank) {
+			        case TAIFUNG:
+			        case BOC:
+						String type = item.bank == BANK.TAIFUNG ? "taifungH5" : "bocpayC2b";
+						String outTradeNo = null;
+						String rtnCode = null;
+						String rtnMsg = null;
+						int tryCount = 0;
+						Map<String, String> m = null;
+						boolean b = false;
+				        do {
+				        	if (tryCount > 0) {
+				        		if (sleepSec(self, 5))
+				        			break;
+				        	}
+				        	outTradeNo = genOutTradeNo();
+				        	if (StringUtils.isBlank(outTradeNo))
+				        		throw new Exception("outTradeNo is blank");
+				        	if (item.bank == BANK.TAIFUNG) {
+				        		m = MapUtil.of(
+			        				"method", "TFPAY008",
+			        				"outTradeNo", outTradeNo,
+			        				"orderAmt", String.valueOf((int)(fee * 100)));
+				        		b = SHA256withRSA.taifungH5Payment(m, sessionHelper, paymentBr.getSelectUtil());
+				        		rtnCode = m.get("rtnCode");
+				        		rtnMsg = m.get("rtnMsg");
+				        	} else {
+				        		m = MapUtil.of(
+				        			"service", "C2BPay",
+				        			"requestId", outTradeNo,
+				        			"amount", String.valueOf((int)(fee * 100)));
+				        		b = SHA256withRSA.bocpayPayment(m, sessionHelper, paymentBr.getSelectUtil());
+				        		rtnCode = m.get("resultCode");
+				        		rtnMsg = m.get("resultMessage");
+				        	}
+			        		UniLog.log1("getUrl (rtnCode:%s, rtnMsg:%s, tryCount:%d)", rtnCode, rtnMsg, tryCount);
+				        } while (!self.isCancelled() && !b && (StringUtils.isBlank(rtnCode) && StringUtils.isNotBlank(rtnMsg)) && ++tryCount <= 10);
+				        if (self.isCancelled())
+				        	return; 
+			        	addEPaymentRecord(type, outTradeNo);
+			        	m.put("out_trade_no", outTradeNo);
+			        	updateEPaymentRecord(item.bank, m, b);
+			        	item.outTradeNo = outTradeNo;
+		        		item.url = m.get("prepayURL");
+			        	item.urlErrMsg = rtnMsg;
+		        	default:
+						throw new Exception(String.format("下單失敗(bank:%s)", item.bank));
+			        }
+				} catch (Exception e) {
+			        item.urlErrMsg = StringUtils.defaultIfBlank(e.getMessage(), e.toString());
+				}
+			}, c2bThreadPool)).thenRunAsync(() -> {
+				if (item == curC2BItem)
+					c2bPaymentShowQrcode();
+			}, new ZkBiUiExecutor(rootComp));
+			curC2BItem = item;
+		}
+
+		private void c2bPaymentGetStatus() {
+			C2BItem item = curC2BItem;
+	        AtomicReference<String> statusMessageRef = new AtomicReference<>();
+			(item.statusFuture = CompletableFuture.supplyAsync(() -> {
+				try {
+					CompletableFuture<Map<String, Object>> self = item.statusFuture;
+					if (item != curC2BItem) {
+						self.cancel(true);
+						return null;
+					}
+		            switch (item.bank) {
+		            case TAIFUNG:
+		            case BOC:
+		            	Map<String, String> m = null;
+		            	int tryCount = 0;
+			        	String rtnCode = null;
+		            	String rtnMsg = null;
+		            	String resultCode = null;
+		            	String resultMessage = null;
+			        	boolean b = false, canBreak = false;
+		            	do {
+				        	if (sleepSec(self, 5))
+				        		break;
+			         	  	if (StringUtils.isBlank(item.outTradeNo))
+			           			throw new Exception("outTradeNo is blank");
+		              	   	if (item.bank == BANK.TAIFUNG) {
+		              	   		m = MapUtil.of(
+		              	   			"method", "TFPAY002",
+		              	   			"outTradeNo", item.outTradeNo);
+		              	   		b = SHA256withRSA.taifungH5Payment(m, sessionHelper, paymentBr.getSelectUtil());
+		              	   	} else {
+		              	   		m = MapUtil.of(
+	              	   				"service", "OrderQuery",
+	              	   				"requestId", item.outTradeNo);
+		              	   		b = SHA256withRSA.bocpayPayment(m, sessionHelper, paymentBr.getSelectUtil());
+		              	   	}
+	              	   		rtnCode = m.get("rtnCode");
+	              	   		rtnMsg = m.get("rtnMsg");
+	              	   		resultCode = m.get("resultCode");
+	              	   		resultMessage = m.get("resultMessage");
+	              	   		statusMessageRef.set(m.get("statusMessage"));
+		   		        	UniLog.log1("getstatus (rtnCode:%s, rtnMsg:%s, resultCode:%s, resultMessage:%s, tryCount:%d)", rtnCode, rtnMsg, resultCode, resultMessage, tryCount);
+		   		        	canBreak = item.bank == BANK.TAIFUNG ? StringUtils.equals(rtnCode, "0") && StringUtils.equalsAny(resultCode, "0", "1") : StringUtils.equalsAny(resultCode, "S", "F");
+		              	   	//Executions.schedule(rootComp.getDesktop(), c2bPaymentStatusListener, new Event(null, null, statusMessage));
+		              	   	tryCount++;
+	   			        } while (!self.isCancelled() && !canBreak);
+		            	if (self.isCancelled())
+			        	   	return null; 
+		               	m.put("out_trade_no", item.outTradeNo);
+	   			        return updateEPaymentRecord2(item.bank, m, b);
+	            	default:
+						throw new Exception(String.format("付款失敗(bank:%s)", item.bank));
+		            }
+				} catch (Exception e) {
+			        return MapUtil.of("errMsg", StringUtils.defaultIfBlank(e.getMessage(), e.toString()));
+				}
+			}, c2bThreadPool)).thenAcceptAsync(m -> {
+				item.paymentMap = m;
+				if (item == curC2BItem)
+					c2bPaymentFinish();
+			}, new ZkBiUiExecutor(rootComp, () -> {
+				if (curC2BItem == null)
 					return;
-				}
-		        switch (item.bank) {
-		        case TAIFUNG:
-		        case BOC:
-					String type = item.bank == BANK.TAIFUNG ? "taifungH5" : "bocpayC2b";
-					String outTradeNo = null;
-					String rtnCode = null;
-					String rtnMsg = null;
-					int tryCount = 0;
-					Map<String, String> m = null;
-					boolean b = false;
-			        do {
-			        	if (tryCount > 0) {
-			        		if (sleepSec(self, 5))
-			        			break;
-			        	}
-			        	outTradeNo = genOutTradeNo();
-			        	if (StringUtils.isBlank(outTradeNo))
-			        		throw new Exception("outTradeNo is blank");
-			        	if (item.bank == BANK.TAIFUNG) {
-			        		m = MapUtil.of(
-		        				"method", "TFPAY008",
-		        				"outTradeNo", outTradeNo,
-		        				"orderAmt", String.valueOf((int)(fee * 100)));
-			        		b = SHA256withRSA.taifungH5Payment(m, sessionHelper);
-			        		rtnCode = m.get("rtnCode");
-			        		rtnMsg = m.get("rtnMsg");
-			        	} else {
-			        		m = MapUtil.of(
-			        			"service", "C2BPay",
-			        			"requestId", outTradeNo,
-			        			"amount", String.valueOf((int)(fee * 100)));
-			        		b = SHA256withRSA.bocpayPayment(m, sessionHelper);
-			        		rtnCode = m.get("resultCode");
-			        		rtnMsg = m.get("resultMessage");
-			        	}
-		        		UniLog.log1("getUrl (rtnCode:%s, rtnMsg:%s, tryCount:%d)", rtnCode, rtnMsg, tryCount);
-			        } while (!self.isCancelled() && !b && (StringUtils.isBlank(rtnCode) && StringUtils.isNotBlank(rtnMsg)) && ++tryCount <= 10);
-			        if (self.isCancelled())
-			        	return; 
-		        	addEPaymentRecord(type, outTradeNo);
-		        	m.put("out_trade_no", outTradeNo);
-		        	updateEPaymentRecord(item.bank, m, b);
-		        	item.outTradeNo = outTradeNo;
-	        		item.url = m.get("prepayURL");
-		        	item.urlErrMsg = rtnMsg;
-	        	default:
-					throw new Exception(String.format("下單失敗(bank:%s)", item.bank));
-		        }
-			} catch (Exception e) {
-		        item.urlErrMsg = StringUtils.defaultIfBlank(e.getMessage(), e.toString());
-			}
-		}, c2bThreadPool)).thenRunAsync(() -> {
-			if (item == curC2BItem)
-				c2bPaymentShowQrcode();
-		}, new ZkBiUiExecutor(rootComp));
-		curC2BItem = item;
-	}
-
-	private void c2bPaymentGetStatus() {
-		C2BItem item = curC2BItem;
-        AtomicReference<String> statusMessageRef = new AtomicReference<>();
-		(item.statusFuture = CompletableFuture.supplyAsync(() -> {
-			try {
-				CompletableFuture<Map<String, Object>> self = item.statusFuture;
-				if (item != curC2BItem) {
-					self.cancel(true);
-					return null;
-				}
-	            switch (item.bank) {
-	            case TAIFUNG:
-	            case BOC:
-	            	Map<String, String> m = null;
-	            	int tryCount = 0;
-		        	String rtnCode = null;
-	            	String rtnMsg = null;
-	            	String resultCode = null;
-	            	String resultMessage = null;
-		        	boolean b = false, canBreak = false;
-	            	do {
-			        	if (sleepSec(self, 5))
-			        		break;
-		         	  	if (StringUtils.isBlank(item.outTradeNo))
-		           			throw new Exception("outTradeNo is blank");
-	              	   	if (item.bank == BANK.TAIFUNG) {
-	              	   		m = MapUtil.of(
-	              	   			"method", "TFPAY002",
-	              	   			"outTradeNo", item.outTradeNo);
-	              	   		b = SHA256withRSA.taifungH5Payment(m, sessionHelper);
-	              	   	} else {
-	              	   		m = MapUtil.of(
-              	   				"service", "OrderQuery",
-              	   				"requestId", item.outTradeNo);
-	              	   		b = SHA256withRSA.bocpayPayment(m, sessionHelper);
-	              	   	}
-              	   		rtnCode = m.get("rtnCode");
-              	   		rtnMsg = m.get("rtnMsg");
-              	   		resultCode = m.get("resultCode");
-              	   		resultMessage = m.get("resultMessage");
-              	   		statusMessageRef.set(m.get("statusMessage"));
-	   		        	UniLog.log1("getstatus (rtnCode:%s, rtnMsg:%s, resultCode:%s, resultMessage:%s, tryCount:%d)", rtnCode, rtnMsg, resultCode, resultMessage, tryCount);
-	   		        	canBreak = item.bank == BANK.TAIFUNG ? StringUtils.equals(rtnCode, "0") && StringUtils.equalsAny(resultCode, "0", "1") : StringUtils.equalsAny(resultCode, "S", "F");
-	              	   	//Executions.schedule(rootComp.getDesktop(), c2bPaymentStatusListener, new Event(null, null, statusMessage));
-	              	   	tryCount++;
-   			        } while (!self.isCancelled() && !canBreak);
-	            	if (self.isCancelled())
-		        	   	return null; 
-	               	m.put("out_trade_no", item.outTradeNo);
-   			        return updateEPaymentRecord2(item.bank, m, b);
-            	default:
-					throw new Exception(String.format("付款失敗(bank:%s)", item.bank));
-	            }
-			} catch (Exception e) {
-		        return MapUtil.of("errMsg", StringUtils.defaultIfBlank(e.getMessage(), e.toString()));
-			}
-		}, c2bThreadPool)).thenAcceptAsync(m -> {
-			item.paymentMap = m;
-			if (item == curC2BItem)
+				String msg = statusMessageRef.get();
+				//todo show status message
+			}));
+		}
+		
+		public void c2bPaymentGetNotify(BANK bank, Map<String, String> m) {
+			if (curC2BItem != null && StringUtils.equals(curC2BItem.outTradeNo, m.get("out_trade_no"))) {
+				UniLog.log1("outTradeNo:%s", curC2BItem.outTradeNo);
+				if (curC2BItem.urlFuture != null)
+					curC2BItem.urlFuture.cancel(true);
+				if (curC2BItem.statusFuture != null)
+					curC2BItem.statusFuture.cancel(true);
+				CompletableFuture<Map<String, Object>> future = CompletableFuture.supplyAsync(() -> {
+					try {
+						return updateEPaymentRecord2(bank, m, StringUtils.equals(m.get("ok"), "true"));
+					} catch (Exception e) {
+						return MapUtil.of("errMsg", StringUtils.defaultIfBlank(e.getMessage(), e.toString()));
+					}
+				}, c2bThreadPool);
+				curC2BItem.paymentMap = future.join();
 				c2bPaymentFinish();
-		}, new ZkBiUiExecutor(rootComp, () -> {
+			}
+		}
+		
+		private void c2bPaymentShowQrcode() {
 			if (curC2BItem == null)
 				return;
-			String msg = statusMessageRef.get();
-			//todo show status message
-		}));
-	}
-	
-	private void c2bPaymentGetNotify(BANK bank, Map<String, String> m) {
-		if (curC2BItem != null && StringUtils.equals(curC2BItem.outTradeNo, m.get("out_trade_no"))) {
-			UniLog.log1("outTradeNo:%s", curC2BItem.outTradeNo);
-			if (curC2BItem.urlFuture != null)
-				curC2BItem.urlFuture.cancel(true);
-			if (curC2BItem.statusFuture != null)
-				curC2BItem.statusFuture.cancel(true);
-			CompletableFuture<Map<String, Object>> future = CompletableFuture.supplyAsync(() -> {
+			try {
+				if (StringUtils.isNotBlank(curC2BItem.url)) {
+					byte[] data = QRCodeUtil.createQRCode(curC2BItem.url, 500, 500, "png");
+					String imgStr = "data:image/png;base64," + Base64.getEncoder().encodeToString(data);
+					//todo show qrcode
+					c2bPaymentGetStatus();
+				} else
+					throw new Exception(StringUtils.defaultIfBlank(curC2BItem.urlErrMsg, "獲取Url失敗"));
+			} catch (Exception e) {
+				UniLog.log(e);
+				//todo show error message
+			}
+		}
+
+		private void c2bPaymentFinish() {
+			if (curC2BItem == null)
+				return;
+			try {
+				String errMsg = paymentFinish(curC2BItem.paymentMap, true);
+				if (errMsg == null) {
+					curC2BItem.ok = true;
+					//currentState = RUNSTATE.STATE_CHECKTYPE;
+					//processState(null);
+					finishCb.run();
+				} else
+					throw new Exception(errMsg);
+			} catch (Exception e) {
+				UniLog.log(e);
+				//todo show error message
+			}
+			curC2BItem = null;
+			if (c2bCancelDialog != null) {
+				c2bCancelDialog.close();
+				c2bCancelDialog = null;
+			}
+		}
+		
+		private void c2bPaymentShowCancelDialog() throws Exception {
+			if (curC2BItem == null || curC2BItem.paymentMap != null) {
+				c2bPaymentCancel();
+				return;
+			}
+			ZkBiMsgboxButton[] btns = new ZkBiMsgboxButton[] {new ZkBiMsgboxButton(sessionHelper.getBtLabel("Ok")),new ZkBiMsgboxButton(sessionHelper.getBtLabel("Cancel"))};
+			c2bCancelDialog = new ZkBiMsgbox().setContent("確定取消付款？").setType(ZkBiMsgbox.Type.question).setButtons(btns).setEventListener(new ZkBiEventListener<Event>() {
+				@Override
+				public void onZkBiEvent(Event event) throws Exception {
+					ZkBiMsgboxButton btn = (ZkBiMsgboxButton) event.getTarget();
+					UniLog.log1("event:%s button:[%s,%s,%d]", event, event.getTarget(), btn.getName(), btn.getIdx());
+					if (StringUtils.equals(btn.getName(), sessionHelper.getBtLabel("Ok"))) {
+						c2bPaymentCancel();
+						Events.echoEvent(Events.ON_CLICK, ldv_exit, null);
+					} else
+						restartTimerCb.run();
+				}
+			}).build();
+			c2bCancelDialog.doModal();
+		}
+		
+		private void c2bPaymentCancel() {
+			if (curC2BItem == null)
+				return;
+			C2BItem item = curC2BItem;
+			curC2BItem = null;
+			if (c2bCancelDialog != null) {
+				c2bCancelDialog.close();
+				c2bCancelDialog = null;
+			}
+			if (item.urlFuture != null)
+				item.urlFuture.cancel(true);
+			if (item.statusFuture != null)
+				item.statusFuture.cancel(true);
+			if (item.ok)
+				return;
+			CompletableFuture.runAsync(() -> {
 				try {
-					return updateEPaymentRecord2(bank, m, StringUtils.equals(m.get("ok"), "true"));
+		            switch (item.bank) {
+		            case TAIFUNG:
+		            case BOC:
+		            	if (item.outTradeNo != null && item.url != null) {
+		            		Map<String, String> m;
+	                 	    String rtnCode;
+	              	        String rtnMsg;
+	        	           	boolean b;
+		            		if (item.bank == BANK.TAIFUNG) {
+		            			m = MapUtil.of(
+		            				"method", "TFPAY005",
+	          	           			"outTradeNo", item.outTradeNo);
+	         	           		b = SHA256withRSA.taifungH5Payment(m, sessionHelper, paymentBr.getSelectUtil());
+	                  	    	rtnCode = (String)m.get("rtnCode");
+	              	        	rtnMsg = (String)m.get("rtnMsg");
+		            		} else {
+		            			m = MapUtil.of(
+		            				"service", "OrderCancel",
+	         	           			"requestId", item.outTradeNo);
+	         	           		b = SHA256withRSA.bocpayPayment(m, sessionHelper, paymentBr.getSelectUtil());
+	                  	    	rtnCode = (String)m.get("resultCode");
+	              	        	rtnMsg = (String)m.get("resultMsg");
+		            		}
+	         	  		    UniLog.log1("cancel payment (b:%b, rtnCode:%s, rtnMsg:%s)", b, rtnCode, rtnMsg);
+	         	  		    m.put("out_trade_no", item.outTradeNo);
+	         	  		    updateEPaymentRecord3(m);
+		            	}
+		            	break;
+	            	default:
+	            		throw new Exception(String.format("Cancel payment failed (bank:%s)", item.bank));
+		            }
 				} catch (Exception e) {
-					return MapUtil.of("errMsg", StringUtils.defaultIfBlank(e.getMessage(), e.toString()));
+					UniLog.log(e);
 				}
 			}, c2bThreadPool);
-			curC2BItem.paymentMap = future.join();
-			c2bPaymentFinish();
 		}
-	}
-	
-	private void c2bPaymentShowQrcode() {
-		if (curC2BItem == null)
-			return;
-		try {
-			if (StringUtils.isNotBlank(curC2BItem.url)) {
-				byte[] data = QRCodeUtil.createQRCode(curC2BItem.url, 500, 500, "png");
-				String imgStr = "data:image/png;base64," + Base64.getEncoder().encodeToString(data);
-				//todo show qrcode
-				c2bPaymentGetStatus();
-			} else
-				throw new Exception(StringUtils.defaultIfBlank(curC2BItem.urlErrMsg, "獲取Url失敗"));
-		} catch (Exception e) {
-			UniLog.log(e);
-			//todo show error message
-		}
-	}
-
-	private void c2bPaymentFinish() {
-		if (curC2BItem == null)
-			return;
-		try {
-			String errMsg = paymentFinish(curC2BItem.paymentMap);
+		
+		/*private EventListener<Event> c2bPaymentStatusListener = event -> {
+			if (curC2BItem == null)
+				return;
+			String msg = (String)event.getData();
+			//todo show status message
+		};*/
+		
+		public String paymentFinish(Map<String, Object> m, boolean needAddPaymentRecord) {
+			String errMsg = (String)m.get("errMsg");
+			UniLog.log1("errMsg:%s", errMsg);
 			if (errMsg == null) {
-				curC2BItem.ok = true;
-				currentState = RUNSTATE.STATE_CHECKTYPE;
-				processState(null);
-			} else
-				throw new Exception(errMsg);
-		} catch (Exception e) {
-			UniLog.log(e);
-			//todo show error message
-		}
-		curC2BItem = null;
-		if (c2bCancelDialog != null) {
-			c2bCancelDialog.close();
-			c2bCancelDialog = null;
-		}
-	}
-	
-	private void c2bPaymentShowCancelDialog() throws Exception {
-		if (curC2BItem == null || curC2BItem.paymentMap != null) {
-			c2bPaymentCancel();
-			return;
-		}
-		ZkBiMsgboxButton[] btns = new ZkBiMsgboxButton[] {new ZkBiMsgboxButton(sessionHelper.getBtLabel("Ok")),new ZkBiMsgboxButton(sessionHelper.getBtLabel("Cancel"))};
-		c2bCancelDialog = new ZkBiMsgbox().setContent("確定取消付款？").setType(ZkBiMsgbox.Type.question).setButtons(btns).setEventListener(new ZkBiEventListener<Event>() {
-			@Override
-			public void onZkBiEvent(Event event) throws Exception {
-				ZkBiMsgboxButton btn = (ZkBiMsgboxButton) event.getTarget();
-				UniLog.log1("event:%s button:[%s,%s,%d]", event, event.getTarget(), btn.getName(), btn.getIdx());
-				if (StringUtils.equals(btn.getName(), sessionHelper.getBtLabel("Ok"))) {
-					c2bPaymentCancel();
-					Events.echoEvent(Events.ON_CLICK, ldv_exit, null);
-				} else {
-					uiTimer.stop();
-					uiTimer.start();
+				try {
+					String outTradeNo = (String)m.get("outTradeNo");
+					String transNo = (String)m.get("transNo");
+					String payType = (String)m.get("payType");
+					paymentBr.getCell("col_g").set("電子支付");
+					paymentBr.getCell("col_w").set(transNo);
+					paymentBr.getCell("col_x").set(deviceId);
+					paymentBr.getCell("col_ab").set(payType);
+					String cashierId = (String)sessionHelper.getSessionData("cashierId");
+					if (StringUtils.isNotBlank(cashierId))
+						paymentBr.getCell("col_aa").set(cashierId);
+					if (needAddPaymentRecord) {
+						paymentBr.getCell("col_a").set(DateUtil.now());
+						paymentBr.addCurrent();
+						String voucherNo = paymentBr.getCellString("col_b");
+						sessionHelper.putSessionData("lastVoucherNo", voucherNo);
+						ZkUtil.importAction.accept(sessionHelper, su -> {
+							su.executeUpdate("update epayment set epm_voucherno = ?, epm_vtime = ? where epm_outtradeno = ?", 
+									new Wherecl().appendArgument(voucherNo)
+												.appendArgument(System.currentTimeMillis() / 1000)
+												.appendArgument(outTradeNo));
+						});
+						printReceipt(m);
+					}
+					sessionHelper.putSessionData("lastOutTradeNo", outTradeNo);
+				} catch (Exception e) {
+					UniLog.log(e);
+			        return StringUtils.defaultIfBlank(e.getMessage(), e.toString());
 				}
 			}
-		}).build();
-		c2bCancelDialog.doModal();
-	}
-	
-	private void c2bPaymentCancel() {
-		if (curC2BItem == null)
-			return;
-		C2BItem item = curC2BItem;
-		curC2BItem = null;
-		if (c2bCancelDialog != null) {
-			c2bCancelDialog.close();
-			c2bCancelDialog = null;
+			return errMsg;
 		}
-		if (item.urlFuture != null)
-			item.urlFuture.cancel(true);
-		if (item.statusFuture != null)
-			item.statusFuture.cancel(true);
-		if (item.ok)
-			return;
-		CompletableFuture.runAsync(() -> {
+
+		protected void printReceipt(Map<String, Object> m) {
+			Map<String, Object> coMap = Erpv4Config.getCoFieldMap(sessionHelper, Erpv4Config.getDefaultCoCode(sessionHelper));
+			String coName = StringUtils.defaultString((String)coMap.get("co_coname"));
+			String coChnName = StringUtils.defaultString((String)coMap.get("co_chnname"));
+			String transNo = (String)m.get("transNo");
+			Double totalFee = (Double)m.get("totalFee");
+			Long transTime = (Long)m.get("transTime");
+			String voucherNo = paymentBr.getCellString("col_b");
+			String receiptUrl = ZkFormPadPayment.getPaymentReceiptUrl(voucherNo);
+			ZkUtil.js("android.printPropertyMgmtReceipt('%s', '%s', '%s', '%s', '%s', %f, %d, %d)", 
+					StringEscapeUtils.escapeJava(coName), 
+					StringEscapeUtils.escapeJava(coChnName), 
+					StringEscapeUtils.escapeJava(voucherNo), 
+					StringEscapeUtils.escapeJava(transNo), 
+					StringEscapeUtils.escapeJava(receiptUrl),
+					totalFee, 
+					transTime, 
+					printPageCnt);
 			try {
-	            switch (item.bank) {
-	            case TAIFUNG:
-	            case BOC:
-	            	if (item.outTradeNo != null && item.url != null) {
-	            		Map<String, String> m;
-                 	    String rtnCode;
-              	        String rtnMsg;
-        	           	boolean b;
-	            		if (item.bank == BANK.TAIFUNG) {
-	            			m = MapUtil.of(
-	            				"method", "TFPAY005",
-          	           			"outTradeNo", item.outTradeNo);
-         	           		b = SHA256withRSA.taifungH5Payment(m, sessionHelper);
-                  	    	rtnCode = (String)m.get("rtnCode");
-              	        	rtnMsg = (String)m.get("rtnMsg");
-	            		} else {
-	            			m = MapUtil.of(
-	            				"service", "OrderCancel",
-         	           			"requestId", item.outTradeNo);
-         	           		b = SHA256withRSA.bocpayPayment(m, sessionHelper);
-                  	    	rtnCode = (String)m.get("resultCode");
-              	        	rtnMsg = (String)m.get("resultMsg");
-	            		}
-         	  		    UniLog.log1("cancel payment (b:%b, rtnCode:%s, rtnMsg:%s)", b, rtnCode, rtnMsg);
-         	  		    m.put("out_trade_no", item.outTradeNo);
-         	  		    updateEPaymentRecord3(m);
-	            	}
-	            	break;
-            	default:
-            		throw new Exception(String.format("Cancel payment failed (bank:%s)", item.bank));
-	            }
+				ZkFormPadPayment.addPrintReceiptDataRecord(sessionHelper, paymentBr, receiptUrl.substring(receiptUrl.length() - 8));
 			} catch (Exception e) {
 				UniLog.log(e);
 			}
-		}, c2bThreadPool);
-	}
-	
-	/*private EventListener<Event> c2bPaymentStatusListener = event -> {
-		if (curC2BItem == null)
-			return;
-		String msg = (String)event.getData();
-		//todo show status message
-	};*/
-	
-	private String paymentFinish(Map<String, Object> m) {
-		String errMsg = (String)m.get("errMsg");
-		UniLog.log1("errMsg:%s", errMsg);
-		if (errMsg == null) {
-			try {
-				Map<String, Object> coMap = Erpv4Config.getCoFieldMap(sessionHelper, Erpv4Config.getDefaultCoCode(sessionHelper));
-				String coName = StringUtils.defaultString((String)coMap.get("co_coname"));
-				String coChnName = StringUtils.defaultString((String)coMap.get("co_chnname"));
-				String outTradeNo = (String)m.get("outTradeNo");
-				String transNo = (String)m.get("transNo");
-				Double totalFee = (Double)m.get("totalFee");
-				Long transTime = (Long)m.get("transTime");
-				paymentBr.getCell("col_g").set("電子支付");
-				paymentBr.getCell("col_w").set(transNo);
-				paymentBr.addCurrent();
-				String voucherNo = paymentBr.getCellString("col_b");
-				ZkUtil.importAction.accept(sessionHelper, su -> {
-					su.executeUpdate("update epayment set epm_voucherno = ?, epm_vtime = ? where epm_outtradeno = ?", 
-							new Wherecl().appendArgument(voucherNo)
-										.appendArgument(System.currentTimeMillis() / 1000)
-										.appendArgument(outTradeNo));
-				});
-				ZkUtil.js("android.printPropertyMgmtReceipt('%s', '%s', '%s', '%s', %f, %d)", StringEscapeUtils.escapeJava(coName), StringEscapeUtils.escapeJava(coChnName), voucherNo, transNo, totalFee, transTime);
-			} catch (Exception e) {
-				UniLog.log(e);
-		        return StringUtils.defaultIfBlank(e.getMessage(), e.toString());
+		}
+
+		
+		private String genOutTradeNo() throws Exception {
+			return paymentBr.getView().getSchema().getUniqueRg(null, "", 3001, "epayment", "epm_outtradeno", "EP&&&&&&&&&&").toString();
+		}
+
+		private String addEPaymentRecord(String type, String outTradeNo) throws Exception {
+			UniLog.log1("outTradeNo:%s", outTradeNo);
+			if (StringUtils.isBlank(outTradeNo))
+				throw new Exception("outTradeNo is blank");
+			ZkUtil.importAction.accept(sessionHelper, su -> {
+				su.executeUpdate("insert into epayment(epm_outtradeno, epm_type, epm_ctime) values(?, ?, ?)", new Wherecl()
+						.appendArgument(outTradeNo)
+						.appendArgument(type)
+						.appendArgument(System.currentTimeMillis() / 1000));
+			});
+			return outTradeNo;
+		}
+
+		private String addEPaymentRecord(String type) throws Exception {
+			return addEPaymentRecord(type, genOutTradeNo());
+		}
+		
+		//update b2c, c2b getUrl record
+		private Map<String, Object> updateEPaymentRecord(BANK bank, Map<String, String> m, boolean b) throws Exception {
+			UniLog.log1("outTradeNo:%s", m.get("out_trade_no"));
+			Map<String, Object> m1 = getUpdateEPaymentMap(m);
+	        if (!b)
+	        	m1.put("errMsg", StringUtils.defaultIfBlank(m.get(bank == BANK.BOC ? "resultMessage" : "rtnMsg"), "付款失敗") + ", 請重新掃碼");
+			ZkUtil.importAction.accept(sessionHelper, su -> {
+				su.executeUpdate("update epayment set epm_transno = ?, epm_totalfee = ?, epm_rtncode = ?, epm_rtnmsg = ?, epm_resultcode = ?, epm_resultmsg = ?, epm_ttime = ? where epm_outtradeno = ?", 
+						new Wherecl().appendArgument(m1.get("transNo"))
+									.appendArgument(m1.get("totalFee"))
+									.appendArgument(m1.get("rtnCode"))
+									.appendArgument(m1.get("rtnMsg"))
+									.appendArgument(m1.get("resultCode"))
+									.appendArgument(m1.get("resultMessage"))
+									.appendArgument(m1.get("transTime"))
+									.appendArgument(m1.get("outTradeNo")));
+			});
+			return m1;
+		}
+
+		//update c2b payment record
+		private Map<String, Object> updateEPaymentRecord2(BANK bank, Map<String, String> m, boolean b) throws Exception {
+			UniLog.log1("outTradeNo:%s", m.get("out_trade_no"));
+			Map<String, Object> m1 = getUpdateEPaymentMap(m);
+	        if (!b)
+	        	m1.put("errMsg", StringUtils.defaultIfBlank(m.get(bank == BANK.BOC ? "resultMessage" : "rtnMsg"), "付款失敗"));
+			ZkUtil.importAction.accept(sessionHelper, su -> {
+				su.executeUpdate("update epayment set epm_transno = ?, epm_rtncode2 = ?, epm_rtnmsg2 = ?, epm_resultcode2 = ?, epm_resultmsg2 = ?, epm_ttime2 = ? where epm_outtradeno = ?", 
+						new Wherecl().appendArgument(m1.get("transNo"))
+									.appendArgument(m1.get("rtnCode"))
+									.appendArgument(m1.get("rtnMsg"))
+									.appendArgument(m1.get("resultCode"))
+									.appendArgument(m1.get("resultMessage"))
+									.appendArgument(m1.get("transTime"))
+									.appendArgument(m1.get("outTradeNo")));
+			});
+			return m1;
+		}
+
+		//update c2b cancel record
+		private void updateEPaymentRecord3(Map<String, String> m) throws Exception {
+			UniLog.log1("outTradeNo:%s", m.get("out_trade_no"));
+			Map<String, Object> m1 = getUpdateEPaymentMap(m);
+			ZkUtil.importAction.accept(sessionHelper, su -> {
+				su.executeUpdate("update epayment set epm_rtncode3 = ?, epm_rtnmsg3 = ?, epm_resultcode3 = ?, epm_resultmsg3 = ?, epm_ttime3 = ? where epm_outtradeno = ?", 
+						new Wherecl().appendArgument(m1.get("rtnCode"))
+									.appendArgument(m1.get("rtnMsg"))
+									.appendArgument(m1.get("resultCode"))
+									.appendArgument(m1.get("resultMessage"))
+									.appendArgument(m1.get("transTime"))
+									.appendArgument(m1.get("outTradeNo")));
+			});
+		}
+
+		private static Map<String, Object> getUpdateEPaymentMap(Map<String, String> m) {
+	        return MapUtil.of(
+	       		"outTradeNo", m.get("out_trade_no"),
+	       		"transNo", StringUtils.defaultString(m.get("transNo")),
+	       		"payType", StringUtils.defaultString(m.get("payType")),
+	        	"totalFee", NumberUtils.toDouble(m.get("totalFee")),
+	        	"transTime", m.containsKey("transTime") ? NumberUtils.toLong(m.get("transTime")) : (System.currentTimeMillis() / 1000),
+	        	"rtnCode", StringUtils.defaultString(m.get("rtnCode")),
+	        	"rtnMsg", StringUtils.defaultString(m.get("rtnMsg")),
+	        	"resultCode", StringUtils.defaultString(m.get("resultCode")),
+	        	"resultMessage", StringUtils.defaultString(m.get("resultMessage")));
+		}
+
+		private static boolean sleepSec(CompletableFuture<?> future, int sec) throws InterruptedException {
+			while (!future.isCancelled() && sec > 0) {
+				Thread.sleep(1000);
+				sec--;
 			}
+			return future.isCancelled();
 		}
-		return errMsg;
-	}
-
-	
-	private String genOutTradeNo() throws Exception {
-		return paymentBr.getView().getSchema().getUniqueRg(null, "", 3001, "epayment", "epm_outtradeno", "EP&&&&&&&&&&").toString();
-	}
-
-	private String addEPaymentRecord(String type, String outTradeNo) throws Exception {
-		UniLog.log1("outTradeNo:%s", outTradeNo);
-		if (StringUtils.isBlank(outTradeNo))
-			throw new Exception("outTradeNo is blank");
-		ZkUtil.importAction.accept(sessionHelper, su -> {
-			su.executeUpdate("insert into epayment(epm_outtradeno, epm_type, epm_ctime) values(?, ?, ?)", new Wherecl()
-					.appendArgument(outTradeNo)
-					.appendArgument(type)
-					.appendArgument(System.currentTimeMillis() / 1000));
-		});
-		return outTradeNo;
-	}
-
-	private String addEPaymentRecord(String type) throws Exception {
-		return addEPaymentRecord(type, genOutTradeNo());
-	}
-	
-	//update b2c, c2b getUrl record
-	private Map<String, Object> updateEPaymentRecord(BANK bank, Map<String, String> m, boolean b) throws Exception {
-		UniLog.log1("outTradeNo:%s", m.get("out_trade_no"));
-		Map<String, Object> m1 = getUpdateEPaymentMap(m);
-        if (!b)
-        	m1.put("errMsg", StringUtils.defaultIfBlank(m.get(bank == BANK.BOC ? "resultMessage" : "rtnMsg"), "付款失敗") + ", 請重新掃碼");
-		ZkUtil.importAction.accept(sessionHelper, su -> {
-			su.executeUpdate("update epayment set epm_transno = ?, epm_totalfee = ?, epm_rtncode = ?, epm_rtnmsg = ?, epm_resultcode = ?, epm_resultmsg = ?, epm_ttime = ? where epm_outtradeno = ?", 
-					new Wherecl().appendArgument(m1.get("transNo"))
-								.appendArgument(m1.get("totalFee"))
-								.appendArgument(m1.get("rtnCode"))
-								.appendArgument(m1.get("rtnMsg"))
-								.appendArgument(m1.get("resultCode"))
-								.appendArgument(m1.get("resultMessage"))
-								.appendArgument(m1.get("transTime"))
-								.appendArgument(m1.get("outTradeNo")));
-		});
-		return m1;
-	}
-
-	//update c2b payment record
-	private Map<String, Object> updateEPaymentRecord2(BANK bank, Map<String, String> m, boolean b) throws Exception {
-		UniLog.log1("outTradeNo:%s", m.get("out_trade_no"));
-		Map<String, Object> m1 = getUpdateEPaymentMap(m);
-        if (!b)
-        	m1.put("errMsg", StringUtils.defaultIfBlank(m.get(bank == BANK.BOC ? "resultMessage" : "rtnMsg"), "付款失敗"));
-		ZkUtil.importAction.accept(sessionHelper, su -> {
-			su.executeUpdate("update epayment set epm_transno = ?, epm_rtncode2 = ?, epm_rtnmsg2 = ?, epm_resultcode2 = ?, epm_resultmsg2 = ?, epm_ttime2 = ? where epm_outtradeno = ?", 
-					new Wherecl().appendArgument(m1.get("transNo"))
-								.appendArgument(m1.get("rtnCode"))
-								.appendArgument(m1.get("rtnMsg"))
-								.appendArgument(m1.get("resultCode"))
-								.appendArgument(m1.get("resultMessage"))
-								.appendArgument(m1.get("transTime"))
-								.appendArgument(m1.get("outTradeNo")));
-		});
-		return m1;
-	}
-
-	//update c2b cancel record
-	private void updateEPaymentRecord3(Map<String, String> m) throws Exception {
-		UniLog.log1("outTradeNo:%s", m.get("out_trade_no"));
-		Map<String, Object> m1 = getUpdateEPaymentMap(m);
-		ZkUtil.importAction.accept(sessionHelper, su -> {
-			su.executeUpdate("update epayment set epm_rtncode3 = ?, epm_rtnmsg3 = ?, epm_resultcode3 = ?, epm_resultmsg3 = ?, epm_ttime3 = ? where epm_outtradeno = ?", 
-					new Wherecl().appendArgument(m1.get("rtnCode"))
-								.appendArgument(m1.get("rtnMsg"))
-								.appendArgument(m1.get("resultCode"))
-								.appendArgument(m1.get("resultMessage"))
-								.appendArgument(m1.get("transTime"))
-								.appendArgument(m1.get("outTradeNo")));
-		});
-	}
-
-	private static Map<String, Object> getUpdateEPaymentMap(Map<String, String> m) {
-        return MapUtil.of(
-       		"outTradeNo", m.get("out_trade_no"),
-       		"transNo", StringUtils.defaultString(m.get("transNo")),
-        	"totalFee", NumberUtils.toDouble(m.get("totalFee")),
-        	"transTime", m.containsKey("transTime") ? NumberUtils.toLong(m.get("transTime")) : (System.currentTimeMillis() / 1000),
-        	"rtnCode", StringUtils.defaultString(m.get("rtnCode")),
-        	"rtnMsg", StringUtils.defaultString(m.get("rtnMsg")),
-        	"resultCode", StringUtils.defaultString(m.get("resultCode")),
-        	"resultMessage", StringUtils.defaultString(m.get("resultMessage")));
-	}
-
-	private static boolean sleepSec(CompletableFuture<?> future, int sec) throws InterruptedException {
-		while (!future.isCancelled() && sec > 0) {
-			Thread.sleep(1000);
-			sec--;
-		}
-		return future.isCancelled();
 	}
 }

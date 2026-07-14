@@ -934,7 +934,7 @@ public class ZkFormEpayment3 extends ZkCellActionForm {
         m.put("body", "propmgmt_epayment");
         m.put("auth_code", authCode);
 
-        boolean b = SHA256withRSA.taifungPayment(m, sessionHelper);
+        boolean b = SHA256withRSA.taifungPayment(m, sessionHelper, paymentBr.getSelectUtil());
         String rtnCode = (String)m.get("rtnCode");
         String rtnMsg = (String)m.get("rtnMsg");
         String resultCode = (String)m.get("resultCode");
@@ -945,7 +945,7 @@ public class ZkFormEpayment3 extends ZkCellActionForm {
         	m = new HashMap<>();
         	m.put("service", "pay.qrcode.chnquery");
         	m.put("out_trade_no", outTradeNo);
-        	b = SHA256withRSA.taifungPayment(m, sessionHelper);
+        	b = SHA256withRSA.taifungPayment(m, sessionHelper, paymentBr.getSelectUtil());
         	rtnCode = (String)m.get("rtnCode");
         	rtnMsg = (String)m.get("rtnMsg");
         	resultCode = (String)m.get("resultCode");
@@ -965,7 +965,7 @@ public class ZkFormEpayment3 extends ZkCellActionForm {
         m.put("subject", "propmgmt_epayment");
         m.put("authCode", authCode);
 
-        boolean b = SHA256withRSA.bocpayPayment(m, sessionHelper);
+        boolean b = SHA256withRSA.bocpayPayment(m, sessionHelper, paymentBr.getSelectUtil());
         String resultCode = (String)m.get("resultCode");
         String resultMsg = (String)m.get("resultMessage");
         int valTime = Math.max(NumberUtils.toInt((String)m.get("valTime")), 60);
@@ -977,7 +977,7 @@ public class ZkFormEpayment3 extends ZkCellActionForm {
         	m.put("requestId", outTradeNo);
         	m.put("service", "OrderQuery");
         	m.put("qryNo", outTradeNo);
-        	b = SHA256withRSA.bocpayPayment(m, sessionHelper);
+        	b = SHA256withRSA.bocpayPayment(m, sessionHelper, paymentBr.getSelectUtil());
         	resultCode = (String)m.get("resultCode");
         	resultMsg = (String)m.get("resultMessage");
         	if (!b && StringUtils.equalsAny(resultCode, "Z", "A")) {

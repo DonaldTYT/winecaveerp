@@ -30,8 +30,8 @@ import com.uniinformation.jxapp.erpv4ext.AttendanceRecord.CalotAttendDetItem;
 import com.uniinformation.utils.SelectUtil;
 import com.uniinformation.utils.TableRec;
 import com.uniinformation.utils.UniLog;
+import com.uniinformation.utils.TranslateUtil;
 import com.uniinformation.webcore.SessionHelper;
-import com.uniinformation.zkbi.ZkBiTranslateHelper;
 
 public class BiResultAttendanceRpt extends BiResult {
 	private static final SimpleDateFormat ddf = new SimpleDateFormat("yyyy/MM/dd");
@@ -50,9 +50,9 @@ public class BiResultAttendanceRpt extends BiResult {
 		try {
 			for (int i = 3; i < MAX_ATTENDDET_INOUT_COLUMN_COUNT; i++) {
 				addTempColumn("at_xattintype" + i, "", "", "", "char",null, 1, "at_xsumot");
-				addTempColumn("at_xattin" + i, ZkBiTranslateHelper.getText(sh, "ERPV4EXT.ATTENDANCERPT.AT_XATTIN0", "LABEL", "In"), "", "", "char", null,6, "at_xsumot");
+				addTempColumn("at_xattin" + i, TranslateUtil.getText(sh, "ERPV4EXT.ATTENDANCERPT.AT_XATTIN0", "LABEL", "In"), "", "", "char", null,6, "at_xsumot");
 				addTempColumn("at_xattouttype" + i, "", "", "", "char", null,1, "at_xsumot");
-				addTempColumn("at_xattout" + i, ZkBiTranslateHelper.getText(sh, "ERPV4EXT.ATTENDANCERPT.AT_XATTOUT0", "LABEL", "Out"), "", "", "char", null,6, "at_xsumot");
+				addTempColumn("at_xattout" + i, TranslateUtil.getText(sh, "ERPV4EXT.ATTENDANCERPT.AT_XATTOUT0", "LABEL", "Out"), "", "", "char", null,6, "at_xsumot");
 			}
 		} catch (Exception e) {
 			UniLog.log(e);
@@ -67,9 +67,10 @@ public class BiResultAttendanceRpt extends BiResult {
 
 	@Override
 	public String getColumnDisplayString(ColumnCell p_cell) {
-		if (StringUtils.equalsAny(p_cell.getCellLabel(), "at_xsumot", "at_xdreallate", "at_xleaveearly", "at_xdnowork", "at_xdwktime")) {
+		if (StringUtils.equalsAny(p_cell.getCellLabel(), "at_xsumot", "at_late", "at_xdreallate", "at_xleaveearly", "at_xdnowork", "at_xdwktime")) {
 			int i = p_cell.getInt();
-			return i != 0 ? String.format("%02d:%02d", i / 60, i % 60) : "";
+			int j = Math.abs(i);
+			return (i < 0 ? "-" : "") + (j != 0 ? String.format("%02d:%02d", j / 60, j % 60) : "");
 		}
 		return super.getColumnDisplayString(p_cell);
 	}

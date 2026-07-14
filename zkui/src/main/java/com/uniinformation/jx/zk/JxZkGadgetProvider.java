@@ -292,7 +292,7 @@ public class JxZkGadgetProvider extends JxGadgetProvider implements JxPrintDlgIn
 	public JxZkGadgetProvider(SessionHelper p_sessionHelper) {
 		UniLog.log("JxZkGadgetProvider Initialized :" + this);
 		sessionHelper = p_sessionHelper;
-		ThreadData.setThGrpData("JxCbuilderGadgetProvider", this);
+//		ThreadData.setThGrpData("JxCbuilderGadgetProvider", this);
 	}
 //	public void close() {
 //		UniLog.log("JxZkGadgetProvider closed :" + this);
@@ -606,7 +606,7 @@ public class JxZkGadgetProvider extends JxGadgetProvider implements JxPrintDlgIn
 				 SessionHelper sessionHelper = (SessionHelper) sess.getAttribute(SessionHelper.getNameByContextPath(exec.getContextPath()));
 				 pvdr = (JxGadgetProvider) sessionHelper.getSessionData("jxzkgadgetprovider"); 
 				 if(pvdr != null) {
-						ThreadData.setThGrpData("JxCbuilderGadgetProvider", pvdr);
+//						ThreadData.setThGrpData("JxCbuilderGadgetProvider", pvdr);
 						return(pvdr);
 				 }
 			  }

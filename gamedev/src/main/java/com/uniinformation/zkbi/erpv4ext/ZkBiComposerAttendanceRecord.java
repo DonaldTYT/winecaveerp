@@ -1,6 +1,7 @@
 package com.uniinformation.zkbi.erpv4ext;
 
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -16,13 +17,13 @@ import org.zkoss.zul.Datebox;
 import org.zkoss.zul.Hlayout;
 import org.zkoss.zul.Label;
 
-import com.kyoko.common.DateUtil;
+import com.google.api.client.util.Objects;
 import com.uniinformation.bicore.BiCellCollection;
 import com.uniinformation.bicore.BiResult;
 import com.uniinformation.bicore.erpv4ext.BiResultAttendanceRecord;
-import com.uniinformation.cell.CellCollection;
+import com.uniinformation.erpv4.Erpv4Config;
 import com.uniinformation.jxapp.erpv4ext.AttendanceRecord;
-import com.uniinformation.utils.SelectUtil;
+import com.kyoko.common.DateUtil;
 import com.uniinformation.utils.UniLog;
 import com.uniinformation.utils.Wherecl;
 import com.uniinformation.utils.ZkUtil;
@@ -76,20 +77,25 @@ public class ZkBiComposerAttendanceRecord extends ZkBiComposerBase {
 							if (!validationPeriod(startDate, endDate))
 								return;
 							int ok = 0, fail = 0, skip = 0;
-							Map<String, CellCollection> m = getBatchEmMap(result);
+							Map<String, Map<String, Object>> m = getBatchEmMap(result);
 							if (m.isEmpty()) {
 								ZkUtil.errMsg("Please choose item");
 								return;
 							}
-							for (CellCollection cc : m.values()) {
+							Map<String, Object> loadMap = new HashMap<>();
+							for (Map<String, Object> cc : m.values()) {
 								BiResult br = null;
 								try {
-									AttendanceRecord.Shift shift = new AttendanceRecord.Shift(cc, result.getSelectUtil(), startDate, endDate);
+									AttendanceRecord.Shift shift = new AttendanceRecord.Shift(cc, result.getSelectUtil(), startDate, endDate, loadMap);
 									shift.chkAndAddShiftmask();
 
 									br = sessionHelper.newBiResult("erpv4ext.Attendance");
 									br.beginWork();
-									AttendanceRecord.AttendanceRecalc attl = new AttendanceRecord.AttendanceRecalc(br.getSelectUtil(), cc.getCellString("em_eid"), cc.getCellString("em_yflag"), startDate, endDate);
+									AttendanceRecord.AttendanceRecalc attl = new AttendanceRecord.AttendanceRecalc(br.getSelectUtil(), (String)cc.get("em_eid"), (String)cc.get("em_yflag"), 
+											startDate, endDate, shift.getShiftArrangePubhol(), loadMap,
+											Erpv4Config.getInteger(sessionHelper, "HR_MINLATE_THESHOLD", 0), Erpv4Config.getInteger(sessionHelper, "HR_NIGHTOT_LOWERLIM", 0), 
+											Erpv4Config.getString(sessionHelper, "HR_MAIN_ATYPE"), Erpv4Config.getString(sessionHelper, "HR_SEC_ATYPE"),
+											Objects.equal(Erpv4Config.getString(sessionHelper, "HR_NIGHTOT_CROSS_LATE"), "Y"));
 									if (attl.start())
 										attl.finish();
 									else
@@ -133,7 +139,7 @@ public class ZkBiComposerAttendanceRecord extends ZkBiComposerBase {
 							final Date endDate = dbEnd.getValue();
 							if (!validationPeriod(startDate, endDate))
 								return;
-							final Map<String, CellCollection> m = getBatchEmMap(result);
+							final Map<String, Map<String, Object>> m = getBatchEmMap(result);
 							if (m.isEmpty()) {
 								ZkUtil.errMsg("Please choose item");
 								return;
@@ -146,11 +152,12 @@ public class ZkBiComposerAttendanceRecord extends ZkBiComposerBase {
 									UniLog.log1("event:%s button:[%s,%s,%d]", event, event.getTarget(), btn.getName(), btn.getIdx());
 									if (StringUtils.equals(btn.getName(), sessionHelper.getBtLabel("Ok"))) {
 										int ok = 0, fail = 0;
-										for (CellCollection cc : m.values()) {
+										for (Map<String, Object> cc : m.values()) {
 											try {
-												String eid = cc.getString("em_eid");
-												result.getSelectUtil().executeUpdate("delete from attendance where at_eid = ? and at_date between ? and ?", 
+												String eid = (String)cc.get("em_eid");
+												int cnt = result.getSelectUtil().executeUpdate("delete from attendance where at_eid = ? and at_date between ? and ?", 
 														new Wherecl().appendArgument(eid).appendArgument(startDate).appendArgument(endDate));
+												UniLog.log1("eid:%s, startDate:%s, endDate:%s, cnt:%d", eid, startDate, endDate, cnt);
 												ok++;
 											}
 											catch (Exception e) {
@@ -222,17 +229,17 @@ public class ZkBiComposerAttendanceRecord extends ZkBiComposerBase {
 		return true;
 	}
 	
-	private Map<String, CellCollection> getBatchEmMap(BiResult br) {
-		final Map<String, CellCollection> emMap = new LinkedHashMap<String, CellCollection>();
+	private Map<String, Map<String, Object>> getBatchEmMap(BiResult br) {
+		final Map<String, Map<String, Object>> emMap = new LinkedHashMap<>();
 		Set selection = listModelList.getSelection();
        	for (Iterator it = selection.iterator(); it.hasNext();) {
        		Object o = it.next();
          	Object ts = o;
           	if (ts instanceof TrStatFilter)
             	ts = ((TrStatFilter)ts).getTrStatIdx();
-       		CellCollection cc = br.getRowCollectionO(ts);
+       		BiCellCollection cc = br.getRowCollectionO(ts);
        		String eid = cc.getString("em_eid");
-       		emMap.put(eid, cc);
+       		emMap.put(eid, ZkUtil.getBiCellCollectionMap(cc, br.getColumns()));
        	}
        	return emMap;
 	}

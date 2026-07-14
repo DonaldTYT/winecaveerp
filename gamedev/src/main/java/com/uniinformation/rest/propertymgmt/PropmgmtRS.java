@@ -1,5 +1,8 @@
 package com.uniinformation.rest.propertymgmt;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.nio.charset.StandardCharsets;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.time.LocalDateTime;
@@ -7,35 +10,56 @@ import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.Base64;
 import java.util.Map;
+import java.util.Objects;
 import java.util.TreeMap;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.stream.Stream;
+import java.util.zip.GZIPInputStream;
 
 import javax.annotation.security.PermitAll;
 import javax.ws.rs.Consumes;
+import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.core.CacheControl;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedHashMap;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
+import javax.ws.rs.core.StreamingOutput;
 
 import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.zkoss.zk.ui.event.Event;
 import org.zkoss.zk.ui.event.EventQueues;
 
 import com.google.gson.reflect.TypeToken;
+import com.lowagie.text.Rectangle;
+
 import static com.kyoko.crypto.SHA256withRSA.*;
+
+import com.uniinformation.erpv4.BatchBuildPrintHandler;
 import com.uniinformation.rest.RSBase;
+import com.uniinformation.utils.ChnftrParser;
+import com.uniinformation.utils.CryptoUtil;
 import com.uniinformation.utils.MapUtil;
+import com.uniinformation.utils.SelectUtil;
 import com.uniinformation.utils.UniLog;
+import com.uniinformation.utils.Wherecl;
+import com.uniinformation.utils.ZkUtil;
 import com.uniinformation.webcore.SessionHelper;
 import com.uniinformation.webcore.ZkSessionHelper;
+import static com.uniinformation.utils.ZkUtil.throwFunction;
+import static com.uniinformation.utils.ZkUtil.throwConsumer;
 
 @Path("/propmgmt")
 public class PropmgmtRS extends RSBase {
+	public static final byte[] PAYMENT_RECEIPT_KEYS = "zs*acdfe(35zsk2kxap235cs8xnpp22-".getBytes(StandardCharsets.UTF_8);
 
 	@POST
 	@PermitAll
@@ -151,10 +175,129 @@ public class PropmgmtRS extends RSBase {
 			return Response.status(Status.BAD_REQUEST).entity(e.getMessage()).build();
 		}
 	}
-	
+
+	@GET
+	@PermitAll
+	@Path("/pr/{voucherno}")
+	@Produces("application/pdf")
+	public Response downloadPaymentReceipt(@PathParam("voucherno") String voucherNoWrapper) {
+		SelectUtil su = null;
+		try {
+			if (StringUtils.isBlank(voucherNoWrapper))
+				return Response.status(Status.BAD_REQUEST).entity("Invalid key").build();
+			byte[] voucherNoBytes = CryptoUtil.decryptFromBase64(PAYMENT_RECEIPT_KEYS, voucherNoWrapper, false);
+			if (voucherNoBytes == null)
+				return Response.status(Status.BAD_REQUEST).entity("Invalid key").build();
+			String voucherNo = new String(voucherNoBytes, StandardCharsets.UTF_8);
+			if (StringUtils.isBlank(voucherNo))
+				return Response.status(Status.BAD_REQUEST).entity("Invalid key").build();
+			UniLog.log1("voucherNo:%s", voucherNo);
+			SessionHelper sh = ZkSessionHelper.getSessionHelper(request, null);
+
+			//PdfCache pdfCache = PdfCache.getInstance();
+			//AtomicReference<byte[]> data = new AtomicReference<>(pdfCache.get(voucherNo));
+			AtomicReference<byte[]> data = new AtomicReference<>();
+			if (data.get() == null) {
+				su = new SelectUtil(); 
+				su.init(sh.getLoginTokenJdbcPool());
+				SelectUtil su1 = su;
+				Stream.of("paymentreceipt", "paymentreceipt2", "paymentreceipt3").map(throwFunction(tb -> 
+					ZkUtil.getFirstTableRec(su1, "select col_b from "+tb+" where col_a = ? and col_d like ?", new Wherecl().appendArgument(voucherNo)
+									.appendArgument("%" + voucherNoWrapper.substring(voucherNoWrapper.length() - 8) + "%"))
+							.map(throwFunction(tr -> (byte[])tr.getField("col_b"))).orElse(null)
+				)).filter(Objects::nonNull).findFirst().ifPresent(throwConsumer(d -> {
+					try (ByteArrayInputStream bis = new ByteArrayInputStream(d); 
+							GZIPInputStream gzis = new GZIPInputStream(bis);
+							ByteArrayOutputStream bos = new ByteArrayOutputStream()) {
+						IOUtils.copy(gzis, bos);
+
+						Rectangle pageSize = BatchBuildPrintHandler.A5L;
+						float docWidthPx = ChnftrParser.dpi100ToPx(760);
+						float docHeightPx = ChnftrParser.dpi100ToPx(540);
+						int lineHeight = 20;
+						ChnftrParser p = new ChnftrParser(bos.toByteArray(), StandardCharsets.UTF_8.name(), pageSize, docWidthPx, docHeightPx, ChnftrParser.CHNFTR_DPI, 11, ChnftrParser.CHNFTR_DPI / lineHeight);
+						p.setUseAscender(false);
+						data.set(p.printToData());
+						//pdfCache.put(voucherNo, data.get());
+					}
+				}));
+				su.close();
+			}
+			if (data.get() != null) {
+				CacheControl cacheControl = new CacheControl();
+				cacheControl.setMaxAge(86400);
+				StreamingOutput stream = output -> {
+					try (ByteArrayInputStream bis = new ByteArrayInputStream(data.get())) {
+		                byte[] buffer = new byte[4096];
+			            int bytesRead;
+			            while ((bytesRead = bis.read(buffer)) != -1)
+			                output.write(buffer, 0, bytesRead);
+			            output.flush();
+		            } catch (Exception e) {
+		            	UniLog.log(e);
+		            }
+		        };
+				return Response.ok(stream, "application/pdf").cacheControl(cacheControl).build();
+			}
+		} catch (Exception e) {
+			UniLog.log(e);
+			return Response.status(Status.BAD_REQUEST).entity(e.getMessage()).build();
+		} finally {
+			if (su != null)
+				su.close();
+		}
+		return null;
+	}
+
 	@Override
 	public String getVersion() {
 		return "1.0";
 	}
 
+	/*public static class PdfCache {
+	    private static final int MAX_CACHE_ENTRIES = 10;
+	    
+	    private final Cache<String, byte[]> cache;
+	    private static final PdfCache INSTANCE = new PdfCache();
+	    
+	    public static PdfCache getInstance() {
+	        return INSTANCE;
+	    }
+	    
+	    private PdfCache() {
+	        cache = CacheBuilder.newBuilder()
+	                .maximumSize(MAX_CACHE_ENTRIES)
+	                //.maximumWeight(MAX_CACHE_SIZE)
+	                //.weigher((String voucherNo, byte[] pdfData) -> pdfData.length)
+	                .expireAfterAccess(1, TimeUnit.HOURS)
+	                .expireAfterWrite(4, TimeUnit.HOURS)
+	                .removalListener((RemovalNotification<String, byte[]> notification) -> {
+	                	byte[] removedData = notification.getValue();
+	                	if (removedData != null)
+	                		UniLog.log1("key:%s, reason:%s", notification.getKey(), notification.getCause());
+	                })
+	                .build();
+	    }
+	    
+	    public byte[] get(String voucherNo) {
+	        byte[] data = cache.getIfPresent(voucherNo);
+	        if (data != null)
+	        	UniLog.log1("PDF %s got from cache", voucherNo);
+	        return data;
+	    }
+	    
+	    public void put(String voucherNo, byte[] pdfData) {
+	        if (pdfData.length > 5 * 1024 * 1024) {
+	            UniLog.log1("PDF %s too big, No cached: %s", voucherNo, pdfData.length / 1024 + "KB");
+	            return;
+	        }
+	        cache.put(voucherNo, pdfData);
+	        UniLog.log1("PDF cached: %s, size:%s", voucherNo, pdfData.length / 1024 + "KB");
+	    }
+	    
+	    public void invalidate(String voucherNo) {
+	        cache.invalidate(voucherNo);
+	        UniLog.log1("Cache expired, voucher no:%s", voucherNo);
+	    }
+	}*/
 }

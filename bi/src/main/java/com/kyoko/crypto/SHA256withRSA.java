@@ -39,10 +39,15 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 import com.kyoko.common.StringUtil;
 import com.uniinformation.erpv4.BiConfig;
+import com.uniinformation.utils.BiUtil;
 import com.uniinformation.utils.IniHelper;
+import com.uniinformation.utils.JdbcPool;
 import com.uniinformation.utils.MapUtil;
+import com.uniinformation.utils.SelectUtil;
+import com.uniinformation.utils.TableRec;
 import com.uniinformation.utils.UniLog;
 import com.uniinformation.webcore.SessionHelper;
+import com.uniinformation.webcore.WebCoreUtil;
 
 import okhttp3.Credentials;
 import okhttp3.FormBody;
@@ -67,6 +72,10 @@ public class SHA256withRSA {
 		"TFPAY004", MapUtil.of("0", "退款成功", "1", "退款失敗", "2", "處理中"),
 		"TFPAY007", MapUtil.of("0", "退款成功", "1", "退款失敗", "2", "退款中"),
 		"TFPAY005", MapUtil.of("0", "撤銷成功", "1", "撤銷失敗", "2", "撤銷中"));
+	private static final Map<String, String> taifungPaytypeMap = MapUtil.of("wxpay", "微信", "alipay_mo", "支付寶澳門", "alipay", "支付寶", "unionpay", "銀聯", "taifung", "豐付寶",
+			"icbc", "工銀澳門", "mpay", "澳門通", "uepay", "極易付", "libpay", "澳門國際", "bocpay", "中銀澳門", "cgbpay", "廣發澳門");
+	private static final Map<String, String> bocpayPaytypeMap = MapUtil.of("0", "澳門中銀手機銀行", "1", "支付寶", "2", "微信", "4", "極易付", "5", "豐付寶", "6", "工銀E支付", 
+			"7", "澳門通", "8", "國際付", "9", "廣發銀行移動支付", "A", "雲閃付", "H", "e-MOP", "I", "e-CNY");
 
 	public static PublicKey loadPublicKey(String str) throws Exception {
 	    byte[] publicKeyBytes = Base64.getDecoder().decode(str);
@@ -278,19 +287,26 @@ public class SHA256withRSA {
         }
     }
 	
-	public static boolean taifungPayment(Map<String, String> p_map, SessionHelper sh) {
+	public static boolean taifungPayment(Map<String, String> p_map, SessionHelper sh, SelectUtil su) {
 		try {
-	        PublicKey publicKey = loadPublicKey(getIniString(sh, "taifung_public_key"));
-			PrivateKey privateKey = loadPrivateKey(getIniString(sh, "taifung_private_key"));
-			PublicKey systemPublicKey = loadPublicKey(getIniString(sh, "taifung_system_key"));
+			Map<String, String> dbParams = getDbParams(su, sh != null ? BiConfig.getDefaultLcrg(sh) : 1);
+	        //PublicKey publicKey = loadPublicKey(getIniString(sh, "taifung_public_key"));
+			//PrivateKey privateKey = loadPrivateKey(getIniString(sh, "taifung_private_key"));
+			//PublicKey systemPublicKey = loadPublicKey(getIniString(sh, "taifung_system_key"));
+	        PublicKey publicKey = loadPublicKey(dbParams.get("publickey"));
+	        PrivateKey privateKey = loadPrivateKey(dbParams.get("privatekey"));
+			PublicKey systemPublicKey = loadPublicKey(dbParams.get("systemkey"));
 
 	        Gson gson = new Gson();
 	        Map<String, String> m = new TreeMap<>(p_map);
-	        m.put("mch_id", getIniString(sh, "taifung_mch_id"));
-	        m.put("org_code", getIniString(sh, "taifung_org_code"));
+	        //m.put("mch_id", getIniString(sh, "taifung_mch_id"));
+	        //m.put("org_code", getIniString(sh, "taifung_org_code"));
+	        m.put("mch_id", dbParams.get("merchantid"));
+	        m.put("org_code", dbParams.get("orgcode"));
 	        m.put("nonce_str", generateRandomString(32));
 	        if (StringUtils.equals(m.get("service"), "pay.qrcode.micropay")) {
-	        	m.put("term_no", getIniString(sh, "taifung_term_no"));
+	        	//m.put("term_no", getIniString(sh, "taifung_term_no"));
+	        	m.put("term_no", dbParams.get("terminalno"));
 	        	m.put("body", StringUtils.defaultIfBlank(p_map.get("body"), "EPayment"));
 	        }
 	        if (StringUtils.equalsAny(m.get("service"), "pay.qrcode.micropay", "pay.qrcode.cancel"))
@@ -314,7 +330,8 @@ public class SHA256withRSA {
             				.returnContent().asString();
             UniLog.log1("content:%s", content);*/
 
-	        String url = getIniString(sh, "taifung_url");
+	        //String url = getIniString(sh, "taifung_url");
+	        String url = dbParams.get("url1");
 	        UniLog.log1("url:%s", url);
 	        Request request = new Request.Builder()
 	                .url(url)
@@ -362,6 +379,7 @@ public class SHA256withRSA {
             	}
             }
             p_map.put("transNo", rm.get("transaction_id"));
+            p_map.put("payType", StringUtils.defaultIfBlank(taifungPaytypeMap.get(rm.get("pay_type")), rm.get("pay_type")));
             p_map.put("totalFee", String.valueOf(totalFee));
             p_map.put("transTime", String.valueOf(transTime));
             return StringUtils.equals(rm.get("ret_code"), "00") && StringUtils.equals(rm.get("status"), "2");
@@ -374,11 +392,15 @@ public class SHA256withRSA {
 		return false;
 	}
 
-	public static boolean taifungH5Payment(Map<String, String> p_map, SessionHelper sh) {
+	public static boolean taifungH5Payment(Map<String, String> p_map, SessionHelper sh, SelectUtil su) {
 		try {
-	        PublicKey publicKey = loadPublicKey(getIniString(sh, "taifung_public_key"));
-			PrivateKey privateKey = loadPrivateKey(getIniString(sh, "taifung_private_key"));
-			PublicKey systemPublicKey = loadPublicKey(getIniString(sh, "taifung_system_key"));
+			Map<String, String> dbParams = getDbParams(su, sh != null ? BiConfig.getDefaultLcrg(sh) : 1);
+	        //PublicKey publicKey = loadPublicKey(getIniString(sh, "taifung_public_key"));
+			//PrivateKey privateKey = loadPrivateKey(getIniString(sh, "taifung_private_key"));
+			//PublicKey systemPublicKey = loadPublicKey(getIniString(sh, "taifung_system_key"));
+	        PublicKey publicKey = loadPublicKey(dbParams.get("publickey"));
+	        PrivateKey privateKey = loadPrivateKey(dbParams.get("privatekey"));
+			PublicKey systemPublicKey = loadPublicKey(dbParams.get("systemkey"));
 
 	        Gson gson = new Gson();
 	        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyyMMddHHmmss");
@@ -391,7 +413,8 @@ public class SHA256withRSA {
         		"timestamp", now.format(dtf)));
 	        p_map.remove("method");
 	        Map<String, String> payloadMap = new TreeMap<>(p_map);
-	        payloadMap.put("supMchId", getIniString(sh, "taifung_mch_id"));
+	        //payloadMap.put("supMchId", getIniString(sh, "taifung_mch_id"));
+	        payloadMap.put("supMchId", dbParams.get("merchantid"));
 	        if (StringUtils.equals(method, "TFPAY008")) {
 	        	payloadMap.putAll(MapUtil.of(
 	        		"orderCurrency", StringUtils.defaultIfBlank(p_map.get("orderCurrency"), "446"),
@@ -474,6 +497,7 @@ public class SHA256withRSA {
             p_map.putAll(MapUtil.of(
            		"prepayURL", resultMap.get("prepayURL"),
            		"transNo", resultMap.get("bankSerialNo"),
+           		"payType", "H5",
            		"totalFee", String.valueOf(totalFee),
            		"transTime", String.valueOf(transTime)));
             return StringUtils.equals(headerMap.get("errorCode"), "0") && (StringUtils.equals(method, "TFPAY008") || StringUtils.equals(resultMap.get("transStatus"), "0"));
@@ -487,17 +511,23 @@ public class SHA256withRSA {
 	}
 	
 
-	public static boolean bocpayPayment(Map<String, String> p_map, SessionHelper sh) {
+	public static boolean bocpayPayment(Map<String, String> p_map, SessionHelper sh, SelectUtil su) {
 		try {
-	        PublicKey publicKey = loadPublicKey(getIniString(sh, "bocpay_public_key"));
-	        PrivateKey privateKey = loadPrivateKey(getIniString(sh, "bocpay_private_key"));
-			PublicKey systemPublicKey = loadPublicKey(getIniString(sh, "bocpay_system_key"));
+			Map<String, String> dbParams = getDbParams(su, sh != null ? BiConfig.getDefaultLcrg(sh) : 2);
+	        //PublicKey publicKey = loadPublicKey(getIniString(sh, "bocpay_public_key"));
+	        //PrivateKey privateKey = loadPrivateKey(getIniString(sh, "bocpay_private_key"));
+			//PublicKey systemPublicKey = loadPublicKey(getIniString(sh, "bocpay_system_key"));
+	        PublicKey publicKey = loadPublicKey(dbParams.get("publickey"));
+	        PrivateKey privateKey = loadPrivateKey(dbParams.get("privatekey"));
+			PublicKey systemPublicKey = loadPublicKey(dbParams.get("systemkey"));
 
 			Gson gson = new GsonBuilder().setPrettyPrinting().disableHtmlEscaping().create();
 	        Map<String, String> m = new TreeMap<>(p_map);
 	        m.put("version", getIniString(sh, "bocpay_version"));
-	        m.put("merchantId", getIniString(sh, "bocpay_merchantId"));
-	        m.put("trmNo", getIniString(sh, "bocpay_trmNo"));
+	        //m.put("merchantId", getIniString(sh, "bocpay_merchantId"));
+	        //m.put("trmNo", getIniString(sh, "bocpay_trmNo"));
+	        m.put("merchantId", dbParams.get("merchantid"));
+	        m.put("trmNo", dbParams.get("terminalno"));
 	        if (StringUtils.equalsAny(m.get("service"), "B2CPay", "C2BPay", "EMVC2BPay", "OrderCancel", "OrderRefund"))
 	        	m.put("payOrderNo", m.get("requestId"));
 	        if (StringUtils.equalsAny(m.get("service"), "B2CPay", "C2BPay", "EMVC2BPay", "OfflineResult")) {
@@ -525,7 +555,8 @@ public class SHA256withRSA {
 	        	throw new Exception("signature data verify failed");
 	        m.put("merchantSign", signatureStr);
 	        
-	        String url = getIniString(sh, useUrl2 ? "bocpay_url2" : "bocpay_url");
+	        //String url = getIniString(sh, useUrl2 ? "bocpay_url2" : "bocpay_url");
+	        String url = dbParams.get(useUrl2 ? "url2" : "url1");
 	        UniLog.log1("url:%s", url);
 	        Request request = new Request.Builder()
 	                .url(url)
@@ -577,7 +608,7 @@ public class SHA256withRSA {
             p_map.put("totalFee", String.valueOf(totalFee));
             p_map.put("transTime", String.valueOf(transTime));
             p_map.put("valTime", rm.get("valTime"));
-            p_map.put("payType", rm.get("payType"));
+            p_map.put("payType", StringUtils.defaultIfBlank(bocpayPaytypeMap.get(rm.get("payType")), rm.get("payType")));
             p_map.put("prepayURL", rm.get("payCode"));
             return StringUtils.equals(rm.get("result"), "S");
 		} catch (SocketTimeoutException e) {
@@ -685,7 +716,7 @@ public class SHA256withRSA {
         m.put("method", "TFPAY002");
         m.put("outTradeNo", "x001");
         m.put("searchType", "0");
-        UniLog.log1("ok:%b", taifungH5Payment(m, null));
+        UniLog.log1("ok:%b", taifungH5Payment(m, null, null));
 	}
 	
 	private static void taifungPaymentTest() {
@@ -700,7 +731,7 @@ public class SHA256withRSA {
         m.put("total_fee", "1000");
         m.put("body", "Test Payment");
         m.put("auth_code", "33430972390796841963");*/
-        UniLog.log1("ok:%b", taifungPayment(m, null));
+        UniLog.log1("ok:%b", taifungPayment(m, null, null));
 	}
 	
 	public static void bocpayPaymentTest() {
@@ -710,13 +741,13 @@ public class SHA256withRSA {
         m.put("amount", "100");
         m.put("authCode", "991278224336852154964");
         m.put("subject", "Test Payment");*/
-        //m.put("service", "OrderQuery");
+        m.put("service", "OrderQuery");
         //m.put("service", "OrderCancel");
-        m.put("service", "C2BPay");
-        m.put("amount", "1000");
+        //m.put("service", "C2BPay");
+        //m.put("amount", "1000");
         /*m.put("service", "Settlement");
         m.put("acDate", "20250418");*/
-        UniLog.log1("ok:%b", bocpayPayment(m, null));
+        UniLog.log1("ok:%b", bocpayPayment(m, null, null));
 	}
 
 	public static void reconPaymentTest() {
@@ -772,9 +803,25 @@ public class SHA256withRSA {
  				
 // 		UniLog.log("Verify : "+ verify(kp.getPublic(),"ABCDE".getBytes(), signedHash));
 		//downloadFile("https://svn.hellovoice.com:16081/svn/uniconn_repo/public/pmsMobile-debug-250307.apk", "", "", "/tmp/test.apk");*/
+ 		taifungPaymentTest();	
  		//taifungH5PaymentTest();	
 		//bocpayPaymentTest();
-		reconPaymentTest();
+		//reconPaymentTest();
+		//UniLog.log1("m:%s", getDbParams(null, 2));
+	}
+	
+	public static Map<String, String> getDbParams(SelectUtil su, int locationRg) throws Exception {
+		if (su == null) {
+			IniHelper ini = SessionHelper.getIniHelper("propertymgmt-170");
+			String login = ini.getString("loginTokenDatabaseLogin");
+			String pwd = ini.getString("loginTokenDatabasePassword");
+			JdbcPool jdbcPool = WebCoreUtil.getJdbcPoolByConnectionString("epaymenttest", 2, ini.getString("databaseString"), login, pwd);
+			su = new SelectUtil().init(jdbcPool);
+		}
+		TableRec tr = BiUtil.getFirstTableRec(su, "select lc_merchantid, lc_terminalno, lc_orgcode, publickey, privatekey, lc_systemkey, url1, url2 from location join keyconfig on publickey = lc_publickey where lc_rg = ?", locationRg).orElse(null);
+		if (tr == null)
+			throw new Exception("Please setup Publickey...");
+		return Arrays.stream(tr.getFieldNames()).collect(Collectors.toMap(s -> s.replace("lc_", ""), BiUtil.throwFunction(s -> tr.getFieldString(s))));
 	}
 	
     private static final int BUFFER_SIZE = 8 * 1024; // 8 KB

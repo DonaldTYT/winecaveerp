@@ -2269,7 +2269,10 @@ abstract public class SessionHelper {
 	}
 	
 	protected void cleanSessionObject(Object o) {
-		
+		if(o instanceof BiResult) {
+			UniLog.log("Calling BiResult Close");
+			((BiResult) o).close();
+		}	
 	}
 	
 	static public void logJVMStat()
@@ -2284,10 +2287,7 @@ abstract public class SessionHelper {
 				for(Iterator it = sessionData.values().iterator();it.hasNext();) {
 					Object o = it.next();
 					cleanSessionObject(o);
-					if(o instanceof BiResult) {
-						UniLog.log("Calling BiResult Close");
-						((BiResult) o).close();
-					}
+	
 				}
 				cleanExpiredSessionDataEx();
 			}

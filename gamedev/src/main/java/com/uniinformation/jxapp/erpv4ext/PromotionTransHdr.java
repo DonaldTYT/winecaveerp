@@ -20,17 +20,18 @@ import com.uniinformation.bicore.BiColumn;
 import com.uniinformation.bicore.BiGetItemProperty;
 import com.uniinformation.bicore.BiResult;
 import com.uniinformation.bicore.ColumnCell;
+import com.uniinformation.bicore.erpv4ext.BiResultLeaveApplication;
 import com.uniinformation.jx.JxField;
 import com.uniinformation.jxapp.JxZkBiBase;
 import com.uniinformation.utils.ListUtil;
 import com.uniinformation.utils.TableRec;
 import com.uniinformation.utils.UniLog;
 import com.uniinformation.utils.Wherecl;
+import com.uniinformation.utils.TranslateUtil;
 import com.uniinformation.utils.ZkUtil;
 import com.uniinformation.zkbi.JxZkBiBaseCallback;
 import com.uniinformation.zkbi.ZkBiEventListener;
 import com.uniinformation.zkbi.ZkBiMsgbox;
-import com.uniinformation.zkbi.ZkBiTranslateHelper;
 
 public class PromotionTransHdr extends JxZkBiBase {
 	private PositionInfoInput positionInfoInput;
@@ -67,7 +68,7 @@ public class PromotionTransHdr extends JxZkBiBase {
 				Date lastStartDate = getBr().getCellDate("emg_xlaststdate");
 				Date nextStartDate = getBr().getCellDate("emg_xnextstdate");
 				if (!DateUtil.isDateNull(startDate)) {
-					if (startDate.compareTo(LeaveApplication.MAX_DATE) >= 0)
+					if (startDate.compareTo(BiResultLeaveApplication.MAX_DATE) >= 0)
 						LeaveApplication.showErrorNotification("Invalid Date", (Component)field.getNativeObject());
 					else if (!DateUtil.isDateNull(lastStartDate) && startDate.compareTo(lastStartDate) <= 0)
 						LeaveApplication.showErrorNotification("Take Office Date must be more than Last Take Office Date", (Component)field.getNativeObject());
@@ -98,7 +99,7 @@ public class PromotionTransHdr extends JxZkBiBase {
 					jxSetEnable("emg_poststatus", false);
 					jxSetEnable("emg_tranreason", false);
 				}
-				if (endDate.compareTo(LeaveApplication.MAX_DATE) < 0)
+				if (endDate.compareTo(BiResultLeaveApplication.MAX_DATE) < 0)
 					p_br.getCell("emg_xnextstdate").set(DateUtil.nextday(endDate));
 				if (startDate.compareTo(joinDate) > 0) {
 					TableRec tr = p_br.getSelectUtil().getQueryResult("select emg_stdate from emgrade where emg_eid = ? and emg_enddate = ?", 
@@ -165,7 +166,7 @@ public class PromotionTransHdr extends JxZkBiBase {
 				return new ReturnMsg(false, "Please input Reason", true);
 			if (DateUtil.isDateNull(startDate))
 				return new ReturnMsg(false, "Please input Take Office Date", true);
-			if (startDate.compareTo(LeaveApplication.MAX_DATE) >= 0)
+			if (startDate.compareTo(BiResultLeaveApplication.MAX_DATE) >= 0)
 				return new ReturnMsg(false, "Invalid Take Office Date", true);
 			if (!DateUtil.isDateNull(lastStartDate) && startDate.compareTo(lastStartDate) <= 0)
 				return new ReturnMsg(false, "Take Office Date must be more than Last Take Office Date", true);
@@ -192,7 +193,7 @@ public class PromotionTransHdr extends JxZkBiBase {
 					BiCellCollection bc = recs.get(i - 1);
 					cc.getCell("emg0_enddate").set(DateUtil.prevday(bc.getDate("emg0_stdate")));
 				} else
-					cc.getCell("emg0_enddate").set(LeaveApplication.MAX_DATE);
+					cc.getCell("emg0_enddate").set(BiResultLeaveApplication.MAX_DATE);
 				if (cc.getCell("emg0_stdate").compareTo(startDate) == 0)
 					endDate = cc.getDate("emg0_enddate");
 			}
@@ -244,7 +245,7 @@ public class PromotionTransHdr extends JxZkBiBase {
 			Date joinDate = getBr().getCellDate("em_stdate");
 			Date startDate = bcc.getDate("emg0_stdate");
 			Date endDate = bcc.getDate("emg0_enddate");
-			return joinDate.compareTo(startDate) != 0 && endDate.compareTo(LeaveApplication.MAX_DATE) == 0;
+			return joinDate.compareTo(startDate) != 0 && endDate.compareTo(BiResultLeaveApplication.MAX_DATE) == 0;
 		}
 
 		@Override
@@ -257,7 +258,7 @@ public class PromotionTransHdr extends JxZkBiBase {
 					try {
 						if (positionInfoInput == null)
 							positionInfoInput = new PositionInfoInput();
-						String title = ZkBiTranslateHelper.getText(sessionHelper, "ERPV4EXT.PROMOTIONTRANSHDR.BT_UPDATE_POSITION", "BUTTON", "Update Position");
+						String title = TranslateUtil.getText(sessionHelper, "ERPV4EXT.PROMOTIONTRANSHDR.BT_UPDATE_POSITION", "BUTTON", "Update Position");
 						positionInfoInput.update(title, cl.getDate("emg0_stdate"));
 					}
 					catch(Exception ex) {

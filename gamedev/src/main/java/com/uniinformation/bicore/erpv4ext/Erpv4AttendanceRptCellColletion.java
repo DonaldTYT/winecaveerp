@@ -133,8 +133,12 @@ public class Erpv4AttendanceRptCellColletion extends BiCellCollection {
 				int i;
 				for (i = 0; i < list.size(); i++) {
 					CalotAttendDetItem item = list.get(i);
-					String inTimeStr = String.format("%02d:%02d", item.cada_intime / 60, item.cada_intime % 60);
-					String outTimeStr = String.format("%02d:%02d", item.cada_outtime / 60, item.cada_outtime % 60);
+					String inTimeStr = "";
+					String outTimeStr = "";
+					if (item.cada_intime >= 0)
+						inTimeStr = String.format("%02d:%02d", item.cada_intime / 60, item.cada_intime % 60);
+					if (item.cada_outtime >= 0)
+						outTimeStr = String.format("%02d:%02d", item.cada_outtime / 60, item.cada_outtime % 60);
 					if (i < BiResultAttendanceRpt.DEFAULT_ATTENDDET_INOUT_COLUMN_COUNT) {
 						if (StringUtils.equals(refKey, "at_xattin" + i))
 							str = inTimeStr;

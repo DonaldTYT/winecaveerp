@@ -20,6 +20,7 @@ import com.uniinformation.utils.SelectUtil;
 import com.uniinformation.utils.TableRec;
 import com.uniinformation.utils.UniLog;
 import com.uniinformation.utils.Wherecl;
+import com.uniinformation.utils.ZkUtil;
 import com.uniinformation.webcore.SessionHelper;
 
 public class BiResultLeaveChartRpt extends BiResult {
@@ -78,29 +79,28 @@ public class BiResultLeaveChartRpt extends BiResult {
 			return new HashMap<Date, Pair<String, Double>>();
 		Map<Date, Pair<String, Double>> m = cacheMap.get(eid);
 		if (m == null) {
-			m = new HashMap<Date, Pair<String, Double>>();
+			m = new HashMap<>();
 			cacheMap.put(eid, m);
+			Map<Date, Pair<String, Double>> m1 = m;
 
-			TableRec tr = getSelectUtil().getQueryResult("select * from leave where lv_eid = ? and lv_sdate <= ? and lv_edate >= ?", 
-					new Wherecl().appendArgument(eid).appendArgument(ddf.format(periodEndDate)).appendArgument(ddf.format(periodStartDate)));
-			if (tr.getRecordCount() > 0) {
-				tr.setRecPointer(0);
-				Date sdate = tr.getFieldDate("lv_sdate");
-				Date edate = tr.getFieldDate("lv_edate");
-				String stfd = tr.getFieldString("lv_stfd");
-				String enfd = tr.getFieldString("lv_enfd");
-				String reason = tr.getFieldString("lv_reason");
+			ZkUtil.getTableRecStream(getSelectUtil(), "select * from leave where lv_eid = ? and lv_sdate <= ? and lv_edate >= ?", 
+					new Wherecl().appendArgument(eid).appendArgument(ddf.format(periodEndDate)).appendArgument(ddf.format(periodStartDate))).forEach(c -> {
+				Date sdate = c.getDate("lv_sdate");
+				Date edate = c.getDate("lv_edate");
+				String stfd = c.getString("lv_stfd");
+				String enfd = c.getString("lv_enfd");
+				String reason = c.getString("lv_reason");
 				if (StringUtils.equals(stfd, "F"))
-					m.put(sdate, Pair.of(reason, 1.0));
+					m1.put(sdate, Pair.of(reason, 1.0));
 				else if (StringUtils.equals(stfd, "H"))
-					m.put(sdate, Pair.of(reason, 0.5));
+					m1.put(sdate, Pair.of(reason, 0.5));
 				for (Date date = DateUtil.nextday(sdate); date.compareTo(edate) < 0; date = DateUtil.nextday(date))
-					m.put(date, Pair.of(reason, 1.0));
+					m1.put(date, Pair.of(reason, 1.0));
 				if (StringUtils.equals(enfd, "F"))
-					m.put(edate, Pair.of(reason, 1.0));
+					m1.put(edate, Pair.of(reason, 1.0));
 				else if (StringUtils.equals(enfd, "H"))
-					m.put(edate, Pair.of(reason, 0.5));
-			}
+					m1.put(edate, Pair.of(reason, 0.5));
+			});
 		}
 		return m;
 	}

@@ -1,29 +1,21 @@
 package com.uniinformation.bicore.erpv4ext;
 
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.TreeMap;
 import java.util.Vector;
 
-import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.tuple.Pair;
-
-import com.kyoko.common.DateUtil;
-import com.kyoko.common.ReturnMsg;
+import com.google.api.client.util.Objects;
 import com.uniinformation.bicore.BiCellCollection;
 import com.uniinformation.bicore.BiResult;
 import com.uniinformation.bicore.BiView;
-import com.uniinformation.cell.CellCollection;
 import com.uniinformation.cell.CellException;
-import com.uniinformation.cell.CellVector;
+import com.uniinformation.erpv4.Erpv4Config;
 import com.uniinformation.jxapp.erpv4ext.AttendanceRecord;
+import com.uniinformation.utils.MapUtil;
+import com.kyoko.common.ReturnMsg;
 import com.uniinformation.utils.SelectUtil;
-import com.uniinformation.utils.TableRec;
 import com.uniinformation.utils.UniLog;
 import com.uniinformation.utils.Wherecl;
 import com.uniinformation.webcore.SessionHelper;
@@ -46,6 +38,7 @@ public class BiResultAttendanceRecord extends BiResult {
 		try {
 			String eid = getCellString("em_eid");
 			String attmode = getCellString("em_yflag");
+			Map<String, Object> loadMap = new HashMap<>();
 			Vector<BiCellCollection> recs = getSubLinkResult("erpv4ext.Attendance");
 			for (BiCellCollection cc : recs) {
 				Date date = cc.getDate("at_date");
@@ -54,7 +47,7 @@ public class BiResultAttendanceRecord extends BiResult {
 				List<Map<String, Date>> list = manualAttDetMap.get(date);
 				if (xflag3 && list != null) {
 					Wherecl wherecl = new Wherecl().appendArgument(eid).appendArgument(date);
-					su.executeUpdate("delete from attenddet where atd_eid = ? and atd_adate = ? and atd_atype = '00'", wherecl);
+					su.executeUpdate("delete from attenddet where atd_eid = ? and atd_date = ? and atd_atype = '00'", wherecl);
 					if (!list.isEmpty()) {
 						for (Map<String, Date> m : list) {
 							Date inTime = m.get("IN");
@@ -77,7 +70,11 @@ public class BiResultAttendanceRecord extends BiResult {
 				cc.getCell("at_xflag3").set(false);
 				AttendanceRecord.setEmlvrCompensation(su, eid, date, flag4);
 			}
-			AttendanceRecalc attl = new AttendanceRecalc(su, eid, attmode, periodStartDate, periodEndDate);
+			AttendanceRecord.Shift shift = new AttendanceRecord.Shift(MapUtil.of("em_shtar", getCellInt("em_shtar"), "gdmt_shtrg", getCellInt("gdmt_shtrg")), 
+									su, periodStartDate, periodEndDate, loadMap);
+			AttendanceRecalc attl = new AttendanceRecalc(su, eid, attmode, periodStartDate, periodEndDate, shift.getShiftArrangePubhol(), loadMap,
+					Erpv4Config.getInteger(sh, "HR_MINLATE_THESHOLD", 0), Erpv4Config.getInteger(sh, "HR_NIGHTOT_LOWERLIM", 0), Erpv4Config.getString(sh, "HR_MAIN_ATYPE"),
+					Erpv4Config.getString(sh, "HR_SEC_ATYPE"), Objects.equal(Erpv4Config.getString(sh, "HR_NIGHTOT_CROSS_LATE"), "Y"));
 			if (attl.start())
 				attl.finish();
 		} catch (Exception e) {

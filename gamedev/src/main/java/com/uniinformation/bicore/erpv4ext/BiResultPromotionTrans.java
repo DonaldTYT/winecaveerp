@@ -61,7 +61,7 @@ public class BiResultPromotionTrans extends BiResult {
 			String eid = getCellString("emg_eid");
 			Date lastStartDate = getCellDate("emg_xlaststdate");
 			Date nextStartDate = getCellDate("emg_xnextstdate");
-			Date lastEndDate = DateUtil.isDateNull(nextStartDate) ? LeaveApplication.MAX_DATE : DateUtil.prevday(nextStartDate);
+			Date lastEndDate = DateUtil.isDateNull(nextStartDate) ? BiResultLeaveApplication.MAX_DATE : DateUtil.prevday(nextStartDate);
 			if (!DateUtil.isDateNull(lastStartDate)) {
 				//update last take office end date
 				Wherecl wherecl = new Wherecl().appendArgument(lastEndDate).appendArgument(eid).appendArgument(lastStartDate);
