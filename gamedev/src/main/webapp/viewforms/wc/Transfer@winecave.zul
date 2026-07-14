@@ -1,0 +1,11 @@
+<zk xmlns:n="native">
+<style dynamic="true">
+</style>
+	<div class="zkbi-detail-toolbar-container">
+		<div class="zkbi-detail-toolbar-leftarea">
+		</div>
+		<toolbar id="detail_toolbar" align="end">
+		</toolbar>
+	</div>
+	<grid id="detail_grid"  sclass="zkbi-detail-grid"/>
+</zk>

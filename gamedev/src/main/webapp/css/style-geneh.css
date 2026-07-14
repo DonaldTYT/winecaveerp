@@ -45,7 +45,7 @@ body {
 .z-listhead-bar {
 	border-left: 1px solid #87A8BA !important;
 	border-bottom: 1px solid #87A8BA !important;
-	background: #779cb1 !important;
+	background: #305496 !important;
 }
 .z-listheader-button {
 	-webkit-box-shadow: inset 1px 0 #87A8BA !important;
@@ -296,7 +296,7 @@ input.z-textbox[disabled], input.z-decimalbox[disabled], input.z-intbox[disabled
 .zkbi-whitebg-listbox > .z-listbox-body .z-listitem-selected .z-listcell,
 .zkbi-whitebg-listbox > .z-listbox-body, 
 .zkbi-whitebg-listbox > .z-listbox-body .z-listbox-emptybody-content {
-	background:#FFF !important;  <!-- remove hover and background -->
+	background:#FFF !important;  
 }
 .zkbi-whitebg-listbox:not(.zkbi-linkcomp-listbox):not(.jxselopt) > .z-listbox-body .z-listbox-odd .z-listcell,
 .zkbi-whitebg-listbox:not(.zkbi-linkcomp-listbox):not(.jxselopt) > .z-listbox-body .z-listcell,
@@ -310,7 +310,7 @@ input.z-textbox[disabled], input.z-decimalbox[disabled], input.z-intbox[disabled
 .zkbi-inheritbg-listbox > .z-listbox-body .z-listitem-selected .z-listcell,
 .zkbi-inheritbg-listbox > .z-listbox-body, 
 .zkbi-inheritbg-listbox > .z-listbox-body .z-listbox-emptybody-content {
-	background:inherit !important;  <!-- remove hover and background -->
+	background:inherit !important;  
 }
 
 /* fix borderlayout expand bug zk8/9 begin */

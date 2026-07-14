@@ -102,61 +102,7 @@ zk.afterLoad('zul.inp', function() {
         }
     ]]>
 </script>
-<grid style="text-align:left;" id="detail_grid">
-	<columns>
-		<column align="right" hflex="min" />
-		<column hflex="1" />
-	</columns>
-	<rows>
-		<row>
-			<label hflex="1" id="lb_stm_date" value=""><custom-attributes tlkey="lb_stm_date"></custom-attributes></label>
-			<datebox hflex="1" id="stm_date" readonly="true"/>
-		</row>
-		<row>
-			<label hflex="1" id="lb_stm_ref1" value=""><custom-attributes tlkey="lb_stm_ref1"></custom-attributes></label>
-			<textbox hflex="1" id="stm_ref1"/>
-		</row>
-	<row spans="2">
-		<hlayout>
-		<button id="bt_setFrom">From Loc</button>
-		<button id="bt_setTo">To Loc</button>
-		<button id="bt_scan">Scan</button>
-		</hlayout>
-		<button id="btScanE">ScanOK</button>
-    	<textbox id="txNewBarcode">
-    	    <custom-attributes org.zkoss.zk.ui.updateByClient="true"/>
-    	</textbox>
-	</row>
-	</rows>
-</grid>
-<template name="template_Transfer_Detail">
-		<div style="text-align:left">
-			<vlayout>
-				<bandbox hflex="1" id="st_icode" use="com.uniinformation.jx.zk.ZkJxPickInput" />
-				<label hflex="1" id="st_iname"/>
-				<hlayout>
-				<div width="100px">From</div>
-				<listbox hflex="1" id="stmdko_bin" mold="select"/>
-				</hlayout>
-				<hlayout>
-				<div width="100px">To</div>
-				<bandbox hflex="1" id="stmdki_bin" use="com.uniinformation.jx.zk.ZkJxPickInput" />
-				</hlayout>
-				<hlayout>
-				<div width="100px">Qty</div>
-				<doublebox hflex="1" id="stmdko_entryqty"/>
-				<listbox width="80px" id="stmdko_entryunit" mold="select"/>
-				<!-- 
-				<combobox width="80px" id="stmdko_entryunit"/>
-				 -->
-				</hlayout>
-			</vlayout>
-		</div>
-</template>	
-	<div>
-		<label id="lb_list_" value=""/>
-		<listbox id="list_wc_StmdKl"/>	
-	</div>
-	<toolbar id="detail_toolbar"></toolbar>
-	<div id="mobile_bottom" height="200px"></div>
+	<toolbar id="detail_toolbar" align="end">
+		<button id="btSelOpt" label="SelOpt" visible="true"></button>
+	</toolbar>
 </zk>

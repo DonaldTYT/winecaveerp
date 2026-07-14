@@ -306,6 +306,7 @@ public class BiView extends BiChain {
 	boolean allowAdhocColumn = false;
 	boolean alwaysInListView = false;
 	boolean newBatchUpdate = false;
+	boolean requireInSelect = false;
 //	Vector<BiTable> lookupList = null;
 	Hashtable<String,BiColumn> columnHash; /* add to increase the performance of getting BiColumn By Name */
 	HashMap<String,BiColumn> columnHdrHash; //240206 key by hdr
@@ -353,9 +354,8 @@ public class BiView extends BiChain {
 		if(StringUtil.strpart(p_attribute, 10, 1).equals("Y")) allowUndo = true;
 		if(StringUtil.strpart(p_attribute, 11, 1).equals("Y")) allowAdhocColumn = true;
 		if(StringUtil.strpart(p_attribute, 12, 1).equals("Y")) alwaysInListView = true;
-		if(StringUtil.strpart(p_attribute, 13, 1).equals("Y")) {
-			newBatchUpdate = true;
-		}
+		if(StringUtil.strpart(p_attribute, 13, 1).equals("Y")) newBatchUpdate = true; 
+		if(StringUtil.strpart(p_attribute, 14, 1).equals("Y")) requireInSelect = true;
 //		ncStr = p_ncStr;
 		if(p_addaccess != null && !p_addaccess.trim().equals("")) addAccess = p_addaccess;
 		if(p_updaccess != null && !p_updaccess.trim().equals("")) updAccess = p_updaccess;
@@ -1454,6 +1454,12 @@ public class BiView extends BiChain {
 	}
 
 	public boolean newBatchUpdate() {
+		/*
+		 *  Add to optimize the continous batch update procedure
+		 *  when checked. The current querylist is not cleared after batch update is complted 
+		 *  so that user can continued to check and update other records
+		 *  first use ind erpv4artway -> BiView -> aw.ProductionWip
+		 */
 		return(newBatchUpdate);
 	}
 	

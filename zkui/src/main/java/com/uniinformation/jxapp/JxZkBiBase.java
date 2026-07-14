@@ -1870,6 +1870,9 @@ public class JxZkBiBase extends JxZkBase
 		    if(bc.isInvisible(sessionHelper)) continue;
 		    if(bc.getPickViewName() != null) {
 		    	JxField fd = jxAdd(bc.getLabel());
+		    	if(fd == null) {
+		    		continue;
+		    	}	    	
 		    	Component comp = (Component) fd.getNativeObject();
 		    	if(comp instanceof ZkJxPickInput) {
 		    		if(fd.getActionListner() == null) fd.addActionListener(
@@ -2666,7 +2669,7 @@ public class JxZkBiBase extends JxZkBase
 //			    BiColumn biColumn = (BiColumn) result.getColumns().elementAt(i);
 			    BiColumn biColumn = resultColumns.get(i);
 			    //UniLog.log("HAHA3:"+ biColumn.getFormatedValue(bitablerec));
-			    if(biColumn.isInvisible(sessionHelper)) {
+			    if(biColumn.isInvisible(sessionHelper) || biColumn.isHideInDetail()) {			    	
 			    	Div div = (Div) dWin.getFellowIfAny("compdiv_"+biColumn.getLabel(),true);
 			    	if(div != null) {
 						if (ZkUtil.matchesSelector(div.getParent(), ".zkbifdiv2-compdiv"))

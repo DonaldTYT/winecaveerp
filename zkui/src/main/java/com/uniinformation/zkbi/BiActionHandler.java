@@ -46,4 +46,8 @@ abstract public class BiActionHandler {
 	public ReturnMsg isRunnable(BiResult br,boolean isBatch) {
 		return(ReturnMsg.defaultOk);
 	}
+	
+	public boolean preserveListOrder() {
+		return(false);
+	}
 }

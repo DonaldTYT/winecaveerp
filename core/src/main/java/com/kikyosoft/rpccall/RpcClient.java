@@ -10,7 +10,7 @@ import com.kikyosoft.stream.SocketByteStream;
 import com.kikyosoft.utils.LogUtil;
 import com.kikyosoft.utils.ReturnMsg;
 
-public class RpcClient 
+public class RpcClient  implements AutoCloseable
 {
   private int rpcserialnum = 0;
   public String hostName = null;

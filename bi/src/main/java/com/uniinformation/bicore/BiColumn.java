@@ -129,8 +129,12 @@ public class BiColumn extends BiBase implements BiGipiPickViewInterface {
 	private String fdOptionCondition = null;
 	@Expose
 	private boolean allowPickOldInput=false;
-	
+	private boolean requireInSelect =false;	
 	transient HashSet<Comparable> selfPickList = null;
+	
+	/* allowUniDo should not be transcient, otherwise will not retained if using XML or clone view
+	 *  2026-07-03 , by DT
+	 */
 	transient boolean allowUndo = false;
 	transient String cellFormatStr = null;
 	
@@ -313,6 +317,7 @@ public class BiColumn extends BiBase implements BiGipiPickViewInterface {
 		if(parent != null) {
 			if(parent instanceof BiView) {
 				allowUndo = ((BiView) parent).allowUndo();
+				requireInSelect = (((BiView) parent).requireInSelect) ;
 			} else {
 				allowUndo = false;
 			}
@@ -1008,5 +1013,9 @@ public class BiColumn extends BiBase implements BiGipiPickViewInterface {
 	
 	public boolean getAllowPickOldInput() {
 		return(allowPickOldInput);
+	}
+
+	public boolean isHideInDetail() {
+		if(!requireInSelect) return(false); else return(!inSelect);
 	}
 }

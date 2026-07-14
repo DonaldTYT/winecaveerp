@@ -1,5 +1,6 @@
 /*
  * Optional camera/barcode helper for zkbiloader pages.
+ * 1D crop build: safe camera constraints, plus center-cropped 1D preview to remove portrait black side bars.
  *
  * Include this file only on pages that need camera support, then call:
  *   ZkBiCamera.open({ mode: "photo" });
@@ -63,6 +64,22 @@
     imageQuality: 0.92,
     scannerFps: 10,
     scannerQrboxRatio: 0.7,
+    // Set scanner1d:true, scan1d:true, oneD:true, or { "1d": true } to use
+    // a wide 1D barcode scanner viewport and 1D-only decoder formats.
+    scanner1d: false,
+    scan1d: false,
+    oneD: false,
+    "1d": false,
+    scanner1dFps: 15,
+    scanner1dQrboxWidthRatio: 0.92,
+    scanner1dQrboxHeightRatio: 0.25,
+    scanner1dFormats: ["CODE_128", "CODE_39", "CODE_93", "EAN_13", "EAN_8", "UPC_A", "UPC_E", "ITF", "CODABAR"],
+    // Optional comma-separated format filter, e.g. "code-128,qrcode".
+    // This limits the decoders without enabling the wide 1D scan geometry.
+    scantype: null,
+    // Optional override for any scanner mode. Values may be Html5QrcodeSupportedFormats
+    // constants or their names, e.g. ["CODE_128"].
+    scannerFormatsToSupport: null,
     scannerScriptUrl: "https://unpkg.com/html5-qrcode@2.3.7/html5-qrcode.min.js",
     showPreview: false,
     onCapture: null,
@@ -109,13 +126,18 @@
       "#zkbi-camera-root{display:none;position:fixed;inset:0;z-index:2147483000;background:rgba(0,0,0,.72);font-family:Arial,sans-serif;color:#f5fff5;text-align:left}" +
       "#zkbi-camera-root.zkbi-camera-open{display:block}" +
       "#zkbi-camera-panel{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:min(96vw,440px);max-height:96vh;background:#070b0a;border:1px solid #19b568;border-radius:8px;box-shadow:0 18px 60px rgba(0,0,0,.45);overflow:auto}" +
+      "#zkbi-camera-root.zkbi-camera-1d #zkbi-camera-panel{width:min(96vw,640px)}" +
       "#zkbi-camera-panel *{box-sizing:border-box}" +
       "#zkbi-camera-head{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:8px 10px;border-bottom:1px solid rgba(25,181,104,.45)}" +
       "#zkbi-camera-title{font-size:14px;font-weight:bold;color:#dfffe9;line-height:24px}" +
       "#zkbi-camera-close{width:28px;height:28px;border-radius:4px;border:1px solid #19b568;background:#101614;color:#dfffe9;cursor:pointer}" +
       "#zkbi-camera-body{padding:10px}" +
       "#zkbi-camera-viewport{position:relative;width:100%;aspect-ratio:1/1;background:#000;border:1px solid #19b568;border-radius:6px;overflow:hidden}" +
+      "#zkbi-camera-root.zkbi-camera-1d #zkbi-camera-viewport{aspect-ratio:16/9}" +
       "#zkbi-camera-video,#zkbi-camera-reader,#zkbi-camera-reader video{width:100%!important;height:100%!important;object-fit:contain!important;background:#000}" +
+      "#zkbi-camera-root.zkbi-camera-1d #zkbi-camera-reader,#zkbi-camera-root.zkbi-camera-1d #zkbi-camera-reader__scan_region{width:100%!important;height:100%!important;overflow:hidden!important;position:relative!important}" +
+      "#zkbi-camera-root.zkbi-camera-1d #zkbi-camera-reader__dashboard,#zkbi-camera-root.zkbi-camera-1d #qr-shaded-region{display:none!important}" +
+      "#zkbi-camera-root.zkbi-camera-1d #zkbi-camera-reader video{width:100%!important;height:100%!important;object-fit:cover!important;object-position:center center!important}" +
       "#zkbi-camera-reader{display:none}" +
       "#zkbi-camera-preview{display:none;width:100%;margin-top:8px;border:1px solid #19b568;border-radius:6px;background:#000}" +
       "#zkbi-camera-controls{display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-top:8px}" +
@@ -181,22 +203,36 @@
     state.created = true;
   }
 
+  function is1dScannerMode() {
+    var opts = state.options || {};
+    return !!(opts.scanner1d || opts.scan1d || opts.oneD || opts["1d"]);
+  }
+
+  function updateRootClass() {
+    if (!state.created) return;
+    var names = [];
+    if (state.visible) names.push("zkbi-camera-open");
+    if (state.mode === "scanner" && is1dScannerMode()) names.push("zkbi-camera-1d");
+    el(ids.root).className = names.join(" ");
+  }
+
   function show() {
     ensureDom();
-    el(ids.root).className = "zkbi-camera-open";
     state.visible = true;
+    updateRootClass();
   }
 
   function hide() {
-    if (state.created) el(ids.root).className = "";
     state.visible = false;
+    updateRootClass();
   }
 
   function setModeUI(mode) {
     state.mode = mode || state.mode;
-    el(ids.title).textContent = state.mode === "scanner" ? "Barcode Scanner" : "Camera";
+    el(ids.title).textContent = state.mode === "scanner" ? (is1dScannerMode() ? "1D Barcode Scanner" : "Barcode Scanner") : "Camera";
     el(ids.video).style.display = state.mode === "scanner" ? "none" : "block";
     el(ids.reader).style.display = state.mode === "scanner" ? "block" : "none";
+    updateRootClass();
   }
 
   function getTrack() {
@@ -348,7 +384,7 @@
   }
 
   function startPhoto(options) {
-    state.options = extend(state.options || defaultOptions, options || {});
+    state.options = extend(extend(defaultOptions, state.options || {}), options || {});
     show();
     setModeUI("photo");
     stopScannerOnly();
@@ -392,29 +428,104 @@
     return Promise.resolve();
   }
 
+  function getFormatListFromNames(names) {
+    if (!names || !names.length || !window.Html5QrcodeSupportedFormats) return null;
+    var supported = window.Html5QrcodeSupportedFormats;
+    var out = [];
+    for (var i = 0; i < names.length; i++) {
+      var item = names[i];
+      if (typeof item === "number") {
+        out.push(item);
+      } else if (typeof item === "string" && supported[item] != null) {
+        out.push(supported[item]);
+      }
+    }
+    return out.length ? out : null;
+  }
+
+  function getScanTypeFormats(scantype) {
+    if (!scantype) return null;
+    var values = Array.isArray(scantype) ? scantype : String(scantype).split(",");
+    var aliases = {
+      "QRCODE": "QR_CODE",
+      "QR": "QR_CODE",
+      "CODE128": "CODE_128"
+    };
+    var formats = [];
+    for (var i = 0; i < values.length; i++) {
+      var value = String(values[i]).trim().toUpperCase().replace(/[\s-]+/g, "_");
+      value = aliases[value] || value;
+      if (value && formats.indexOf(value) < 0) formats.push(value);
+    }
+    return formats.length ? formats : null;
+  }
+
+  function getScannerConstructorConfig() {
+    var formats = state.options.scannerFormatsToSupport;
+    if (!formats) formats = getScanTypeFormats(state.options.scantype);
+    if (!formats && is1dScannerMode()) formats = state.options.scanner1dFormats;
+    formats = getFormatListFromNames(formats);
+    return formats ? { formatsToSupport: formats } : {};
+  }
+
+  function getScannerCameraConfig() {
+    // Keep camera selection simple. Some mobile browsers / html5-qrcode versions
+    // show a black preview or fail silently when width/height constraints are
+    // passed here. 1D optimization is done by qrbox + format filtering instead.
+    return { facingMode: state.facingMode || "environment" };
+  }
+
+  function getScannerStartConfig() {
+    if (!is1dScannerMode()) {
+      return {
+        fps: state.options.scannerFps,
+        qrbox: function(viewWidth, viewHeight) {
+          var size = Math.floor(Math.min(viewWidth, viewHeight) * state.options.scannerQrboxRatio);
+          return { width: size, height: size };
+        }
+      };
+    }
+
+    return {
+      fps: state.options.scanner1dFps || state.options.scannerFps,
+      disableFlip: true,
+      qrbox: function(viewWidth, viewHeight) {
+        var widthRatio = state.options.scanner1dQrboxWidthRatio || 0.92;
+        var heightRatio = state.options.scanner1dQrboxHeightRatio || 0.25;
+        var width = Math.floor(viewWidth * widthRatio);
+        var height = Math.floor(viewHeight * heightRatio);
+        height = Math.max(height, Math.min(90, Math.floor(viewHeight * 0.45)));
+        height = Math.min(height, Math.floor(viewHeight * 0.45));
+        return { width: width, height: height };
+      }
+    };
+  }
+
   function startScanner(options) {
-    state.options = extend(state.options || defaultOptions, options || {});
+    state.options = extend(extend(defaultOptions, state.options || {}), options || {});
     show();
     setModeUI("scanner");
-    stopStream();
 
     if (!isSecureCameraContext()) {
       fail(new Error("Use HTTPS or localhost for camera access"));
       return Promise.reject(new Error("Camera requires HTTPS or localhost"));
     }
 
-    return ensureHtml5Qrcode().then(function() {
-      if (!state.scanner) state.scanner = new window.Html5Qrcode(ids.reader);
-      log("Starting scanner...");
+    // Make repeated scanner starts safe. If open({ mode: "scanner" }) or
+    // startScanner() is called while a scanner is already running, stop the
+    // existing Html5Qrcode instance first before starting it again.
+    return stopScannerOnly().then(function() {
+      stopStream();
+      return ensureHtml5Qrcode();
+    }).then(function() {
+      if (state.scanner && typeof state.scanner.clear === "function") {
+        try { state.scanner.clear(); } catch (ignore) {}
+      }
+      state.scanner = new window.Html5Qrcode(ids.reader, getScannerConstructorConfig());
+      log(is1dScannerMode() ? "Starting 1D barcode scanner..." : "Starting scanner...");
       return state.scanner.start(
-      { facingMode: state.facingMode || "environment" },
-      {
-        fps: state.options.scannerFps,
-        qrbox: function(viewWidth, viewHeight) {
-          var size = Math.floor(Math.min(viewWidth, viewHeight) * state.options.scannerQrboxRatio);
-          return { width: size, height: size };
-        }
-      },
+      getScannerCameraConfig(),
+      getScannerStartConfig(),
       function(text, result) {
         log("Scanned: " + text);
         if (typeof state.options.onScan === "function") state.options.onScan(text, result);
@@ -429,7 +540,7 @@
       setTimeout(function() { cacheScannerStreamAndRefresh(1); }, 120);
       setTimeout(function() { cacheScannerStreamAndRefresh(2); }, 500);
       setTimeout(function() { cacheScannerStreamAndRefresh(3); }, 1200);
-      log("Scanner ready");
+      log(is1dScannerMode() ? "1D scanner ready" : "Scanner ready");
     }).catch(function(error) {
       state.scannerRunning = false;
       setButtons(false);
@@ -582,7 +693,7 @@
   }
 
   function takeNativePhoto(options) {
-    state.options = extend(state.options || defaultOptions, options || {});
+    state.options = extend(extend(defaultOptions, state.options || {}), options || {});
     ensureDom();
     var input = el(ids.nativeInput);
     state.shouldRestartAfterNative = state.scannerRunning || !!state.stream;
@@ -664,13 +775,40 @@
     if (state.mode === "scanner") return startScanner();
     return startPhoto();
   }
+  
+  function hasCamera() {
+	  if (!navigator.mediaDevices || !navigator.mediaDevices.enumerateDevices) {
+	    return Promise.resolve(false);
+	  }
+
+	  return navigator.mediaDevices.enumerateDevices()
+	    .then(function(devices) {
+	      return devices.some(function(device) {
+	        return device.kind === 'videoinput';
+	      });
+	    })
+	    .catch(function() {
+	      return false;
+	    });
+	}
+
+  function set1dScannerMode(enabled) {
+    state.options = extend(extend(defaultOptions, state.options || {}), { scanner1d: !!enabled, scan1d: !!enabled, oneD: !!enabled, "1d": !!enabled });
+    setModeUI(state.mode);
+    if (state.visible && state.mode === "scanner") {
+      return startScanner();
+    }
+    return Promise.resolve();
+  }
 
   window.ZkBiCamera = {
+	hasCamera: hasCamera,
     open: open,
     close: close,
     stop: stop,
     startPhoto: startPhoto,
     startScanner: startScanner,
+    set1dScannerMode: set1dScannerMode,
     capturePhoto: capturePhoto,
     takeNativePhoto: takeNativePhoto,
     setTorch: setTorch,

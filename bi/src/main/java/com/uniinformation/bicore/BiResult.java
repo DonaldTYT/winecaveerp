@@ -6607,7 +6607,7 @@ public class BiResult implements GetCellInterface {
     			for(int i=0;i<aggCols.size();i++) {
 					int colIdx = aggCols.get(i);
 					if(aopSize > colIdx) {
-    					AggregateRec aggRec = getAggregateOrPivotHeader().getAggregate(i);
+    					AggregateRec aggRec = getAggregateOrPivotHeader().getAggregate(aggCols.get(i));
     					BiColumn bc = aggRec.getBiColumn(this);
     					if(bc == null) {
     						colt[i+vvv.size()] = jxf.excel_getStyleGen("General","AUTOMATIC",null,null,"alignTop");

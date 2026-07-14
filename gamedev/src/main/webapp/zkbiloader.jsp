@@ -142,6 +142,7 @@ body{
 %>
 
 </style>
+<script src="js/zkbiloader-camera.js?v=260531-01"></script>
 </head>
 
 <body class="zkbi-body">

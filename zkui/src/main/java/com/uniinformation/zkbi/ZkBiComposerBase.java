@@ -255,6 +255,7 @@ public class ZkBiComposerBase extends ZkBiComposerView implements Composer<Compo
 
 	String barcodeScanner = null;
 	String barcodeDevId = null;
+	boolean useScanner1d = false;
    	Image barcodeScannerImg = null;
 	String printerDevice = null;
 	String printerDevId = null;
@@ -1047,6 +1048,8 @@ public class ZkBiComposerBase extends ZkBiComposerView implements Composer<Compo
 			if(overrideAction != null) action = overrideAction;
 		}
 		barcodeScanner = getExecutionURLParam(comp, "BarcodeScanner");
+		useScanner1d = "WEBCAM".equals(barcodeScanner)
+				&& "Y".equals(getExecutionURLParam(comp, "scanner1d"));
 		if(!"ONDEMAND".equals(barcodeScanner)) {
 			barcodeDevId = barcodeScanner;
 		}
@@ -1475,6 +1478,20 @@ public class ZkBiComposerBase extends ZkBiComposerView implements Composer<Compo
     		idx = listIdx;
     	}
     	return(idx);
+    }
+
+    protected List<Object> getSelectionInListOrder(ListModelList p_lml, java.util.Set p_selection){
+    	List<Object> orderedSelection = new ArrayList<Object>();
+    	if (p_lml == null || p_selection == null || p_selection.size() <= 0) {
+    		return orderedSelection;
+    	}
+    	for (int i = 0; i < p_lml.size(); i++) {
+    		Object o = p_lml.get(i);
+    		if (p_selection.contains(o)) {
+    			orderedSelection.add(o);
+    		}
+    	}
+    	return orderedSelection;
     }
     
     /**
@@ -6607,6 +6624,9 @@ public class ZkBiComposerBase extends ZkBiComposerView implements Composer<Compo
      					"if (window.ZkBiCamera) {" +
      					"  ZkBiCamera.open({" +
      					"    mode: 'scanner'," +
+						(useScanner1d
+								? "    scantype : ['CODE_128','qrcode'],"
+								: "") +
      					"    autoStopAfterScan: true," +
      					"    onScan: function(text) {" +
                         "       var zkComp = getMainComp();" +
@@ -9823,32 +9843,33 @@ public class ZkBiComposerBase extends ZkBiComposerView implements Composer<Compo
         btn.addEventListener("onClick",
         new ZkBiEventListener() {
            	public void onZkBiEvent(Event event) throws Exception {	
-           			if(p_handler == null) return;
-             		final java.util.Set selection = listModelList.getSelection();
-        			if(selection.size() <= 0) {
+            			if(p_handler == null) return;
+              		final java.util.Set selection = listModelList.getSelection();
+         			if(selection.size() <= 0) {
       					Messagebox.show(
    							sessionHelper.getLabel("Please Select Items To Proceed"),
    							 sessionHelper.getLabel("Error Message"), Messagebox.OK, Messagebox.ERROR);
        					return;
-        			}
-        			ReturnMsg rtn = p_handler.beforeAction(p_result,selection.size());
-        			if(rtn != null && !rtn.getStatus()) {
+         			}
+         			final Collection actionSelection = p_handler.preserveListOrder() ? getSelectionInListOrder(listModelList, selection) : selection;
+         			ReturnMsg rtn = p_handler.beforeAction(p_result,actionSelection.size());
+         			if(rtn != null && !rtn.getStatus()) {
       					Messagebox.show(
    							rtn.getMsg(),
    							sessionHelper.getLabel("Error Message"), Messagebox.OK, Messagebox.ERROR);
        					return;
         			}
-               		if (p_handler.isUseAsync()) {
+             		if (p_handler.isUseAsync()) {
 						Map<String, Object> m = new HashMap<String, Object>();
-               			showProgressPanel(true, (ev) -> {
-               				m.put("requestStop", true);
-               			});
-               			setProgressPanelProgress(String.format("Load Record: %d/%d", 0, selection.size()), 0);
-               			Iterator<?> it = btn.getEventListeners("onBiAction").iterator();
-               			while (it.hasNext())
-               				it.remove();
-               			Iterator<?> it1 = selection.iterator();
-               			m.put("selectionIdx", -1);
+                			showProgressPanel(true, (ev) -> {
+                				m.put("requestStop", true);
+                			});
+                			setProgressPanelProgress(String.format("Load Record: %d/%d", 0, actionSelection.size()), 0);
+                			Iterator<?> it = btn.getEventListeners("onBiAction").iterator();
+                			while (it.hasNext())
+                				it.remove();
+                			Iterator<?> it1 = actionSelection.iterator();
+                			m.put("selectionIdx", -1);
 						m.put("startTime", System.currentTimeMillis());
 						btn.addEventListener("onBiAction", (ev) -> {
 							UniLog.log1("event:%s, data:%s", ev, ev.getData());
@@ -9860,8 +9881,8 @@ public class ZkBiComposerBase extends ZkBiComposerView implements Composer<Compo
 								int idx = /* listModelList.indexOf(o);*/ getTrIdxByObj(listModelList, o);
 								p_result.loadOneRecV(idx);
 								ReturnMsg rtn1 = p_handler.processAction(p_result,idx);
-								UniLog.log1("Load Record:%d,%d", m.get("selectionIdx"), selection.size());
-								setProgressPanelProgress(String.format("Load Record: %d/%d", (int)m.get("selectionIdx") + 1, selection.size()), ((int)m.get("selectionIdx") + 1) * 100 / selection.size());
+								UniLog.log1("Load Record:%d,%d", m.get("selectionIdx"), actionSelection.size());
+								setProgressPanelProgress(String.format("Load Record: %d/%d", (int)m.get("selectionIdx") + 1, actionSelection.size()), ((int)m.get("selectionIdx") + 1) * 100 / actionSelection.size());
 								if(rtn1 != null && !rtn1.getStatus()) {
 									hideProgressPanel();
 									Messagebox.show(rtn1.getMsg(), sessionHelper.getLabel("Error Message"), Messagebox.OK, Messagebox.ERROR);
@@ -9881,9 +9902,9 @@ public class ZkBiComposerBase extends ZkBiComposerView implements Composer<Compo
 							});
 						});
 						Events.sendEvent("onBiAction", btn, null);
-               		} else {
-         				int itemCnt=0;
-               			for(Iterator it=selection.iterator();it.hasNext();) {
+                		} else {
+          				int itemCnt=0;
+               			for(Iterator it=actionSelection.iterator();it.hasNext();) {
 	            				Object o = it.next();
 	            				int idx = /* listModelList.indexOf(o);*/ getTrIdxByObj(listModelList, o);
 	            				p_result.loadOneRecV(idx);

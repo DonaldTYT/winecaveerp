@@ -467,6 +467,8 @@ public class ExcelPoiXlsx extends ExcelPoi {
 					else
 						if(p_val instanceof ExcelPoiFormula) 
 							cell.setCellFormula(((ExcelPoiFormula) p_val).getFormula());
+						else
+							cell.setCellValue(p_val.toString());
 	}
 	public String excel_setValues(int p_row,int p_col,Vector v)
 	{

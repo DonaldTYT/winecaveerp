@@ -8,7 +8,7 @@ import com.kyoko.common.ReturnMsg;
 import com.uniinformation.rpccall.*;
 import com.uniinformation.utils.UniLog;
 
-public class RpcClient implements RpcClientCallableWithCallback
+public class RpcClient implements RpcClientCallableWithCallback,AutoCloseable
 {
   private int rpcserialnum = 0;
   public String hostName = null;
@@ -17,7 +17,7 @@ public class RpcClient implements RpcClientCallableWithCallback
   private RpcServletProvider service = null;
   private boolean debug = true;
   private int debugCnt = 2;
-  private boolean finalized = false;
+  private volatile boolean finalized = false;
   private int socketConnectTimeout = 0; //0 infinite
 
   public boolean isConnected()
@@ -70,11 +70,11 @@ public class RpcClient implements RpcClientCallableWithCallback
   {
     conn.removeServlet(name);
   }
+
   protected void finalize() throws Throwable
   {
     super.finalize();
-    close();
-    finalized = true;
+    if(!finalized) close();
   }
   
   public RpcClient open() throws RpcException
@@ -110,16 +110,24 @@ public class RpcClient implements RpcClientCallableWithCallback
   }
   public void close()
   {
-    if(conn == null) return;
-    try {
-    	//andrew230105 avoid exception
-    	conn.stopService();
-    }
-    catch(Exception ex) {
-    	UniLog.log("error:" + ex.getMessage());
-    }
-    conn = null;
+	  if (finalized) return;
+	  finalized = true;
+
+	  if (conn == null) return;
+
+	  try {
+	     conn.stopService();
+	  }
+	  catch(Exception ex) {
+	     UniLog.log("error:" + ex.getMessage());
+	  }
+	  conn = null;
   }
+  
+  public boolean isClosed() {
+	    return(finalized);
+  }
+  
   public Value callSegmentWithException(String segname) throws Exception {
     try {
       if (conn == null) open();

@@ -1,0 +1,79 @@
+<zk>
+<style>
+    @media only screen and (max-width:500px) {
+	 	div.zklogin {
+			width: 100%; 
+		}
+	}
+    @media only screen and (min-width:501px){  /*for model landscape mode*/
+	 	div.zklogin {
+			width: 400px; 
+		}
+	}
+<!--  210602 obsoleted replaced by zkbi-whitebg
+.grid_nohover_noselect tr.z-row td.z-row-inner, tr.z-row .z-cell,div.z-grid { 
+	background:white !important;
+	-webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+.grid_nohover_noselect .z-row-content{
+	padding-top:0px;
+	padding-bottom:0px;
+}
+div.grid_nohover_noselect div.z-grid-body {
+    height: auto !important;
+}
+-->
+.z-grid .z-row-content{
+	padding-top:0px;
+	padding-bottom:0px;
+}
+.z-grid div.z-grid-body {
+    height: auto !important;
+}
+</style>
+
+<separator spacing="20px" />
+<window border="none" sclass="zklogin" title="" apply="com.uniinformation.jx.zk.JxZkLogin" id="winMain" style="padding:0px !important;">
+    <grid renderdefer="100" hflex="1" sclass="zkbi-whitebg">
+        <columns visible="false" >
+            <column/>
+        </columns>
+        <auxhead id="auxhead" visible="false">
+            <auxheader id="ahSystemLogin" label="System Login" style="font-size:16px" image="images/icons/zkweb/085-lock-20x20.png"></auxheader>
+        </auxhead>
+        <rows>
+        	<row align="center" hflex="1">
+        		<image id="co_logo" style="padding-top:15px" width="100%" visible="false"></image>
+        	</row>
+        	<row><space height="30px"></space></row>
+            <row>
+                <textbox sclass="zkbi-im-search" id="txLoginId" hflex="1"/>
+            </row>
+        	<row><space height="20px"></space></row>
+            <row>
+                <textbox sclass="zkbi-im-search" id="txPassword" hflex="1" type="password"/>
+            </row>
+        	<row><space height="20px"></space></row>
+            <row align="center">
+                <hlayout>
+                    <zkbibutton id="btSubmit" label="Submit" disabled="true"/>
+                    <zkbibutton id="btReset" label="Reset" style="display:none"/>
+                </hlayout>
+            </row>
+        	<row><space height="10px"></space></row>
+            <row>
+              <checkbox id="cbKeepMeSignedIn" sclass="zkbi-col-label" label="Keep me signed in" checked="true" />
+            </row>
+        	<row><space height="10px"></space></row>
+        </rows>
+    </grid>
+    <span style="position:fixed; top:2px; right:2px;">
+		<s2listbox id="s2Agents" width="120px"></s2listbox>
+    </span>
+</window>
+</zk>

@@ -10,6 +10,7 @@ public class ZkBiComposerProperty extends ZkBiComposerBase {
 
 	@Override
     protected EventListener<Event> getImportButtonEventListener(BiResult result) {
-		return new ImportWithReloadButtonEventListener(result, "zkf/propertymgmt/Fileuploaddlg.zul", "upload2");
+	//	return new ImportWithReloadButtonEventListener(result, "zkf/propertymgmt/Fileuploaddlg.zul", "upload2");
+		return null;
 	}
 }

@@ -750,7 +750,8 @@ UniLog.logClass(SelectUtilSlowLog.getInstance(), "Slow SQL "+(ts1-ts0)+"ms"+": "
 			         try {
 			            try (ResultSet insertedKeyResult = st.getGeneratedKeys()) {
 			               if (insertedKeyResult != null && insertedKeyResult.next())
-			                  p_tr.setField(serialIdx, insertedKeyResult.getObject(1));
+//			                  p_tr.setField(serialIdx, insertedKeyResult.getObject(1));
+			                  p_tr.setField(serialIdx, sqlerrd1 = insertedKeyResult.getInt(1));
 			            }
 						/*
 			         } catch(NoSuchMethodException ex1) {

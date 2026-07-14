@@ -1003,6 +1003,8 @@ private static final String Q_PRODUCT_ATTR_TRANSLATIONS =
 
         int created = 0, updated = 0, failed = 0;
 
+        int cnt = products.size();
+        int idx = 0;
         for (JsonNode p : products) {
             String name = p.path("name").asText();
             String slug = p.path("slug").asText();
@@ -1080,7 +1082,8 @@ created++;
                 if (metadata.size() > 0) {
                     input.set("metadata", metadata);
                 }
-                CoreLog.log("call graphql to update product");
+                CoreLog.log("call graphql to update product "+idx + " of " + cnt);
+                idx++;
                 
                 JsonNode resp = call(M_PRODUCT_UPDATE, vars("id", productId, "input", input));
                 JsonNode errs = resp.path("data").path("productUpdate").path("errors");

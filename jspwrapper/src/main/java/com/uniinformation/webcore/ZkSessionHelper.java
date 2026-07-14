@@ -69,4 +69,5 @@ public class ZkSessionHelper extends ZkossSessionHelper {
 	}
 	public static void showErrMsg(String p_format, Object...p_args){
 	}
+	
 }
