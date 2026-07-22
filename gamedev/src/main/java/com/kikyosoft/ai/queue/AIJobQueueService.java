@@ -95,7 +95,7 @@ public class AIJobQueueService<TRequest, TResult> {
             callSuccessNotifier(record, result);
         } catch (Exception e) {
             String msg = e.getMessage();
-            if (msg == null || msg.isBlank()) {
+            if (msg == null || msg.trim().isEmpty()) {
                 msg = e.getClass().getName();
             }
             record.setErrorMessage(msg);

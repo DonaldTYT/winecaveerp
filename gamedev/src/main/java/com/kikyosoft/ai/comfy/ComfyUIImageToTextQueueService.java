@@ -1,7 +1,9 @@
 package com.kikyosoft.ai.comfy;
 
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
 import java.time.Instant;
 import java.util.Objects;
@@ -44,6 +46,10 @@ public class ComfyUIImageToTextQueueService {
         this(workflowFile, new ComfyUIImageToTextClient());
     }
 
+    public ComfyUIImageToTextQueueService(File workflowFile, String serverUrl) {
+        this(workflowFile, new ComfyUIImageToTextClient(serverUrl));
+    }
+
     public ComfyUIImageToTextQueueService(File workflowFile, ComfyUIImageToTextClient client) {
         this.workflowFile = Objects.requireNonNull(workflowFile, "workflowFile");
         this.client = Objects.requireNonNull(client, "client");
@@ -64,13 +70,13 @@ public class ComfyUIImageToTextQueueService {
     public String submit(InputStream imageStream, String fileName, String promptText) throws Exception {
         ensureStarted();
 
-        byte[] imageBytes = imageStream.readAllBytes();
+        byte[] imageBytes = readAllBytes(imageStream);
         String jobId = UUID.randomUUID().toString();
 
         JobRecord job = new JobRecord(
                 jobId,
                 fileName,
-                promptText,
+                ComfyUIImageToTextClient.resolvePromptText(promptText),
                 imageBytes,
                 Instant.now().toEpochMilli()
         );
@@ -94,7 +100,7 @@ public class ComfyUIImageToTextQueueService {
         JobRecord job = new JobRecord(
                 jobId,
                 fileName,
-                promptText,
+                ComfyUIImageToTextClient.resolvePromptText(promptText),
                 imageBytes,
                 Instant.now().toEpochMilli()
         );
@@ -201,7 +207,7 @@ public class ComfyUIImageToTextQueueService {
 
     private static String buildErrorMessage(Exception e) {
         String msg = e.getMessage();
-        if (msg == null || msg.isBlank()) {
+        if (msg == null || msg.trim().isEmpty()) {
             msg = e.getClass().getName();
         }
         return msg;
@@ -211,6 +217,16 @@ public class ComfyUIImageToTextQueueService {
         if (!started.get()) {
             throw new IllegalStateException("Queue service not started");
         }
+    }
+
+    private static byte[] readAllBytes(InputStream inputStream) throws IOException {
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        byte[] buffer = new byte[8192];
+        int bytesRead;
+        while ((bytesRead = inputStream.read(buffer)) != -1) {
+            outputStream.write(buffer, 0, bytesRead);
+        }
+        return outputStream.toByteArray();
     }
 
     public enum JobState {

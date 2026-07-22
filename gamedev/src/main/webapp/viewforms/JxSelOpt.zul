@@ -7,15 +7,73 @@
 .jxselopt .z-listbox-header {
 	display: none !important;
 }
+.jxselopt-popup .z-window-content,
+.jxselopt-solid,
+.jxselopt-solid .z-vlayout,
+.jxselopt-solid .z-toolbar,
+.jxselopt-solid .z-listbox,
+.jxselopt-solid .z-listbox-body,
+.jxselopt-solid .z-listitem,
+.jxselopt-solid .z-listcell {
+	background: #ffffff !important;
+	opacity: 1 !important;
+}
+.jxselopt-popup,
+.jxselopt-popup .z-window-header,
+.jxselopt-popup .z-window-header-move,
+.jxselopt-popup .z-caption,
+.jxselopt-popup .z-caption-content {
+	background: #305496 !important;
+	color: #ffffff !important;
+	opacity: 1 !important;
+}
+.jxselopt-popup .z-window-header,
+.jxselopt-popup .z-window-header-move {
+	min-height: 26px !important;
+	line-height: 24px !important;
+	padding: 4px 34px 4px 5px !important;
+	position: relative !important;
+	overflow: visible !important;
+}
+.jxselopt-popup .z-window-icon,
+.jxselopt-popup .z-window-close {
+	background: transparent !important;
+	color: #ffffff !important;
+	display: inline-block !important;
+	visibility: visible !important;
+	opacity: 1 !important;
+	width: 24px !important;
+	height: 24px !important;
+	line-height: 24px !important;
+	margin: 0 !important;
+	padding: 0 !important;
+	text-align: center !important;
+	position: absolute !important;
+	top: 4px !important;
+	right: 6px !important;
+	z-index: 10 !important;
+	overflow: visible !important;
+}
+.jxselopt-popup .z-window-close > * {
+	display: none !important;
+}
+.jxselopt-popup .z-window-close:before {
+	content: "X";
+	color: #ffffff !important;
+	font-family: Arial, sans-serif !important;
+	font-size: 14px !important;
+	font-weight: bold !important;
+	line-height: 24px !important;
+}
 </style>
 <zscript>
 <![CDATA[
 	import com.uniinformation.webcore.*;
-	SessionHelper sessionHelper = SessionHelper.getSessionHelper();
+	SessionHelper sessionHelper = ZkSessionHelper.getSessionHelper();
 	String selOptFilterPlaceHolder = sessionHelper.getLabel("Please input any keyword");
 ]]>
 </zscript>
-<div id="formArea" hflex="1" vflex="1">
+<div id="formArea" hflex="1" vflex="1" sclass="jxselopt-solid" style="background:#ffffff;">
 <vlayout vflex="1">
 	<toolbar hflex="1" vflex="min" style="padding:2px 2px;">
 		<!--

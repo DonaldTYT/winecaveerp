@@ -23,7 +23,7 @@ public class ZkCellActionAdvStrategy extends ZkCellActionFtrStrategy{
 		cprefix = "advs";
 		baseBrName = "vincero.AdvStrategy";
 		super.doAfterCompose(arg0);
-		formCollection.getCell("sheetTitle").set("Advance Foundamental Analysys Calculator");
+		formCollection.getCell("sheetTitle").set("Advanced Fundamental Analysis Calculator");
 		
 	}
 	

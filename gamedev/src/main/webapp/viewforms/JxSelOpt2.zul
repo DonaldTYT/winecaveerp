@@ -11,7 +11,7 @@
 <zscript>
 <![CDATA[
 	import com.uniinformation.webcore.*;
-	SessionHelper sessionHelper = SessionHelper.getSessionHelper();
+	SessionHelper sessionHelper = ZkSessionHelper.getSessionHelper();
 	String selOptFilterPlaceHolder = sessionHelper.getLabel("Please input any keyword");
 ]]>
 </zscript>

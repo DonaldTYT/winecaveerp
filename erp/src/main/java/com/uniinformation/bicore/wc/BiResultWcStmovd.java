@@ -2,8 +2,6 @@ package com.uniinformation.bicore.wc;
 
 import java.util.Vector;
 
-import org.zkoss.zk.ui.Executions;
-
 import com.uniinformation.bicore.BiCellCollection;
 import com.uniinformation.bicore.BiResult;
 import com.uniinformation.bicore.BiView;
@@ -97,8 +95,9 @@ public class BiResultWcStmovd extends BiResult {
 					col.getCell("stmd_stkqty").set(col.getCell("stmd_qty").getDouble());
 					RpcClient rpc = null;
 					if(rpc == null) {
-						SessionHelper sessionHelper = (SessionHelper) Executions.getCurrent().getSession().getAttribute(SessionHelper.getNameByContextPath(Executions.getCurrent().getContextPath()));	
-						rpc = sessionHelper.getRpcClient();
+//						SessionHelper sessionHelper = (SessionHelper) Executions.getCurrent().getSession().getAttribute(SessionHelper.getNameByContextPath(Executions.getCurrent().getContextPath()));	
+//						rpc = sessionHelper.getRpcClient();
+						rpc = sh.getRpcClient();
 					}
 					Value v = rpc.callSegment("newstcost_getuprice", 
 								new VectorUtil()

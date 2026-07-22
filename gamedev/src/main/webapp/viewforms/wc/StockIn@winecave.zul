@@ -1,0 +1,36 @@
+<zk xmlns:n="native">
+<style dynamic="true">
+div.z-grid.zkbi-detail-grid > div.z-grid-body {
+	height: auto;
+}
+div.z-grid.zkbi-detail-grid {
+   border: 1px solid transparent;
+}
+</style>
+	<div class="zkbi-detail-toolbar-container">
+		<div class="zkbi-detail-toolbar-leftarea">
+		</div>
+		<toolbar id="detail_toolbar" align="end">
+		</toolbar>
+	</div>
+	<grid id="detail_grid"  sclass="zkbi-detail-grid"/>
+	<tabbox id="zkbiListTop" width="100%" height="45vh">
+		<tabs width="100%">
+			<tab id="tabItemsTab" visible="true">Items</tab>
+			<tab id="tabChargesTab" visible="true">Charges</tab>
+		</tabs>
+		<tabpanels>
+			<tabpanel>
+				<listbox id="list_wc_StmdMi" vflex="1"></listbox>
+			</tabpanel>
+			<tabpanel>
+				<listbox id="list_wc_StmpostExt" vflex="1"></listbox>
+			</tabpanel>
+		</tabpanels>
+	</tabbox>
+	<template name="template_wc_StmdMi_stmd_itemdiv" twidth="hflex=min">
+		 	<vlayout>
+			<zkbidiv jxId="st_icode" labelPosition="invisible"></zkbidiv>
+		 	</vlayout>
+	</template>
+</zk>

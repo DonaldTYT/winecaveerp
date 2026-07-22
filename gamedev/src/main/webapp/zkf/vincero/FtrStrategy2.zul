@@ -2,7 +2,7 @@
 <div id="frxsdiv">
 	<vlayout sclass="zkbi-form-content">
 		<div align="left">
-			<label id="sheetTitle" style="font-size:30px!important;font-weight:bold!important">FTR Strategy Calculatorr</label>	
+			<label id="sheetTitle" style="font-size:30px!important;font-weight:bold!important">FTR Strategy Calculator</label>	
 		</div>
 		<vlayout>
 		<div align="center" style="color:red;"><label style="font-size:20px!important">Header</label></div>

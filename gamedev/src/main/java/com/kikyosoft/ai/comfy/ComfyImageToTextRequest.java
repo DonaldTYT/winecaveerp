@@ -12,7 +12,7 @@ public class ComfyImageToTextRequest {
         this.workflowFile = workflowFile;
         this.imageBytes = imageBytes;
         this.fileName = fileName;
-        this.promptText = promptText;
+        this.promptText = ComfyUIImageToTextClient.resolvePromptText(promptText);
     }
 
     public File getWorkflowFile() { return workflowFile; }

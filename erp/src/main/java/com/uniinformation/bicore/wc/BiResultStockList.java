@@ -7,14 +7,13 @@ import com.uniinformation.bicore.BiResult;
 import com.uniinformation.bicore.BiSchema;
 import com.uniinformation.bicore.BiTable;
 import com.uniinformation.bicore.BiView;
-import com.uniinformation.bicore.erpv4.BiResultErpv4;
 import com.uniinformation.cell.CellException;
 import com.uniinformation.utils.SelectUtil;
 import com.uniinformation.utils.UniLog;
 import com.uniinformation.utils.Wherecl;
 import com.uniinformation.webcore.SessionHelper;
 
-public class BiResultStockList extends BiResultErpv4{
+public class BiResultStockList extends BiResult {
 
 	public BiResultStockList(BiResult p_parent, BiView p_view, SelectUtil p_su, Vector p_tabList, String p_whereStr,
 			SessionHelper p_sh) throws CellException {

@@ -433,9 +433,16 @@ public class BiResult implements GetCellInterface {
 			if(ft.equals("div")) {
 				newCell=p_col.addCell(c.getLabel(),new ColumnCell("",mode));
 			}
+			if(ft.equals("html")) {
+				newCell=p_col.addCell(c.getLabel(),new ColumnCell("",mode));
+			}
 			if(ft.equals("time")) {
 				newCell=p_col.addCell(c.getLabel(),new ColumnCell(DateUtil.zeroDate,mode));
 				newCell.setDateTime(true,true);
+			}
+			if(ft.equals("binary")) {
+				byte[] ba = new byte[0];
+				newCell=p_col.addCell(c.getLabel(),new ColumnCell(ba,mode));
 			}
 			try {
 				newCell.protect(isProtected);
@@ -711,6 +718,7 @@ public class BiResult implements GetCellInterface {
 	
 	protected BiResult(BiResult p_parent,BiView p_view,SelectUtil p_su,Vector p_tabList, String p_whereStr, SessionHelper p_sh, boolean p_allowLookupItemList) throws CellException
 	{
+		try {
 		parent = p_parent;
 		biView = p_view;
 		su = p_su;
@@ -965,6 +973,10 @@ public class BiResult implements GetCellInterface {
 				versionAgent = sh.getAgent();
 			}
 		}
+		} catch (Exception xex) {
+			UniLog.log(xex);
+			throw (new CellException (xex.toString()));
+		}
 	}
 	
 	public String makeOptionSelectCondition(BiCellCollection p_col,String p_condStr) {
@@ -1092,6 +1104,81 @@ public class BiResult implements GetCellInterface {
 				target[i] = source[i];
 			}
 		} else throw new Exception ("reloadOneRec: result not unique");
+		
+		/* getSummeryView */
+			for(BiView sv : getView().getSummaryViews().keySet()) {
+				UniLog.log("Select Detail View Summary " + sv.getName());
+				ArrayList<BiColumn> cl = getView().getSummaryViews().get(sv);
+				{
+							BiResult sr = getSubLink(sv.getName());
+							BiTable master = biView.getTable();
+							BiTable detail = sv.getTable();
+							BiJoin jn = master.getJoin(detail.getName());
+							BiQueryPlan bqp = new BiQueryPlan(0);
+							String inFieldName;
+								String mjAliase = String.format("%s_%s", master.getDbtName(),detail.getDbtName());
+								bqp.masterTabe = String.format("%s %s", master.getDbtName(),mjAliase);
+								bqp.masterJoinStr = "";
+								for(int j = 0;j<jn.getJoinCount();j++) {
+									if(!StringUtils.isBlank(bqp.masterJoinStr)) bqp.masterJoinStr += " and ";
+									bqp.masterJoinStr += String.format("%s.%s = %s"
+											,mjAliase
+											,jn.getFromField(j).fieldName
+											,jn.getToField(j).getFullName()
+											);
+								}
+								bqp.keyField = String.format("%s.%s", mjAliase,master.getSerialId());
+								inFieldName = master.getSidField();
+							sr.clearCondition();
+//							sr.addCustomCondition(dbSubCond.toString());
+							sr.loadSerialMap(false, false, bqp);
+							int idx = bqp.queryStr.indexOf("from");
+							String selS = bqp.queryStr.substring(0,idx);
+							String fromS = bqp.queryStr.substring(idx+4);
+							String[]tabs = fromS.split(",");
+							fromS = " from " + bqp.masterTabe;
+							for(String sss : tabs) {
+								if(!bqp.masterTabe.equals(sss.trim())) {
+									fromS += "," + sss.trim();
+								}
+							}
+
+							int inCnt = 0;
+							int maxIn = 1500;
+							Hashtable <Object,HashSet<Integer> >shash = new Hashtable<Object,HashSet<Integer>>();
+							StringBuffer inStr = new StringBuffer(" and " + bqp.keyField + " in (");
+//							for(int i=resultTr.getRecordCount()-1;i>=0;i--) {
+							BiSchema sch = getView().getSchema();
+								Integer sid = (Integer) resultTr.getField(0,p_idx);
+								if(useSummaryCache) {
+									Object[] cache = sch.getSummaryCache(getView(), sr.getView(), sid);
+									if(cache != null) {
+										resultTr.setRecPointer(p_idx);
+										int cidx = 1;
+										for(BiColumn bc: cl) {
+											Object o = cache[cidx];
+											cidx++;
+											ColumnAttr ca = columnAttrs.get(bc.getLabel());
+											resultTr.setField(ca.fdIdx,o);
+										}
+										continue;
+									}
+								}
+								HashSet<Integer>trSet = shash.get(sid);
+								if(trSet == null) {
+									trSet = new HashSet<Integer>();
+									shash.put(sid, trSet);
+									if(inCnt > 0) inStr.append(",");
+									inStr.append(""+resultTr.getField(0,p_idx));	
+									inCnt++;
+								}
+								trSet.add(p_idx);
+							querySummaryDetail(cl, bqp, inStr, selS, fromS, shash,sr.getView(),sch);
+							sr = null;
+				
+				}
+			}
+		
 		curLoadRecIdx = -1;
 	}
 	
@@ -1772,15 +1859,7 @@ public class BiResult implements GetCellInterface {
 				
 				}
 			}
-//			if(conditionList != null && conditionList.get(null) != null) {
-//				Condition cond = conditionList.get(null);
-//				for(int i=resultTr.getRecordCount()-1;i>=0;i--) {
-//					loadOneRec(i,currentCol,false);
-//					if(!cond.eval(currentCol)) {
-//						resultTr.deleteRecord(i);
-//					}
-//				}
-//			}
+			rtn = afterLoadSerialMap1();
 			Condition nullCond = (conditionList == null ? null : conditionList.get(null));
 			nullCond = addExtraNullCond(nullCond);
 			if(nullCond != null) {
@@ -2032,6 +2111,9 @@ public class BiResult implements GetCellInterface {
 	 * @return
 	 */
 	protected ReturnMsg afterLoadSerialMap() {
+		return(ReturnMsg.defaultOk);
+	}
+	protected ReturnMsg afterLoadSerialMap1() {
 		return(ReturnMsg.defaultOk);
 	}
 	protected ReturnMsg afterLoadSerialMap2() {
@@ -3488,7 +3570,7 @@ public class BiResult implements GetCellInterface {
 		return(viewList);
 	}
 	
-	public JSONArray getListColumnsAsJson() {
+	public JSONArray getListColumnsAsJson() throws JSONException {
 		JSONArray ja = new JSONArray();
 		for(BiColumn bc : getListColumns()) {
 			JSONObject jo = new JSONObject();

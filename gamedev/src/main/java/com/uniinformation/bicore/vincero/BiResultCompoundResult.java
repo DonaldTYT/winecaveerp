@@ -24,7 +24,6 @@ import com.uniinformation.utils.ZkUtil;
 import com.uniinformation.webcore.SessionHelper;
 import com.uniinformation.zkf.ZkForm;
 
-//import javafx.scene.control.ListCell;
 
 public class BiResultCompoundResult extends BiResultExcelSheet {
 	

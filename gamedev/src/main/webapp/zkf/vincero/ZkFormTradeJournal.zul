@@ -345,6 +345,9 @@
 					<listheader width="200px">Trade</listheader>
 					<listheader width="100px">P/L</listheader>
 					<listheader width="100px">Reward to Risk</listheader>
+					<!-- 
+					<listheader width="100px">RTRStr</listheader>
+					 -->
 					<listheader width="100px">Setup Frame</listheader>
 					<listheader width="160px">Time Taken</listheader>
 					<listheader width="180px">Reason For Trade</listheader>
@@ -378,8 +381,13 @@
 					</listcell>
 					<listcell style="vertical-align:top;"> 
 						<doublebox id="trnew_pl" style="background-color: yellow;"> </doublebox> </listcell>
-					<listcell style="vertical-align:top;"> 
+						<!-- 
+					<listcell style="vertical-align:top;">
 						<doublebox id="trnew_rewardtorisk" style="background-color: yellow;"> </doublebox>
+					</listcell>
+						 -->
+					<listcell style="vertical-align:top;">
+						<textbox id="trnew_rtr2" style="background-color: yellow;"> </textbox>
 					</listcell>
 					<listcell style="vertical-align:top;"> <textbox style="background-color: yellow;" id="trnew_timeframe" > </textbox> </listcell>
 					<listcell style="vertical-align:top;"> <datebox id="trnew_timetaken" format="long+medium" width="160px"> </datebox> </listcell>
@@ -399,6 +407,8 @@
         <div style="width: 100%; text-align: center;">
             <button id="plotButton" class="btn_Chart" label="Plot Chart"/>
             <button id="clearButton" class="btn_Chart" label="Clear Chart"/>
+            <button id="btnSaveAs" class="btn_Chart" label="Save As"/>
+            <button id="btnLoadFrom" class="btn_Chart" label="Load From"/>
         </div>
 
         </hbox>

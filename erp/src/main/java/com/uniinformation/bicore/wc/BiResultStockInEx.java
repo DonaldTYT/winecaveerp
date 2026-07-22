@@ -9,11 +9,13 @@ import com.kyoko.common.ReturnMsg;
 import com.uniinformation.bicore.BiCellCollection;
 import com.uniinformation.bicore.BiResult;
 import com.uniinformation.bicore.BiView;
+import com.uniinformation.cell.CellCollection;
 import com.uniinformation.cell.CellException;
 import com.uniinformation.rpccall.RpcClient;
 import com.uniinformation.rpccall.Value;
 import com.uniinformation.utils.SelectUtil;
 import com.uniinformation.utils.TableRec;
+import com.uniinformation.utils.UniLog;
 import com.uniinformation.utils.VectorUtil;
 import com.uniinformation.utils.Wherecl;
 import com.uniinformation.webcore.SessionHelper;
@@ -37,7 +39,32 @@ public class BiResultStockInEx extends BiResultStockIn {
 			ptype = p_ptype;
 		}
 	}
-	
+	@Override
+	protected ReturnMsg biBeforeAddCurrent(CellCollection pcol) {
+		ReturnMsg rtnMsg = super.biBeforeAddCurrent(pcol);
+		if(rtnMsg != null && !rtnMsg.getStatus()) return(rtnMsg);
+		try {
+			cal_storage_charge();
+		} catch (Exception ex) {
+			UniLog.log(ex);;
+			return(new ReturnMsg(false,ex.toString()));
+		}
+		if(rtnMsg != null && !rtnMsg.getStatus()) return(rtnMsg);
+		return(new ReturnMsg(true));
+	}
+	@Override
+	protected ReturnMsg biBeforeUpdateCurrent(CellCollection pcol) {
+		ReturnMsg rtnMsg = super.biBeforeUpdateCurrent(pcol);
+		if(rtnMsg != null && !rtnMsg.getStatus()) return(rtnMsg);
+		try {
+			cal_storage_charge();
+		} catch (Exception ex) {
+			UniLog.log(ex);;
+			return(new ReturnMsg(false,ex.toString()));
+		}
+		if(rtnMsg != null && !rtnMsg.getStatus()) return(rtnMsg);
+		return(new ReturnMsg(true));
+	}	
 	public BiResultStockInEx(BiResult p_parent, BiView p_view, SelectUtil p_su, Vector p_tabList, String p_whereStr,
 			SessionHelper p_sh) throws CellException {
 		super(p_parent, p_view, p_su, p_tabList, p_whereStr, p_sh);
@@ -287,6 +314,9 @@ public class BiResultStockInEx extends BiResultStockIn {
 			BiCellCollection bc = IM_arr.get(i);
 			if(!bc.getCellString("or_cocode").equals("WINECAVE")) {
 				double storvol = storageutil_cal_volume(bc.getCellInt("stmd_irg"),bc.getCellString("stmd_entryunit"),bc.getCellDouble("stmd_entryqty"));
+				if(bc.testCell("stmd_nref4") != null) {
+					bc.testCell("stmd_nref4").set(storvol);
+				}
 				double imstorvol;
 				if(getCellString("stm_ref4").equals("STOR")) {
 					sumintarray("wc.StmpostExt",2,bc.getCellString("or_cocode"),"ST",storvol,"stmp_cocode","stmp_ptype","stmp_svol");

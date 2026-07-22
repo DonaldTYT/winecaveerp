@@ -1,5 +1,7 @@
 package com.kikyosoft.config;
 
+import java.util.Set;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -8,6 +10,16 @@ import org.springframework.security.web.SecurityFilterChain;
 
 @Configuration
 public class SecurityConfig {
+
+  private static final Set<String> BLACKLISTED_IPS = Set.of(
+      "192.168.46.104",
+      "192.168.46.105"
+  );
+
+  private static final Set<String> BLACKLISTED_IP_ALLOWED_ERP_ENDPOINTS = Set.of(
+      "/erp/logout",
+      "/erp/getloginid"
+  );
 
   @Bean
   SecurityFilterChain security(HttpSecurity http) throws Exception {
@@ -34,6 +46,18 @@ public class SecurityConfig {
 
       // Allow public access to GraphQL, static assets, and the ERP login endpoint
       .authorizeRequests(auth -> auth
+        // Blacklisted IPs may use logout/getloginid, but no other ERP endpoint
+        .requestMatchers(request -> {
+          String clientIp = request.getRemoteAddr();
+          if (!BLACKLISTED_IPS.contains(clientIp)) {
+            return false;
+          }
+
+          String path = request.getRequestURI().substring(request.getContextPath().length());
+          boolean isErpRequest = "/erp".equals(path) || path.startsWith("/erp/");
+          return isErpRequest && !BLACKLISTED_IP_ALLOWED_ERP_ENDPOINTS.contains(path);
+        }).denyAll()
+
         // ERP login endpoint (both GET and POST)
         .antMatchers(HttpMethod.GET, "/erp/login").permitAll()
         .antMatchers(HttpMethod.POST, "/erp/login").permitAll()

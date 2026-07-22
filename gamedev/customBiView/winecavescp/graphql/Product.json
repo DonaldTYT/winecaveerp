@@ -1,0 +1,10 @@
+[
+  {
+    "label": "storg_name",
+    "header": "Origin"
+  },
+  {
+    "label": "stbd_appellation",
+    "header": "Appellation"
+  }
+]

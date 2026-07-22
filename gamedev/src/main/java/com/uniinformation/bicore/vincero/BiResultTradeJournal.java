@@ -50,8 +50,10 @@ public class BiResultTradeJournal extends BiResultExcelSheet {
 		}
 		*/
 		HashSet<BiTable> ht = super.addExtraWhereStr(p_where, p_hash);
-		p_where.andUniop("tradejournal.tradj_loginid", "=", sh.getVcode());
-		p_where.andUniop("tradejournal.tradj_key", "=", contentKey);
+		if(!getSessionHelper().hasAccessRight("#alltradejn")) {
+			p_where.andUniop("tradejournal.tradj_loginid", "=", sh.getVcode());
+			p_where.andUniop("tradejournal.tradj_key", "=", contentKey);
+		}
 		return(ht);
 	}
 	

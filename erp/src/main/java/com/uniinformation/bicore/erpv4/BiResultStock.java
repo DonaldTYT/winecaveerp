@@ -85,6 +85,7 @@ public class BiResultStock extends BiResultErpv4 {
 	public BiResultStock(BiResult p_parent,BiView p_view,SelectUtil p_su,Vector p_tabList, String p_whereStr, SessionHelper p_sh) throws CellException
 	{
 		super(p_parent,p_view,p_su,p_tabList, p_whereStr, p_sh);
+		if(getSubLinks() != null) {
 		for(BiResult sr : getSubLinks()) {
 			if(sr.getView().getTable().getName().equals("stmovd_any")) {
 				stmdLinkName = sr.getView().getName();
@@ -92,6 +93,7 @@ public class BiResultStock extends BiResultErpv4 {
 			if(sr.getView().getTable().getName().equals("stloc")) {
 				stlocLinkName = sr.getView().getName();
 			}
+		}
 		}
 		UniLog.log("BiResultStock Used");
 	}
@@ -588,10 +590,12 @@ public class BiResultStock extends BiResultErpv4 {
 				wcl1.appendString(" and st_lcrg = " + lcrg).stripAnd();
 				p_where	.andWherecl(wcl1);
 			} 
+			if(Erpv4Config.useStockGen(getSessionHelper())) {
 			if(getCell("stg_cocode") != null) {
 				Wherecl wcl1 = new Wherecl();
 				wcl1.appendString(" and stg_cocode = '"+cocode+"' ").stripAnd();
 				p_where.andWherecl(wcl1);
+			}
 			}
 			if(getCell("stl1_cocode") != null) {
 				Wherecl wcl1 = new Wherecl();

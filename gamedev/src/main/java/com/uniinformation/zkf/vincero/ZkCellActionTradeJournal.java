@@ -180,8 +180,14 @@ public class ZkCellActionTradeJournal extends ZkCellActionWorkSheet  {
 			lc.appendChild(new Label( df.format(baseBr.getCell("tradj_pl").getDouble())));
 			li.appendChild(lc);
 
+			/*
 			lc = new Listcell();lc.setStyle("vertical-align:top;");
 			lc.appendChild(new Label( df.format(baseBr.getCell("tradj_rewardtorisk").getDouble())));
+			li.appendChild(lc);
+			*/
+
+			lc = new Listcell();lc.setStyle("vertical-align:top;");
+			lc.appendChild(new Label( baseBr.getCellString("tradj_rtr2")));
 			li.appendChild(lc);
 
 			lc = new Listcell();lc.setStyle("vertical-align:top;");

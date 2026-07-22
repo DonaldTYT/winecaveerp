@@ -1,0 +1,156 @@
+<zk xmlns:n="native">
+<style dynamic="true">
+div.product-detail-form {
+	background: #f7f7f7;
+	padding: 8px 10px 12px 10px;
+}
+div.product-section {
+	background: #ffffff;
+	border: 1px solid #c8c8c8;
+	padding: 8px;
+	margin-bottom: 8px;
+}
+div.product-section-title {
+	font-weight: bold;
+	color: #305496;
+	margin-bottom: 6px;
+}
+div.product-text-section {
+	min-height: 305px;
+}
+div.product-photo-section {
+	min-height: 305px;
+}
+div.product-detail-form .z-hlayout-inner {
+	vertical-align: top;
+}
+div.product-detail-form .z-vlayout-inner {
+	padding-bottom: 3px;
+}
+div.z-grid.zkbi-detail-grid > div.z-grid-body {
+	height: auto;
+}
+div.z-grid.zkbi-detail-grid {
+	border: 1px solid transparent;
+}
+</style>
+	<div class="zkbi-detail-toolbar-container">
+		<div class="zkbi-detail-toolbar-leftarea">
+		</div>
+		<toolbar id="detail_toolbar" align="end">
+		</toolbar>
+	</div>
+	<div sclass="product-detail-form">
+		<div sclass="product-section product-main-section">
+			<bs-row>
+				<div sclass="col-12 col-lg-8">
+					<bs-row>
+						<div sclass="col-12 col-lg-5">
+							<zkbidiv jxId="mt_tpname" labelWidth="95px" compWidth="180px"></zkbidiv>
+							<zkbidiv jxId="mt_tpcname" labelWidth="95px" compWidth="180px"></zkbidiv>
+							<zkbidiv jxId="storg_name" labelWidth="95px" compWidth="180px"></zkbidiv>
+						</div>
+						<div sclass="col-12 col-lg-7">
+							<hlayout>
+								<zkbidiv jxId="stbd_name" labelWidth="70px" compWidth="230px"></zkbidiv>
+								<zkbidiv jxId="st_msize3" labelWidth="65px" compWidth="80px"></zkbidiv>
+							</hlayout>
+							<hlayout>
+								<zkbidiv jxId="stbd_appellation" labelWidth="70px" compWidth="230px"></zkbidiv>
+								<zkbidiv jxId="st_maturity" labelWidth="65px" compWidth="135px"></zkbidiv>
+							</hlayout>
+							<hlayout>
+								<zkbidiv jxId="stbd_cappellation" labelWidth="70px" compWidth="230px"></zkbidiv>
+								<zkbidiv jxId="st_mszrange" labelWidth="65px" compWidth="135px"></zkbidiv>
+							</hlayout>
+						</div>
+					</bs-row>
+					<zkbidiv jxId="st_iname" labelWidth="95px" compWidth="760px"></zkbidiv>
+					<zkbidiv jxId="st_einame" labelWidth="95px" compWidth="760px"></zkbidiv>
+				</div>
+				<div sclass="col-12 col-lg-4">
+					<hlayout>
+						<zkbidiv jxId="st_score0" labelWidth="70px" compWidth="70px"></zkbidiv>
+						<zkbidiv jxId="st_score1" labelWidth="35px" compWidth="70px"></zkbidiv>
+					</hlayout>
+					<hlayout>
+						<zkbidiv jxId="st_obsolete" labelWidth="70px" compWidth="50px"></zkbidiv>
+						<zkbidiv jxId="st_issalable" labelWidth="85px" compWidth="50px"></zkbidiv>
+					</hlayout>
+					<zkbidiv jxId="st_remark" labelWidth="70px" compWidth="300px"></zkbidiv>
+					<zkbidiv jxId="pdpi_hashtag" labelWidth="70px" compWidth="300px"></zkbidiv>
+					<zkbidiv jxId="st_remark2" labelWidth="70px" compWidth="300px"></zkbidiv>
+				</div>
+			</bs-row>
+		</div>
+
+		<bs-row>
+			<div sclass="col-12 col-lg-6">
+				<div sclass="product-section">
+					<div sclass="product-section-title">Codes and Units</div>
+					<hlayout>
+						<zkbidiv jxId="st_origin" labelWidth="110px" compWidth="150px"></zkbidiv>
+						<zkbidiv jxId="st_oicode" labelWidth="120px" compWidth="150px"></zkbidiv>
+					</hlayout>
+					<hlayout>
+						<zkbidiv jxId="st_icode" labelWidth="110px" compWidth="150px"></zkbidiv>
+						<zkbidiv jxId="st_irg" labelWidth="120px" compWidth="90px"></zkbidiv>
+					</hlayout>
+					<hlayout>
+						<zkbidiv jxId="st_unitcode" labelWidth="110px" compWidth="90px"></zkbidiv>
+						<zkbidiv jxId="st_unit" labelWidth="120px" compWidth="90px"></zkbidiv>
+					</hlayout>
+					<hlayout>
+						<zkbidiv jxId="st_msize1" labelWidth="110px" compWidth="90px"></zkbidiv>
+						<zkbidiv jxId="st_msize2" labelWidth="120px" compWidth="90px"></zkbidiv>
+					</hlayout>
+					<zkbidiv jxId="st_barcode" labelWidth="110px" compWidth="260px"></zkbidiv>
+				</div>
+
+				<div sclass="product-section product-text-section">
+					<div sclass="product-section-title">Description</div>
+					<zkbidiv jxId="stnd_note" labelWidth="95px" compWidth="500px"></zkbidiv>
+					<zkbidiv jxId="pdpi_comments" labelWidth="95px" compWidth="500px"></zkbidiv>
+				</div>
+			</div>
+
+			<div sclass="col-12 col-lg-6">
+				<div sclass="product-section">
+					<div sclass="product-section-title">Cost, Price and Web</div>
+					<hlayout>
+						<zkbidiv jxId="st_standardcost" labelWidth="120px" compWidth="90px"></zkbidiv>
+						<zkbidiv jxId="st_standardcostcur" labelWidth="45px" compWidth="65px"></zkbidiv>
+					</hlayout>
+					<hlayout>
+						<zkbidiv jxId="st_standardprice" labelWidth="120px" compWidth="90px"></zkbidiv>
+						<zkbidiv jxId="st_standardcur" labelWidth="45px" compWidth="65px"></zkbidiv>
+					</hlayout>
+					<hlayout>
+						<zkbidiv jxId="st_retailprice" labelWidth="120px" compWidth="90px"></zkbidiv>
+						<zkbidiv jxId="st_onsellqty" labelWidth="85px" compWidth="90px"></zkbidiv>
+					</hlayout>
+					<hlayout>
+						<zkbidiv jxId="st_lastsprice" labelWidth="120px" compWidth="90px"></zkbidiv>
+						<zkbidiv jxId="st_lastpcost" labelWidth="85px" compWidth="90px"></zkbidiv>
+					</hlayout>
+				</div>
+
+				<div sclass="product-section product-photo-section">
+					<div sclass="product-section-title">Photo</div>
+					<zkbidiv jxId="pdpi_photoimg" labelPosition="invisible" compWidth="300px"></zkbidiv>
+					<div sclass="product-section-title">System</div>
+					<zkbidiv jxId="st_slug" labelWidth="80px" compWidth="360px"></zkbidiv>
+					<hlayout>
+						<zkbidiv jxId="st_cdate" labelWidth="80px" compWidth="110px"></zkbidiv>
+						<zkbidiv jxId="st_cuser" labelWidth="80px" compWidth="90px"></zkbidiv>
+					</hlayout>
+					<hlayout>
+						<zkbidiv jxId="st_udate" labelWidth="80px" compWidth="110px"></zkbidiv>
+						<zkbidiv jxId="st_uuser" labelWidth="80px" compWidth="90px"></zkbidiv>
+					</hlayout>
+				</div>
+			</div>
+		</bs-row>
+		<grid id="detail_grid" sclass="zkbi-detail-grid"/>
+	</div>
+</zk>

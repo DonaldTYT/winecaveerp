@@ -5642,4 +5642,10 @@ abstract public class SessionHelper {
 		if(!useJxFormG2) return(false);
 		return(newMobileScreenAdjust);
 	}
+	public static void showMsg(String p_format, Object...p_args){
+	}
+	public static void showWarnMsg(String p_format, Object...p_args){
+	}
+	public static void showErrMsg(String p_format, Object...p_args){
+	}
 }

@@ -20,7 +20,7 @@ import com.uniinformation.utils.ImageUtil;
 import com.uniinformation.utils.SelectUtil;
 import com.uniinformation.utils.TableRec;
 import com.uniinformation.utils.UniLog;
-import com.uniinformation.utils.ZkUtil;
+import com.uniinformation.utils.BiUtil;
 import com.uniinformation.webcore.SessionHelper;
 
 import org.json.JSONArray;

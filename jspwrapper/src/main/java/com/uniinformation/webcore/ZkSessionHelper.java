@@ -57,17 +57,17 @@ public class ZkSessionHelper extends ZkossSessionHelper {
 			return(null);
 		}
 	}
-	@Override
-	public String getWebContentRealPath(String p_path, boolean p_withSeparator) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-	
-	public static void showMsg(String p_format, Object...p_args){
-	}
-	public static void showWarnMsg(String p_format, Object...p_args){
-	}
-	public static void showErrMsg(String p_format, Object...p_args){
-	}
+//	@Override
+//	public String getWebContentRealPath(String p_path, boolean p_withSeparator) {
+//		// TODO Auto-generated method stub
+//		return null;
+//	}
+//	
+//	public static void showMsg(String p_format, Object...p_args){
+//	}
+//	public static void showWarnMsg(String p_format, Object...p_args){
+//	}
+//	public static void showErrMsg(String p_format, Object...p_args){
+//	}
 	
 }

@@ -1081,4 +1081,17 @@ public class Erpv4Config {
 		}
 		return(stlcrg);
 	}
+	
+	public static boolean useStockGen(SessionHelper sp) {
+		Boolean useStg = (Boolean) sp.getSessionData("USESTOCKGEN");
+		if(useStg == null) {
+			if("Y".equals(getString(sp,"NoStockGen"))) {
+				useStg = false;
+			} else {
+				useStg = true;
+			}
+			sp.putSessionData("USESTOCKGEN",useStg);
+		}
+		return(useStg);
+	}
 }

@@ -1,0 +1,89 @@
+<zk xmlns:n="native">
+<style dynamic="true">
+div.z-grid.zkbi-detail-grid > div.z-grid-body {
+	height: auto;
+}
+div.z-grid.zkbi-detail-grid {
+   border: 1px solid transparent;
+}
+div.list_wc_StmdMoSi td.z-listcell {
+	vertical-align: top;
+}
+div.list_wc_StmdMoSi td.z-listbox-footer {
+	background: white;
+}
+</style>
+
+	<div class="zkbi-detail-toolbar-container">
+		<div class="zkbi-detail-toolbar-leftarea">
+		</div>
+		<toolbar id="detail_toolbar" align="end">
+		</toolbar>
+	</div>
+	<tabbox id="zkbiListTop" width="100%" height="75vh">
+		<tabs width="100%">
+			<tab id="tabInfoTab" visible="true">Information</tab>
+			<tab id="tabItemsTab" visible="true">Items</tab>
+			<tab id="tabConsgnTab" visible="true">Consigments</tab>
+		</tabs>
+		<tabpanels>
+			<tabpanel> 
+				<grid style="text-align:left;" id="detail_grid"> </grid>
+			</tabpanel>
+			<tabpanel> 
+				<listbox id="list_wc_StmdMoSi" vflex="1"></listbox>
+			</tabpanel>
+			<tabpanel> 
+				<listbox id="list_wc_StmpostExt" vflex="1"></listbox>
+			</tabpanel>
+		</tabpanels>	
+	</tabbox>
+	<template name="template_wc_StmdMoSi_stmd_numdiv" twidth="hflex=min">
+		 	<vlayout>
+			<zkbidiv jxId="stmd_itemno" labelPosition="invisible"></zkbidiv>
+		 	</vlayout>
+	</template>
+	<template name="template_wc_StmdMoSi_stmd_itemdiv" twidth="hflex=min">
+		 	<vlayout>
+			<hlayout>
+			<zkbidiv jxId="st_icode" labelPosition="invisible"></zkbidiv>
+			<zkbidiv jxId="sttp_name" labelPosition="invisible"></zkbidiv>
+			<zkbidiv jxId="mt_tpname" labelPosition="invisible"></zkbidiv>
+			</hlayout>
+			<hlayout>
+			<zkbidiv jxId="stbd_name" labelPosition="invisible"></zkbidiv>
+			<zkbidiv jxId="st_msize3" labelPosition="invisible"></zkbidiv>
+			</hlayout>
+			<hlayout>
+			<zkbidiv jxId="stbd_appellation" labelPosition="invisible"></zkbidiv>
+			<zkbidiv jxId="storg_name" labelPosition="invisible"></zkbidiv>
+			</hlayout>
+		 	</vlayout>
+	</template>
+	<template name="template_wc_StmdMoSi_stmd_batchdiv" twidth="hflex=min">
+		 	<vlayout>
+		 	<hlayout>
+			<zkbidiv jxId="or_org" ></zkbidiv>
+			<zkbidiv jxId="or_ocode" labelPosition="invisible"></zkbidiv>
+		 	</hlayout>
+			<zkbidiv jxId="stmd_bin"></zkbidiv>
+			<hlayout>
+			<zkbidiv jxId="or_cocode"></zkbidiv>
+			<zkbidiv jxId="or_vcode" labelPosition="invisible"></zkbidiv>
+			</hlayout>
+		 	</vlayout>
+	</template>
+	<template name="template_wc_StmdMoSi_stmd_pricediv" twidth="hflex=min">
+		 	<vlayout>
+		 	<hlayout>
+			<zkbidiv jxId="stmd_inputqty"></zkbidiv>
+			<zkbidiv jxId="stmd_entryunit" labelPosition="invisible"></zkbidiv>
+		 	</hlayout>
+		 	<hlayout>
+			<zkbidiv jxId="stmd_uprice"></zkbidiv>
+			<zkbidiv jxId="stmd_flag2" labelWidth="80px" compWidth ="100px"></zkbidiv>
+		 	</hlayout>
+			<zkbidiv jxId="stmd_fref1" ></zkbidiv>
+		 	</vlayout>
+	</template>
+</zk>

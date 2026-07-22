@@ -60,6 +60,10 @@ public class ColumnCell extends Cell {
 		// TODO Auto-generated constructor stub
 		super(s,mode);
 	}
+	public ColumnCell(byte[] ba, int mode) {
+		// TODO Auto-generated constructor stub
+		super(ba);
+	}
 	public void setBiColumn(BiColumn p_col,BiCellCollection p_cl,BiResult p_br) {
 		col = p_col;
 		cl = p_cl;

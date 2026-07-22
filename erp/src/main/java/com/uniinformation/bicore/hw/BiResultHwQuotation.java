@@ -12,9 +12,9 @@ import java.util.Vector;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
-import org.zkoss.zk.ui.Component;
-import org.zkoss.zk.ui.Executions;
-import org.zkoss.zul.Messagebox;
+//import org.zkoss.zk.ui.Component;
+//import org.zkoss.zk.ui.Executions;
+//import org.zkoss.zul.Messagebox;
 
 import com.kyoko.common.DateUtil;
 import com.kyoko.common.ReturnMsg;
@@ -40,7 +40,7 @@ import com.uniinformation.utils.TableRec;
 import com.uniinformation.utils.UniLog;
 import com.uniinformation.utils.VectorUtil;
 import com.uniinformation.utils.Wherecl;
-import com.uniinformation.utils.ZkUtil;
+import com.uniinformation.utils.BiUtil;
 import com.uniinformation.webcore.SessionHelper;
 
 

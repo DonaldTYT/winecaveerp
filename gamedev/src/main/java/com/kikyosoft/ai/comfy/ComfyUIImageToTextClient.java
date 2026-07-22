@@ -7,36 +7,51 @@ import com.kikyosoft.ai.utils.AiClientBase;
 
 import okhttp3.*;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
 import java.io.IOException;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
-import java.time.Duration;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 public class ComfyUIImageToTextClient extends AiClientBase {
 
-    private static final String BASE_URL = "http://192.168.1.204:8002";
-    private static final String WS_URL = "ws://192.168.1.204:8002/ws";
+//    private static final String DEFAULT_SERVER_URL = "http://192.168.46.13:8190";
+    private static final String DEFAULT_SERVER_URL = "http://1.208.108.242:33570/?token=cf6003e9b9339352e4e702c477fc9917a85abfd32f0576a47ccd2705e06a6d2c";
+    private static final String SERVER_URL_PROPERTY = "comfy.server.url";
+    private static final String SERVER_URL_ENV = "COMFY_SERVER_URL";
+    public static final String DEFAULT_PROMPT_TEXT = "Please describe this image.";
+    public static final String PROMPT_TEXT_PROPERTY = "comfy.imageToText.prompt";
 
     // Replace these with your actual node IDs from imageToText.json
     private static final String IMAGE_NODE_ID = "2";
     private static final String PROMPT_NODE_ID = "1";
     private static final String PREVIEW_TEXT_NODE_ID = "3";
 
+    private final HttpUrl serverUrl;
     private final OkHttpClient httpClient;
     private final ObjectMapper mapper;
 
     public ComfyUIImageToTextClient() {
+        this(resolveDefaultServerUrl());
+    }
+
+    /**
+     * Creates a client for either a local ComfyUI URL or a remote URL whose
+     * query parameters contain access credentials, for example:
+     * https://example.trycloudflare.com/?token=...
+     */
+    public ComfyUIImageToTextClient(String serverUrl) {
+        this.serverUrl = parseServerUrl(serverUrl);
         this.httpClient = new OkHttpClient.Builder()
-                .connectTimeout(Duration.ofSeconds(20))
-                .readTimeout(Duration.ofSeconds(60))
-                .writeTimeout(Duration.ofSeconds(60))
+                .connectTimeout(20, TimeUnit.SECONDS)
+                .readTimeout(60, TimeUnit.SECONDS)
+                .writeTimeout(60, TimeUnit.SECONDS)
                 .build();
         this.mapper = new ObjectMapper();
     }
@@ -48,7 +63,7 @@ public class ComfyUIImageToTextClient extends AiClientBase {
         File workflowFile = new File("c:/tmp/imageToText_api.json");
         File imageFile = new File(fileName);
         InputStream imgStream = new FileInputStream(imageFile);
-        String promptText = "Please describe this image.";
+        String promptText = resolveDefaultPromptText();
 
         String result = client.runWorkflow(workflowFile, imgStream , null, promptText);
         System.out.println("=== Preview as Text output ===");
@@ -66,7 +81,7 @@ public class ComfyUIImageToTextClient extends AiClientBase {
         Map<String, Object> workflow = loadWorkflow(workflowFile);
 
         // 3) patch workflow
-        patchWorkflow(workflow, upload.fileName, promptText);
+        patchWorkflow(workflow, upload.fileName, resolvePromptText(promptText));
 
         // 4) open websocket
         CompletableFuture<Void> executionDone = new CompletableFuture<>();
@@ -76,11 +91,12 @@ public class ComfyUIImageToTextClient extends AiClientBase {
             // 5) queue prompt
             queuePrompt(workflow, clientId, promptId);
 
-            // 6) wait until execution is complete
-            executionDone.get(10, TimeUnit.MINUTES);
+            // 6) wait until execution is complete. History polling also covers
+            // workflows whose outputs were returned entirely from ComfyUI cache.
+            waitForExecution(promptId, executionDone, 10, TimeUnit.MINUTES);
 
             // 7) fetch history
-            JsonNode history = getHistory(promptId);
+            JsonNode history = waitForHistory(promptId, 30, TimeUnit.SECONDS);
 
             // 8) extract Preview as Text node output
 //            return extractPreviewText(history, promptId, PREVIEW_TEXT_NODE_ID);
@@ -92,9 +108,9 @@ public class ComfyUIImageToTextClient extends AiClientBase {
     }
 
     private UploadResult uploadImage(InputStream imageStream,String fileName) throws IOException {
-    	byte[] bytes = imageStream.readAllBytes();
+        byte[] bytes = readAllBytes(imageStream);
     	
-        RequestBody fileBody = RequestBody.create(bytes, MediaType.parse("application/octet-stream"));
+        RequestBody fileBody = RequestBody.create(MediaType.parse("application/octet-stream"), bytes);
 
         MultipartBody body = new MultipartBody.Builder()
                 .setType(MultipartBody.FORM)
@@ -104,7 +120,7 @@ public class ComfyUIImageToTextClient extends AiClientBase {
                 .build();
 
         Request request = new Request.Builder()
-                .url(BASE_URL + "/upload/image")
+                .url(buildHttpUrl("upload/image"))
                 .post(body)
                 .build();
 
@@ -118,10 +134,10 @@ public class ComfyUIImageToTextClient extends AiClientBase {
 
             // ComfyUI usually returns fields like "name", "subfolder", "type"
             String name = textOrNull(root, "name");
-            if (name == null || name.isBlank()) {
+            if (isBlank(name)) {
                 name = textOrNull(root, "filename");
             }
-            if (name == null || name.isBlank()) {
+            if (isBlank(name)) {
                 throw new IOException("Upload response does not contain image filename: " + json);
             }
 
@@ -160,7 +176,10 @@ public class ComfyUIImageToTextClient extends AiClientBase {
     }
 
     private WebSocket openWebSocket(String clientId, String promptId, CompletableFuture<Void> executionDone) {
-        String fullWsUrl = WS_URL + "?clientId=" + urlEncode(clientId);
+        HttpUrl wsHttpUrl = buildHttpUrl("ws").newBuilder()
+                .addQueryParameter("clientId", clientId)
+                .build();
+        String fullWsUrl = toWebSocketUrl(wsHttpUrl);
 
         Request request = new Request.Builder()
                 .url(fullWsUrl)
@@ -172,6 +191,12 @@ public class ComfyUIImageToTextClient extends AiClientBase {
                 try {
                     JsonNode msg = mapper.readTree(text);
                     String type = textOrNull(msg, "type");
+                    JsonNode data = msg.get("data");
+                    String wsPromptId = data == null ? null : textOrNull(data, "prompt_id");
+
+                    if (wsPromptId != null && !wsPromptId.equals(promptId)) {
+                        return;
+                    }
 
                     if ("execution_error".equals(type)) {
                         executionDone.completeExceptionally(
@@ -180,11 +205,23 @@ public class ComfyUIImageToTextClient extends AiClientBase {
                         return;
                     }
 
+                    if ("execution_interrupted".equals(type)) {
+                        executionDone.completeExceptionally(
+                                new RuntimeException("ComfyUI execution interrupted: " + msg)
+                        );
+                        return;
+                    }
+
+                    // Current ComfyUI sends this for both normally executed and
+                    // fully cached prompts.
+                    if ("execution_success".equals(type)) {
+                        executionDone.complete(null);
+                        return;
+                    }
+
                     if ("executing".equals(type)) {
-                        JsonNode data = msg.get("data");
                         if (data != null) {
                             JsonNode node = data.get("node");
-                            String wsPromptId = textOrNull(data, "prompt_id");
 
                             if (wsPromptId != null && wsPromptId.equals(promptId)
                                     && (node == null || node.isNull())) {
@@ -204,18 +241,87 @@ public class ComfyUIImageToTextClient extends AiClientBase {
         });
     }
 
+    private void waitForExecution(String promptId, CompletableFuture<Void> executionDone,
+                                  long timeout, TimeUnit timeoutUnit) throws Exception {
+        long deadline = System.nanoTime() + timeoutUnit.toNanos(timeout);
+        while (true) {
+            long remainingNanos = deadline - System.nanoTime();
+            if (remainingNanos <= 0) {
+                throw new TimeoutException("Timed out waiting for ComfyUI prompt: " + promptId);
+            }
+
+            long waitMillis = Math.min(TimeUnit.NANOSECONDS.toMillis(remainingNanos), 1000L);
+            try {
+                executionDone.get(Math.max(waitMillis, 1L), TimeUnit.MILLISECONDS);
+                return;
+            } catch (TimeoutException timeoutException) {
+                try {
+                    JsonNode history = getHistory(promptId);
+                    if (hasCompletedHistory(history, promptId)) {
+                        executionDone.complete(null);
+                        return;
+                    }
+                } catch (IOException ignored) {
+                    // The WebSocket remains the primary completion channel.
+                }
+            }
+        }
+    }
+
+    private JsonNode waitForHistory(String promptId, long timeout, TimeUnit timeoutUnit) throws Exception {
+        long deadline = System.nanoTime() + timeoutUnit.toNanos(timeout);
+        JsonNode lastHistory = null;
+        while (System.nanoTime() < deadline) {
+            lastHistory = getHistory(promptId);
+            if (hasHistoryOutputs(lastHistory, promptId)) {
+                return lastHistory;
+            }
+            Thread.sleep(200L);
+        }
+        throw new TimeoutException("ComfyUI completed but history was not available for prompt: "
+                + promptId + "; last history: " + lastHistory);
+    }
+
+    private static boolean hasCompletedHistory(JsonNode history, String promptId) {
+        if (history == null) {
+            return false;
+        }
+        JsonNode run = history.get(promptId);
+        if (run == null || run.isNull()) {
+            return false;
+        }
+
+        JsonNode status = run.get("status");
+        if (status != null && status.path("completed").asBoolean(false)) {
+            return true;
+        }
+
+        return hasHistoryOutputs(history, promptId);
+    }
+
+    private static boolean hasHistoryOutputs(JsonNode history, String promptId) {
+        if (history == null) {
+            return false;
+        }
+        JsonNode run = history.get(promptId);
+        if (run == null || run.isNull()) {
+            return false;
+        }
+        JsonNode outputs = run.get("outputs");
+        return outputs != null && outputs.isObject() && outputs.size() > 0;
+    }
+
     private void queuePrompt(Map<String, Object> workflow, String clientId, String promptId) throws IOException {
-        Map<String, Object> payload = Map.of(
-                "prompt", workflow,
-                "client_id", clientId,
-                "prompt_id", promptId
-        );
+        Map<String, Object> payload = new HashMap<>();
+        payload.put("prompt", workflow);
+        payload.put("client_id", clientId);
+        payload.put("prompt_id", promptId);
 
         String jsonBody = mapper.writeValueAsString(payload);
 
         Request request = new Request.Builder()
-                .url(BASE_URL + "/prompt")
-                .post(RequestBody.create(jsonBody, MediaType.parse("application/json")))
+                .url(buildHttpUrl("prompt"))
+                .post(RequestBody.create(MediaType.parse("application/json"), jsonBody))
                 .build();
 
         try (Response response = httpClient.newCall(request).execute()) {
@@ -228,7 +334,9 @@ public class ComfyUIImageToTextClient extends AiClientBase {
 
     private JsonNode getHistory(String promptId) throws IOException {
         Request request = new Request.Builder()
-                .url(BASE_URL + "/history/" + urlEncode(promptId))
+                .url(buildHttpUrl("history").newBuilder()
+                        .addPathSegment(promptId)
+                        .build())
                 .get()
                 .build();
 
@@ -258,7 +366,7 @@ public class ComfyUIImageToTextClient extends AiClientBase {
         text = tryExtract(outputs.get("3"));
         if (text != null) return text;
 
-        return outputs.toPrettyString();
+        return outputs.toString();
     }
 
     private String tryExtract(JsonNode node) {
@@ -341,7 +449,7 @@ public class ComfyUIImageToTextClient extends AiClientBase {
             return string.asText();
         }
 
-        return nodeOut.toPrettyString();
+        return nodeOut.toString();
     }
 
     private static String joinArray(JsonNode arrayNode) {
@@ -366,8 +474,67 @@ public class ComfyUIImageToTextClient extends AiClientBase {
         return (v == null || v.isNull()) ? null : v.asText();
     }
 
-    private static String urlEncode(String s) {
-        return URLEncoder.encode(s, StandardCharsets.UTF_8);
+    private HttpUrl buildHttpUrl(String relativePath) {
+        String basePath = serverUrl.encodedPath();
+        if (!basePath.endsWith("/")) {
+            basePath += "/";
+        }
+        while (relativePath.startsWith("/")) {
+            relativePath = relativePath.substring(1);
+        }
+        return serverUrl.newBuilder()
+                .encodedPath(basePath + relativePath)
+                .build();
+    }
+
+    private static String toWebSocketUrl(HttpUrl httpUrl) {
+        String url = httpUrl.toString();
+        if (url.startsWith("https://")) {
+            return "wss://" + url.substring("https://".length());
+        }
+        return "ws://" + url.substring("http://".length());
+    }
+
+    private static HttpUrl parseServerUrl(String serverUrl) {
+        if (isBlank(serverUrl)) {
+            throw new IllegalArgumentException("ComfyUI server URL must not be blank");
+        }
+        HttpUrl parsed = HttpUrl.parse(serverUrl.trim());
+        if (parsed == null) {
+            throw new IllegalArgumentException("Invalid ComfyUI server URL");
+        }
+        return parsed;
+    }
+
+    private static String resolveDefaultServerUrl() {
+        String configuredUrl = System.getProperty(SERVER_URL_PROPERTY);
+        if (isBlank(configuredUrl)) {
+            configuredUrl = System.getenv(SERVER_URL_ENV);
+        }
+        return isBlank(configuredUrl) ? DEFAULT_SERVER_URL : configuredUrl;
+    }
+
+    public static String resolveDefaultPromptText() {
+        String configuredPrompt = System.getProperty(PROMPT_TEXT_PROPERTY);
+        return isBlank(configuredPrompt) ? DEFAULT_PROMPT_TEXT : configuredPrompt;
+    }
+
+    public static String resolvePromptText(String promptText) {
+        return isBlank(promptText) ? resolveDefaultPromptText() : promptText;
+    }
+
+    private static boolean isBlank(String value) {
+        return value == null || value.trim().isEmpty();
+    }
+
+    private static byte[] readAllBytes(InputStream inputStream) throws IOException {
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        byte[] buffer = new byte[8192];
+        int bytesRead;
+        while ((bytesRead = inputStream.read(buffer)) != -1) {
+            outputStream.write(buffer, 0, bytesRead);
+        }
+        return outputStream.toByteArray();
     }
 
     private static class UploadResult {

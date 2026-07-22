@@ -125,7 +125,10 @@ import com.uniinformation.jx.zk.*;
 import com.uniinformation.jx.zk.ZkJxQueryInput.EventListenerCallback;
 import com.uniinformation.jxapp.JxZkBiBase;
  
-public class ZkBiComposerBase extends ZkBiComposerView implements Composer<Component>, ZkBiSearchInterface, ZkBiHotkeyInterface, JxZkBiBaseCallback {
+public class ZkBiComposerBase extends ZkBiComposerView implements Composer<Component>, ZkBiSearchInterface, ZkBiHotkeyInterface, JxZkBiBaseCallback, ZkBiAiHelperContext {
+	public static final String AI_HELP_ENABLED_CONFIG = "AI_HELP_ENABLED";
+	/** SessionHelper session-data key containing the current user's AI API key. */
+	public static final String AI_HELP_API_KEY_SESSION_DATA_KEY = "zkBiAiHelperApiKey";
 	final static long maxClickSelectGap = 50;
    	protected final static int defaultSortIdx = 0;
    	protected final static boolean defaultSortDesc = true;
@@ -178,7 +181,9 @@ public class ZkBiComposerBase extends ZkBiComposerView implements Composer<Compo
     protected EventListener itemClickListener = null;
     
     Toolbarbutton btnCustCondition;
-   	protected Toolbarbutton btnHelp = null;
+	protected Toolbarbutton btnHelp = null;
+	private ZkBiAiHelperDialog aiHelpDialog = null;
+	private BiResult aiHelpResult = null;
    	protected Vbox bottomPanelVbox = null;
   	Hbox shortcutBar= null;
   	protected Hbox queryBar= null;
@@ -1563,9 +1568,10 @@ public class ZkBiComposerBase extends ZkBiComposerView implements Composer<Compo
 //    			}
     			if(!useMobileList(isMobile(),result)) {
     				BiColumn biColumn = (BiColumn) listColumns.get(i);
-    				String str = result.getCell(biColumn.getLabel()).getColumnDisplayString();
-    				String sclass = result.getCell(biColumn.getLabel()).getColumnDisplayClass();
-    				int align = result.getCell(biColumn.getLabel()).getAlignment();
+					String str = result.getCell(biColumn.getLabel()).getColumnDisplayString();
+					String sclass = result.getCell(biColumn.getLabel()).getColumnDisplayClass();
+					int align = result.getCell(biColumn.getLabel()).getAlignment();
+					boolean memoColumn = StringUtils.equalsIgnoreCase(StringUtils.trim(biColumn.getColumnType()), "memo");
     				
     				lc = new Listcell();
     				Label lb = null;
@@ -1632,9 +1638,15 @@ public class ZkBiComposerBase extends ZkBiComposerView implements Composer<Compo
    					}
    					*/
    					//ZkUtil.appendStyle(lc,"white-space:nowrap;overflow:hidden;text-overflow:'';"); //andrew210618 fix any field show '...'
-    				if (wspreFlag) {
-    					ZkUtil.appendStyle(lc,"white-space:pre;");  //andrew220323 for display preformatted text.
-    				}
+					if (memoColumn) {
+						ZkUtil.appendStyle(lc,"width:400px;max-width:400px;white-space:normal;overflow-wrap:anywhere;word-wrap:break-word;word-break:break-word;");
+						if (lb != null) {
+							ZkUtil.appendStyle(lb,"display:block;width:400px;max-width:400px;white-space:normal;overflow-wrap:anywhere;word-wrap:break-word;word-break:break-word;");
+						}
+					}
+					else if (wspreFlag) {
+						ZkUtil.appendStyle(lc,"white-space:pre;");  //andrew220323 for display preformatted text.
+					}
     				else {
     					//default is nowrap
     					ZkUtil.appendStyle(lc,"white-space:nowrap;"); 
@@ -1809,9 +1821,16 @@ public class ZkBiComposerBase extends ZkBiComposerView implements Composer<Compo
     			dv.setHflex("1");
     			dv.setParent(lc);
     			*/
-    			lc.setParent(item);
-    		}
-    		item.setAttribute("renderidx", idx);
+			lc.setParent(item);
+		}
+		if(!useMobileList(isMobile(),result)) {
+			for(Component child : item.getChildren()) {
+				if(child instanceof Listcell) {
+					ZkUtil.appendStyle((Listcell) child,"vertical-align:top;");
+				}
+			}
+		}
+		item.setAttribute("renderidx", idx);
 
     }
     public void renderOneRecord(Listitem item, Object trStat, int p_idx,Vector listColumns,final BiResult result) throws Exception {
@@ -4868,6 +4887,79 @@ public class ZkBiComposerBase extends ZkBiComposerView implements Composer<Compo
 		}
 		return(hasDetail);
     }
+    
+    
+    void runBatchAction(final BiResult p_result,final BiActionHandler p_handler,final Collection actionSelection,final Button btn
+    		) {
+    				ReturnMsg rtn;
+               		if (p_handler.isUseAsync()) {
+						Map<String, Object> m = new HashMap<String, Object>();
+                			showProgressPanel(true, (ev) -> {
+                				m.put("requestStop", true);
+                			});
+                			setProgressPanelProgress(String.format("Load Record: %d/%d", 0, actionSelection.size()), 0);
+                			Iterator<?> it = btn.getEventListeners("onBiAction").iterator();
+                			while (it.hasNext())
+                				it.remove();
+                			Iterator<?> it1 = actionSelection.iterator();
+                			m.put("selectionIdx", -1);
+						m.put("startTime", System.currentTimeMillis());
+						btn.addEventListener("onBiAction", (ev) -> {
+							UniLog.log1("event:%s, data:%s", ev, ev.getData());
+							while (it1.hasNext()) {
+								if (m.containsKey("requestStop"))
+									return;
+								Object o = it1.next();
+								m.put("selectionIdx", (int)m.get("selectionIdx") + 1);
+								int idx = /* listModelList.indexOf(o);*/ getTrIdxByObj(listModelList, o);
+								p_result.loadOneRecV(idx);
+								ReturnMsg rtn1 = p_handler.processAction(p_result,idx);
+								UniLog.log1("Load Record:%d,%d", m.get("selectionIdx"), actionSelection.size());
+								setProgressPanelProgress(String.format("Load Record: %d/%d", (int)m.get("selectionIdx") + 1, actionSelection.size()), ((int)m.get("selectionIdx") + 1) * 100 / actionSelection.size());
+								if(rtn1 != null && !rtn1.getStatus()) {
+									hideProgressPanel();
+									Messagebox.show(rtn1.getMsg(), sessionHelper.getLabel("Error Message"), Messagebox.OK, Messagebox.ERROR);
+									return;
+								}
+								long currentTime = System.currentTimeMillis();
+								if (currentTime - (long)m.get("startTime") > 5000) {
+									Events.echoEvent("onBiAction", btn, null);
+									m.put("startTime", currentTime);
+									return;
+								}
+							}
+							p_handler.afterActionAsync((rtn1) -> {
+								if (rtn1 != null && !rtn1.getStatus())
+			          				Messagebox.show(rtn1.getMsg(), sessionHelper.getLabel("Error Message"), Messagebox.OK, Messagebox.ERROR);
+								p_handler.afterActionCallback(p_result,rtn1);
+							});
+						});
+						Events.sendEvent("onBiAction", btn, null);
+                		} else {
+          				int itemCnt=0;
+               			for(Iterator it=actionSelection.iterator();it.hasNext();) {
+	            				Object o = it.next();
+	            				int idx = /* listModelList.indexOf(o);*/ getTrIdxByObj(listModelList, o);
+	            				p_result.loadOneRecV(idx);
+	            				rtn = p_handler.processAction(p_result,idx);
+	            				if(rtn != null && !rtn.getStatus()) {
+	            					Messagebox.show(
+	            							rtn.getMsg(),
+	            					sessionHelper.getLabel("Error Message"), Messagebox.OK, Messagebox.ERROR);
+	            					return;
+	            				}
+	            				itemCnt++;
+	               		}	
+               			rtn = p_handler.afterAction(p_result);
+               			if(rtn != null && !rtn.getStatus()) {
+      						Messagebox.show(rtn.getMsg(), sessionHelper.getLabel("Error Message"), Messagebox.OK, Messagebox.ERROR);
+   					    	return;
+  			    		}
+               		}
+    	
+    }
+    
+    
     protected void setupExtraButton(final BiResult result)
     {
     	if(getSessionHelper().hasAccessRight("updFormula")) {
@@ -6413,6 +6505,465 @@ public class ZkBiComposerBase extends ZkBiComposerView implements Composer<Compo
     	btnExport.setVisible(!isMobile()); //disable export for mobile
     	//ZkUtil.setupBatchModeButton(btnExport, batchModeToggleButton);
     }
+
+	/** Connect the page help button to the configured AI backend. */
+	protected void setupAiHelpAgent(final BiResult result) {
+		aiHelpResult = result;
+		for (EventListener<? extends Event> listener : btnHelp.getEventListeners(Events.ON_CLICK)) {
+			btnHelp.removeEventListener(Events.ON_CLICK, listener);
+		}
+		if (!isAiHelpEnabled()) {
+			btnHelp.setVisible(false);
+			return;
+		}
+		if (!sessionHelper.hasAccessRight("#allowai")) {
+			btnHelp.setVisible(false);
+			return;
+		}
+		final String agentClassName = getAiHelpAgentClassName(viewid);
+		if (StringUtils.isBlank(agentClassName)) {
+			btnHelp.setVisible(false);
+			return;
+		}
+		final Class<?> agentClass;
+		try {
+			agentClass = Class.forName(agentClassName.trim(), true,
+					Thread.currentThread().getContextClassLoader());
+			if (!ZkBiAiHelperAgent.class.isAssignableFrom(agentClass)) {
+				throw new IllegalArgumentException(agentClassName
+						+ " does not implement " + ZkBiAiHelperAgent.class.getName());
+			}
+		}
+		catch (Exception ex) {
+			UniLog.log(ex);
+			btnHelp.setVisible(false);
+			return;
+		}
+		catch (LinkageError ex) {
+			UniLog.log(new Exception("Unable to load AI agent class " + agentClassName, ex));
+			btnHelp.setVisible(false);
+			return;
+		}
+		btnHelp.setSclass("zkbi-header-help narrowtoolbarbutton zkbi-tbb-active");
+		btnHelp.setTooltiptext(sessionHelper.getTtLabel("AI Help"));
+		btnHelp.addEventListener(Events.ON_CLICK, new ZkBiEventListener<Event>() {
+			@Override
+			public void onZkBiEvent(Event event) throws Exception {
+				try {
+					if (aiHelpDialog == null) {
+						ZkBiAiHelperAgent agent;
+						try {
+							java.lang.reflect.Constructor<?> apiKeyConstructor =
+									agentClass.getDeclaredConstructor(String.class);
+							String apiKey = getAiHelpAgentApiKey();
+							if (StringUtils.isBlank(apiKey)) {
+								throw new IllegalStateException(
+										"No AI API key is available for the current user session");
+							}
+							agent = (ZkBiAiHelperAgent)apiKeyConstructor.newInstance(apiKey);
+						}
+						catch (NoSuchMethodException ex) {
+							// Keep provider implementations that do not require a credential compatible.
+							agent = (ZkBiAiHelperAgent)agentClass
+									.getDeclaredConstructor().newInstance();
+						}
+						aiHelpDialog = new ZkBiAiHelperDialog(ZkBiComposerBase.this, agent);
+					}
+					aiHelpDialog.show();
+				}
+				catch (Exception ex) {
+					Throwable cause = ex instanceof java.lang.reflect.InvocationTargetException
+							&& ex.getCause() != null ? ex.getCause() : ex;
+					UniLog.log(cause instanceof Exception ? (Exception)cause : ex);
+					showErrMsg(sessionHelper.getLabel("AI Help is unavailable") + ": " + cause.getMessage());
+				}
+			}
+		});
+	}
+
+	/** Global master switch. Only Y enables AI help. */
+	protected boolean isAiHelpEnabled() {
+		IniHelper ini = SessionHelper.getIniHelper(sessionHelper.getAgent());
+		String value = ini == null ? null : ini.getString(AI_HELP_ENABLED_CONFIG, "N");
+		return StringUtils.equalsIgnoreCase(StringUtils.trim(value), "Y");
+	}
+
+	/** Returns the AI agent implementation configured for one BI view. */
+	protected String getAiHelpAgentClassName(String p_viewid) {
+		if (StringUtils.isBlank(p_viewid))
+			return null;
+		return BiConfig.getString(sessionHelper,
+				JxZkBiBase.replaceViewName(p_viewid) + "_AiAgentClass");
+	}
+
+	/**
+	 * Returns the API key for the current logged-in user. Applications may
+	 * override this when their user-session/profile stores the key elsewhere.
+	 */
+	protected String getAiHelpAgentApiKey() {
+		Object value = sessionHelper.getSessionData(AI_HELP_API_KEY_SESSION_DATA_KEY);
+		if (value instanceof String && StringUtils.isNotBlank((String)value))
+			return (String)value;
+		return System.getenv("OPENAI_API_KEY");
+	}
+
+	@Override
+	public SessionHelper getAiHelpSessionHelper() {
+		return sessionHelper;
+	}
+
+	@Override
+	public Component getAiHelpParentComponent() {
+		return masterWin;
+	}
+
+	@Override
+	public JSONObject getAiHelpContext() throws JSONException {
+		JSONObject context = new JSONObject();
+		context.put("invokerClass", getClass().getName());
+		context.put("invokerComponentId", masterWin == null ? JSONObject.NULL : masterWin.getId());
+		context.put("pageTitle", StringUtils.defaultIfBlank(title, viewid));
+		context.put("pageId", pageid);
+		context.put("viewId", viewid);
+		context.put("helpId", helpid);
+		context.put("pageAction", action);
+		context.put("listVisible", zkbiListTop != null && zkbiListTop.isVisible());
+		context.put("detailOpen", inDetailForm);
+		context.put("multiSelect", multiSelect);
+		context.put("selectedRowIndex", listbox == null ? -1 : listbox.getSelectedIndex());
+		context.put("selectedRowCount", listbox == null ? 0 : listbox.getSelectedCount());
+		context.put("renderedRowCount", listModelList == null ? 0 : listModelList.size());
+
+		JxZkBiBase detailForm = aiHelpDetailForm();
+		if (detailForm != null) {
+			context.put("detailVisible", detailForm.isFormVisible());
+			context.put("detailMode", aiHelpModeName(detailForm.getCurMode()));
+		}
+		else {
+			context.put("detailVisible", false);
+			context.put("detailMode", "none");
+		}
+
+		BiResult result = aiHelpResult;
+		if (result == null) {
+			context.put("biResultAvailable", false);
+			return context;
+		}
+		context.put("biResultAvailable", true);
+		context.put("viewName", result.getView().getName());
+		context.put("viewHeader", result.getView().getHeader());
+		context.put("loadedRowCount", result.getRowCount());
+		context.put("recordLimit", result.getRecLimit());
+		context.put("pendingChanges", new JSONObject()
+				.put("added", result.getInsertCount())
+				.put("updated", result.getUpdateCount())
+				.put("deleted", result.getDeleteCount()));
+		context.put("permissions", new JSONObject()
+				.put("viewDetail", result.allowDetail())
+				.put("add", result.allowAdd())
+				.put("update", result.allowUpdate())
+				.put("delete", result.allowDelete()));
+
+		JSONArray fields = new JSONArray();
+		Vector columns = result.getColumns();
+		int limit = Math.min(columns.size(), 200);
+		for (int i = 0; i < limit; i++) {
+			BiColumn column = (BiColumn)columns.elementAt(i);
+			fields.put(new JSONObject()
+					.put("id", column.getLabel())
+					.put("name", column.getEngName())
+					.put("type", column.getColumnType())
+					.put("editableWhenAdding", !column.isNoEntry(sessionHelper))
+					.put("editableWhenUpdating", !column.isNoUpdate(sessionHelper)));
+		}
+		context.put("fields", fields);
+		context.put("fieldCount", columns.size());
+		context.put("fieldListTruncated", columns.size() > limit);
+		context.put("recordValuesShared", false);
+		return context;
+	}
+
+	@Override
+	public JSONObject getAiHelpOperationCatalog() throws JSONException {
+		JSONArray operations = new JSONArray();
+		BiResult result = aiHelpResult;
+
+		if (aiHelpCanFilter())
+			operations.put(aiHelpOperation("filter_records", "Filter the currently loaded list records"));
+		if (aiHelpCanOpenDetail())
+			operations.put(aiHelpOperation("open_record_detail", "Open one listed record's detail form"));
+		if (aiHelpCanUpdate()) {
+			operations.put(aiHelpOperation("update_record", "Open, modify and save an existing record"));
+			operations.put(aiHelpOperation("save_record", "Save changes in an open record detail form"));
+		}
+		JxZkBiBase detailForm = aiHelpDetailForm();
+		if (inDetailForm || (detailForm != null && detailForm.isFormVisible()))
+			operations.put(aiHelpOperation("return_to_list", "Close the detail form and return to the list"));
+
+		JSONObject catalog = new JSONObject()
+				.put("viewId", viewid)
+				.put("currentPageState", aiHelpCurrentPageState())
+				.put("operations", operations)
+				.put("readOnlyHelp", true)
+				.put("recordValuesShared", false);
+		if (result == null)
+			catalog.put("note", "The BI result is not currently available, so only live UI operations are listed.");
+		customizeAiHelpOperationCatalog(operations);
+		return catalog;
+	}
+
+	@Override
+	public JSONObject getAiHelpOperationHelp(String operationId) throws JSONException {
+		String id = StringUtils.trimToEmpty(operationId);
+		JSONObject help = new JSONObject()
+				.put("operationId", id)
+				.put("viewId", viewid)
+				.put("pageTitle", StringUtils.defaultIfBlank(title, viewid))
+				.put("currentPageState", aiHelpCurrentPageState())
+				.put("readOnlyHelp", true)
+				.put("recordValuesShared", false);
+
+		if ("filter_records".equals(id))
+			buildAiHelpFilterRecords(help);
+		else if ("open_record_detail".equals(id))
+			buildAiHelpOpenDetail(help);
+		else if ("update_record".equals(id))
+			buildAiHelpUpdateRecord(help);
+		else if ("save_record".equals(id))
+			buildAiHelpSaveRecord(help);
+		else if ("return_to_list".equals(id))
+			buildAiHelpReturnToList(help);
+		else {
+			help.put("known", false);
+			help.put("available", false);
+			help.put("message", "No exact operating guide is registered for this operation.");
+		}
+
+		customizeAiHelpOperationHelp(id, help);
+		return help;
+	}
+
+	/** Allows a view-specific composer to append additional semantic operations. */
+	protected void customizeAiHelpOperationCatalog(JSONArray operations) throws JSONException {
+	}
+
+	/** Allows a view-specific composer to add or replace details in an operation guide. */
+	protected void customizeAiHelpOperationHelp(String operationId, JSONObject help) throws JSONException {
+	}
+
+	private JSONObject aiHelpOperation(String id, String description) throws JSONException {
+		return new JSONObject().put("id", id).put("description", description);
+	}
+
+	private boolean aiHelpCanFilter() {
+		return zkBiSearch != null && tbSearchBox.getParent() != null && tbSearchBox.isVisible();
+	}
+
+	private boolean aiHelpCanOpenDetail() {
+		return aiHelpResult != null && aiHelpResult.allowDetail() && !multiSelect
+				&& (aiHelpUsesMobileRecordCards() || hasDetailButton);
+	}
+
+	private boolean aiHelpCanUpdate() {
+		return aiHelpCanOpenDetail() && aiHelpResult.allowUpdate();
+	}
+
+	private boolean aiHelpUsesMobileRecordCards() {
+		return aiHelpResult != null && useMobileList(isMobile(), aiHelpResult);
+	}
+
+	private JxZkBiBase aiHelpDetailForm() {
+		return StringUtils.isBlank(detailFormName) ? null : getDetailForm();
+	}
+
+	private String aiHelpCurrentPageState() {
+		JxZkBiBase form = aiHelpDetailForm();
+		if (form != null && form.isFormVisible())
+			return "detail_" + aiHelpModeName(form.getCurMode());
+		return "list";
+	}
+
+	private void aiHelpAvailability(JSONObject help, boolean available, String unavailableReason)
+			throws JSONException {
+		help.put("known", true).put("available", available);
+		if (!available)
+			help.put("unavailableReason", unavailableReason);
+	}
+
+	private void buildAiHelpFilterRecords(JSONObject help) throws JSONException {
+		boolean available = aiHelpCanFilter();
+		aiHelpAvailability(help, available, "Quick Filter is not enabled for this view or user session.");
+		if (!available)
+			return;
+
+		help.put("control", new JSONObject()
+				.put("label", sessionHelper.getLabel("Quick Filter"))
+				.put("componentId", "tbSearchBox")
+				.put("trigger", "automatic_after_idle")
+				.put("idleMilliseconds", 500)
+				.put("pressEnterRequired", false)
+				.put("searchButtonExists", false)
+				.put("filterIconPurpose", "Optionally commit the current text as a persistent search tag"));
+		help.put("liveFiltering", new JSONObject()
+				.put("enabled", true)
+				.put("scope", "currently loaded BI result records")
+				.put("fields", "list-column display values")
+				.put("alsoChecksCurrentTextAgainstAggregateOrPivotValues", true)
+				.put("caseSensitive", false)
+				.put("trimSurroundingWhitespace", true));
+		help.put("matchingSyntax", new JSONObject()
+				.put("plainText", "Case-insensitive contains match")
+				.put("exactMatch", "Prefix the text with =, for example =B45")
+				.put("wildcard", "Use * to match any sequence of characters, for example Chateau*Palmer"));
+		help.put("searchTags", new JSONObject()
+				.put("create", "Press Enter or click/open the filter icon to convert non-blank current text into a persistent tag")
+				.put("effect", "The input box is cleared but filtering by the new tag continues")
+				.put("remove", "Click the tag's x control")
+				.put("popup", "Hover/open a tag to see matched columns and the match count for each column")
+				.put("perColumnSwitches", "Use the tag popup switches to include or exclude matching columns for that tag"));
+		help.put("tagCombination", new JSONObject()
+				.put("controlLabel", sessionHelper.getBtLabel("Match All"))
+				.put("checkedMeaning", "Every committed tag and any current text must match the record")
+				.put("uncheckedMeaning", "At least one committed tag or the current text must match the record")
+				.put("visibleOnMobile", false)
+				.put("mobileBehavior", "The configured/default match mode remains active even though Match All is hidden"));
+		help.put("urlPersistence", new JSONObject()
+				.put("configurationDependent", true)
+				.put("tagParameter", "qf")
+				.put("matchModeParameter", "qfm")
+				.put("behavior", "When enabled, committed tags and AND/OR mode are written to the page URL and restored when that URL is opened"));
+		help.put("steps", new JSONArray()
+				.put("Locate the Quick Filter box above the record list.")
+				.put("Type the desired name, code or other keyword into the box.")
+				.put("Stop typing and wait about 0.5 second; the currently loaded list filters automatically.")
+				.put("Optionally press Enter or click/open the filter icon to keep that text as a search tag, then enter additional tags.")
+				.put("Use Match All on desktop to choose whether all tags or any tag must match."));
+		help.put("notes", new JSONArray()
+				.put("Do not tell the user that Enter or an icon click is required for ordinary filtering; those actions only commit the text as a tag.")
+				.put("Records already marked as updated or deleted remain visible even when they do not match the filter.")
+				.put("This operation filters the currently loaded records; it does not by itself count matching records for the AI."));
+	}
+
+	private void buildAiHelpOpenDetail(JSONObject help) throws JSONException {
+		boolean available = aiHelpCanOpenDetail();
+		aiHelpAvailability(help, available,
+				"Record detail is unavailable for this view, selection mode or logged-in user.");
+		if (!available)
+			return;
+
+		boolean mobileCards = aiHelpUsesMobileRecordCards();
+		if (mobileCards) {
+			help.put("control", new JSONObject()
+					.put("label", "desired record card")
+					.put("location", "record list")
+					.put("trigger", "single_tap"));
+			help.put("steps", new JSONArray()
+					.put("Find the desired record in the list, using Quick Filter first when helpful.")
+					.put("Tap the desired record card once.")
+					.put("Wait for the record detail form to open."));
+			help.put("notes", new JSONArray()
+					.put("In the mobile card layout, tap the record itself; no separate Record Detail icon is required."));
+		}
+		else {
+			help.put("control", new JSONObject()
+					.put("label", sessionHelper.getTtLabel("Record Detail"))
+					.put("location", "left side of the desired record row")
+					.put("appearance", "small record-detail/pencil icon")
+					.put("trigger", "single_click"));
+			help.put("steps", new JSONArray()
+					.put("Find the desired record in the list, using Quick Filter first when helpful.")
+					.put("Click the small Record Detail icon at the far left of that record's row.")
+					.put("Wait for the record detail form to open."));
+			help.put("notes", new JSONArray()
+					.put("Click the row's Record Detail icon; do not instruct the user to double-click the row."));
+		}
+	}
+
+	private void buildAiHelpUpdateRecord(JSONObject help) throws JSONException {
+		boolean available = aiHelpCanUpdate();
+		aiHelpAvailability(help, available,
+				"Updating records is unavailable for this view or logged-in user.");
+		if (!available)
+			return;
+
+		JxZkBiBase form = aiHelpDetailForm();
+		boolean detailVisible = form != null && form.isFormVisible();
+		String detailMode = detailVisible ? aiHelpModeName(form.getCurMode()) : "not_open";
+		help.put("detailMode", detailMode);
+		JSONArray steps = new JSONArray();
+		if (!detailVisible) {
+			steps.put("Find the desired record, optionally by typing into Quick Filter and waiting about 0.5 second for automatic filtering.");
+			steps.put(aiHelpUsesMobileRecordCards()
+					? "Tap the desired record card once."
+					: "Click the small Record Detail icon at the far left of the desired row.");
+		}
+		if (!detailVisible || form.getCurMode() == JxZkBiBase.MODE_DISPLAY)
+			steps.put("If the detail form is read-only, click Edit to enter update mode.");
+		steps.put("Modify the permitted fields in the detail form.");
+		steps.put("After making a change, click Save.");
+		steps.put("If validation reports an error, correct the indicated field and click Save again.");
+		help.put("steps", steps);
+		help.put("controls", new JSONObject()
+				.put("openDetail", aiHelpUsesMobileRecordCards()
+						? "tap desired record card"
+						: sessionHelper.getTtLabel("Record Detail"))
+				.put("edit", sessionHelper.getBtLabel("Edit"))
+				.put("save", sessionHelper.getBtLabel("Save")));
+		help.put("notes", new JSONArray()
+				.put("The detail form may open directly in update mode; use Edit only when it opens read-only.")
+				.put("Save can remain disabled until a field has actually changed."));
+	}
+
+	private void buildAiHelpSaveRecord(JSONObject help) throws JSONException {
+		JxZkBiBase form = aiHelpDetailForm();
+		boolean visible = form != null && form.isFormVisible();
+		boolean available = aiHelpCanUpdate() && visible && form.getCurMode() == JxZkBiBase.MODE_UPDATE;
+		aiHelpAvailability(help, available, !visible
+				? "Open a record detail form before saving."
+				: "The open detail form is not currently in update mode.");
+		if (!available)
+			return;
+
+		help.put("control", new JSONObject()
+				.put("label", sessionHelper.getBtLabel("Save"))
+				.put("componentId", "btUpdate")
+				.put("trigger", "single_click"));
+		help.put("steps", new JSONArray()
+				.put("Make the required changes in the open detail form.")
+				.put("Click Save after it becomes enabled.")
+				.put("Correct any validation error shown by the form, then click Save again."));
+		help.put("notes", new JSONArray().put("Save can remain disabled until a field has actually changed."));
+	}
+
+	private void buildAiHelpReturnToList(JSONObject help) throws JSONException {
+		JxZkBiBase form = aiHelpDetailForm();
+		boolean available = form != null && form.isFormVisible();
+		aiHelpAvailability(help, available, "No record detail form is currently open.");
+		if (!available)
+			return;
+
+		help.put("control", new JSONObject()
+				.put("label", sessionHelper.getBtLabel("Close"))
+				.put("componentId", "btClose")
+				.put("trigger", "single_click"));
+		help.put("steps", new JSONArray()
+				.put("Click Close on the record detail form.")
+				.put("If the page warns about unsaved changes, choose whether to keep editing or discard them."));
+	}
+
+	private String aiHelpModeName(int mode) {
+		switch (mode) {
+		case JxZkBiBase.MODE_ADD:
+			return "add";
+		case JxZkBiBase.MODE_UPDATE:
+			return "update";
+		case JxZkBiBase.MODE_DISPLAY:
+			return "display";
+		default:
+			return "unknown";
+		}
+	}
+
     protected JxZkBiBase buildDetailWindow(final BiResult result){
     	try{
 			final Idspace dWin;
@@ -6857,7 +7408,7 @@ public class ZkBiComposerBase extends ZkBiComposerView implements Composer<Compo
    		 		);
  		}
    		
-   		new ZkBiHelpDialog(sessionHelper, btnHelp, masterWin, title, helpid, null);
+		setupAiHelpAgent(result);
    		
    		if (sessionHelper.getAllowTour() && !isMobile()){
 	   		btTour = new Toolbarbutton();
@@ -9862,70 +10413,81 @@ public class ZkBiComposerBase extends ZkBiComposerView implements Composer<Compo
    							sessionHelper.getLabel("Error Message"), Messagebox.OK, Messagebox.ERROR);
        					return;
         			}
-             		if (p_handler.isUseAsync()) {
-						Map<String, Object> m = new HashMap<String, Object>();
-                			showProgressPanel(true, (ev) -> {
-                				m.put("requestStop", true);
-                			});
-                			setProgressPanelProgress(String.format("Load Record: %d/%d", 0, actionSelection.size()), 0);
-                			Iterator<?> it = btn.getEventListeners("onBiAction").iterator();
-                			while (it.hasNext())
-                				it.remove();
-                			Iterator<?> it1 = actionSelection.iterator();
-                			m.put("selectionIdx", -1);
-						m.put("startTime", System.currentTimeMillis());
-						btn.addEventListener("onBiAction", (ev) -> {
-							UniLog.log1("event:%s, data:%s", ev, ev.getData());
-							while (it1.hasNext()) {
-								if (m.containsKey("requestStop"))
-									return;
-								Object o = it1.next();
-								m.put("selectionIdx", (int)m.get("selectionIdx") + 1);
-								int idx = /* listModelList.indexOf(o);*/ getTrIdxByObj(listModelList, o);
-								p_result.loadOneRecV(idx);
-								ReturnMsg rtn1 = p_handler.processAction(p_result,idx);
-								UniLog.log1("Load Record:%d,%d", m.get("selectionIdx"), actionSelection.size());
-								setProgressPanelProgress(String.format("Load Record: %d/%d", (int)m.get("selectionIdx") + 1, actionSelection.size()), ((int)m.get("selectionIdx") + 1) * 100 / actionSelection.size());
-								if(rtn1 != null && !rtn1.getStatus()) {
-									hideProgressPanel();
-									Messagebox.show(rtn1.getMsg(), sessionHelper.getLabel("Error Message"), Messagebox.OK, Messagebox.ERROR);
-									return;
-								}
-								long currentTime = System.currentTimeMillis();
-								if (currentTime - (long)m.get("startTime") > 5000) {
-									Events.echoEvent("onBiAction", btn, null);
-									m.put("startTime", currentTime);
-									return;
-								}
-							}
-							p_handler.afterActionAsync((rtn1) -> {
-								if (rtn1 != null && !rtn1.getStatus())
-			          				Messagebox.show(rtn1.getMsg(), sessionHelper.getLabel("Error Message"), Messagebox.OK, Messagebox.ERROR);
-								p_handler.afterActionCallback(p_result,rtn1);
-							});
-						});
-						Events.sendEvent("onBiAction", btn, null);
-                		} else {
-          				int itemCnt=0;
-               			for(Iterator it=actionSelection.iterator();it.hasNext();) {
-	            				Object o = it.next();
-	            				int idx = /* listModelList.indexOf(o);*/ getTrIdxByObj(listModelList, o);
-	            				p_result.loadOneRecV(idx);
-	            				rtn = p_handler.processAction(p_result,idx);
-	            				if(rtn != null && !rtn.getStatus()) {
-	            					Messagebox.show(
-	            							rtn.getMsg(),
-	            					sessionHelper.getLabel("Error Message"), Messagebox.OK, Messagebox.ERROR);
-	            					return;
-	            				}
-	            				itemCnt++;
-	               		}	
-               			rtn = p_handler.afterAction(p_result);
-               			if(rtn != null && !rtn.getStatus()) {
-      						Messagebox.show(rtn.getMsg(), sessionHelper.getLabel("Error Message"), Messagebox.OK, Messagebox.ERROR);
-   					    	return;
-  			    		}
-               		}
+			if(!p_handler.delayStart) {
+				runBatchAction(p_result,p_handler,actionSelection,btn);
+			} else {
+				p_handler.startAction = new JxActionListener() {
+					@Override
+					public void actionPerformed(JxField field) {
+						runBatchAction(p_result,p_handler,actionSelection,btn);
+					}
+					
+				};
+			}
+//               		if (p_handler.isUseAsync()) {
+//						Map<String, Object> m = new HashMap<String, Object>();
+//                			showProgressPanel(true, (ev) -> {
+//                				m.put("requestStop", true);
+//                			});
+//                			setProgressPanelProgress(String.format("Load Record: %d/%d", 0, actionSelection.size()), 0);
+//                			Iterator<?> it = btn.getEventListeners("onBiAction").iterator();
+//                			while (it.hasNext())
+//                				it.remove();
+//                			Iterator<?> it1 = actionSelection.iterator();
+//                			m.put("selectionIdx", -1);
+//						m.put("startTime", System.currentTimeMillis());
+//						btn.addEventListener("onBiAction", (ev) -> {
+//							UniLog.log1("event:%s, data:%s", ev, ev.getData());
+//							while (it1.hasNext()) {
+//								if (m.containsKey("requestStop"))
+//									return;
+//								Object o = it1.next();
+//								m.put("selectionIdx", (int)m.get("selectionIdx") + 1);
+//								int idx = /* listModelList.indexOf(o);*/ getTrIdxByObj(listModelList, o);
+//								p_result.loadOneRecV(idx);
+//								ReturnMsg rtn1 = p_handler.processAction(p_result,idx);
+//								UniLog.log1("Load Record:%d,%d", m.get("selectionIdx"), actionSelection.size());
+//								setProgressPanelProgress(String.format("Load Record: %d/%d", (int)m.get("selectionIdx") + 1, actionSelection.size()), ((int)m.get("selectionIdx") + 1) * 100 / actionSelection.size());
+//								if(rtn1 != null && !rtn1.getStatus()) {
+//									hideProgressPanel();
+//									Messagebox.show(rtn1.getMsg(), sessionHelper.getLabel("Error Message"), Messagebox.OK, Messagebox.ERROR);
+//									return;
+//								}
+//								long currentTime = System.currentTimeMillis();
+//								if (currentTime - (long)m.get("startTime") > 5000) {
+//									Events.echoEvent("onBiAction", btn, null);
+//									m.put("startTime", currentTime);
+//									return;
+//								}
+//							}
+//							p_handler.afterActionAsync((rtn1) -> {
+//								if (rtn1 != null && !rtn1.getStatus())
+//			          				Messagebox.show(rtn1.getMsg(), sessionHelper.getLabel("Error Message"), Messagebox.OK, Messagebox.ERROR);
+//								p_handler.afterActionCallback(p_result,rtn1);
+//							});
+//						});
+//						Events.sendEvent("onBiAction", btn, null);
+//                		} else {
+//          				int itemCnt=0;
+//               			for(Iterator it=actionSelection.iterator();it.hasNext();) {
+//	            				Object o = it.next();
+//	            				int idx = /* listModelList.indexOf(o);*/ getTrIdxByObj(listModelList, o);
+//	            				p_result.loadOneRecV(idx);
+//	            				rtn = p_handler.processAction(p_result,idx);
+//	            				if(rtn != null && !rtn.getStatus()) {
+//	            					Messagebox.show(
+//	            							rtn.getMsg(),
+//	            					sessionHelper.getLabel("Error Message"), Messagebox.OK, Messagebox.ERROR);
+//	            					return;
+//	            				}
+//	            				itemCnt++;
+//	               		}	
+//               			rtn = p_handler.afterAction(p_result);
+//               			if(rtn != null && !rtn.getStatus()) {
+//      						Messagebox.show(rtn.getMsg(), sessionHelper.getLabel("Error Message"), Messagebox.OK, Messagebox.ERROR);
+//   					    	return;
+//  			    		}
+//               		}
            		};
            	}
         );

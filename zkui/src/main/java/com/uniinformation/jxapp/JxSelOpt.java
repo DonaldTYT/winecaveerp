@@ -96,6 +96,8 @@ public class JxSelOpt extends JxForm {
 //				Executions.getCurrent().getDesktop().getFirstPage().getFirstRoot()	
 				);
 		
+		thisPopup.setSclass("jxselopt-popup");
+		thisPopup.setStyle("background:#305496; opacity:1;");
 		
 //		thisPopup.setWidth("");
 //		thisPopup.setHflex("min");

@@ -3764,6 +3764,150 @@ public class ZkUtil extends BiUtil{
 		}
 		return(ReturnMsg.defaultOk);
 	}
+	
+	public static void openPdfInlineFromStream(InputStream inputDataStream,
+            String fileName,
+            SessionHelper sessionHelper) throws Exception {
+
+String mimeType = "application/pdf";
+
+// Your existing temporary URL generator
+String pdfUrl =
+getDownloadLinkFromStream(inputDataStream, mimeType, sessionHelper);
+
+if (pdfUrl == null || pdfUrl.trim().isEmpty()) {
+throw new IllegalStateException("PDF download URL is empty");
+}
+
+String safeTitle =
+(fileName == null || fileName.trim().isEmpty())
+? "Open PDF"
+: escapeHtml(fileName);
+
+String safeUrl = escapeJs(pdfUrl);
+
+/*
+* JS logic:
+*
+* Desktop:
+*      open automatically
+*
+* Mobile:
+*      show a clickable overlay with REAL hyperlink
+*      target=_blank preserves original ZK page
+*      and avoids Safari popup blocking
+*/
+String js =
+"(function(){"
++ "var isMobile=/iPhone|iPad|iPod|Android/i.test(navigator.userAgent);"
+
++ "if(!isMobile){"
++ "   window.open('" + safeUrl + "','_blank','noopener');"
++ "   return;"
++ "}"
+
+// remove old overlay if exists
++ "var old=document.getElementById('mobilePdfOpenOverlay');"
++ "if(old){old.remove();}"
+
+// overlay background
++ "var overlay=document.createElement('div');"
++ "overlay.id='mobilePdfOpenOverlay';"
++ "overlay.style.position='fixed';"
++ "overlay.style.left='0';"
++ "overlay.style.top='0';"
++ "overlay.style.width='100vw';"
++ "overlay.style.height='100vh';"
++ "overlay.style.background='rgba(0,0,0,0.5)';"
++ "overlay.style.zIndex='999999';"
++ "overlay.style.display='flex';"
++ "overlay.style.alignItems='center';"
++ "overlay.style.justifyContent='center';"
+
+// dialog
++ "var box=document.createElement('div');"
++ "box.style.background='white';"
++ "box.style.padding='24px';"
++ "box.style.borderRadius='12px';"
++ "box.style.textAlign='center';"
++ "box.style.maxWidth='90vw';"
++ "box.style.fontFamily='Arial,sans-serif';"
+
++ "var title=document.createElement('div');"
++ "title.innerHTML='" + safeTitle + "';"
++ "title.style.fontSize='18px';"
++ "title.style.marginBottom='16px';"
++ "title.style.fontWeight='bold';"
+
+// REAL hyperlink
++ "var link=document.createElement('a');"
++ "link.href='" + safeUrl + "';"
++ "link.target='_blank';"
++ "link.rel='noopener noreferrer';"
++ "link.innerHTML='Open PDF';"
++ "link.style.display='inline-block';"
++ "link.style.padding='12px 20px';"
++ "link.style.background='#1976d2';"
++ "link.style.color='white';"
++ "link.style.textDecoration='none';"
++ "link.style.borderRadius='8px';"
++ "link.style.fontSize='16px';"
+
++ "link.onclick=function(){"
++ "   setTimeout(function(){"
++ "       overlay.remove();"
++ "   },500);"
++ "};"
+
+// cancel button
++ "var cancel=document.createElement('div');"
++ "cancel.innerHTML='Cancel';"
++ "cancel.style.marginTop='18px';"
++ "cancel.style.color='#666';"
++ "cancel.style.fontSize='14px';"
++ "cancel.style.cursor='pointer';"
+
++ "cancel.onclick=function(){"
++ "   overlay.remove();"
++ "};"
+
++ "box.appendChild(title);"
++ "box.appendChild(link);"
++ "box.appendChild(cancel);"
+
++ "overlay.appendChild(box);"
+
++ "document.body.appendChild(overlay);"
+
++ "})();";
+
+Clients.evalJavaScript(js);
+}
+	private static String escapeJs(String s) {
+		if (s == null) {
+		return "";
+		}
+
+		return s
+		.replace("\\", "\\\\")
+		.replace("'", "\\'")
+		.replace("\"", "\\\"")
+		.replace("\r", "")
+		.replace("\n", "");
+		}
+
+		private static String escapeHtml(String s) {
+		if (s == null) {
+		return "";
+		}
+
+		return s
+		.replace("&", "&amp;")
+		.replace("<", "&lt;")
+		.replace(">", "&gt;")
+		.replace("\"", "&quot;")
+		.replace("'", "&#39;");
+		}	
 		
 }
 

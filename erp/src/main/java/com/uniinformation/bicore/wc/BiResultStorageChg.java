@@ -75,7 +75,7 @@ public class BiResultStorageChg extends BiResultErpv4 {
 			StorageDetailRow generated = generatedRows.get(key);
 			if(generated == null) {
 				generated = new StorageDetailRow(
-						cocode,org,irg,sourceRows.getFieldInt("st_msize2"));
+						cocode,org,irg,(int) sourceRows.getFieldDouble("st_msize2"));
 				generatedRows.put(key,generated);
 			}
 
@@ -243,8 +243,6 @@ public class BiResultStorageChg extends BiResultErpv4 {
 					actual.getCellInt("stord_irg"));
 			if(!actualIndexByKey.containsKey(key)) actualIndexByKey.put(key,i);
 		}
-		int expectedIdx = 1;
-
 		for(StorageDetailRow expected : expectedRows) {
 			String rowKey = "cocode="+expected.cocode
 					+", org="+expected.org+", irg="+expected.irg;
@@ -252,15 +250,12 @@ public class BiResultStorageChg extends BiResultErpv4 {
 					storageDetailKey(expected.cocode,expected.org,expected.irg));
 			if(actualIndex == null) {
 				differences.add(rowKey+": missing from "+STORAGE_DETAIL_LINK);
-				expectedIdx++;
 				continue;
 			}
 			BiCellCollection actual = actualRows.get(actualIndex);
 			matchedActualRows[actualIndex] = true;
 			compareStorageDetailInt(differences,rowKey,"stord_mrg",
 					getCellInt("storh_mrg"),actual.getCellInt("stord_mrg"));
-			compareStorageDetailInt(differences,rowKey,"stord_idx",
-					expectedIdx,actual.getCellInt("stord_idx"));
 			compareStorageDetailInt(differences,rowKey,"stord_pkg",
 					expected.pkg,actual.getCellInt("stord_pkg"));
 			compareStorageDetailInt(differences,rowKey,"stord_sqty",
@@ -269,7 +264,6 @@ public class BiResultStorageChg extends BiResultErpv4 {
 					expected.consignmentQty,actual.getCellInt("stord_cqty"));
 			compareStorageDetailInt(differences,rowKey,"stord_stmrg",
 					0,actual.getCellInt("stord_stmrg"));
-			expectedIdx++;
 		}
 
 		for(int i=0;i<actualRows.size();i++) {

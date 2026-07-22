@@ -10,5 +10,6 @@
     <Root level="debug">
       <AppenderRef ref="Console"/>
     </Root>
+    <Logger name="org.zkoss.zk.ui.impl.UiEngineImpl" level="info"/>
   </Loggers>
 </Configuration>

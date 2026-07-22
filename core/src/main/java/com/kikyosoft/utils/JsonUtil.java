@@ -11,6 +11,10 @@ import com.uniinformation.cell.Cell;
 public class JsonUtil{
 	JSONObject jo = null;
 	JSONArray ja = null;
+
+	private static boolean isEmpty(JSONObject jsonObject) {
+		return jsonObject == null || jsonObject.length() == 0;
+	}
 	
 	Object cellToJsonObject(Cell cc) throws Exception{
 		switch(cc.getType()) {
@@ -128,7 +132,7 @@ public class JsonUtil{
 			}
 		}
 		if(p_label instanceof JSONObject ) {
-			if(((JSONObject) p_label).isEmpty()) {
+			if(isEmpty((JSONObject) p_label)) {
 				return(this);
 			}
 		}

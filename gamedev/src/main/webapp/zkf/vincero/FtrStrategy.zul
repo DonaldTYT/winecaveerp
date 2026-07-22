@@ -64,7 +64,7 @@
 	 -->
 	<vlayout sclass="zkbi-form-content">
 		<div align="left">
-			<label id="sheetTitle" style="font-size:30px!important;font-weight:bold!important">Foundamental Analysis Calculatorr</label>	
+			<label id="sheetTitle" style="font-size:30px!important;font-weight:bold!important">Fundamental Analysis Calculator</label>	
 		</div>
 		<hlayout>
 		    <label value="Market Sentiment" sclass="ftrs-label"/>

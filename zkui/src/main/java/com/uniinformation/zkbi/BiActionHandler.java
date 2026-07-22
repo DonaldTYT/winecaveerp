@@ -1,6 +1,7 @@
 package com.uniinformation.zkbi;
 
 import com.uniinformation.bicore.BiResult;
+import com.uniinformation.jx.JxActionListener;
 import com.kyoko.common.ReturnMsg;
 import com.uniinformation.webcore.SessionHelper;
 
@@ -15,6 +16,8 @@ abstract public class BiActionHandler {
 	
 	protected ZkBiComposerBase biBase;
 	protected boolean useAsync;
+	protected boolean delayStart;
+	JxActionListener startAction;
 	
 	public BiActionHandler(ZkBiComposerBase p_bibase) {
 		biBase = p_bibase;
@@ -47,7 +50,17 @@ abstract public class BiActionHandler {
 		return(ReturnMsg.defaultOk);
 	}
 	
-	public boolean preserveListOrder() {
+	public boolean preserveListOrder () {
 		return(false);
+	}
+	
+	public final void delayStart() {
+		if(startAction != null) {
+			startAction.actionPerformed(null);
+		}
+	}
+
+	public final void delayAbort() {
+		startAction = null;
 	}
 }
