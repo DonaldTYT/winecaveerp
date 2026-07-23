@@ -125,7 +125,7 @@ import com.uniinformation.jx.zk.*;
 import com.uniinformation.jx.zk.ZkJxQueryInput.EventListenerCallback;
 import com.uniinformation.jxapp.JxZkBiBase;
  
-public class ZkBiComposerBase extends ZkBiComposerView implements Composer<Component>, ZkBiSearchInterface, ZkBiHotkeyInterface, JxZkBiBaseCallback, ZkBiAiHelperContext {
+public class ZkBiComposerBase extends ZkBiComposerView implements Composer<Component>, ZkBiSearchInterface, ZkBiHotkeyInterface, JxZkBiBaseCallback, ZkBiAiAgentContext {
 	public static final String AI_HELP_ENABLED_CONFIG = "AI_HELP_ENABLED";
 	/** SessionHelper session-data key containing the current user's AI API key. */
 	public static final String AI_HELP_API_KEY_SESSION_DATA_KEY = "zkBiAiHelperApiKey";
@@ -182,7 +182,8 @@ public class ZkBiComposerBase extends ZkBiComposerView implements Composer<Compo
     
     Toolbarbutton btnCustCondition;
 	protected Toolbarbutton btnHelp = null;
-	private ZkBiAiHelperDialog aiHelpDialog = null;
+	private ZkBiAiAgentDialog aiHelpDialog = null;
+	private ZkBiAiAgentContext aiHelpContext = null;
 	private BiResult aiHelpResult = null;
    	protected Vbox bottomPanelVbox = null;
   	Hbox shortcutBar= null;
@@ -6529,9 +6530,9 @@ public class ZkBiComposerBase extends ZkBiComposerView implements Composer<Compo
 		try {
 			agentClass = Class.forName(agentClassName.trim(), true,
 					Thread.currentThread().getContextClassLoader());
-			if (!ZkBiAiHelperAgent.class.isAssignableFrom(agentClass)) {
+			if (!ZkBiAiAgent.class.isAssignableFrom(agentClass)) {
 				throw new IllegalArgumentException(agentClassName
-						+ " does not implement " + ZkBiAiHelperAgent.class.getName());
+						+ " does not implement " + ZkBiAiAgent.class.getName());
 			}
 		}
 		catch (Exception ex) {
@@ -6551,7 +6552,7 @@ public class ZkBiComposerBase extends ZkBiComposerView implements Composer<Compo
 			public void onZkBiEvent(Event event) throws Exception {
 				try {
 					if (aiHelpDialog == null) {
-						ZkBiAiHelperAgent agent;
+						ZkBiAiAgent agent;
 						try {
 							java.lang.reflect.Constructor<?> apiKeyConstructor =
 									agentClass.getDeclaredConstructor(String.class);
@@ -6560,14 +6561,14 @@ public class ZkBiComposerBase extends ZkBiComposerView implements Composer<Compo
 								throw new IllegalStateException(
 										"No AI API key is available for the current user session");
 							}
-							agent = (ZkBiAiHelperAgent)apiKeyConstructor.newInstance(apiKey);
+							agent = (ZkBiAiAgent)apiKeyConstructor.newInstance(apiKey);
 						}
 						catch (NoSuchMethodException ex) {
 							// Keep provider implementations that do not require a credential compatible.
-							agent = (ZkBiAiHelperAgent)agentClass
+							agent = (ZkBiAiAgent)agentClass
 									.getDeclaredConstructor().newInstance();
 						}
-						aiHelpDialog = new ZkBiAiHelperDialog(ZkBiComposerBase.this, agent);
+						aiHelpDialog = new ZkBiAiAgentDialog(ZkBiComposerBase.this, agent);
 					}
 					aiHelpDialog.show();
 				}
@@ -6617,130 +6618,136 @@ public class ZkBiComposerBase extends ZkBiComposerView implements Composer<Compo
 		return masterWin;
 	}
 
+	/**
+	 * Factory for the capability context exposed by this composer.
+	 * Subclasses may return a different context with a separately controlled tool set.
+	 */
+	protected ZkBiAiAgentContext createAiHelpContext() {
+		return new ZkBiComposerAIHelperContext(this);
+	}
+
+	private ZkBiAiAgentContext getOrCreateAiHelpContext() {
+		if (aiHelpContext == null)
+			aiHelpContext = createAiHelpContext();
+		return aiHelpContext;
+	}
+
 	@Override
 	public JSONObject getAiHelpContext() throws JSONException {
-		JSONObject context = new JSONObject();
-		context.put("invokerClass", getClass().getName());
-		context.put("invokerComponentId", masterWin == null ? JSONObject.NULL : masterWin.getId());
-		context.put("pageTitle", StringUtils.defaultIfBlank(title, viewid));
-		context.put("pageId", pageid);
-		context.put("viewId", viewid);
-		context.put("helpId", helpid);
-		context.put("pageAction", action);
-		context.put("listVisible", zkbiListTop != null && zkbiListTop.isVisible());
-		context.put("detailOpen", inDetailForm);
-		context.put("multiSelect", multiSelect);
-		context.put("selectedRowIndex", listbox == null ? -1 : listbox.getSelectedIndex());
-		context.put("selectedRowCount", listbox == null ? 0 : listbox.getSelectedCount());
-		context.put("renderedRowCount", listModelList == null ? 0 : listModelList.size());
-
-		JxZkBiBase detailForm = aiHelpDetailForm();
-		if (detailForm != null) {
-			context.put("detailVisible", detailForm.isFormVisible());
-			context.put("detailMode", aiHelpModeName(detailForm.getCurMode()));
-		}
-		else {
-			context.put("detailVisible", false);
-			context.put("detailMode", "none");
-		}
-
-		BiResult result = aiHelpResult;
-		if (result == null) {
-			context.put("biResultAvailable", false);
-			return context;
-		}
-		context.put("biResultAvailable", true);
-		context.put("viewName", result.getView().getName());
-		context.put("viewHeader", result.getView().getHeader());
-		context.put("loadedRowCount", result.getRowCount());
-		context.put("recordLimit", result.getRecLimit());
-		context.put("pendingChanges", new JSONObject()
-				.put("added", result.getInsertCount())
-				.put("updated", result.getUpdateCount())
-				.put("deleted", result.getDeleteCount()));
-		context.put("permissions", new JSONObject()
-				.put("viewDetail", result.allowDetail())
-				.put("add", result.allowAdd())
-				.put("update", result.allowUpdate())
-				.put("delete", result.allowDelete()));
-
-		JSONArray fields = new JSONArray();
-		Vector columns = result.getColumns();
-		int limit = Math.min(columns.size(), 200);
-		for (int i = 0; i < limit; i++) {
-			BiColumn column = (BiColumn)columns.elementAt(i);
-			fields.put(new JSONObject()
-					.put("id", column.getLabel())
-					.put("name", column.getEngName())
-					.put("type", column.getColumnType())
-					.put("editableWhenAdding", !column.isNoEntry(sessionHelper))
-					.put("editableWhenUpdating", !column.isNoUpdate(sessionHelper)));
-		}
-		context.put("fields", fields);
-		context.put("fieldCount", columns.size());
-		context.put("fieldListTruncated", columns.size() > limit);
-		context.put("recordValuesShared", false);
-		return context;
+		return getOrCreateAiHelpContext().getAiHelpContext();
 	}
 
 	@Override
 	public JSONObject getAiHelpOperationCatalog() throws JSONException {
-		JSONArray operations = new JSONArray();
-		BiResult result = aiHelpResult;
-
-		if (aiHelpCanFilter())
-			operations.put(aiHelpOperation("filter_records", "Filter the currently loaded list records"));
-		if (aiHelpCanOpenDetail())
-			operations.put(aiHelpOperation("open_record_detail", "Open one listed record's detail form"));
-		if (aiHelpCanUpdate()) {
-			operations.put(aiHelpOperation("update_record", "Open, modify and save an existing record"));
-			operations.put(aiHelpOperation("save_record", "Save changes in an open record detail form"));
-		}
-		JxZkBiBase detailForm = aiHelpDetailForm();
-		if (inDetailForm || (detailForm != null && detailForm.isFormVisible()))
-			operations.put(aiHelpOperation("return_to_list", "Close the detail form and return to the list"));
-
-		JSONObject catalog = new JSONObject()
-				.put("viewId", viewid)
-				.put("currentPageState", aiHelpCurrentPageState())
-				.put("operations", operations)
-				.put("readOnlyHelp", true)
-				.put("recordValuesShared", false);
-		if (result == null)
-			catalog.put("note", "The BI result is not currently available, so only live UI operations are listed.");
-		customizeAiHelpOperationCatalog(operations);
-		return catalog;
+		return getOrCreateAiHelpContext().getAiHelpOperationCatalog();
 	}
 
 	@Override
 	public JSONObject getAiHelpOperationHelp(String operationId) throws JSONException {
-		String id = StringUtils.trimToEmpty(operationId);
-		JSONObject help = new JSONObject()
-				.put("operationId", id)
-				.put("viewId", viewid)
-				.put("pageTitle", StringUtils.defaultIfBlank(title, viewid))
-				.put("currentPageState", aiHelpCurrentPageState())
-				.put("readOnlyHelp", true)
-				.put("recordValuesShared", false);
+		return getOrCreateAiHelpContext().getAiHelpOperationHelp(operationId);
+	}
 
-		if ("filter_records".equals(id))
-			buildAiHelpFilterRecords(help);
-		else if ("open_record_detail".equals(id))
-			buildAiHelpOpenDetail(help);
-		else if ("update_record".equals(id))
-			buildAiHelpUpdateRecord(help);
-		else if ("save_record".equals(id))
-			buildAiHelpSaveRecord(help);
-		else if ("return_to_list".equals(id))
-			buildAiHelpReturnToList(help);
-		else {
-			help.put("known", false);
-			help.put("available", false);
-			help.put("message", "No exact operating guide is registered for this operation.");
+	/**
+	 * Captures only the live state required by the read-only helper context.
+	 * No mutable ZK component or record operation is exposed as an AI tool.
+	 */
+	ZkBiComposerAIHelperContext.PageState captureAiHelpPageState() {
+		ZkBiComposerAIHelperContext.PageState state =
+				new ZkBiComposerAIHelperContext.PageState();
+		state.invokerClass = getClass().getName();
+		state.invokerComponentId = masterWin == null ? null : masterWin.getId();
+		state.pageTitle = title;
+		state.pageId = pageid;
+		state.viewId = viewid;
+		state.helpId = helpid;
+		state.pageAction = action;
+		state.listVisible = zkbiListTop != null && zkbiListTop.isVisible();
+		state.detailOpen = inDetailForm;
+		state.multiSelect = multiSelect;
+		state.selectedRowIndex = listbox == null ? -1 : listbox.getSelectedIndex();
+		state.selectedRowCount = listbox == null ? 0 : listbox.getSelectedCount();
+		state.renderedRowCount = listModelList == null ? 0 : listModelList.size();
+		state.result = aiHelpResult;
+		state.detailForm = StringUtils.isBlank(detailFormName) ? null : getDetailForm();
+		state.canFilter = zkBiSearch != null
+				&& tbSearchBox.getParent() != null && tbSearchBox.isVisible();
+		state.mobileLayout = isMobile();
+		state.advancedSearchG2Available = divAdvSearchG2 != null
+				&& divAdvSearchG2.isVisible();
+		state.advancedSearchG1Available = btAdvSearch != null
+				&& btAdvSearch.isVisible();
+		state.embeddedAdvancedSearchVisible = zkbiEmbedSearchDiv != null
+				&& zkbiEmbedSearchDiv.isVisible();
+		Component embeddedSearchButton = state.embeddedAdvancedSearchVisible
+				? (Component)zkbiEmbedSearchDiv.getAttribute("btSearch") : null;
+		state.embeddedAdvancedSearchAuto = embeddedSearchButton != null
+				&& !embeddedSearchButton.isVisible();
+		state.canAdvancedSearch = aiHelpResult != null
+				&& (state.advancedSearchG2Available || state.advancedSearchG1Available
+						|| state.embeddedAdvancedSearchVisible);
+		state.advancedSearchConditionActive = inputFieldsList != null
+				&& StringUtils.isNotBlank(inputFieldsList.customCondition);
+		state.advancedSearchModified = divAdvSearchG2Indicator != null
+				&& divAdvSearchG2Indicator.isVisible();
+		state.legacyAdvancedSearchPresetControls = allowAdvSearchG1Preset;
+		state.advancedSearchRecordLimit = ibLimit == null || ibLimit.getValue() == null
+				? 0 : ibLimit.getValue();
+		if (conditionPresetListbox != null && conditionPresetListbox.getSelectedItem() != null) {
+			Object selectedPresetValue = conditionPresetListbox.getSelectedItem().getValue();
+			state.selectedPreset = selectedPresetValue == null ? null : selectedPresetValue.toString();
+			state.selectedPresetLabel = conditionPresetListbox.getSelectedItem().getLabel();
 		}
-
-		customizeAiHelpOperationHelp(id, help);
-		return help;
+		state.canQueryViewPresets = aiHelpResult != null && mConditionPresets != null
+				&& conditionPresetListbox != null
+				&& (conditionPresetListbox.isVisible() || state.advancedSearchG2Available
+						|| state.embeddedAdvancedSearchVisible);
+		state.presetSelectorVisible = conditionPresetListbox != null
+				&& conditionPresetListbox.isVisible();
+		if (mConditionPresets != null) {
+			state.presetManagementEnabled = !mConditionPresets.isFromUrl();
+			state.presetCount = mConditionPresets.getPresets().size();
+			state.defaultPreset = mConditionPresets.getDefaultPreset();
+			if (state.selectedPreset != null) {
+				ConditionFieldMap selectedPresetMap = mConditionPresets.getFieldMap(state.selectedPreset);
+				if (selectedPresetMap != null) {
+					state.selectedPresetCustom = selectedPresetMap.isCustom();
+					state.selectedPresetDefault = selectedPresetMap.isDefault();
+				}
+			}
+		}
+		state.mobileRecordCards = aiHelpResult != null
+				&& useMobileList(isMobile(), aiHelpResult);
+		state.canSortColumns = aiHelpResult != null && !state.mobileRecordCards;
+		state.canDisplayColumns = aiHelpResult != null && !isMobile()
+				&& !useMobileList(false, aiHelpResult);
+		state.canExportList = aiHelpResult != null && btnExport != null
+				&& btnExport.isVisible() && state.listVisible;
+		state.exportRowCount = listModelList == null ? 0 : listModelList.getSize();
+		state.adminUser = sessionHelper.isAdminUser();
+		state.batchUpdateMaxRows = 100;
+		String maxUpdateKey = sessionHelper.getAccessRightKeyByPrefix("#maxupd");
+		if (StringUtils.isNotBlank(maxUpdateKey))
+			state.batchUpdateMaxRows = NumberUtil.atoi(maxUpdateKey);
+		boolean hasBatchUpdateColumn = false;
+		if (aiHelpResult != null) {
+			for (BiColumn column : aiHelpResult.getListColumns()) {
+				if (!column.isNoUpdate(sessionHelper) && column.allowBatchUpdate()) {
+					hasBatchUpdateColumn = true;
+					break;
+				}
+			}
+		}
+		state.canBatchUpdate = aiHelpResult != null && !isMobile()
+				&& !state.mobileRecordCards && Boolean.TRUE.equals(hasAUDColumn)
+				&& sessionHelper.useJxFormG2()
+				&& aiHelpResult.getView().allowBatchUpdate(sessionHelper)
+				&& hasBatchUpdateColumn;
+		state.continuousBatchUpdate = aiHelpResult != null
+				&& aiHelpResult.getView().newBatchUpdate();
+		state.canOpenDetail = aiHelpResult != null && aiHelpResult.allowDetail()
+				&& !multiSelect && (state.mobileRecordCards || hasDetailButton);
+		state.canUpdate = state.canOpenDetail && aiHelpResult.allowUpdate();
+		return state;
 	}
 
 	/** Allows a view-specific composer to append additional semantic operations. */
@@ -6749,219 +6756,6 @@ public class ZkBiComposerBase extends ZkBiComposerView implements Composer<Compo
 
 	/** Allows a view-specific composer to add or replace details in an operation guide. */
 	protected void customizeAiHelpOperationHelp(String operationId, JSONObject help) throws JSONException {
-	}
-
-	private JSONObject aiHelpOperation(String id, String description) throws JSONException {
-		return new JSONObject().put("id", id).put("description", description);
-	}
-
-	private boolean aiHelpCanFilter() {
-		return zkBiSearch != null && tbSearchBox.getParent() != null && tbSearchBox.isVisible();
-	}
-
-	private boolean aiHelpCanOpenDetail() {
-		return aiHelpResult != null && aiHelpResult.allowDetail() && !multiSelect
-				&& (aiHelpUsesMobileRecordCards() || hasDetailButton);
-	}
-
-	private boolean aiHelpCanUpdate() {
-		return aiHelpCanOpenDetail() && aiHelpResult.allowUpdate();
-	}
-
-	private boolean aiHelpUsesMobileRecordCards() {
-		return aiHelpResult != null && useMobileList(isMobile(), aiHelpResult);
-	}
-
-	private JxZkBiBase aiHelpDetailForm() {
-		return StringUtils.isBlank(detailFormName) ? null : getDetailForm();
-	}
-
-	private String aiHelpCurrentPageState() {
-		JxZkBiBase form = aiHelpDetailForm();
-		if (form != null && form.isFormVisible())
-			return "detail_" + aiHelpModeName(form.getCurMode());
-		return "list";
-	}
-
-	private void aiHelpAvailability(JSONObject help, boolean available, String unavailableReason)
-			throws JSONException {
-		help.put("known", true).put("available", available);
-		if (!available)
-			help.put("unavailableReason", unavailableReason);
-	}
-
-	private void buildAiHelpFilterRecords(JSONObject help) throws JSONException {
-		boolean available = aiHelpCanFilter();
-		aiHelpAvailability(help, available, "Quick Filter is not enabled for this view or user session.");
-		if (!available)
-			return;
-
-		help.put("control", new JSONObject()
-				.put("label", sessionHelper.getLabel("Quick Filter"))
-				.put("componentId", "tbSearchBox")
-				.put("trigger", "automatic_after_idle")
-				.put("idleMilliseconds", 500)
-				.put("pressEnterRequired", false)
-				.put("searchButtonExists", false)
-				.put("filterIconPurpose", "Optionally commit the current text as a persistent search tag"));
-		help.put("liveFiltering", new JSONObject()
-				.put("enabled", true)
-				.put("scope", "currently loaded BI result records")
-				.put("fields", "list-column display values")
-				.put("alsoChecksCurrentTextAgainstAggregateOrPivotValues", true)
-				.put("caseSensitive", false)
-				.put("trimSurroundingWhitespace", true));
-		help.put("matchingSyntax", new JSONObject()
-				.put("plainText", "Case-insensitive contains match")
-				.put("exactMatch", "Prefix the text with =, for example =B45")
-				.put("wildcard", "Use * to match any sequence of characters, for example Chateau*Palmer"));
-		help.put("searchTags", new JSONObject()
-				.put("create", "Press Enter or click/open the filter icon to convert non-blank current text into a persistent tag")
-				.put("effect", "The input box is cleared but filtering by the new tag continues")
-				.put("remove", "Click the tag's x control")
-				.put("popup", "Hover/open a tag to see matched columns and the match count for each column")
-				.put("perColumnSwitches", "Use the tag popup switches to include or exclude matching columns for that tag"));
-		help.put("tagCombination", new JSONObject()
-				.put("controlLabel", sessionHelper.getBtLabel("Match All"))
-				.put("checkedMeaning", "Every committed tag and any current text must match the record")
-				.put("uncheckedMeaning", "At least one committed tag or the current text must match the record")
-				.put("visibleOnMobile", false)
-				.put("mobileBehavior", "The configured/default match mode remains active even though Match All is hidden"));
-		help.put("urlPersistence", new JSONObject()
-				.put("configurationDependent", true)
-				.put("tagParameter", "qf")
-				.put("matchModeParameter", "qfm")
-				.put("behavior", "When enabled, committed tags and AND/OR mode are written to the page URL and restored when that URL is opened"));
-		help.put("steps", new JSONArray()
-				.put("Locate the Quick Filter box above the record list.")
-				.put("Type the desired name, code or other keyword into the box.")
-				.put("Stop typing and wait about 0.5 second; the currently loaded list filters automatically.")
-				.put("Optionally press Enter or click/open the filter icon to keep that text as a search tag, then enter additional tags.")
-				.put("Use Match All on desktop to choose whether all tags or any tag must match."));
-		help.put("notes", new JSONArray()
-				.put("Do not tell the user that Enter or an icon click is required for ordinary filtering; those actions only commit the text as a tag.")
-				.put("Records already marked as updated or deleted remain visible even when they do not match the filter.")
-				.put("This operation filters the currently loaded records; it does not by itself count matching records for the AI."));
-	}
-
-	private void buildAiHelpOpenDetail(JSONObject help) throws JSONException {
-		boolean available = aiHelpCanOpenDetail();
-		aiHelpAvailability(help, available,
-				"Record detail is unavailable for this view, selection mode or logged-in user.");
-		if (!available)
-			return;
-
-		boolean mobileCards = aiHelpUsesMobileRecordCards();
-		if (mobileCards) {
-			help.put("control", new JSONObject()
-					.put("label", "desired record card")
-					.put("location", "record list")
-					.put("trigger", "single_tap"));
-			help.put("steps", new JSONArray()
-					.put("Find the desired record in the list, using Quick Filter first when helpful.")
-					.put("Tap the desired record card once.")
-					.put("Wait for the record detail form to open."));
-			help.put("notes", new JSONArray()
-					.put("In the mobile card layout, tap the record itself; no separate Record Detail icon is required."));
-		}
-		else {
-			help.put("control", new JSONObject()
-					.put("label", sessionHelper.getTtLabel("Record Detail"))
-					.put("location", "left side of the desired record row")
-					.put("appearance", "small record-detail/pencil icon")
-					.put("trigger", "single_click"));
-			help.put("steps", new JSONArray()
-					.put("Find the desired record in the list, using Quick Filter first when helpful.")
-					.put("Click the small Record Detail icon at the far left of that record's row.")
-					.put("Wait for the record detail form to open."));
-			help.put("notes", new JSONArray()
-					.put("Click the row's Record Detail icon; do not instruct the user to double-click the row."));
-		}
-	}
-
-	private void buildAiHelpUpdateRecord(JSONObject help) throws JSONException {
-		boolean available = aiHelpCanUpdate();
-		aiHelpAvailability(help, available,
-				"Updating records is unavailable for this view or logged-in user.");
-		if (!available)
-			return;
-
-		JxZkBiBase form = aiHelpDetailForm();
-		boolean detailVisible = form != null && form.isFormVisible();
-		String detailMode = detailVisible ? aiHelpModeName(form.getCurMode()) : "not_open";
-		help.put("detailMode", detailMode);
-		JSONArray steps = new JSONArray();
-		if (!detailVisible) {
-			steps.put("Find the desired record, optionally by typing into Quick Filter and waiting about 0.5 second for automatic filtering.");
-			steps.put(aiHelpUsesMobileRecordCards()
-					? "Tap the desired record card once."
-					: "Click the small Record Detail icon at the far left of the desired row.");
-		}
-		if (!detailVisible || form.getCurMode() == JxZkBiBase.MODE_DISPLAY)
-			steps.put("If the detail form is read-only, click Edit to enter update mode.");
-		steps.put("Modify the permitted fields in the detail form.");
-		steps.put("After making a change, click Save.");
-		steps.put("If validation reports an error, correct the indicated field and click Save again.");
-		help.put("steps", steps);
-		help.put("controls", new JSONObject()
-				.put("openDetail", aiHelpUsesMobileRecordCards()
-						? "tap desired record card"
-						: sessionHelper.getTtLabel("Record Detail"))
-				.put("edit", sessionHelper.getBtLabel("Edit"))
-				.put("save", sessionHelper.getBtLabel("Save")));
-		help.put("notes", new JSONArray()
-				.put("The detail form may open directly in update mode; use Edit only when it opens read-only.")
-				.put("Save can remain disabled until a field has actually changed."));
-	}
-
-	private void buildAiHelpSaveRecord(JSONObject help) throws JSONException {
-		JxZkBiBase form = aiHelpDetailForm();
-		boolean visible = form != null && form.isFormVisible();
-		boolean available = aiHelpCanUpdate() && visible && form.getCurMode() == JxZkBiBase.MODE_UPDATE;
-		aiHelpAvailability(help, available, !visible
-				? "Open a record detail form before saving."
-				: "The open detail form is not currently in update mode.");
-		if (!available)
-			return;
-
-		help.put("control", new JSONObject()
-				.put("label", sessionHelper.getBtLabel("Save"))
-				.put("componentId", "btUpdate")
-				.put("trigger", "single_click"));
-		help.put("steps", new JSONArray()
-				.put("Make the required changes in the open detail form.")
-				.put("Click Save after it becomes enabled.")
-				.put("Correct any validation error shown by the form, then click Save again."));
-		help.put("notes", new JSONArray().put("Save can remain disabled until a field has actually changed."));
-	}
-
-	private void buildAiHelpReturnToList(JSONObject help) throws JSONException {
-		JxZkBiBase form = aiHelpDetailForm();
-		boolean available = form != null && form.isFormVisible();
-		aiHelpAvailability(help, available, "No record detail form is currently open.");
-		if (!available)
-			return;
-
-		help.put("control", new JSONObject()
-				.put("label", sessionHelper.getBtLabel("Close"))
-				.put("componentId", "btClose")
-				.put("trigger", "single_click"));
-		help.put("steps", new JSONArray()
-				.put("Click Close on the record detail form.")
-				.put("If the page warns about unsaved changes, choose whether to keep editing or discard them."));
-	}
-
-	private String aiHelpModeName(int mode) {
-		switch (mode) {
-		case JxZkBiBase.MODE_ADD:
-			return "add";
-		case JxZkBiBase.MODE_UPDATE:
-			return "update";
-		case JxZkBiBase.MODE_DISPLAY:
-			return "display";
-		default:
-			return "unknown";
-		}
 	}
 
     protected JxZkBiBase buildDetailWindow(final BiResult result){
@@ -7032,7 +6826,8 @@ public class ZkBiComposerBase extends ZkBiComposerView implements Composer<Compo
     	btnHelp = new Toolbarbutton();
 		//btnHelp.setImage("images/icons/zkweb/058-idea-25x25.png");
 		//btnHelp.setImage("images/icons/zkweb/089-support-25x25.png");
-		btnHelp.setImage("images/icons/zkweb/033-doubt-25x25.png");
+//		btnHelp.setImage("images/icons/zkweb/033-doubt-25x25.png");
+		btnHelp.setImage("images/icons/aihelp.png");
 		btnHelp.setTooltiptext(sessionHelper.getTtLabel("Help"));
 		//btnHelp.setStyle("font-size: 25px; opacity:0.8;");
 		btnHelp.setStyle("font-size: 25px;");

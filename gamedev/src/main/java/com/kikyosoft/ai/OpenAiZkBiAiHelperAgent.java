@@ -9,10 +9,10 @@ import org.json.JSONObject;
 
 import com.kikyosoft.ai.openai.OpenAIChatClient;
 import com.kikyosoft.utils.LogUtil;
-import com.uniinformation.zkbi.ZkBiAiHelperAgent;
+import com.uniinformation.zkbi.ZkBiAiAgent;
 
 /** OpenAI backend adapter for the provider-neutral ZK BI AI helper. */
-public final class OpenAiZkBiAiHelperAgent implements ZkBiAiHelperAgent {
+public final class OpenAiZkBiAiHelperAgent implements ZkBiAiAgent {
     private OpenAIChatClient client;
     private String apikey;
 
@@ -23,16 +23,16 @@ public final class OpenAiZkBiAiHelperAgent implements ZkBiAiHelperAgent {
     @Override
     public String chat(String systemPrompt,
                        String message,
-                       List<? extends ZkBiAiHelperAgent.Tool> availableTools) throws Exception {
+                       List<? extends ZkBiAiAgent.Tool> availableTools) throws Exception {
         if (client == null)
             client = new OpenAIChatClient(apikey);
 
-        List<? extends ZkBiAiHelperAgent.Tool> sourceTools = availableTools == null
-                ? Collections.<ZkBiAiHelperAgent.Tool>emptyList()
+        List<? extends ZkBiAiAgent.Tool> sourceTools = availableTools == null
+                ? Collections.<ZkBiAiAgent.Tool>emptyList()
                 : availableTools;
         List<OpenAIChatClient.ChatTool> openAiTools =
                 new ArrayList<OpenAIChatClient.ChatTool>(sourceTools.size());
-        for (final ZkBiAiHelperAgent.Tool tool : sourceTools) {
+        for (final ZkBiAiAgent.Tool tool : sourceTools) {
             openAiTools.add(new OpenAIChatClient.ChatTool() {
                 @Override
                 public String getName() {

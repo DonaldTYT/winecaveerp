@@ -6,8 +6,8 @@ import org.zkoss.zk.ui.Component;
 
 import com.uniinformation.webcore.SessionHelper;
 
-/** Live, read-only state supplied by a ZK BI page to its AI helper dialog. */
-public interface ZkBiAiHelperContext {
+/** Live page and capability context supplied to a ZK BI AI agent dialog. */
+public interface ZkBiAiAgentContext {
     SessionHelper getAiHelpSessionHelper();
 
     Component getAiHelpParentComponent();

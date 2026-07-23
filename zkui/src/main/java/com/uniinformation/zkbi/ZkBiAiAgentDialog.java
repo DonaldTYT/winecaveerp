@@ -22,9 +22,9 @@ import com.uniinformation.utils.UniLog;
 import com.uniinformation.webcore.SessionHelper;
 
 /**
- * Provider-neutral conversational UI for the ZK BI page helper.
+ * Provider-neutral conversational UI for a ZK BI AI agent.
  */
-public final class ZkBiAiHelperDialog {
+public final class ZkBiAiAgentDialog {
     private static final int MAX_HISTORY_TURNS = 10;
     private static final String SYSTEM_PROMPT =
             "You are the in-application AI help assistant for a business data page. "
@@ -43,20 +43,20 @@ public final class ZkBiAiHelperDialog {
           + "actions or controls unless the successful tool result explicitly documents them. "
           + "Do not request passwords or API keys.";
 
-    private final ZkBiAiHelperContext invoker;
-    private final ZkBiAiHelperAgent agent;
+    private final ZkBiAiAgentContext invoker;
+    private final ZkBiAiAgent agent;
     private final SessionHelper sessionHelper;
     private final Component parentComp;
     private final boolean mobile;
     private final List<Turn> history = new ArrayList<Turn>();
-    private final List<ZkBiAiHelperAgent.Tool> tools;
+    private final List<ZkBiAiAgent.Tool> tools;
 
     private Window dialog;
     private Div transcript;
     private Textbox question;
     private Button sendButton;
 
-    public ZkBiAiHelperDialog(ZkBiAiHelperContext invoker, ZkBiAiHelperAgent agent) {
+    public ZkBiAiAgentDialog(ZkBiAiAgentContext invoker, ZkBiAiAgent agent) {
         if (invoker == null)
             throw new IllegalArgumentException("invoker must not be null");
         if (agent == null)
@@ -66,7 +66,7 @@ public final class ZkBiAiHelperDialog {
         this.sessionHelper = invoker.getAiHelpSessionHelper();
         this.parentComp = invoker.getAiHelpParentComponent();
         this.mobile = sessionHelper.isMobileDevice();
-        this.tools = new ArrayList<ZkBiAiHelperAgent.Tool>();
+        this.tools = new ArrayList<ZkBiAiAgent.Tool>();
         this.tools.add(new PageContextTool());
         this.tools.add(new PageOperationsTool());
         this.tools.add(new OperationHelpTool());
@@ -304,7 +304,7 @@ public final class ZkBiAiHelperDialog {
         return sessionHelper.getLabel("AI Help request failed") + ": " + message;
     }
 
-    private final class PageContextTool implements ZkBiAiHelperAgent.Tool {
+    private final class PageContextTool implements ZkBiAiAgent.Tool {
         @Override
         public String getName() {
             return "get_page_context";
@@ -330,7 +330,7 @@ public final class ZkBiAiHelperDialog {
         }
     }
 
-    private final class PageOperationsTool implements ZkBiAiHelperAgent.Tool {
+    private final class PageOperationsTool implements ZkBiAiAgent.Tool {
         @Override
         public String getName() {
             return "list_page_operations";
@@ -362,7 +362,7 @@ public final class ZkBiAiHelperDialog {
         }
     }
 
-    private final class OperationHelpTool implements ZkBiAiHelperAgent.Tool {
+    private final class OperationHelpTool implements ZkBiAiAgent.Tool {
         @Override
         public String getName() {
             return "get_operation_help";
