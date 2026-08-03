@@ -1,76 +1,39 @@
 package com.uniinformation.utils;
 
-import java.awt.Graphics2D;
-import java.awt.RenderingHints;
-import java.awt.geom.AffineTransform;
-import java.awt.image.BufferedImage;
-import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.InputStream;
-import java.lang.invoke.MethodHandle;
-import java.lang.invoke.MethodHandles;
-import java.lang.invoke.MethodType;
 import java.net.URLDecoder;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.Set;
 import java.util.Vector;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Consumer;
-import java.util.function.DoubleFunction;
-import java.util.function.Function;
-import java.util.function.IntConsumer;
-import java.util.function.IntFunction;
-import java.util.function.IntPredicate;
-import java.util.function.LongFunction;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
-import java.util.function.ToIntFunction;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
-import javax.imageio.ImageIO;
-import javax.imageio.ImageWriteParam;
-import javax.imageio.ImageWriter;
-import javax.imageio.stream.ImageOutputStream;
-import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
 
-import org.apache.commons.codec.binary.Base64;
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.math.NumberUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.lang3.tuple.Triple;
-import org.apache.commons.mail.EmailAttachment;
-import org.apache.commons.mail.HtmlEmail;
 import org.apache.commons.text.StringEscapeUtils;
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.zkoss.zk.ui.Component;
@@ -100,7 +63,6 @@ import org.zkoss.zul.Grid;
 import org.zkoss.zul.Hbox;
 import org.zkoss.zul.Hlayout;
 import org.zkoss.zul.Label;
-import org.zkoss.zul.Layout;
 import org.zkoss.zul.Listbox;
 import org.zkoss.zul.Listitem;
 import org.zkoss.zul.Messagebox;
@@ -115,7 +77,6 @@ import org.zkoss.zul.Space;
 import org.zkoss.zul.Tab;
 import org.zkoss.zul.Textbox;
 import org.zkoss.zul.Timer;
-import org.zkoss.zul.Toolbarbutton;
 import org.zkoss.zul.Vbox;
 import org.zkoss.zul.Window;
 import org.zkoss.zul.impl.InputElement;
@@ -123,15 +84,9 @@ import org.zkoss.zul.impl.LabelElement;
 import org.zkoss.zul.impl.MessageboxDlg;
 import org.zkoss.zul.impl.XulElement;
 
-import com.drew.imaging.FileType;
-import com.drew.imaging.FileTypeDetector;
-import com.drew.imaging.ImageMetadataReader;
-import com.drew.metadata.Metadata;
-import com.drew.metadata.exif.ExifIFD0Directory;
 import com.google.common.collect.Lists;
 import com.google.gson.JsonObject;
 import com.kyoko.common.ReturnMsg;
-import com.uniinformation.bicore.BiCellCollection;
 import com.uniinformation.bicore.BiColumn;
 import com.uniinformation.bicore.BiResult;
 import com.uniinformation.bicore.BiResultHelper;
@@ -141,16 +96,15 @@ import com.uniinformation.bicore.ColumnCell;
 import com.uniinformation.cell.AbstractGetItemProperty;
 import com.uniinformation.cell.Cell;
 import com.uniinformation.cell.CellCollection;
-import com.uniinformation.cell.CellException;
 import com.uniinformation.jx.JxActionListener;
 import com.uniinformation.jx.JxChangeListener;
 import com.uniinformation.jx.JxField;
 import com.uniinformation.jx.JxForm;
 import com.uniinformation.jx.zk.JxZkGadgetProvider;
-import com.uniinformation.jx.zk.JxZkSystem;
 import com.uniinformation.jx.zk.ZkJxPickInput;
 import com.uniinformation.jxapp.JxSelOpt;
 import com.uniinformation.jxapp.JxZkBiBase;
+import com.uniinformation.utils.BiUtil.CheckedRunnable;
 import com.uniinformation.webcore.SessionHelper;
 import com.uniinformation.webcore.ZkSessionHelper;
 import com.uniinformation.zkbi.ZkBiAbstractLongOp;
@@ -158,7 +112,6 @@ import com.uniinformation.zkbi.ZkBiEventListener;
 import com.uniinformation.zkbi.ZkBiMsgbox;
 import com.uniinformation.zkbi.ZkBiMsgbox.ZkBiMsgboxButton;
 import com.uniinformation.zkbi.ZkBiReportProblemDialog;
-import com.uniinformation.zkbi.ZkBiTranslateHelper;
 import com.uniinformation.zkcomp.S2Listbox;
 import com.uniinformation.zkcomp.ZkBiButton;
 import com.uniinformation.zkf.ZkForm;
@@ -267,66 +220,66 @@ public class ZkUtil extends BiUtil{
 		timer.setRunning(true);
 	}
 	
-	public static void main(String args[]) throws Exception{
-		
-		InputStream is = new FileInputStream("/tmp/a.txt");
-		byte[] datas = IOUtils.toByteArray(is);
-		is.close();
-		InputStream is1 = new ByteArrayInputStream(datas);
-		InputStream is2 = new ByteArrayInputStream(datas);
-		backupFile(null, null, is1);
-		backupFile(null, null, is2);
-		
-		
-		UniLog.log1("DEBUG:%s",ZkUtil.checkEnv("DEBUG", "Y"));
-		if (true) return;
-		
-		
-		//genZkTemplate(SessionHelper.getSessionHelperDummy("afsdev"), "AfsCustomer",2);
-		
-		//test encryption / decyption
-		SessionHelper sh = ZkSessionHelper.getSessionHelperDummy("afsdev","dummy",null);
-		String str = "abc\u4F60\u597D";
-		ArrayList<String> eStrList = new ArrayList<String>();
-		eStrList.add(ZkUtil.encryptStrToBase64(sh, str));
-		eStrList.add(ZkUtil.encryptStrToBase64(sh, str));
-		eStrList.add(ZkUtil.encryptStrToBase64(sh, str));
-		for (String eStr : eStrList) {
-			String dStr = ZkUtil.decryptStrFromBase64(sh , eStr);
-			UniLog.log1("[%s] [%s]", eStr, dStr);
-		}
-		
-		str = "0000000000";
-		eStrList = new ArrayList<String>();
-		eStrList.add(ZkUtil.encryptStrToBase64(sh, str));
-		eStrList.add(ZkUtil.encryptStrToBase64(sh, str));
-		eStrList.add(ZkUtil.encryptStrToBase64(sh, str));
-		for (String eStr : eStrList) {
-			String dStr = ZkUtil.decryptStrFromBase64(sh , eStr);
-			UniLog.log1("[%s] [%s]", eStr, dStr);
-		}
-		
-		str = "00000000001111111111";
-		eStrList = new ArrayList<String>();
-		eStrList.add(ZkUtil.encryptStrToBase64(sh, str));
-		eStrList.add(ZkUtil.encryptStrToBase64(sh, str));
-		eStrList.add(ZkUtil.encryptStrToBase64(sh, str));
-		for (String eStr : eStrList) {
-			String dStr = ZkUtil.decryptStrFromBase64(sh , eStr);
-			UniLog.log1("[%s] [%s]", eStr, dStr);
-		}
-		
-		
-		
-		/*
-		String rtn;
-		rtn = extractColWidthValue("hflex=min","hflex"); UniLog.log(rtn);
-		rtn = extractColWidthValue("hflex=min","width"); UniLog.log(rtn);
-		rtn = extractColWidthValue("width=123px","hflex"); UniLog.log(rtn);
-		rtn = extractColWidthValue("width=123px","width"); UniLog.log(rtn);
-		*/
-		System.exit(0);
-	}
+//	public static void main(String args[]) throws Exception{
+//		
+//		InputStream is = new FileInputStream("/tmp/a.txt");
+//		byte[] datas = IOUtils.toByteArray(is);
+//		is.close();
+//		InputStream is1 = new ByteArrayInputStream(datas);
+//		InputStream is2 = new ByteArrayInputStream(datas);
+//		backupFile(null, null, is1);
+//		backupFile(null, null, is2);
+//		
+//		
+//		UniLog.log1("DEBUG:%s",ZkUtil.checkEnv("DEBUG", "Y"));
+//		if (true) return;
+//		
+//		
+//		//genZkTemplate(SessionHelper.getSessionHelperDummy("afsdev"), "AfsCustomer",2);
+//		
+//		//test encryption / decyption
+//		SessionHelper sh = ZkSessionHelper.getSessionHelperDummy("afsdev");
+//		String str = "abc\u4F60\u597D";
+//		ArrayList<String> eStrList = new ArrayList<String>();
+//		eStrList.add(ZkUtil.encryptStrToBase64(sh, str));
+//		eStrList.add(ZkUtil.encryptStrToBase64(sh, str));
+//		eStrList.add(ZkUtil.encryptStrToBase64(sh, str));
+//		for (String eStr : eStrList) {
+//			String dStr = ZkUtil.decryptStrFromBase64(sh , eStr);
+//			UniLog.log1("[%s] [%s]", eStr, dStr);
+//		}
+//		
+//		str = "0000000000";
+//		eStrList = new ArrayList<String>();
+//		eStrList.add(ZkUtil.encryptStrToBase64(sh, str));
+//		eStrList.add(ZkUtil.encryptStrToBase64(sh, str));
+//		eStrList.add(ZkUtil.encryptStrToBase64(sh, str));
+//		for (String eStr : eStrList) {
+//			String dStr = ZkUtil.decryptStrFromBase64(sh , eStr);
+//			UniLog.log1("[%s] [%s]", eStr, dStr);
+//		}
+//		
+//		str = "00000000001111111111";
+//		eStrList = new ArrayList<String>();
+//		eStrList.add(ZkUtil.encryptStrToBase64(sh, str));
+//		eStrList.add(ZkUtil.encryptStrToBase64(sh, str));
+//		eStrList.add(ZkUtil.encryptStrToBase64(sh, str));
+//		for (String eStr : eStrList) {
+//			String dStr = ZkUtil.decryptStrFromBase64(sh , eStr);
+//			UniLog.log1("[%s] [%s]", eStr, dStr);
+//		}
+//		
+//		
+//		
+//		/*
+//		String rtn;
+//		rtn = extractColWidthValue("hflex=min","hflex"); UniLog.log(rtn);
+//		rtn = extractColWidthValue("hflex=min","width"); UniLog.log(rtn);
+//		rtn = extractColWidthValue("width=123px","hflex"); UniLog.log(rtn);
+//		rtn = extractColWidthValue("width=123px","width"); UniLog.log(rtn);
+//		*/
+//		System.exit(0);
+//	}
 	
 	private static void genTemplateRowByColsBis(StringBuffer p_outSb, int p_rowIdx, ArrayList<ArrayList<BiColumn>> p_colsBis){
 	    p_outSb.append("\t\t<row>\r\n");
@@ -513,21 +466,6 @@ public class ZkUtil extends BiUtil{
 			+ "	ZkPrint.printFromStream('%s', '%s');"
 			+ "}", getDownloadLinkFromStream(inputDataStream, mimeType, sessionHelper), mimeType));
 	}
-	public static String getDownloadLinkFromStream(InputStream inputDataStream, String mimeType, SessionHelper sessionHelper) {
-		return getDownloadLinkFromStream(inputDataStream, mimeType, sessionHelper, null, null, false);
-	}
-	public static String getDownloadLinkFromStream(final InputStream inputDataStream, String mimeType, SessionHelper sessionHelper, 
-			String streamKey, String mimeTypeKey, boolean needKeepStream) {
-		long currentTime = new Date().getTime();
-		if (StringUtils.isBlank(streamKey))
-			streamKey = "zk_print_stream_" + currentTime;
-		if (StringUtils.isBlank(mimeTypeKey))
-			mimeTypeKey = "zk_print_mimetype_" + currentTime;
-		sessionHelper.putSessionDataEx(streamKey, inputDataStream, new SessionHelper.SessionDataExCleanUpCallback());
-		sessionHelper.putSessionDataEx(mimeTypeKey, mimeType);
-		return String.format("zkprint_stream.jsp?zk_print_stream_key=%s&zk_print_mimetype_key=%s&keep_stream=%s", 
-				streamKey, mimeTypeKey, needKeepStream ? "Y" : "N");
-	}
 	
 	/***
 	 * add drag and drop function to listbox and listitem
@@ -706,7 +644,7 @@ public class ZkUtil extends BiUtil{
 						JxZkBiBase.addContextMenu(p_sh, (XulElement) curComp, MapUtil.of("changeLabel", MapUtil.of("key",key,"defaultValue",defaultValue)));
 					}
 					if (p_sh.getAllowTranslate()){
-						label.setValue(ZkBiTranslateHelper.getText(p_sh, key, "LABEL", defaultValue));
+						label.setValue(TranslateUtil.getText(p_sh, key, "LABEL", defaultValue));
 					}
 					isLeafNode = true;
 				}
@@ -751,7 +689,7 @@ public class ZkUtil extends BiUtil{
 						JxZkBiBase.addContextMenu(p_sh, (XulElement) curComp, MapUtil.of("changeLabel", MapUtil.of("key",key,"defaultValue",defaultValue)));
 					}
 					if (p_sh.getAllowTranslate()){
-						le.setLabel(ZkBiTranslateHelper.getText(p_sh, key, "BUTTON", defaultValue));
+						le.setLabel(TranslateUtil.getText(p_sh, key, "BUTTON", defaultValue));
 					}
 					isLeafNode = true;
 				}
@@ -766,7 +704,7 @@ public class ZkUtil extends BiUtil{
 								JxZkBiBase.addContextMenu(p_sh, (XulElement) rd, MapUtil.of("changeLabel", MapUtil.of("key",key1,"defaultValue",defaultValue)));
 							}
 							if (p_sh.getAllowTranslate()){
-								rd.setLabel(ZkBiTranslateHelper.getText(p_sh, key1, "OPTION", defaultValue));
+								rd.setLabel(TranslateUtil.getText(p_sh, key1, "OPTION", defaultValue));
 							}
 						}
 						isLeafNode = true;
@@ -808,7 +746,7 @@ public class ZkUtil extends BiUtil{
 						JxZkBiBase.addContextMenu(p_sh, (XulElement) curComp, MapUtil.of("changeLabel", MapUtil.of("key",key,"defaultValue",defaultValue)));
 					}
 					if (p_sh.getAllowTranslate()){
-						label.setValue(ZkBiTranslateHelper.getText(p_sh, key, "LABEL", defaultValue));
+						label.setValue(TranslateUtil.getText(p_sh, key, "LABEL", defaultValue));
 					}
 					isLeafNode = true;
 				}
@@ -822,7 +760,7 @@ public class ZkUtil extends BiUtil{
 						JxZkBiBase.addContextMenu(p_sh, (XulElement) curComp, MapUtil.of("changeLabel", MapUtil.of("key",key,"defaultValue",defaultValue)));
 					}
 					if (p_sh.getAllowTranslate()){
-						button.setLabel(ZkBiTranslateHelper.getText(p_sh, key, "BUTTON", defaultValue));
+						button.setLabel(TranslateUtil.getText(p_sh, key, "BUTTON", defaultValue));
 					}
 					isLeafNode = true;
 				}
@@ -1027,7 +965,6 @@ public class ZkUtil extends BiUtil{
 	}
 	
 	};		
-	
 	private static String autoAdjustWinWidthOneNewWidthStr;
 	private static void autoAdjustWinWidthOne(HtmlBasedComponent p_comp, String newWidthStr){
 		if (p_comp.getWidth() != null &&  !p_comp.getWidth().equals(newWidthStr)){
@@ -1278,18 +1215,10 @@ public class ZkUtil extends BiUtil{
 						offset = 0;
 					}
 					
-//					if (p_adjustCompWidth /* && !p_sessionHelper.isMobile() */){
-// change back to disable this for mobile device, need to investigate more , 2025/10/02 Donald 
-//					if(winWidth.get() > 1000) offset = -300;
-//					if (p_adjustCompWidth && !p_sessionHelper.isMobile() ){
-//						UniLog.log1("winWidth:%d, offset:%d, p_adjustCompWidthOffset:%d", winWidth.get(), offset, p_adjustCompWidthOffset);
-//						delayAutoAdjustWinWidthOne(p_comp, winWidth.get() + offset + p_adjustCompWidthOffset);
-//					}
 					if (p_adjustCompWidth  && !p_sessionHelper.useNewMobileScreenAdjust()){
 						UniLog.log1("winWidth:%d, offset:%d, p_adjustCompWidthOffset:%d", winWidth.get(), offset, p_adjustCompWidthOffset);
 						delayAutoAdjustWinWidthOne(p_comp, winWidth.get() + offset + p_adjustCompWidthOffset);
-					}	
-					
+					}
 				}
 			}
 		});
@@ -1317,7 +1246,7 @@ public class ZkUtil extends BiUtil{
 					}
 				}
 				sidrOpenFlag.set(true);
-				if (p_adjustCompWidth /* && !p_sessionHelper.isMobile() */){
+				if (p_adjustCompWidth && !p_sessionHelper.useNewMobileScreenAdjust() /* && !p_sessionHelper.isMobile() */){
 					//autoAdjustWinWidthOne(p_comp, winWidth.get() - 200 + p_adjustCompWidthOffset);
 					autoAdjustWinWidthOne(p_comp, ""+(winWidth.get() - ((isAutoHide || p_sessionHelper.isMobileDevice()) ? 0 : 200) + p_adjustCompWidthOffset)+"px");
 				}
@@ -1341,7 +1270,7 @@ public class ZkUtil extends BiUtil{
 					}
 				}	
 				sidrOpenFlag.set(false);
-				if (p_adjustCompWidth /* && !p_sessionHelper.isMobile() */){
+				if (p_adjustCompWidth && !p_sessionHelper.useNewMobileScreenAdjust() /* && !p_sessionHelper.isMobile() */){
 					autoAdjustWinWidthOne(p_comp, ""+(winWidth.get() + p_adjustCompWidthOffset)+"px");
 				}
 				SessionHelper sessionHelper = (SessionHelper) Executions.getCurrent().getSession().getAttribute(SessionHelper.getNameByContextPath(Executions.getCurrent().getContextPath()));	
@@ -1566,8 +1495,8 @@ public class ZkUtil extends BiUtil{
 //		return rootPath;
 //	}
 
-	public static Window newPopupWindow(String p_title,Component parentComp){
-		return(newPopupWindow(p_title,parentComp,false));
+	public static Window newPopupWindow(boolean isMobile,String p_title,Component parentComp){
+		return(newPopupWindow(isMobile,p_title,parentComp,false));
 	}
 	/***
 	 * create a popup window
@@ -1576,16 +1505,21 @@ public class ZkUtil extends BiUtil{
 	 * @param p_detachWhenClose - by default, it do not detach the window when click close window button
 	 * @return
 	 */
-	public static Window newPopupWindow(String p_title,Component parentComp, final boolean p_detachWhenClose){
-		return(newPopupWindow(p_title,parentComp,false,null));
+	public static Window newPopupWindow(boolean isMobile,String p_title,Component parentComp, final boolean p_detachWhenClose){
+		return(newPopupWindow(isMobile,p_title,parentComp,false,null));
 	}
-	public static Window newPopupWindow(String p_title,Component parentComp, final boolean p_detachWhenClose,final PopupWindowAction p_action){
+	public static Window newPopupWindow(boolean isMobile,String p_title,Component parentComp, final boolean p_detachWhenClose,final PopupWindowAction p_action){
 		try{
 			final Window pWin = new Window();
 			pWin.setBorder("normal");
 			pWin.setTitle(p_title);
-			pWin.setWidth("300px");  //should not hard code window size
-			pWin.setHeight("200px");
+			if(!isMobile) {
+				pWin.setWidth("300px");  //should not hard code window size
+				pWin.setHeight("200px");
+			} else {
+				pWin.setWidth("100vw");
+				pWin.setHeight("100vh");
+			}
 			pWin.setClosable(true);
 			if (parentComp == null){
 			}
@@ -2367,40 +2301,6 @@ public class ZkUtil extends BiUtil{
 	}
 	
 	
-	public static String mineTypeToExtention(String p_mineType) {
-		if(p_mineType.equals("application/pdf")) return(".pdf");
-		if(p_mineType.equals("image/jpeg")) return(".jpg");
-		if(p_mineType.equals("image/png")) return(".png");
-		return("");
-	}
-	
-	/***
-	 * encrypt string
-	 * remark: the encrypted string is much larger than original, as it contain iv(16byte), hash(32byte) and base64 (~+33%) + sha256
-	 * 
-	 * @param p_sh
-	 * @param p_inStr
-	 * @return
-	 */
-	public static String encryptStrToBase64(SessionHelper p_sh, String p_inStr) {
-		try {
-			return CryptoUtil.encryptToBase64(p_sh.getAESKey(), p_inStr.getBytes("UTF-8"), true);
-		}
-		catch(Exception ex) {
-			ex.printStackTrace();
-			return null;
-		}
-	}
-	public static String decryptStrFromBase64(SessionHelper p_sh, String p_eDataWithIvString) {
-		try {
-			return new String(CryptoUtil.decryptFromBase64(p_sh.getAESKey(),p_eDataWithIvString),"UTF-8");
-		}
-		catch(Exception ex) {
-			ex.printStackTrace();
-			return null;
-		}
-	}
-	
 	/***
 	 * for ui performance test only
 	 * @param p_comp
@@ -2649,158 +2549,6 @@ public class ZkUtil extends BiUtil{
 		JxZkBiBase.addContextMenu(p_sh,p_label, MapUtil.of("changeLabel", MapUtil.of("key",p_col.getCellFullName(),"defaultValue",p_col.getEngName())));
 	}
 	
-	public static final int thumbnailMinWidth = 360;
-	public static String getPhotoSize(byte[] photoData) throws Exception {
-		ByteArrayInputStream is = new ByteArrayInputStream(photoData);
-	    BufferedImage img = ImageIO.read(is);
-	    is.close();
-	    return img.getWidth() + "x" + img.getHeight();
-	}
-	
-	
-	public static int readPhotoDegree(byte[] photoData) {
-		int degree = 0;
-		BufferedInputStream bis = null;
-		try {
-			bis = new BufferedInputStream(new ByteArrayInputStream(photoData));
-			FileType fileType = FileTypeDetector.detectFileType(bis);
-			UniLog.log1("readPhotoDegree filetype:" + fileType);
-			if (fileType == FileType.Jpeg){
-				Metadata metadata = ImageMetadataReader.readMetadata(new ByteArrayInputStream(photoData));
-				ExifIFD0Directory exifIFD0Directory = metadata.getFirstDirectoryOfType(ExifIFD0Directory.class);
-				int orientation = exifIFD0Directory.getInt(ExifIFD0Directory.TAG_ORIENTATION);
-				switch (orientation)
-				{
-				case 3:
-				case 4:
-					degree = 180; 
-					break;
-				case 5:
-				case 6:
-					degree = 90;
-					break;
-				case 7:
-				case 8:
-					degree = 270;
-					break;
-				default:
-					degree = 0;
-					break;
-				}
-			}
-		} catch (Exception e) {
-			//e.printStackTrace(); //andrew201218: avoid no exif exception
-		} finally {
-			if (bis != null) {
-				try {
-					bis.close();
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-			}
-		}
-		UniLog.log1("readPhotoDegree:" + degree);
-		return degree;
-	}
-	public static byte[] rotatePhoto(byte[] photoData, Map<String, String> photoAttrMap) throws Exception {
-		ByteArrayOutputStream bos = null;
-		ImageOutputStream ios = null;
-		try {
-			int degree = readPhotoDegree(photoData);
-			if (degree != 0) {
-				ByteArrayInputStream is = new ByteArrayInputStream(photoData);
-				BufferedImage img = ImageIO.read(is);
-				int sWidth = img.getWidth();
-				int sHeight = img.getHeight();
-				int dWidth = sWidth;
-				int dHeight = sHeight;
-				if (degree == 90 || degree == 270) {
-					dWidth = sHeight;
-					dHeight = sWidth;
-				}
-				BufferedImage dimg = new BufferedImage(dWidth, dHeight, img.getType());
-				Graphics2D g = dimg.createGraphics();
-				g.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
-				AffineTransform tf = new AffineTransform();
-				tf.translate((dWidth - sWidth) / 2, (dHeight - sHeight) / 2);
-				tf.rotate(Math.toRadians(degree), sWidth / 2, sHeight / 2);
-				g.drawImage(img, tf, null);
-				g.dispose();
-				is.close();
-
-				bos = new ByteArrayOutputStream();
-				ios = ImageIO.createImageOutputStream(bos);
-				ImageWriter imgWriter = ImageIO.getImageWritersByFormatName("jpeg").next();
-				imgWriter.setOutput(ios);
-				ImageWriteParam param = imgWriter.getDefaultWriteParam(); 
-				param.setCompressionMode(ImageWriteParam.MODE_EXPLICIT); 
-				param.setCompressionQuality(1f);
-				imgWriter.write(dimg);
-				byte[] data = bos.toByteArray();
-				if (data != null && data.length > 0) {
-					if (photoAttrMap != null)
-						photoAttrMap.put("data_size", getPhotoSize(data));
-					return data;
-				}
-				/*if (ImageIO.write(dimg, "jpg", bos)) {
-					byte[] data = bos.toByteArray();
-					if (photoAttrMap != null)
-						photoAttrMap.put("data_size", getPhotoSize(data));
-					return data;
-				}*/
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-		} finally {
-			try {
-				if (bos != null)
-					bos.close();
-				if (ios != null)
-					ios.close();
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-		}
-		if (photoAttrMap != null)
-			photoAttrMap.put("data_size", getPhotoSize(photoData));
-		return photoData;
-	}
-	public static synchronized byte[] storeThumbnal(byte[] photoData, Map<String, String> photoAttrMap) throws Exception {
-		ByteArrayInputStream is = new ByteArrayInputStream(photoData);
-	    BufferedImage img = ImageIO.read(is);
-	    is.close();
-		float ratio = (float)thumbnailMinWidth / Math.min(img.getWidth(), img.getHeight());
-		int newWidth = (int)(ratio * img.getWidth());
-		int newHeight = (int)(ratio * img.getHeight());
-		BufferedImage dimg = new BufferedImage(newWidth, newHeight, img.getType());
-		Graphics2D g = dimg.createGraphics();
-		g.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
-		g.drawImage(img, 0, 0, newWidth, newHeight, 0, 0, img.getWidth(), img.getHeight(), null);
-		g.dispose();
-		ByteArrayOutputStream bos = new ByteArrayOutputStream();
-		ImageIO.write(dimg, "jpg", bos);
-		byte[] data = bos.toByteArray();
-		bos.close();
-		if (photoAttrMap != null)
-			photoAttrMap.put("data_size", String.format("%dx%d", newWidth, newHeight));
-		return(data);
-	}
-	/***
-	 * check environment variable against compValue
-	 * @param p_key
-	 * @param p_value
-	 * @return
-	 */
-	public static boolean checkEnv(String p_key, String p_compValue) {
-		try {
-			String value = System.getenv(p_key);
-			return StringUtils.equalsIgnoreCase(value == null ? null : value.trim(), p_compValue);
-		}
-		catch(Exception ex) {
-			ex.printStackTrace();
-			return false;
-		}
-	}
 	public static void dumpData(Object p_obj) {
 		dumpData("", p_obj);
 	}
@@ -3152,15 +2900,7 @@ public class ZkUtil extends BiUtil{
 			p_comp.setAttribute("ZKBI_IS_NOPASTE", "Y");
 		}
 	}
-	public static String joinStringLabel(SessionHelper sessionHelper, String delimiter, Object... o) {
-		StringBuilder sb = new StringBuilder();
-		for (int i = 0; i < o.length; i += 2) {
-			if (sb.length() > 0)
-				sb.append(delimiter);
-			sb.append(String.format(sessionHelper.getLabel((String)o[i]), o[i + 1]));
-		}
-		return sb.toString();
-	}
+	
 	public static void removeAllEventListener(Component comp, String eventName) {
     	Iterator<EventListener<?>> it = comp.getEventListeners(eventName).iterator();
     	while (it.hasNext())
@@ -3278,33 +3018,6 @@ public class ZkUtil extends BiUtil{
     	return timer;
     }
     
-    public static int executeInsertIntoSql(SelectUtil su, String tabName, List<String> fieldNameList, Wherecl wherecl) throws Exception {
-		StringBuilder sb = new StringBuilder("insert into ");
-		sb.append(tabName);
-		sb.append("(");
-		sb.append(String.join(",", fieldNameList));
-		sb.append(") values (");
-		sb.append(String.join(",", Stream.generate(() -> "?").limit(fieldNameList.size()).toArray(String[]::new)));
-		sb.append(")");
-		UniLog.log1("sql:%s, wherecl:%s", sb, wherecl.getValues());
-		return su.executeUpdate(sb.toString(), wherecl);
-    }
-	public static Runnable safeRunnable(CheckedRunnable cb, boolean showErrMsg) {
-		return () -> {
-			try {
-				cb.run();
-			} catch (Exception e) {
-				UniLog.log(e);
-            	if (showErrMsg)
-            		ZkUtil.errMsg(StringUtils.defaultIfBlank(e.getMessage(), e.toString()));
-			}
-		};
-	}
-
-
-	public static Runnable safeRunnable(CheckedRunnable cb) {
-		return safeRunnable(cb, false);
-	}
 
 	public static JxActionListener safeJxActionListener(CheckedConsumer<JxField> throwingConsumer, boolean showErrMsg) {
         return field -> {
@@ -3347,95 +3060,12 @@ public class ZkUtil extends BiUtil{
 		Stream.of(fieldNames).map(form::jxAdd).forEach(k -> k.addChangeListener(safeJxChangeListener(cb)));
 	}
 
-	public static CheckedConsumer2<JdbcPool, CheckedConsumer<SelectUtil>> importActionByJdbcPool = (jdbcPool, cb) -> {
-		SelectUtil su1 = new SelectUtil(); 
-		try {
-			su1.init(jdbcPool);
-			su1.setAutoCommit(false);
-			cb.accept(su1);
-			su1.commit();
-		} catch (Exception e) {
-			try {
-				su1.rollback();
-			} catch (Exception e1) {
-				UniLog.log(e1);
-			}
-			throw e;
-		} finally {
-			try{
-				su1.setAutoCommit(true);
-				su1.close();
-			} catch (Exception e2) { 
-				UniLog.log(e2);
-			}
-		}
-	};
-
-	public static CheckedConsumer2<SessionHelper, CheckedConsumer<SelectUtil>> importAction = (sessionHelper, cb) -> {
-		importActionByJdbcPool.accept(sessionHelper.getLoginTokenJdbcPool(), cb);
-	};
-	
-	public static void batchExecuteUpdate(SessionHelper sessionHelper, Object... os) throws Exception {
-		importAction.accept(sessionHelper, su -> {
-			for (int i = 0; i < os.length; i+=2)
-				su.executeUpdate((String)os[i], (Wherecl)os[i + 1]);
-		});
-	}
 	
 	
 	public static void sendToMobileUsbPrinter(String str) {
 		js("(typeof android !== 'undefined') ? android.findPrinterAndPrint('%s') : console.log('unknown device')", StringEscapeUtils.escapeJava(str));
 	}
 	
-	public static Map<String, Object> getBiCellCollectionMap(BiCellCollection bcc, Vector<BiColumn> cls) {
-		return cls.stream().collect(Collectors.toMap(
-							BiColumn::getLabel, 
-							bc -> bcc.getCell(bc.getLabel()).getObject(),
-							(oldValue, newValue) -> newValue,
-							LinkedHashMap::new));
-	}
-
-	public static <T> T getBiResultRecordMap(BiResult br) {
-		return (T)getBiResultRecordMap(br, true);
-	}
-	
-	public static <T> T getBiResultRecordMap(BiResult br, boolean currentOnly) {
-		if (br.getParent() != null || !currentOnly)
-			return (T)getBiResultRecordMapStream(br).collect(Collectors.toList());
-		else
-			return (T)getBiCellCollectionMap(br.getCurrentCollection(), br.getColumns());
-	}
-
-	public static <T> Stream<T> getBiResultRecordStream(BiResult br, CheckedFunction<BiCellCollection, T> cb) {
-		if (br.getParent() != null)
-			return br.getRowCollectionList().stream().map(throwFunction(cb));
-		else
-			return IntStream.range(0, br.getRowCount()).mapToObj(throwIntFunction(i -> {
-				br.loadOneRecV(i);
-				return cb.apply(br.getCurrentCollection());
-			}));
-	}
-
-	public static Stream<Map<String, Object>> getBiResultRecordMapStream(BiResult br) {
-		return getBiResultRecordStream(br, bcc -> getBiCellCollectionMap(bcc, br.getColumns()));
-	}
-
-	public static String getBiCellCollectionJson(BiCellCollection bcc, Vector<BiColumn> cls) {
-		return GsonUtil.objToStr(getBiCellCollectionMap(bcc, cls));
-	}
-
-	public static String getBiResultRecordJson(BiResult br, boolean currentOnly) {
-		return GsonUtil.objToStr(getBiResultRecordMap(br, currentOnly));
-	}
-
-	public static String getBiResultRecordJson(BiResult br) {
-		return GsonUtil.objToStr(getBiResultRecordMap(br));
-	}
-	
-	public static <T> Stream<T> getTableRecStream(TableRec tr, CheckedFunction<Integer, T> cb) {
-		return IntStream.range(0, tr.getRecordCount()).mapToObj(throwIntFunction(cb));
-	}
-
 	
 	public static <T extends Component> T getFellowWithNullId(Component comp, String id) {
 		T cp = (T)comp.getFellow(id, true);
@@ -3443,45 +3073,6 @@ public class ZkUtil extends BiUtil{
 		return cp;
 	}
 
-	public static MethodHandle createStaticMethodHandle(String classMethodName, Class<?> returnType, Class<?>... parameterTypes) throws Throwable {
-		int pos = classMethodName.lastIndexOf('.');
-		return createStaticMethodHandle(classMethodName.substring(0, pos), classMethodName.substring(pos + 1), returnType, parameterTypes);
-	}
-
-	public static MethodHandle createStaticMethodHandle(String className, String methodName, Class<?> returnType, Class<?>... parameterTypes) throws Throwable {
-		return createStaticMethodHandle(Class.forName(className), methodName, returnType, parameterTypes);
-	}
-	
-	public static MethodHandle createStaticMethodHandle(Class<?> clazz, String methodName, Class<?> returnType, Class<?>... parameterTypes) throws Throwable {
-		MethodHandles.Lookup lookup = MethodHandles.lookup();
-		MethodType methodType = MethodType.methodType(returnType, parameterTypes);
-		return lookup.findStatic(clazz, methodName, methodType);
-	}
-
-	public static MethodHandle createMethodHandle(String classMethodName, Class<?> returnType, Class<?>... parameterTypes) throws Throwable {
-		int pos = classMethodName.lastIndexOf('.');
-		return createMethodHandle(classMethodName.substring(0, pos), classMethodName.substring(pos + 1), returnType, parameterTypes);
-	}
-
-	public static MethodHandle createMethodHandle(String className, String methodName, Class<?> returnType, Class<?>... parameterTypes) throws Throwable {
-		return createMethodHandle(Class.forName(className), methodName, returnType, parameterTypes);
-	}
-
-	public static MethodHandle createMethodHandle(Class<?> clazz, String methodName, Class<?> returnType, Class<?>... parameterTypes) throws Throwable {
-		MethodHandles.Lookup lookup = MethodHandles.lookup();
-		MethodType methodType = MethodType.methodType(returnType, parameterTypes);
-		return lookup.findVirtual(clazz, methodName, methodType);
-	}
-	
-	public static MethodHandle createConstructorHandle(String className, Class<?>... parameterTypes) throws Throwable {
-		return createConstructorHandle(Class.forName(className), parameterTypes);
-	}
-
-	public static MethodHandle createConstructorHandle(Class<?> clazz, Class<?>... parameterTypes) throws Throwable {
-		MethodHandles.Lookup lookup = MethodHandles.lookup();
-		MethodType methodType = MethodType.methodType(void.class, parameterTypes);
-		return lookup.findConstructor(clazz, methodType);
-	}
 
 	public static class PickByBiResultForm {
 		private JxSelOpt gipiForm;
@@ -3629,42 +3220,6 @@ public class ZkUtil extends BiUtil{
 		};
 	}
 	
-	/***
-	 * backup a input stream
-	 * @param p_folderName
-	 * @param p_fileName
-	 * @param p_is
-	 * @return
-	 */
-	public static ReturnMsg backupFile(String p_folderName, String p_fileName, InputStream p_is) {
-		try {
-			
-			String folderName = p_folderName;
-			if (StringUtils.isBlank(p_folderName)) {
-				folderName = "/yic/tmp/bibk";
-			}
-			String fileName = p_fileName;
-			if (StringUtils.isBlank(p_fileName)) {
-				fileName = "noname.dat";
-			}
-			SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmssSSS");
-			String nowStr = sdf.format(new Date());
-			String bkFileName = String.format("%s/%s/%s/%s/%s_%s",
-					folderName,
-					StringUtils.substring(nowStr,0,4),
-					StringUtils.substring(nowStr,4,6),
-					StringUtils.substring(nowStr,6,8),
-					nowStr, fileName);
-			UniLog.log1("folderName:%s fileName:%s bkFileName:%s", folderName, fileName, bkFileName);
-
-			FileUtils.copyInputStreamToFile(p_is, new File(bkFileName));
-			return ReturnMsg.defaultOk;
-		}
-		catch(Exception ex) {
-			UniLog.log1("error:" + ex.getMessage());
-			return new ReturnMsg(ex);
-		}
-	}
 
 	/*
 	 * Theme 01 garyu 牙龍
@@ -3718,6 +3273,19 @@ public class ZkUtil extends BiUtil{
 //	public static void putJsonFromFilingMulti(SessionHelper p_sh,String p_tabName,String p_key,String p_contentKey,JSONObject p_contentObject) throws Exception {
 //		FilingUtil.storeJson(p_sh.getAgent(), p_tabName, p_key, null, null, p_contentObject);
 //	}
+	
+	public static Runnable safeRunnable(CheckedRunnable cb, boolean showErrMsg) {
+		return () -> {
+			try {
+				cb.run();
+			} catch (Exception e) {
+				UniLog.log(e);
+            	if (showErrMsg)
+            		ZkUtil.errMsg(StringUtils.defaultIfBlank(e.getMessage(), e.toString()));
+			}
+		};
+	}	
+	
 	public static ReturnMsg comboboxDialogZkForm(JSONObject p_jo,ArrayList<String> itemlist,ZkfAction p_action)  {
 		ZkForm zkf = new ZkForm(null,"/zkf/modal/ComboboxDialog.zul");
 		CellCollection col = new CellCollection();
@@ -3883,31 +3451,32 @@ String js =
 
 Clients.evalJavaScript(js);
 }
-	private static String escapeJs(String s) {
-		if (s == null) {
-		return "";
-		}
 
-		return s
-		.replace("\\", "\\\\")
-		.replace("'", "\\'")
-		.replace("\"", "\\\"")
-		.replace("\r", "")
-		.replace("\n", "");
-		}
+private static String escapeJs(String s) {
+if (s == null) {
+return "";
+}
 
-		private static String escapeHtml(String s) {
-		if (s == null) {
-		return "";
-		}
+return s
+.replace("\\", "\\\\")
+.replace("'", "\\'")
+.replace("\"", "\\\"")
+.replace("\r", "")
+.replace("\n", "");
+}
 
-		return s
-		.replace("&", "&amp;")
-		.replace("<", "&lt;")
-		.replace(">", "&gt;")
-		.replace("\"", "&quot;")
-		.replace("'", "&#39;");
-		}	
-		
+private static String escapeHtml(String s) {
+if (s == null) {
+return "";
+}
+
+return s
+.replace("&", "&amp;")
+.replace("<", "&lt;")
+.replace(">", "&gt;")
+.replace("\"", "&quot;")
+.replace("'", "&#39;");
+}	
+	
 }
 

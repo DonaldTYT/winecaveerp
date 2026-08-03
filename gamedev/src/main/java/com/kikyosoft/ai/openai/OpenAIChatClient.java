@@ -30,7 +30,8 @@ public class OpenAIChatClient extends AiClientBase {
 
     private static final String DEFAULT_OPENAI_URL =
             "https://api.openai.com/v1/chat/completions";
-    private static final String DEFAULT_MODEL = "gpt-4o-mini";
+//    private static final String DEFAULT_MODEL = "gpt-4o-mini";
+    private static final String DEFAULT_MODEL = "gpt-5-mini";
     private static final int DEFAULT_MAX_TOOL_ROUNDS = 8;
 
     private final String apiKey;

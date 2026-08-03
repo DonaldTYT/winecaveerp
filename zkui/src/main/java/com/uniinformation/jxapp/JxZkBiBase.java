@@ -3958,7 +3958,7 @@ public class JxZkBiBase extends JxZkBase
    		if (parentComp == null){
    			UniLog.logm(this, "parentComp is null, force ignore");
    		}
-   		return(ZkUtil.newPopupWindow(p_title, parentComp));
+   		return(ZkUtil.newPopupWindow(getSessionHelper().isMobile(),p_title, parentComp));
 //    	try{
 //			Window pWin = new Window();
 //			pWin.setBorder("normal");

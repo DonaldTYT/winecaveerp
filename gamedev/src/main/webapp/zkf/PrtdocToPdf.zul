@@ -1,0 +1,11 @@
+<zk>
+<window sclass="zkbi-form zkbi-main-window" width="600px" apply="com.uniinformation.zkf.ZkCellActionPrintPrtdoc">
+	<label sclass="zkbi-form-header" id="lbHeader" value="File Upload"></label>
+	<vlayout sclass="zkbi-form-content">
+		<div align="center">
+			<textbox id="prtdocUrl"></textbox>
+			<button width="100px" id="btOK" label="Upload and Print"> </button>
+		</div>
+	</vlayout>
+</window>
+</zk>

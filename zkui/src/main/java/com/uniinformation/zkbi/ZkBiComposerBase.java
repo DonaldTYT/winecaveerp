@@ -1,6 +1,7 @@
 package com.uniinformation.zkbi;
 
 
+
 // InputField actually is QueryField, InputFieldList is QueryFieldList, should change to proper naming later
 
 import java.io.ByteArrayInputStream;
@@ -40,6 +41,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.StreamSupport;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
@@ -63,7 +65,6 @@ import org.zkforge.ckez.CKeditor;
 import org.zkoss.image.AImage;
 import org.zkoss.util.media.Media;
 import org.zkoss.zhtml.I;
-import org.zkoss.zk.au.AuService;
 import org.zkoss.zk.ui.*;
 import org.zkoss.zk.ui.util.*;
 import org.zkoss.zk.ui.event.*;
@@ -1711,7 +1712,44 @@ public class ZkBiComposerBase extends ZkBiComposerView implements Composer<Compo
     				else{
     					colDisplayedCnt++;
     				}
-   					//colDisplayedCnt++;
+    				
+    				
+    				
+//    				Label lb0 = new Label(sessionHelper.getLabel(biColumn.getEngName()));
+//					lb0.setValue(ZkBiTranslateHelper.getText(sessionHelper, biColumn.getCellFullName(), "LABEL", lb0.getValue()));
+//    				String str = result.getCell(biColumn.getLabel()).getColumnDisplayString();
+//    				Label lb = new Label(str);
+//    				String sclass = result.getCell(biColumn.getLabel()).getColumnDisplayClass();
+//    				if(sclass != null) {
+//    					lb.setSclass(sclass);
+//    				}
+//    				boolean matchedFlag = doSearchSingle(lb.getValue(),i);
+//    				
+//					Div divRow = new Div();
+//    				divRow.setStyle("display:table-row;");
+//    				Div divCell0 = new Div();
+//    				divCell0.setStyle("display:table-cell;padding-right:10px;padding-bottom:0px;white-space:nowrap;color:#888;line-height:initial;");
+//    				Div divCell = new Div();
+//    				divCell.setStyle("display:table-cell;line-height:initial;");
+//    				if (matchedFlag){
+//    					lb0.setStyle("background-color:yellow;");
+//    					lb.setStyle("background-color:yellow;");
+//    				}
+//    				divTb.appendChild(divRow);
+//    				divRow.appendChild(divCell0);
+//    				divRow.appendChild(divCell);
+//    				divCell0.appendChild(lb0);
+//    				divCell.appendChild(lb);
+//    				divCell.setAttribute("bclabel", biColumn.getLabel());
+//
+//    				if (biColumn.isExcludeForMobile() || 
+//    						(sessionHelper.getMobileMaxCol() > 0 && colDisplayedCnt>=sessionHelper.getMobileMaxCol() && !matchedFlag)){
+//    					divRow.setSclass("zkbi-hide-mobile-exclude");
+//    					hasHideMobileExclude = true;
+//    				}
+//    				else{
+//    					colDisplayedCnt++;
+//    				}
     			}
     		}
 
@@ -10344,9 +10382,9 @@ public class ZkBiComposerBase extends ZkBiComposerView implements Composer<Compo
         btn.addEventListener("onClick",
         new ZkBiEventListener() {
            	public void onZkBiEvent(Event event) throws Exception {	
-            			if(p_handler == null) return;
-              		final java.util.Set selection = listModelList.getSelection();
-         			if(selection.size() <= 0) {
+           			if(p_handler == null) return;
+             		final java.util.Set selection = listModelList.getSelection();
+        			if(selection.size() <= 0) {
       					Messagebox.show(
    							sessionHelper.getLabel("Please Select Items To Proceed"),
    							 sessionHelper.getLabel("Error Message"), Messagebox.OK, Messagebox.ERROR);

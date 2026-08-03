@@ -42,7 +42,7 @@ public class ZkBiComposerStockStatus extends ZkBiComposerSalesAnalysis {
 	
 		PopupControl (String p_viewName,BiResult p_br) throws Exception {
 			listBr = p_br;
-   			popupPoScr = ZkUtil.newPopupWindow("Test Popup",masterWin);
+   			popupPoScr = ZkUtil.newPopupWindow(getSessionHelper().isMobile(),"Test Popup",masterWin);
 			popupPoScr.setWidth("100%");
 			popupPoScr.setHeight("100%");
    			popupPoScr.setMaximizable(true);

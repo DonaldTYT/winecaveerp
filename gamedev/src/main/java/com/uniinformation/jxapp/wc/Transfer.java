@@ -150,7 +150,7 @@ public class Transfer extends JxZkBiBase {
 								for(int i = 0;i<20000;i++) {
 									popupItems.add("Item " + i);
 								}
-								popupWin = ZkUtil.newPopupWindow(sessionHelper.getLabel("Pick By Select"), 
+								popupWin = ZkUtil.newPopupWindow(sessionHelper.isMobile(),sessionHelper.getLabel("Pick By Select"), 
 								ZkUtil.getMainComp(),false,
 								new PopupWindowAction() {
 

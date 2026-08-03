@@ -824,7 +824,7 @@ public class AxaClaim extends JxZkBiBase {
 	void doPopupPolicyEmail(SessionHelper p_sh,String p_viewName,String p_condition,int p_sid,String p_mode) {
 		if(emailPopup == null) {
 //			emailPopup = ZkUtil.newPopupWindow("Email Content",(Component) getNativeComponent());
-			emailPopup = ZkUtil.newPopupWindow("Email Content",ZkUtil.getMainComp());
+			emailPopup = ZkUtil.newPopupWindow(p_sh.isMobile(),"Email Content",ZkUtil.getMainComp());
    			emailPopup.setClosable(false);
 //			emailPopup.setWidth("1920px");
 //			emailPopup.setHeight("1000px");

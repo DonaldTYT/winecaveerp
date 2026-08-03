@@ -91,7 +91,7 @@ public class JxSelOpt extends JxForm {
 	public static JxSelOpt createPopupJxSelOpt(SessionHelper sessionHelper) {
 		JxZkGadgetProvider pvdr = (JxZkGadgetProvider) sessionHelper.getSessionData("jxzkgadgetprovider");
 		if(pvdr == null) return(null);
-		Window thisPopup = ZkUtil.newPopupWindow(sessionHelper.getLabel("Pick By Select"), 
+		Window thisPopup = ZkUtil.newPopupWindow(sessionHelper.isMobile(),sessionHelper.getLabel("Pick By Select"), 
 				ZkUtil.getMainComp()
 //				Executions.getCurrent().getDesktop().getFirstPage().getFirstRoot()	
 				);

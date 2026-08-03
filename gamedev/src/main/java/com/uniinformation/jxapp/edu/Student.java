@@ -7,6 +7,7 @@ import java.io.InputStream;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
@@ -1362,7 +1363,9 @@ public class Student extends JxZkBiBase {
 
 			//find course session records
 			SimpleDateFormat dsdf = new SimpleDateFormat("yyyy/MM/dd");
-			Set<String> deductTokenStatusList = Sets.newHashSet("Present", "Absent");
+//			Set<String> deductTokenStatusList = Sets.newHashSet("Present", "Absent");
+			Set<String> deductTokenStatusList =
+			        new HashSet<>(Arrays.asList("Present", "Absent"));
 			Map<Integer, Map<String, Object>> mSessionMap = new LinkedHashMap<Integer, Map<String, Object>>();
 			brCourseSession.addCustomCondition(String.format("essncs_date between '%s' and '%s'", 
 					dsdf.format(pStartDateTime),
@@ -1437,6 +1440,7 @@ public class Student extends JxZkBiBase {
 								sNewMap.put("subStatus", subStatus);
 								sNewMap.put("isInEnrolledList", sessionDate != null && !DateUtil.isDateNull(startDate) && !DateUtil.isDateNull(endDate) 
 												&& sessionDate.compareTo(startDate) >= 0 && sessionDate.compareTo(endDate) <= 0);
+								sNewMap.put("isInEnrolledStart", sessionDate != null && !DateUtil.isDateNull(startDate) && sessionDate.compareTo(startDate) >= 0);
 								sessionMap.put(sessionRg, sNewMap);
 							}
 						}
@@ -1474,6 +1478,7 @@ public class Student extends JxZkBiBase {
 						sNewMap.put("subStatus", (String)cNewMap.get("subStatus"));
 						sNewMap.put("isInEnrolledList", sessionDate != null && !DateUtil.isDateNull(startDate) && !DateUtil.isDateNull(endDate) 
 										&& sessionDate.compareTo(startDate) >= 0 && sessionDate.compareTo(endDate) <= 0);
+						sNewMap.put("isInEnrolledStart", sessionDate != null && !DateUtil.isDateNull(startDate) && sessionDate.compareTo(startDate) >= 0);
 						sessionMap.put(sessionRg, sNewMap);
 					}
 				}
@@ -1535,7 +1540,8 @@ public class Student extends JxZkBiBase {
 							if (scanStudentCardMode) {
 								//No need to check the subscription date anymore.
 								//But need to check the subscription status <> cancelled. 
-								if (!StringUtils.equals((String)map.get("subStatus"), "Cancelled"))
+								//Check the subscription Start
+								if ((Boolean)map.get("isInEnrolledStart") && !StringUtils.equals((String)map.get("subStatus"), "Cancelled"))
 									canAdd = true;
 							}
 							else {

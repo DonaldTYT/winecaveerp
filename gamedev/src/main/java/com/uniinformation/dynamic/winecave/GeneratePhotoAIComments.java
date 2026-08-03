@@ -16,6 +16,7 @@ import com.uniinformation.bicore.BiResult;
 import com.uniinformation.bicore.wc.BiResultPhotoHeader;
 import com.uniinformation.utils.UniLog;
 import com.uniinformation.zkbi.BiActionHandler;
+import com.uniinformation.zkbi.ZkBiAiAgentContext;
 import com.uniinformation.zkbi.ZkBiComposerBase;
 import com.uniinformation.zkbi.ZkBiEventListener;
 import com.uniinformation.zkbi.ZkBiMsgbox;
@@ -33,6 +34,7 @@ public class GeneratePhotoAIComments extends BiActionHandler {
 
     private final File workflowFile;
     private final String defaultPromptText;
+    private final ZkBiAiAgentContext aiAgentContext;
 
     private BiResultPhotoHeader br;
     private ComfyUIImageToTextClient comfyClient;
@@ -46,6 +48,17 @@ public class GeneratePhotoAIComments extends BiActionHandler {
                 "comfy.imageToText.workflow",
                 DEFAULT_WORKFLOW_FILE));
         defaultPromptText = ComfyUIImageToTextClient.resolveDefaultPromptText();
+        aiAgentContext = p_bibase == null ? null
+                : new GeneratePhotoAICommentsAIHelperContext(p_bibase, this);
+    }
+
+    @Override
+    public ZkBiAiAgentContext getAiAgentContext() {
+        return aiAgentContext;
+    }
+
+    boolean isWorkflowAvailable() {
+        return workflowFile.isFile() && workflowFile.canRead();
     }
 
     @Override

@@ -49,7 +49,7 @@ public class ZkBiComposerOsOrderDet extends ZkBiComposerBase {
 		BiResult popupPoBr = null;
 		JxZkBiBase popupJx = null;
 		PopupControl (String p_viewName) throws Exception {
-            			popupPoScr = ZkUtil.newPopupWindow(sessionHelper.getLabel("Purchase Order Popup"),masterWin);
+            			popupPoScr = ZkUtil.newPopupWindow(sessionHelper.isMobile(),sessionHelper.getLabel("Purchase Order Popup"),masterWin);
             			popupPoScr.setClosable(false);
 //            			popupPoScr.setWidth("1920px");
 //           			popupPoScr.setHeight("1000px");

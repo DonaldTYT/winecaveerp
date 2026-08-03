@@ -21,7 +21,7 @@ public class ZkBiPopupBase {
 
 	public ZkBiPopupBase (XulElement masterWin,SessionHelper sessionHelper, String p_viewName) throws Exception {
 		//popupScr = ZkUtil.newPopupWindow("Test Popup",masterWin);
-		popupScr = ZkUtil.newPopupWindow(" ",masterWin);
+		popupScr = ZkUtil.newPopupWindow(sessionHelper.isMobile()," ",masterWin);
 		popupScr.setWidth("100%");
 		popupScr.setHeight("100%");
 		popupScr.setMaximizable(true);

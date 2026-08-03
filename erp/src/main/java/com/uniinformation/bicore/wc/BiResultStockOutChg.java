@@ -140,7 +140,7 @@ public class BiResultStockOutChg extends BiResultErpv4 {
 			String cocode = sourceRows.getFieldString("or_cocode").trim();
 			int org = sourceRows.getFieldInt("or_org");
 			int irg = sourceRows.getFieldInt("st_irg");
-			int pkg = sourceRows.getFieldInt("st_msize2");
+			int pkg = (int) sourceRows.getFieldDouble("st_msize2");
 			StockOutDetailRow generated;
 			if(movementGrouping) {
 				generated = new StockOutDetailRow(
@@ -357,9 +357,11 @@ public class BiResultStockOutChg extends BiResultErpv4 {
 			compareStockOutDetailInt(differences,rowKey,"stord_stmrg",
 					expected.stockMovementMrg,actual.getCellInt("stord_stmrg"));
 			expectedSequence++;
+			if(differences.size() > 30) break;
 		}
 
 		for(int i=0;i<actualRows.size();i++) {
+			if(differences.size() > 30) break;
 			if(!matchedActualRows[i]) {
 				BiCellCollection actual = actualRows.get(i);
 				differences.add("idx="+actual.getCellInt("stord_idx")

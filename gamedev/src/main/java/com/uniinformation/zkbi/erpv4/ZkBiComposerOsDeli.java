@@ -47,7 +47,7 @@ public class ZkBiComposerOsDeli extends ZkBiComposerReport {
 		BiResult pbr;
 		PopupControl (String p_viewName,BiResult p_pbr) throws Exception {
 			pbr = p_pbr;
-   			popupPoScr = ZkUtil.newPopupWindow(sessionHelper.getLabel("Delivery Order Popup"),masterWin);
+   			popupPoScr = ZkUtil.newPopupWindow(sessionHelper.isMobile(),sessionHelper.getLabel("Delivery Order Popup"),masterWin);
    			popupPoScr.setClosable(false);
 //			popupPoScr.setWidth("1920px");
 //			popupPoScr.setHeight("1000px");

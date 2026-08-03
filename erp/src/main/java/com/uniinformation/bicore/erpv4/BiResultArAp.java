@@ -27,7 +27,9 @@ public class BiResultArAp extends BiResultErpv4{
 	{
 
 		HashSet<BiTable> ht = super.addExtraWhereStr(p_where, p_hash);
-		p_where.andUniop("stm_ref1", ">", "");
+		if(getCurrentCollection().testCell("stm_ref1") != null) {
+			p_where.andUniop("stm_ref1", ">", "");
+		}
 		if(asAtDate.after(DateUtil.minDate)) {
 				Wherecl wcl1 = new Wherecl();
 				wcl1.appendString(" and sih_date <= '"+DateUtil.dateToDateTimeStr(asAtDate, "yyyy/MM/dd")+"' ").stripAnd();

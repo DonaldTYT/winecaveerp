@@ -249,7 +249,7 @@ public class AfsQuotation extends Quotation {
 //						if(true) return;
 						
                 		if(popupPoScr == null) {
-                			popupPoScr = ZkUtil.newPopupWindow("Create Goods Receive Record",parentComp);
+                			popupPoScr = ZkUtil.newPopupWindow(getSessionHelper().isMobile(),"Create Goods Receive Record",parentComp);
                 			popupPoScr.setWidth("1920px");
                 			popupPoScr.setHeight("1000px");
                 			popupPoScr.setContentStyle("overflow:auto;");

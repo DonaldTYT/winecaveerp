@@ -151,7 +151,7 @@ public class ZkBiComposerOsPoDet extends ZkBiComposerBase {
 //    					String key = sessionHelper.putOneTimeData( jo);
 //    					Executions.getCurrent().sendRedirect("zkbiloader.html?action=update&viewid=AfsGR&page_id=AfsGR_01&zul=zkbiloader.zul&querycondition="+key);
                 		if(popupPoScr == null) {
-                			popupPoScr = ZkUtil.newPopupWindow(sessionHelper.getBtLabel("Goods Receive"),masterWin);
+                			popupPoScr = ZkUtil.newPopupWindow(sessionHelper.isMobile(),sessionHelper.getBtLabel("Goods Receive"),masterWin);
                 			popupPoScr.setClosable(false);
 //                			popupPoScr.setWidth("1920px");
 //               			popupPoScr.setHeight("1000px");

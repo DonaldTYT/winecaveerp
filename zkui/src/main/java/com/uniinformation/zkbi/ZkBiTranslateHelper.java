@@ -164,7 +164,7 @@ public class ZkBiTranslateHelper extends TranslateUtil {
 		}
 		
 		//create popup
-		Window popupWin = ZkUtil.newPopupWindow("Translation",null,true);
+		Window popupWin = ZkUtil.newPopupWindow(p_sh.isMobile(),"Translation",null,true);
 		//popupWin.setParent(Executions.getCurrent().getDesktop().getFirstPage().getFirstRoot()); //andrew190806: getfirstroot only return first comp under page
 		if (p_parentComp != null){
 			popupWin.setParent(p_parentComp);
