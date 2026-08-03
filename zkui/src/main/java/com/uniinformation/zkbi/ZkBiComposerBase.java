@@ -20,6 +20,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
@@ -127,6 +128,7 @@ import com.uniinformation.jxapp.JxZkBiBase;
  
 public class ZkBiComposerBase extends ZkBiComposerView implements Composer<Component>, ZkBiSearchInterface, ZkBiHotkeyInterface, JxZkBiBaseCallback, ZkBiAiAgentContext {
 	public static final String AI_HELP_ENABLED_CONFIG = "AI_HELP_ENABLED";
+	private static final String AI_ACTION_BATCH_MODE_ATTRIBUTE = "zkBiAiActionBatchMode";
 	/** SessionHelper session-data key containing the current user's AI API key. */
 	public static final String AI_HELP_API_KEY_SESSION_DATA_KEY = "zkBiAiHelperApiKey";
 	final static long maxClickSelectGap = 50;
@@ -5327,10 +5329,10 @@ public class ZkBiComposerBase extends ZkBiComposerView implements Composer<Compo
 		        abHelper.addButton(viewActionButton, "fa-user");
 				if(!bah.isVisible(result, true)) viewActionButton.setVisible(false);
 				if(bah.isDisabled(result, true)) viewActionButton.setDisabled(true);
-//				if(bahHash == null) {
-//					bahHash = new Hashtable<String,BiActionHandler>();
-//				}
-//				bahHash.put("btExtraViewAction_"+i, bah);
+				viewActionButton.setAttribute(AI_ACTION_BATCH_MODE_ATTRIBUTE, false);
+				if (bahHash == null)
+					bahHash = new Hashtable<String,BiActionHandler>();
+				bahHash.put("btExtraViewAction_"+i, bah);
 			} catch (Exception ex){
 				UniLog.log(ex);
 			}
@@ -5346,10 +5348,6 @@ public class ZkBiComposerBase extends ZkBiComposerView implements Composer<Compo
 				Button batchActionButton = addBatchBiActionHandler(result,true,BiActionHandler.ActionAccessMode_Custom, ss2[2],"btExtraBatchAction_"+i,sessionHelper.getBtLabel(ss2[0]),ss2[1],bah);
 				if(!bah.isVisible(result, true)) batchActionButton.setVisible(false);
 				if(bah.isDisabled(result, true)) batchActionButton.setDisabled(true);
-				if(bahHash == null) {
-					bahHash = new Hashtable<String,BiActionHandler>();
-				}
-				bahHash.put("btExtraBatchAction_"+i, bah);
 			} catch (Exception ex){
 				UniLog.log(ex);
 			}
@@ -6630,6 +6628,160 @@ public class ZkBiComposerBase extends ZkBiComposerView implements Composer<Compo
 		if (aiHelpContext == null)
 			aiHelpContext = createAiHelpContext();
 		return aiHelpContext;
+	}
+
+	private List<String> getAiActionHandlerIds() {
+		List<String> ids = new ArrayList<String>();
+		if (bahHash != null)
+			ids.addAll(bahHash.keySet());
+		Collections.sort(ids);
+		return ids;
+	}
+
+	private Button getAiActionButton(String buttonId) {
+		if (masterWin == null || StringUtils.isBlank(buttonId))
+			return null;
+		Component component = masterWin.hasFellow(buttonId)
+				? masterWin.getFellow(buttonId) : masterWin.query("#" + buttonId);
+		return component instanceof Button ? (Button)component : null;
+	}
+
+	private ZkBiAiAgentContext getAiActionContext(String buttonId) {
+		BiActionHandler handler = bahHash == null ? null : bahHash.get(buttonId);
+		ZkBiAiAgentContext context = handler == null ? null : handler.getAiAgentContext();
+		if (context == this || context == aiHelpContext) {
+			UniLog.log("Ignore recursive AI action context for " + buttonId);
+			return null;
+		}
+		return context;
+	}
+
+	private String getAiActionOperationPrefix(String buttonId) {
+		return "action." + buttonId.replaceAll("[^A-Za-z0-9_-]", "_") + ".";
+	}
+
+	private JSONObject getAiActionMetadata(String buttonId, Button button)
+			throws JSONException {
+		return new JSONObject()
+				.put("buttonId", buttonId)
+				.put("buttonLabel", button.getLabel())
+				.put("batchAction", Boolean.TRUE.equals(
+						button.getAttribute(AI_ACTION_BATCH_MODE_ATTRIBUTE)))
+				.put("disabled", button.isDisabled());
+	}
+
+	/** Adds visible view/batch-action context snapshots to the main page context. */
+	void appendAiActionContexts(JSONObject pageContext) throws JSONException {
+		JSONArray actionContexts = new JSONArray();
+		for (String buttonId : getAiActionHandlerIds()) {
+			Button button = getAiActionButton(buttonId);
+			if (button == null || !button.isVisible())
+				continue;
+			ZkBiAiAgentContext context = getAiActionContext(buttonId);
+			if (context == null)
+				continue;
+			try {
+				actionContexts.put(new JSONObject()
+						.put("action", getAiActionMetadata(buttonId, button))
+						.put("context", context.getAiHelpContext()));
+			}
+			catch (Exception ex) {
+				UniLog.log(ex);
+			}
+		}
+		pageContext.put("actionContexts", actionContexts);
+	}
+
+	/** Appends namespaced operations supplied by visible action handlers. */
+	void appendAiActionOperationCatalog(JSONArray operations) throws JSONException {
+		for (String buttonId : getAiActionHandlerIds()) {
+			Button button = getAiActionButton(buttonId);
+			if (button == null || !button.isVisible())
+				continue;
+			ZkBiAiAgentContext context = getAiActionContext(buttonId);
+			if (context == null)
+				continue;
+			try {
+				JSONObject catalog = context.getAiHelpOperationCatalog();
+				JSONArray contributed = catalog == null ? null
+						: catalog.optJSONArray("operations");
+				if (contributed == null)
+					continue;
+				for (int i = 0; i < contributed.length(); i++) {
+					JSONObject source = contributed.optJSONObject(i);
+					String sourceId = source == null ? null
+							: StringUtils.trimToNull(source.optString("id"));
+					if (sourceId == null)
+						continue;
+					JSONObject operation = new JSONObject(source.toString());
+					operation.put("id", getAiActionOperationPrefix(buttonId) + sourceId);
+					operation.put("sourceOperationId", sourceId);
+					operation.put("source", "bi_action");
+					operation.put("action", getAiActionMetadata(buttonId, button));
+					if (button.isDisabled()) {
+						operation.put("available", false);
+						operation.put("unavailableReason",
+								"The action button is currently disabled.");
+					}
+					operations.put(operation);
+				}
+			}
+			catch (Exception ex) {
+				UniLog.log(ex);
+			}
+		}
+	}
+
+	/**
+	 * Routes one namespaced action operation back to its contributing context.
+	 * Hidden action handlers are deliberately not addressable.
+	 */
+	boolean buildAiActionOperationHelp(String operationId, JSONObject help)
+			throws JSONException {
+		for (String buttonId : getAiActionHandlerIds()) {
+			String prefix = getAiActionOperationPrefix(buttonId);
+			if (!StringUtils.startsWith(operationId, prefix))
+				continue;
+			Button button = getAiActionButton(buttonId);
+			if (button == null || !button.isVisible())
+				return false;
+			ZkBiAiAgentContext context = getAiActionContext(buttonId);
+			if (context == null)
+				return false;
+			String sourceOperationId = operationId.substring(prefix.length());
+			try {
+				JSONObject contributed = context.getAiHelpOperationHelp(sourceOperationId);
+				if (contributed == null)
+					return false;
+				for (Iterator<?> it = contributed.keys(); it.hasNext();) {
+					String key = String.valueOf(it.next());
+					help.put(key, contributed.get(key));
+				}
+				help.put("operationId", operationId);
+				help.put("sourceOperationId", sourceOperationId);
+				help.put("source", "bi_action");
+				help.put("action", getAiActionMetadata(buttonId, button));
+				if (button.isDisabled()) {
+					help.put("available", false);
+					help.put("unavailableReason",
+							"The action button is currently disabled.");
+				}
+				return true;
+			}
+			catch (Exception ex) {
+				UniLog.log(ex);
+				help.put("known", true);
+				help.put("available", false);
+				help.put("operationId", operationId);
+				help.put("sourceOperationId", sourceOperationId);
+				help.put("source", "bi_action");
+				help.put("action", getAiActionMetadata(buttonId, button));
+				help.put("unavailableReason",
+						"The action-specific help context could not be loaded.");
+				return true;
+			}
+		}
+		return false;
 	}
 
 	@Override
@@ -10286,6 +10438,12 @@ public class ZkBiComposerBase extends ZkBiComposerView implements Composer<Compo
            		};
            	}
         );
+        if (p_handler != null) {
+			if (bahHash == null)
+				bahHash = new Hashtable<String,BiActionHandler>();
+			bahHash.put(p_id, p_handler);
+			btn.setAttribute(AI_ACTION_BATCH_MODE_ATTRIBUTE, p_BatchMode);
+        }
         if(p_BatchMode) setupBatchModeButton(btn);
         return btn;
     }

@@ -12,7 +12,7 @@ import com.kikyosoft.utils.LogUtil;
 import com.uniinformation.zkbi.ZkBiAiAgent;
 
 /** OpenAI backend adapter for the provider-neutral ZK BI AI helper. */
-public final class OpenAiZkBiAiHelperAgent implements ZkBiAiAgent {
+public class OpenAiZkBiAiHelperAgent implements ZkBiAiAgent {
     private OpenAIChatClient client;
     private String apikey;
 

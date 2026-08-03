@@ -73,6 +73,7 @@ public class ZkBiComposerAIHelperContext implements ZkBiAiAgentContext {
         BiResult result = state.result;
         if (result == null) {
             context.put("biResultAvailable", false);
+            composer.appendAiActionContexts(context);
             return context;
         }
         context.put("biResultAvailable", true);
@@ -106,6 +107,7 @@ public class ZkBiComposerAIHelperContext implements ZkBiAiAgentContext {
         context.put("fieldCount", columns.size());
         context.put("fieldListTruncated", columns.size() > limit);
         context.put("recordValuesShared", false);
+        composer.appendAiActionContexts(context);
         return context;
     }
 
@@ -145,6 +147,7 @@ public class ZkBiComposerAIHelperContext implements ZkBiAiAgentContext {
                 .put("recordValuesShared", false);
         if (state.result == null)
             catalog.put("note", "The BI result is not currently available, so only live UI operations are listed.");
+        composer.appendAiActionOperationCatalog(operations);
         composer.customizeAiHelpOperationCatalog(operations);
         return catalog;
     }
@@ -183,6 +186,9 @@ public class ZkBiComposerAIHelperContext implements ZkBiAiAgentContext {
             buildSaveRecord(state, help);
         else if ("return_to_list".equals(id))
             buildReturnToList(state, help);
+        else if (composer.buildAiActionOperationHelp(id, help)) {
+            // The linked action context populated the operation help.
+        }
         else {
             help.put("known", false);
             help.put("available", false);

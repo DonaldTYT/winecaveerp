@@ -53,6 +53,18 @@ abstract public class BiActionHandler {
 	public boolean preserveListOrder () {
 		return(false);
 	}
+
+	/**
+	 * Optional read-only AI context describing this action.
+	 *
+	 * <p>Returning {@code null} keeps the action out of AI Help. The composer
+	 * only exposes a contributed context when the action's actual button is
+	 * visible to the current user. Execution of the action is never implied by
+	 * this context.</p>
+	 */
+	public ZkBiAiAgentContext getAiAgentContext() {
+		return null;
+	}
 	
 	public final void delayStart() {
 		if(startAction != null) {
