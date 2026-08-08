@@ -2,7 +2,7 @@ package com.uniinformation.accumulator;
 
 import java.util.List;
 
-import com.kyoko.common.*;
+import com.kyoko.common.DateUtil;
 
 public class DateBalanceAccumulator extends BaseAccumulator {
 	public DateBalanceAccumulator() {

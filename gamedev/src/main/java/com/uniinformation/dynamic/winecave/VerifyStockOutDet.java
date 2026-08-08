@@ -10,16 +10,25 @@ import com.uniinformation.jx.JxActionListener;
 import com.uniinformation.jx.JxField;
 import com.uniinformation.utils.UniLog;
 import com.uniinformation.zkbi.BiActionHandler;
+import com.uniinformation.zkbi.ZkBiAiAgentContext;
 import com.uniinformation.zkbi.ZkBiComposerBase;
 
 public class VerifyStockOutDet extends BiActionHandler implements JxActionListener {
 
 	BiResultStockOutChg br;
+	private ZkBiAiAgentContext aiAgentContext;
 
 	public VerifyStockOutDet(ZkBiComposerBase p_bibase) {
 		super(p_bibase);
 		if(p_bibase != null) useAsync = p_bibase.getSessionHelper().getAllowBatchPrtdocAsync();
 		else useAsync = false;
+	}
+
+	@Override
+	public ZkBiAiAgentContext getAiAgentContext() {
+		if (aiAgentContext == null && biBase != null)
+			aiAgentContext = new VerifyStockOutDetAIHelperContext(biBase);
+		return aiAgentContext;
 	}
 
 	@Override

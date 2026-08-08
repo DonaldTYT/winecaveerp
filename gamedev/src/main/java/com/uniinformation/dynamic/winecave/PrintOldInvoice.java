@@ -37,7 +37,7 @@ import com.uniinformation.zkbi.ZkBiComposerBase;
 public class PrintOldInvoice  extends BiActionHandler implements JxActionListener {
 
 	boolean downloadPdf = false;
-	boolean useDiskForFinalPdf = true;
+	boolean useDiskForFinalPdf = false;
 	BiResultInvoiceBase  br = null;
 	SessionHelper sh = null;
 	RpcClient rpc = null;
@@ -98,6 +98,7 @@ public class PrintOldInvoice  extends BiActionHandler implements JxActionListene
 	public PrintOldInvoice(ZkBiComposerBase p_bibase) {
 		super(p_bibase);
 		// TODO Auto-generated constructor stub
+		if(p_bibase != null) useAsync = p_bibase.getSessionHelper().getAllowBatchPrtdocAsync(); else useAsync = false;
 	}
 	
 	@Override
@@ -355,5 +356,18 @@ public class PrintOldInvoice  extends BiActionHandler implements JxActionListene
 	
 	public ReturnMsg isRunnable(BiResult br,boolean isBatch) {
 		return(ReturnMsg.defaultOk);
+	}
+
+	@Override
+	public void afterActionAsync(BiActionHandler.AfterActionCallback cb) {
+		UniLog.log1("afterActionAsync start");
+		ReturnMsg rtn = afterAction(null);
+		biBase.hideProgressPanel();
+		cb.callback(rtn);
+	}
+
+	@Override
+	public boolean preserveListOrder() {
+		return(true);
 	}
 }

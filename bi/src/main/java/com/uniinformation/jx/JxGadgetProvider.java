@@ -98,6 +98,13 @@ public abstract class JxGadgetProvider
 		return(wxuser);
 	}
 	*/
+	public void setWxUser(WxUser p_wxuser)
+	{
+	}
+	public WxUser getWxUser()
+	{
+		return(null);
+	}
 	public static JxGadgetProvider getProvider()
 	{
 		return(null);

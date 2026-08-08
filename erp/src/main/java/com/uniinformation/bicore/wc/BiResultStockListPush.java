@@ -1,6 +1,7 @@
 package com.uniinformation.bicore.wc;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Vector;
@@ -12,6 +13,7 @@ import org.json.JSONObject;
 
 import com.uniinformation.bicore.BiCoreRpcServlet.BiRpcInterface;
 import com.kyoko.common.DateUtil;
+import com.kyoko.common.ReturnMsg;
 import com.kyoko.common.StringUtil;
 import com.uniinformation.bicore.BiCellCollection;
 import com.uniinformation.bicore.BiCellCollectionToJsonInterface;
@@ -996,12 +998,10 @@ for(int i=0;i<ja.length();i++) {
 			 clearOrderBy();
 			 addCustomCondition("consgp_qty > 0.0 and st_webprice > 0.0 and sttp_name in('Sake','Spirit','Wine','Sparkling Tea')");
 			 query();
-			 /*
-			 JSONObject jo = GoogleMerchantCenterProduct.downloadGoogleMerchantCenterProduct(this);
+			 JSONObject jo = downloadGoogleMerchantCenterProduct(this);
 			 if(jo != null) {
-				 return("OK  "+GoogleMerchantCenterProduct.convert(jo));
+				 return("OK  "+convert(jo));
 			 }
-			 */
 		}
 		if(p_segName.equals("syncProductRecords")) {
 		boolean syncMedia = false;
@@ -1057,6 +1057,171 @@ for(int i=0;i<ja.length();i++) {
 			if(rpcSaleor != null) rpcSaleor.close();
 		}
 		return null;
+	}
+	private static String escapeXml(String value) {
+	        if (value == null) return "";
+	        return value
+	            .replace("&", "&amp;")
+	            .replace("<", "&lt;")
+	            .replace(">", "&gt;")
+	            .replace("\"", "&quot;")
+	            .replace("'", "&apos;");
+	}	
+	private static void tag(StringBuilder xml, String name, String value, int indent) {
+	       spaces(xml, indent)
+	           .append("<").append(name).append(">")
+	           .append(escapeXml(value))
+	           .append("</").append(name).append(">\n");
+	}
+    private static void gtag(StringBuilder xml, String name, String value, int indent) {
+        spaces(xml, indent)
+            .append("<g:").append(name).append(">")
+            .append(escapeXml(value))
+            .append("</g:").append(name).append(">\n");
+    }
+	private static StringBuilder spaces(StringBuilder xml, int count) {
+        for (int i = 0; i < count; i++) {
+            xml.append(' ');
+        }
+        return xml;
+    }	
+    private static void require(JSONObject obj, String key, int index) {
+        if (!obj.has(key) || obj.optString(key).trim().isEmpty()) {
+            throw new IllegalArgumentException(
+                "Product index " + index + " missing required field: " + key
+            );
+        }
+    } 
+    private static void validateProduct(JSONObject p, int index) {
+        require(p, "id", index);
+        require(p, "title", index);
+        require(p, "description", index);
+        require(p, "link", index);
+        require(p, "image_link", index);
+        require(p, "availability", index);
+        require(p, "price", index);
+    }
+    private static void optionalGTag(StringBuilder xml, String name, JSONObject obj, int indent) {
+        if (obj.has(name)) {
+            String value = obj.optString(name, "").trim();
+            if (!value.isEmpty()) {
+                gtag(xml, name, value, indent);
+            }
+        }
+    }	
+	public static String convert(JSONObject root) throws JSONException {
+
+        JSONObject feed = root.optJSONObject("feed");
+        if (feed == null) {
+            throw new IllegalArgumentException("Missing root object: feed");
+        }
+
+        JSONArray products = feed.optJSONArray("products");
+        if (products == null || products.length() == 0) {
+            throw new IllegalArgumentException("Missing or empty: feed.products");
+        }
+
+        StringBuilder xml = new StringBuilder();
+
+        xml.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
+        xml.append("<rss version=\"2.0\" xmlns:g=\"http://base.google.com/ns/1.0\">\n");
+        xml.append("  <channel>\n");
+
+        tag(xml, "title", feed.optString("title", "Product Feed"), 4);
+        tag(xml, "link", feed.optString("link", ""), 4);
+        tag(xml, "description", feed.optString("description", "Product feed"), 4);
+
+        for (int i = 0; i < products.length(); i++) {
+            JSONObject p = products.getJSONObject(i);
+            validateProduct(p, i);
+
+            xml.append("    <item>\n");
+
+            gtag(xml, "id", p.getString("id"), 6);
+            gtag(xml, "title", p.getString("title"), 6);
+            gtag(xml, "description", p.getString("description"), 6);
+            gtag(xml, "link", p.getString("link"), 6);
+            gtag(xml, "image_link", p.getString("image_link"), 6);
+            gtag(xml, "availability", p.getString("availability"), 6);
+            gtag(xml, "price", p.getString("price"), 6);
+            gtag(xml, "condition", p.optString("condition", "new"), 6);
+
+            optionalGTag(xml, "brand", p, 6);
+            optionalGTag(xml, "item_group_id", p, 6);
+            optionalGTag(xml, "gtin", p, 6);
+            optionalGTag(xml, "mpn", p, 6);
+            optionalGTag(xml, "google_product_category", p, 6);
+            optionalGTag(xml, "product_type", p, 6);
+            optionalGTag(xml, "adult", p, 6);
+
+            if (p.has("shipping")) {
+//                appendShipping(xml, p.getJSONObject("shipping"), 6);
+            }
+
+            xml.append("    </item>\n");
+        }
+
+        xml.append("  </channel>\n");
+        xml.append("</rss>\n");
+
+        return xml.toString();
+    }
+	public static ReturnMsg doBeforeAction(JSONObject jo, JSONArray ja,HashSet<String> productHash,BiResult p_result,int cnt) throws Exception {
+		JSONObject jf = new JSONObject();
+		jf.put("title",  "WineCave Product Feed");
+		jf.put("link",  "https://winecavehk.com");
+		jf.put("description", "WineCave Google Merchant product feed");
+		jf.put("products", ja);
+		jo.put("feed", jf);
+		return (ReturnMsg.defaultOk);
+	}	
+	public static ReturnMsg doProcessAction(JSONArray ja,HashSet<String> productHash,BiResult p_result,int p_recIdx) throws Exception {
+		if(StringUtils.isBlank(p_result.getCellString("st_photourl"))) {
+			UniLog.log("Skip " + p_result.getCellString("st_icode") + " no photo");
+			return (ReturnMsg.defaultOk);
+		}
+		if(StringUtils.isBlank(p_result.getCellString("stnd_note"))) {
+			UniLog.log("Skip " + p_result.getCellString("st_icode") + " no tasting notes");
+			return (ReturnMsg.defaultOk);
+		}
+		if(productHash.contains(p_result.getCellString("st_slug"))) {
+			return (ReturnMsg.defaultOk);
+		}
+		productHash.add(p_result.getCellString("st_slug"));
+		JSONObject ji = new JSONObject();
+		ji.put("id", p_result.getCellString("st_slug"));
+		ji.put("availability", "in_stock");
+		ji.put("price", String.format("%.2f HKD", p_result.getCellDouble("st_webprice")));
+		String ss = p_result.getCellString("st_iname")+" "+p_result.getCellInt("st_msize2")+"ml/Btl ";
+		if(p_result.getCellInt("st_msize1") > 1) {
+			ss += " "+p_result.getCellInt("st_msize1") + "/case";
+		}
+		ji.put("title", ss);
+		ji.put("description", p_result.getCellString("stnd_note"));
+		ji.put("link", "https://www.winecavehk.com/hk/en/products/"+p_result.getCellString("st_slug"));
+		ji.put("image_link", "https://hub.erpv4.com/saleorsync/getResource?url="+p_result.getCellString("st_photourl"));
+		ji.put("brand", p_result.getCellString("stbd_name"));
+		ji.put("product_type", p_result.getCellString("mt_tpname"));
+		ji.put("google_product_category", "Food, Beverages & Tobacco > Beverages > Alcoholic Beverages > Wine");
+		ji.put("adult", "yes");
+		ja.put(ji);
+		return (ReturnMsg.defaultOk);
+	}	
+	static public JSONObject downloadGoogleMerchantCenterProduct(BiResult p_br) throws Exception {
+		HashSet<String> productHash ;
+		JSONObject jo;
+		JSONArray ja;
+		productHash = new HashSet<String>();
+		jo = new JSONObject();
+		ja = new JSONArray();
+		ReturnMsg rtn = doBeforeAction(jo,ja,productHash,p_br,p_br.getRowCount());
+		if(rtn != null && !rtn.getStatus()) throw new Exception("Download Error : "+rtn.getMsg());
+		for(int i=0;i<p_br.getRecordCount();i++) {
+			p_br.loadOneRecV(i);
+			rtn = doProcessAction(ja,productHash,p_br,i);
+			if(rtn != null && !rtn.getStatus()) throw new Exception("Download Error : "+rtn.getMsg());
+		}
+		return(jo);
 	}
 }
 

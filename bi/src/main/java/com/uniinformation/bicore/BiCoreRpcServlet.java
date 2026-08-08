@@ -108,7 +108,7 @@ public class BiCoreRpcServlet implements RpcServlet{
 		try {
 			br.rollbackWork();
 		} catch (Exception ex) {
-			CoreLog.log(ex);
+			UniLog.log(ex);
 			return("FAIL");
 		}
 		return("OK");
@@ -120,7 +120,7 @@ public class BiCoreRpcServlet implements RpcServlet{
 		try {
 			br.commitWork();
 		} catch (Exception ex) {
-			CoreLog.log(ex);
+			UniLog.log(ex);
 			return("FAIL");
 		}
 		return("OK");
@@ -171,7 +171,7 @@ public class BiCoreRpcServlet implements RpcServlet{
 		try {
 			br.beginWork();
 		} catch (Exception ex) {
-			CoreLog.log(ex);
+			UniLog.log(ex);
 			return("FAIL");
 		}
 		return("OK");
@@ -188,7 +188,7 @@ public class BiCoreRpcServlet implements RpcServlet{
 			JSONObject jo = new JSONObject(p_jsonstr);
 			JsonToBiCellCollectionInterface.JsonToBiCellCollection(br.getCurrentCollection(), jo, null);
 		} catch (Exception ex ) {
-			CoreLog.log(ex);
+			UniLog.log(ex);
 			return("FAIL"+ex.toString());
 		}
 		ReturnMsg rtn = br.updateCurrent();
@@ -223,7 +223,7 @@ public class BiCoreRpcServlet implements RpcServlet{
 			String pk = SessionPassport.makePassport( p_user,(long) p_timeToExpire,p_peerAllowed,p_urlAllowed,p_OneTimeOnly,p_content);
 			if(pk != null ) return("OK  "+pk); else return("FAIL");
 		} catch (Exception ex) {
-			CoreLog.log("FAIL"+ex.toString());
+			UniLog.log("FAIL"+ex.toString());
 			return("FAIL Failed with exception");
 		}
 	}

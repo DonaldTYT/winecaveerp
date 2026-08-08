@@ -840,4 +840,13 @@ public class Wherecl implements Serializable {
 	   sqlsb.append(")");
 	   return(this);
    }
+   
+   public void reset() {
+	   sqlsb = new StringBuffer();
+	   values = new Vector();
+	   orderby = null;
+	   fImpossible = false; 
+	   fAlwaysTrue = false; 
+	   dbLabel = null;
+   }
 }

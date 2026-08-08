@@ -3,6 +3,7 @@ package com.uniinformation.jxapp.wc;
 import java.util.ArrayList;
 import java.util.Vector;
 
+import org.json.JSONObject;
 import org.zkoss.zk.ui.Component;
 import org.zkoss.zk.ui.Executions;
 import org.zkoss.zk.ui.IdSpace;
@@ -42,6 +43,7 @@ import com.uniinformation.jx.zk.JxZkSkin;
 import com.uniinformation.jx.zk.ZkJxPickInput;
 import com.uniinformation.jxapp.JxSelOpt;
 import com.uniinformation.jxapp.JxZkBiBase;
+import com.uniinformation.utils.BcTagUtil;
 import com.uniinformation.utils.PopupWindowAction;
 import com.uniinformation.utils.SelectUtil;
 import com.uniinformation.utils.TableRec;
@@ -599,6 +601,60 @@ public class Transfer extends JxZkBiBase {
 			
 	}
 	
+	protected void processOneBarcode(String s) throws Exception {
+					if(
+							(!s.substring(0, 1).equals("1")) &&
+							(!s.substring(0, 1).equals("2"))
+							) throw new CellException("barcode invalid (1)");
+					int irg=Integer.parseInt(s.substring(1,7));
+					int org=Integer.parseInt(s.substring(7,13));
+					SelectUtil su = getBr().getSelectUtil();
+					TableRec tr = null;
+					tr = su.getQueryResult("select * from orders where or_org = ?",new Wherecl().appendArgument(org));
+					String ocode = "";
+					if(tr.getRecordCount() > 0)  {
+					tr.setRecPointer(0);
+						ocode = tr.getFieldString("or_ocode");
+					}
+
+						if(getBr().getCellString("stm_ref3").isEmpty()) {
+							tr = su.getQueryResult("select pdlbs_loc,pdlbs_irg,pdlbs_org,ord1.or_cocode,pdlbs_stockqty,stm_type,stm_date,stm_ref1,stpk_packing,st_icode,vd_vname,st_iname,st_msize1,st_msize2,ord1.or_ocode,ord1.or_date,pdlbs_bin "
+									+ "from podetlocbinstatus,orders ord1,stock,outer stmov,outer stockpacking,outer vendor where pdlbs_irg = ? and pdlbs_stockqty> 0 and ord1.or_org = pdlbs_org and"
+									+ " stm_mrg = ord1.or_stmrg and stpk_irg = pdlbs_irg and stpk_org = pdlbs_org and st_irg = pdlbs_irg and vd_vcode = or_cocode order by pdlbs_irg,pdlbs_bin, ord1.or_cocode, pdlbs_loc ",
+										new Wherecl()
+											.appendArgument(irg)
+									);
+						} else {
+							tr = su.getQueryResult("select pdlbs_loc,pdlbs_irg,pdlbs_org,ord1.or_cocode,pdlbs_stockqty,stm_type,stm_date,stm_ref1,stpk_packing,st_icode,vd_vname,st_iname,st_msize1,st_msize2,ord1.or_ocode,ord1.or_date,pdlbs_bin "
+									+ "from podetlocbinstatus,orders ord1,stock,outer stmov,outer stockpacking,outer vendor where pdlbs_irg = ? and pdlbs_stockqty> 0 and ord1.or_org = pdlbs_org and "
+									+ "stm_mrg = ord1.or_stmrg and stpk_irg = pdlbs_irg and stpk_org = pdlbs_org and pdlbs_loc = ? and st_irg = pdlbs_irg and vd_vcode = or_cocode order by pdlbs_irg,pdlbs_bin, ord1.or_cocode, pdlbs_loc ",
+										new Wherecl()
+											.appendArgument(irg)
+											.appendArgument(getBr().getCellString("stm_ref3"))
+										);
+						}
+						
+					if(tr.getRecordCount() <= 0) throw new CellException("Record Not In Stock");
+					boolean needConfirm = true;
+					if(!needConfirm) {
+						tr.setRecPointer(0);
+						org = tr.getFieldInt("pdlbs_org");
+						if(getBr().getCellString("stm_ref3").isEmpty()) {
+							addOneTransferDetail(irg,org,tr.getFieldString("pdlbs_loc"));
+						} else {
+							addOneTransferDetail(irg,org);
+						}
+						Clients.evalJavaScript("beep(1)");
+					} else {
+						tr.setRecPointer(0);
+						String icode = tr.getFieldString("st_icode");
+						printOrTransferItems(icode,tr,org,false);
+
+						Clients.evalJavaScript("beep(2)");
+						
+					}
+	}
+	
 	@Override
 	public void afterBind() {
 		super.afterBind();
@@ -966,6 +1022,7 @@ public class Transfer extends JxZkBiBase {
 				}
 			}
 		};
+		LOCK_RECORD_FOR_UPDATE = true;
 	}
 	void addOneTransferDetail(int p_irg,int p_org) throws Exception {
 		addOneTransferDetail(p_irg,p_org,null,null,0);
@@ -1199,5 +1256,13 @@ public class Transfer extends JxZkBiBase {
 							}
 						}
 						);
+	}
+	
+	public void onBarcode(String p_barcode) {
+		try {
+			processOneBarcode(p_barcode);
+		} catch (Exception ex) {
+			UniLog.log(ex);
+		}
 	}
 }

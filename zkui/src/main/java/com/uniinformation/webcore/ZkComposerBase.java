@@ -14,6 +14,7 @@ import org.zkoss.zk.ui.*;
 import org.zkoss.zk.ui.event.Event;
 import org.zkoss.zk.ui.event.EventListener;
 import org.zkoss.zk.ui.event.Events;
+import org.zkoss.zk.ui.select.SelectorComposer;
 import org.zkoss.zk.ui.select.Selectors;
 import org.zkoss.zk.ui.util.*;
 import org.zkoss.zul.Messagebox;
@@ -21,14 +22,13 @@ import org.zkoss.zul.Messagebox;
 import com.kyoko.common.ReturnMsg;
 import com.uniinformation.utils.MapUtil;
 import com.uniinformation.utils.UniLog;
+import com.uniinformation.utils.TranslateUtil;
 import com.uniinformation.utils.ZkUtil;
-//import com.uniinformation.zkbi.ZkBiAuService;
 import com.uniinformation.zkbi.ZkBiLogHelper;
 import com.uniinformation.zkbi.ZkBiLogHelper.ETYPE;
 import com.uniinformation.zkbi.ZkBiTranslateHelper;
-//import com.uniinformation.zkbi.ZkBiAuService.ZkBiAuEvent;
  
-public class ZkComposerBase implements Composer<Component> {
+public class ZkComposerBase extends SelectorComposer<Component> {
   	protected ZkSessionHelper sessionHelper;
   	protected Component rootComp;
   	protected boolean autoWire = true;
@@ -230,7 +230,7 @@ public class ZkComposerBase implements Composer<Component> {
 	  		return ((String []) obj)[((String []) obj).length-1];
 	  	}
 	  	return null;
- //   	return sessionHelper.getURLParam(p_key);
+//    	return sessionHelper.getURLParam(p_key);
     }
     public boolean isWidget() {
     	//UniLog.log1("HAHA999 session:%s url:%s", getURLParam("widget"), ZkUtil.getURLParamFromComp(rootComp, "widget"));

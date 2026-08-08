@@ -70,15 +70,22 @@ public class ImageUtil {
         return h;
     }
 
-    public static String getBase64ImageString(InputStream p_is, String p_mineType) {
+    public static String getBase64ImageString(InputStream p_is, String p_mimeType) {
         try {
-            byte[] bytes = p_is.readAllBytes();
-            return "data:" + p_mineType + ";base64," + Base64.getEncoder().encodeToString(bytes);
-        } catch (Exception ex) {
+            ByteArrayOutputStream output = new ByteArrayOutputStream();
+            byte[] buffer = new byte[8192];
+            int count;
+
+            while ((count = p_is.read(buffer)) != -1) {
+                output.write(buffer, 0, count);
+            }
+
+            return "data:" + p_mimeType + ";base64,"
+                    + Base64.getEncoder().encodeToString(output.toByteArray());
+        } catch (IOException ex) {
             ex.printStackTrace();
             return null;
         }
     }
-
     private static int clamp(int v, int min, int max) { return Math.max(min, Math.min(max, v)); }
 }

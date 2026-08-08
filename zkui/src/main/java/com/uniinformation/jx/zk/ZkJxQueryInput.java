@@ -42,9 +42,9 @@ import org.zkoss.zul.Timebox;
 import org.zkoss.zul.Vlayout;
 
 import com.kyoko.common.DateUtil;
+import com.uniinformation.cell.AbstractGetItemProperty;
 import com.uniinformation.cell.Cell;
 import com.uniinformation.jxapp.JxSelOpt;
-import com.uniinformation.cell.AbstractGetItemProperty;
 import com.uniinformation.utils.MapUtil;
 import com.uniinformation.utils.TrGetItemProperty;
 import com.uniinformation.utils.UniLog;
@@ -77,7 +77,7 @@ public class ZkJxQueryInput extends Bandbox {
 	Bandpopup bp;
 	Vlayout datePopup;
 	Vlayout stringPopup;
-	Listbox stringListbox;
+	private Listbox stringListbox;
 	ListModelList stringModelList;
 	Button stringPopupCloseButton, stringPopupClearButton;
 	Radiogroup dateAbsRelFlag;
@@ -898,8 +898,12 @@ public class ZkJxQueryInput extends Bandbox {
 	}
 	
 	public void clearStringListboxSelection() {
+		/*
 		if (stringListbox != null)
 			stringListbox.clearSelection();
+		*/
+		if(stringPopup != null) stringPopup.removeChild(stringListbox);
+		stringListbox = null;
 	}
 	
 	public static String escapeStringList(List<String> strList) {

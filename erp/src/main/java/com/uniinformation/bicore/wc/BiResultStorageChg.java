@@ -264,9 +264,11 @@ public class BiResultStorageChg extends BiResultErpv4 {
 					expected.consignmentQty,actual.getCellInt("stord_cqty"));
 			compareStorageDetailInt(differences,rowKey,"stord_stmrg",
 					0,actual.getCellInt("stord_stmrg"));
+			if(differences.size() > 30) break;
 		}
 
 		for(int i=0;i<actualRows.size();i++) {
+			if(differences.size() > 30) break;
 			if(!matchedActualRows[i]) {
 				BiCellCollection actual = actualRows.get(i);
 				differences.add("cocode="+actual.getCellString("stord_cocode")
@@ -299,6 +301,59 @@ public class BiResultStorageChg extends BiResultErpv4 {
 			row.getCell("stord_sqty").set(generated.storageQty);
 			row.getCell("stord_cqty").set(generated.consignmentQty);
 			row.getCell("stord_stmrg").set(0);
+		}
+	}
+
+	/**
+	 * Regenerates the storage details directly in the database. This bypasses
+	 * BiResult row validation and change tracking, and is intended for an
+	 * already-saved storage header.
+	 */
+	public void regen_storagedet_direct() throws Exception {
+		Date storageDate = getValidatedStorageDate();
+		ArrayList<StorageDetailRow> generatedRows = calculateStorageDetailRows(storageDate);
+		SelectUtil selectUtil = getSelectUtil();
+		boolean workStarted = false;
+		try {
+			if(!beginWork() || !inBeginWork()) {
+				throw new Exception("Unable to begin storage-detail regeneration transaction");
+			}
+			workStarted = true;
+			int storageMrg = getCellInt("storh_mrg");
+			selectUtil.executeUpdate(
+					"delete from storagedet where stord_mrg = ?",
+					new Wherecl().appendArgument(storageMrg));
+
+			int sequence = 1;
+			for(StorageDetailRow generated : generatedRows) {
+				selectUtil.executeUpdate(
+						"insert into storagedet "
+						+ "(stord_mrg,stord_idx,stord_cocode,stord_org,stord_irg,"
+						+ "stord_pkg,stord_sqty,stord_cqty,stord_stmrg) "
+						+ "values (?,?,?,?,?,?,?,?,?)",
+						new Wherecl()
+						.appendArgument(storageMrg)
+						.appendArgument(sequence++)
+						.appendArgument(generated.cocode)
+						.appendArgument(generated.org)
+						.appendArgument(generated.irg)
+						.appendArgument(generated.pkg)
+						.appendArgument(generated.storageQty)
+						.appendArgument(generated.consignmentQty)
+						.appendArgument(0));
+			}
+			if(!commitWork()) {
+				throw new Exception("Unable to commit storage-detail regeneration transaction");
+			}
+			workStarted = false;
+		} catch(Exception ex) {
+			if(workStarted) rollbackWork();
+			throw(ex);
+		}
+		Wherecl detailWhere = new Wherecl();
+		detailWhere.andUniop("storagedet.stord_mrg","=",getCellInt("storh_mrg"));
+		if(!fetchOneSubLink(getCurrentCollection(),getSubLink(STORAGE_DETAIL_LINK),detailWhere)) {
+			throw new Exception("Unable to reload regenerated storage details");
 		}
 	}
 

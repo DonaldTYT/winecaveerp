@@ -96,7 +96,6 @@ public class BiResultWcStmovd extends BiResult {
 					RpcClient rpc = null;
 					if(rpc == null) {
 //						SessionHelper sessionHelper = (SessionHelper) Executions.getCurrent().getSession().getAttribute(SessionHelper.getNameByContextPath(Executions.getCurrent().getContextPath()));	
-//						rpc = sessionHelper.getRpcClient();
 						rpc = sh.getRpcClient();
 					}
 					Value v = rpc.callSegment("newstcost_getuprice", 

@@ -130,6 +130,7 @@ import com.uniinformation.jxapp.JxZkBiBase;
 public class ZkBiComposerBase extends ZkBiComposerView implements Composer<Component>, ZkBiSearchInterface, ZkBiHotkeyInterface, JxZkBiBaseCallback, ZkBiAiAgentContext {
 	public static final String AI_HELP_ENABLED_CONFIG = "AI_HELP_ENABLED";
 	private static final String AI_ACTION_BATCH_MODE_ATTRIBUTE = "zkBiAiActionBatchMode";
+	private static final String AI_ACTION_SCOPE_ATTRIBUTE = "zkBiAiActionScope";
 	/** SessionHelper session-data key containing the current user's AI API key. */
 	public static final String AI_HELP_API_KEY_SESSION_DATA_KEY = "zkBiAiHelperApiKey";
 	final static long maxClickSelectGap = 50;
@@ -328,6 +329,8 @@ public class ZkBiComposerBase extends ZkBiComposerView implements Composer<Compo
 //    Menupopup menupopup;
 	protected List<String> defaultColumnOrders;
 	protected Hashtable<String,BiActionHandler> bahHash;
+	private Hashtable<String,BiActionHandler> aiActionHandlerHash;
+	private Hashtable<String,Button> aiActionButtonHash;
 	protected String detailIcon = "images/icons/zkweb/039-file-3-20x20.png" ;
     protected interface ZkBiTimerEventInterface   //TODO: need to simplify and generalized export dialog
     {
@@ -5367,7 +5370,8 @@ public class ZkBiComposerBase extends ZkBiComposerView implements Composer<Compo
 		        abHelper.addButton(viewActionButton, "fa-user");
 				if(!bah.isVisible(result, true)) viewActionButton.setVisible(false);
 				if(bah.isDisabled(result, true)) viewActionButton.setDisabled(true);
-				viewActionButton.setAttribute(AI_ACTION_BATCH_MODE_ATTRIBUTE, false);
+				registerAiActionHandler("btExtraViewAction_"+i, bah,
+						viewActionButton, false, "list_record");
 				if (bahHash == null)
 					bahHash = new Hashtable<String,BiActionHandler>();
 				bahHash.put("btExtraViewAction_"+i, bah);
@@ -6670,13 +6674,15 @@ public class ZkBiComposerBase extends ZkBiComposerView implements Composer<Compo
 
 	private List<String> getAiActionHandlerIds() {
 		List<String> ids = new ArrayList<String>();
-		if (bahHash != null)
-			ids.addAll(bahHash.keySet());
+		if (aiActionHandlerHash != null)
+			ids.addAll(aiActionHandlerHash.keySet());
 		Collections.sort(ids);
 		return ids;
 	}
 
 	private Button getAiActionButton(String buttonId) {
+		if (aiActionButtonHash != null && aiActionButtonHash.containsKey(buttonId))
+			return aiActionButtonHash.get(buttonId);
 		if (masterWin == null || StringUtils.isBlank(buttonId))
 			return null;
 		Component component = masterWin.hasFellow(buttonId)
@@ -6685,7 +6691,8 @@ public class ZkBiComposerBase extends ZkBiComposerView implements Composer<Compo
 	}
 
 	private ZkBiAiAgentContext getAiActionContext(String buttonId) {
-		BiActionHandler handler = bahHash == null ? null : bahHash.get(buttonId);
+		BiActionHandler handler = aiActionHandlerHash == null ? null
+				: aiActionHandlerHash.get(buttonId);
 		ZkBiAiAgentContext context = handler == null ? null : handler.getAiAgentContext();
 		if (context == this || context == aiHelpContext) {
 			UniLog.log("Ignore recursive AI action context for " + buttonId);
@@ -6700,12 +6707,32 @@ public class ZkBiComposerBase extends ZkBiComposerView implements Composer<Compo
 
 	private JSONObject getAiActionMetadata(String buttonId, Button button)
 			throws JSONException {
+		String scope = StringUtils.defaultIfBlank((String)button.getAttribute(
+				AI_ACTION_SCOPE_ATTRIBUTE), "list_record");
 		return new JSONObject()
 				.put("buttonId", buttonId)
 				.put("buttonLabel", button.getLabel())
+				.put("scope", scope)
 				.put("batchAction", Boolean.TRUE.equals(
 						button.getAttribute(AI_ACTION_BATCH_MODE_ATTRIBUTE)))
 				.put("disabled", button.isDisabled());
+	}
+
+	/** Registers a list, batch or detail-form action as an AI Help source. */
+	public void registerAiActionHandler(String buttonId, BiActionHandler handler,
+			Button button, boolean batchMode, String scope) {
+		if (StringUtils.isBlank(buttonId) || handler == null || button == null)
+			return;
+		if (aiActionHandlerHash == null)
+			aiActionHandlerHash = new Hashtable<String,BiActionHandler>();
+		if (aiActionButtonHash == null)
+			aiActionButtonHash = new Hashtable<String,Button>();
+		handler.attachAiAgentComposer(this);
+		button.setAttribute(AI_ACTION_BATCH_MODE_ATTRIBUTE, batchMode);
+		button.setAttribute(AI_ACTION_SCOPE_ATTRIBUTE,
+				StringUtils.defaultIfBlank(scope, "list_record"));
+		aiActionHandlerHash.put(buttonId, handler);
+		aiActionButtonHash.put(buttonId, button);
 	}
 
 	/** Adds visible view/batch-action context snapshots to the main page context. */
@@ -10476,12 +10503,13 @@ public class ZkBiComposerBase extends ZkBiComposerView implements Composer<Compo
            		};
            	}
         );
-        if (p_handler != null) {
+		if (p_handler != null) {
+			registerAiActionHandler(p_id, p_handler, btn, p_BatchMode,
+					p_BatchMode ? "list_batch" : "list_record");
 			if (bahHash == null)
 				bahHash = new Hashtable<String,BiActionHandler>();
 			bahHash.put(p_id, p_handler);
-			btn.setAttribute(AI_ACTION_BATCH_MODE_ATTRIBUTE, p_BatchMode);
-        }
+		}
         if(p_BatchMode) setupBatchModeButton(btn);
         return btn;
     }

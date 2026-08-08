@@ -3,6 +3,7 @@ package com.uniinformation.bicore;
 import java.util.List;
 
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import com.kyoko.common.CoreLog;
@@ -22,7 +23,7 @@ public class BiCoreRpcApi {
 			return(null);
 		}
 	}
-	public JSONObject getViewListColumns( SessionHelper sh, String p_viewName) {
+	public JSONObject getViewListColumns( SessionHelper sh, String p_viewName) throws JSONException {
 		BiView bv = sh.getBiSchema().getViewByName(p_viewName);
 		BiResult br = bv.newBiResult(sh.getLoginId(), null, null, sh);
 		/*

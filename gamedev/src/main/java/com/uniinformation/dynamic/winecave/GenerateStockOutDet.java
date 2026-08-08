@@ -18,14 +18,24 @@ import com.uniinformation.prtdoc.PrtdocInterface;
 import com.uniinformation.utils.UniLog;
 import com.uniinformation.webcore.SessionHelper;
 import com.uniinformation.zkbi.BiActionHandler;
+import com.uniinformation.zkbi.ZkBiAiAgentContext;
 import com.uniinformation.zkbi.ZkBiComposerBase;
 
 public class GenerateStockOutDet extends BiActionHandler implements JxActionListener {
+	private ZkBiAiAgentContext aiAgentContext;
+
 	public GenerateStockOutDet() {
 		super(null);
 	}
 	public GenerateStockOutDet(ZkBiComposerBase p_bibase) {
 		super(p_bibase);
+	}
+
+	@Override
+	public ZkBiAiAgentContext getAiAgentContext() {
+		if (aiAgentContext == null && biBase != null)
+			aiAgentContext = new GenerateStockOutDetAIHelperContext(biBase);
+		return aiAgentContext;
 	}
 
 	@Override
@@ -37,7 +47,10 @@ public class GenerateStockOutDet extends BiActionHandler implements JxActionList
 			new EventListener() {
 			   public void onEvent(Event evt) throws Exception {
 			    	if (((Integer)evt.getData()) == Messagebox.YES){
-			    		br.regen_stockoutdet();
+			    		jxf.setDirtyFlag(true);
+			    		br.regen_stockoutdet(jxf);
+			    		br.cal_stockout_charge(jxf);
+			    		
 			    	} else{
 			    		return;
 			    	}

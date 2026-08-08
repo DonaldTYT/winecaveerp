@@ -7,6 +7,7 @@ import com.uniinformation.erpv4.BiConfig;
 import com.uniinformation.rpccall.RpcClient;
 import com.uniinformation.rpccall.Value;
 import com.uniinformation.utils.Base64Util;
+import com.uniinformation.utils.BiUtil;
 import com.uniinformation.utils.CloseUtil;
 import com.kyoko.common.*;
 import com.uniinformation.utils.SelectUtil;
@@ -99,7 +100,20 @@ public class Erpv4SessionHelper extends ZkSessionHelper {
 				su = new SelectUtil(); 
 				su.init(getLoginTokenJdbcPool());
 				loginTr = su.getQueryResult("select * from loginuser where lgu_type='U' and lgu_login = '"+p_loginid+"'");
-				if(loginTr.getRecordCount() > 0) loginTr.setRecPointer(0);
+				if(loginTr.getRecordCount() > 0) {
+					loginTr.setRecPointer(0);
+					if(loginTr.existField("lgu_credentials")) {
+					String ss = loginTr.getFieldString("lgu_credentials");
+					JSONObject jo = null;
+					if(!StringUtils.isBlank(ss)) {
+						jo = new JSONObject(BiUtil.decryptStrFromBase64(this,ss));
+						if(loginTr.existField("lgu_phone")) {
+							loginTr.setField("lgu_phone", jo.optString("lgu_phone"));
+						}
+					}
+					}
+				}
+				
 				loginTrId = p_loginid;
 				if(loginTr.existField("lgu_homepage") && loginTr.size() > 0) { //andrew200903: fix invalid loginid got TableRecExcetion
 					String hp = loginTr.getFieldString("lgu_homepage");
@@ -234,8 +248,11 @@ public class Erpv4SessionHelper extends ZkSessionHelper {
 			String ss = loginTr.getFieldString("lgu_credentials");
 			JSONObject jo = null;
 			if(!StringUtils.isBlank(ss)) {
-				jo = new JSONObject(Base64Util.decryptStrFromBase64(this,ss));
+				jo = new JSONObject(BiUtil.decryptStrFromBase64(this,ss));
 				String pwd = jo.optString("lgu_bpcode");
+				if(loginTr.existField("lgu_phone")) {
+					loginTr.setField("lgu_phone", jo.optString("lgu_phone"));
+				}
 				if(!StringUtils.isBlank(pwd)) return(pwd);
 			} else jo = new JSONObject();
 			ss = loginTr.getFieldString("lgu_bpcode");
@@ -256,18 +273,28 @@ public class Erpv4SessionHelper extends ZkSessionHelper {
 			if(StringUtils.isBlank(ss)) {
 				jo = new JSONObject();
 			} else {
-				String js = Base64Util.decryptStrFromBase64(this, ss);
+				String js = BiUtil.decryptStrFromBase64(this, ss);
 //				jo = new JSONObject(ZkUtil.decryptStrFromBase64(this, ss));
 				jo = new JSONObject(js);
 			}
 			jo.put("lgu_bpcode",p_newPassword);
 			su.executeUpdate("update loginuser set lgu_bpcode = '' ,lgu_credentials  = ? where lgu_login = ?",
 					new Wherecl()
-						.appendArgument(Base64Util.encryptStrToBase64(this, jo.toString()))
+						.appendArgument(BiUtil.encryptStrToBase64(this, jo.toString()))
 						.appendArgument(loginTr.getFieldString("lgu_login"))
 						);
 			loginTr = su.getQueryResult("select * from loginuser where lgu_type='U' and lgu_login = '"+loginTr.getFieldString("lgu_login")+"'");
-			if(loginTr.getRecordCount() > 0) loginTr.setRecPointer(0);
+			if(loginTr.getRecordCount() > 0) {
+				loginTr.setRecPointer(0);
+				String ss2 = loginTr.getFieldString("lgu_credentials");
+				JSONObject jo2 = null;
+				if(!StringUtils.isBlank(ss2)) {
+						jo2 = new JSONObject(BiUtil.decryptStrFromBase64(this,ss2));
+						if(loginTr.existField("lgu_phone")) {
+							loginTr.setField("lgu_phone", jo2.optString("lgu_phone"));
+						}
+				}
+			}
 			su.close();
 			
 		} else {
@@ -297,6 +324,18 @@ public class Erpv4SessionHelper extends ZkSessionHelper {
 				BiConfig.setDefaultLcrg(this, lcrg);
 			}
 		}
+	}
+	
+	public String getLoginPhoneNum() {
+		try {
+			if(loginTr == null) return("");
+			if(loginTr.existField("lgu_phone")) {
+				return(loginTr.getFieldString("lgu_phone"));
+			}
+		} catch (Exception ex) {
+			UniLog.log(ex);
+		}
+		return("");
 	}
 	
 	/*

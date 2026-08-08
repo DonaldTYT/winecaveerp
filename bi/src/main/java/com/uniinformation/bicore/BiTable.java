@@ -28,14 +28,7 @@ public class BiTable extends BiBase {
 	public BiTable(CellCollection parent,String p_tableName,String p_dbtName,String p_eName,String p_cName,String p_selectWhere,String p_primaryKey,String p_serialid) 
 	{
 		super(parent);
-		if(p_tableName.equals("stock")) {
-			int cc;
-			cc = 0;
-		}
-		if(p_tableName.equals("stocknames")) {
-			int cc;
-			cc = 0;
-		}
+		UniLog.log("LoadSchema AddTable:"+p_tableName+","+p_dbtName);
 		tableName = new Cell(p_tableName.trim());
 		if(p_dbtName == null || p_dbtName.trim().equals("")) dbtName = tableName; else dbtName = new Cell(p_dbtName.trim());
 		if(p_eName == null || p_eName.trim().equals("")) eName = tableName; else eName = new Cell(p_eName.trim());

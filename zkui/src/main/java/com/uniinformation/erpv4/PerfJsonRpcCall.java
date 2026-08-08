@@ -142,31 +142,31 @@ public class PerfJsonRpcCall implements com.uniinformation.zkf.ZkfAction,RpcServ
 		return null;
 	}
 	
-	public String getGlDaBalance(String p_cocode,String p_ano,String p_ccy,java.util.Date p_date) {
-		try {
-			double lbal = 0.0;
-			double bal = 0.0;
-			GlBalanceCalculation.BalanceAccumulatorPair acuPair = GlBalanceCalculation.getDaBalanceAccumulator(sh, p_cocode, p_ano, p_ccy);
-			if(acuPair != null) {
-				bal = acuPair.cacu.getBalanceBegin(p_date);
-				lbal = acuPair.lacu.getBalanceBegin(p_date);
-			}
-			return(String.format("OK  %14.2f%14.2f", bal,lbal));
-		} catch (Exception ex) {
-			UniLog.log(ex);
-			return ("FAIL"+ex.toString());
-		}
-	}
-
-	public String clearAllAcu(String p_cocode) {
-		try {
-			GlBalanceCalculation.clearAcu(sh, p_cocode, null);
-			return("OK");
-		} catch (Exception ex) {
-			UniLog.log(ex);
-			return ("FAIL"+ex.toString());
-		}
-	}
+//	public String getGlDaBalance(String p_cocode,String p_ano,String p_ccy,java.util.Date p_date) {
+//		try {
+//			double lbal = 0.0;
+//			double bal = 0.0;
+//			GlBalanceCalculation.BalanceAccumulatorPair acuPair = GlBalanceCalculation.getDaBalanceAccumulator(sh, p_cocode, p_ano, p_ccy);
+//			if(acuPair != null) {
+//				bal = acuPair.cacu.getBalanceBegin(p_date);
+//				lbal = acuPair.lacu.getBalanceBegin(p_date);
+//			}
+//			return(String.format("OK  %14.2f%14.2f", bal,lbal));
+//		} catch (Exception ex) {
+//			UniLog.log(ex);
+//			return ("FAIL"+ex.toString());
+//		}
+//	}
+//
+//	public String clearAllAcu(String p_cocode) {
+//		try {
+//			GlBalanceCalculation.clearAcu(sh, p_cocode, null);
+//			return("OK");
+//		} catch (Exception ex) {
+//			UniLog.log(ex);
+//			return ("FAIL"+ex.toString());
+//		}
+//	}
 	
 	public String clearAllBrCache() {
 		ExcelWorkSheetCache.clearBrCache();

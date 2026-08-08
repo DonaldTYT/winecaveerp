@@ -139,19 +139,37 @@ public class SelectUtil {
 		   return(finished);
 		}
 	   public void close() {
+		   /*
+		    * Do not return a pooled connection while its ResultSet or Statement is
+		    * still open.  Once ConnectionRecord.close() puts the connection back in
+		    * JdbcPool, another thread may acquire it immediately.  Closing the JDBC
+		    * resources afterwards races with that thread and can leave statements to
+		    * be cleaned up only by finalization.
+		    *
+		    * Keep the cleanup steps independent so a ResultSet close failure cannot
+		    * prevent the Statement from closing or the connection from being returned.
+		    */
 		   try {
-			 closeTempConnection();
-	         if (rs != null) {
-					rs.close();
-					rs = null;
-				}
-	         if (st != null) {
-					st.close();
-					st = null;
-				}
-			} catch (Exception ex) {
+			   if (rs != null) {
+				   rs.close();
+			   }
+		   } catch (Exception ex) {
 			   UniLog.log(ex);
-			}
+		   } finally {
+			   rs = null;
+		   }
+
+		   try {
+			   if (st != null) {
+				   st.close();
+			   }
+		   } catch (Exception ex) {
+			   UniLog.log(ex);
+		   } finally {
+			   st = null;
+		   }
+
+		   closeTempConnection();
 		}
 	   public TableRec fetch(int p_maxcnt, TableRec p_tr) throws Exception {
 			try {

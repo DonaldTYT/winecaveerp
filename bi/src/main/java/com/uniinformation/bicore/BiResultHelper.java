@@ -127,35 +127,35 @@ public class BiResultHelper {
 	 * @param p_viewId
 	 * @param p_customConditionStr
 	 */
-	public static void showRec(String p_agentId, String p_viewId, String p_customConditionStr, int p_recLimit, boolean p_fromCache, List <Pair<String,Boolean>> p_orderByList, String p_separator){
-		StopWatch stopWatch = new StopWatch();
-		SessionHelper sh = ZkSessionHelper.getSessionHelperDummy(p_agentId,"dummy",null);
-		String separator = p_separator == null ? "," : p_separator;
-		try {
-			BiResult biResult = create(sh, p_viewId, p_customConditionStr, p_recLimit, p_orderByList);
-			int rowIdx = 0;
-			stopWatch.start();
-			
-			String headerStr = StringUtils.join(biResult.getColumns(),separator);
-			UniLog.logm(null,"header:%s",headerStr);
-			while (biResult.next(p_fromCache)){
-				//int colIdx = 0;
-				ArrayList<String> vals = new ArrayList<String>();
-				for (BiColumn biColumn : biResult.getColumns()) {
-					vals.add(biResult.getCell(biColumn.getLabel()).getString());
-					//UniLog.logm(null,"rowIdx:%d colIdx:%d label:%s value:%s", rowIdx, colIdx, biColumn.getLabel(), biResult.getCell(biColumn.getLabel()).getString());
-					//colIdx++;
-				}
-				UniLog.logm(null,"%d:%s",rowIdx,StringUtils.join(vals,separator));
-				rowIdx++;
-			}
-			stopWatch.stop();
-			UniLog.logm(null, "elapsed time: %d", stopWatch.getTime());
-		}
-		catch(Exception ex){
-			ex.printStackTrace();
-		}
-	}
+//	public static void showRec(String p_agentId, String p_viewId, String p_customConditionStr, int p_recLimit, boolean p_fromCache, List <Pair<String,Boolean>> p_orderByList, String p_separator){
+//		StopWatch stopWatch = new StopWatch();
+//		SessionHelper sh = ZkSessionHelper.getSessionHelperDummy(p_agentId);
+//		String separator = p_separator == null ? "," : p_separator;
+//		try {
+//			BiResult biResult = create(sh, p_viewId, p_customConditionStr, p_recLimit, p_orderByList);
+//			int rowIdx = 0;
+//			stopWatch.start();
+//			
+//			String headerStr = StringUtils.join(biResult.getColumns(),separator);
+//			UniLog.logm(null,"header:%s",headerStr);
+//			while (biResult.next(p_fromCache)){
+//				//int colIdx = 0;
+//				ArrayList<String> vals = new ArrayList<String>();
+//				for (BiColumn biColumn : biResult.getColumns()) {
+//					vals.add(biResult.getCell(biColumn.getLabel()).getString());
+//					//UniLog.logm(null,"rowIdx:%d colIdx:%d label:%s value:%s", rowIdx, colIdx, biColumn.getLabel(), biResult.getCell(biColumn.getLabel()).getString());
+//					//colIdx++;
+//				}
+//				UniLog.logm(null,"%d:%s",rowIdx,StringUtils.join(vals,separator));
+//				rowIdx++;
+//			}
+//			stopWatch.stop();
+//			UniLog.logm(null, "elapsed time: %d", stopWatch.getTime());
+//		}
+//		catch(Exception ex){
+//			ex.printStackTrace();
+//		}
+//	}
 	
 	/* Method to set a cell value of a row in a BiResult (Detail BiResult Only) in sequence starting from 1 */
 	public static void sequenceArray(BiResult p_br,String p_cell) throws CellException {

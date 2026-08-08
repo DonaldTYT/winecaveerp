@@ -1509,10 +1509,20 @@ public class BiResult implements GetCellInterface {
 			try {
 				List <Object> argList = new ArrayList<Object>();
 				String ws = dbCond.toWherecl(argList);
-				whereCl.appendString(" and " + ws);
-				for(Object arg : argList) {
-					whereCl.appendArgument(arg);
-				}
+//				if(unionWherecl != null) {
+//					Wherecl uwcl = new Wherecl();
+//					uwcl.appendString(ws);
+//					for(Object arg : argList) {
+//						uwcl.appendArgument(arg);
+//					}
+//					uwcl.orWherecl(unionWherecl);
+//					whereCl.andWherecl(uwcl);
+//				} else {
+					whereCl.appendString(" and " + ws);
+					for(Object arg : argList) {
+						whereCl.appendArgument(arg);
+					}
+//				}
 			} catch (CellException cex ) {
 				UniLog.log(cex);
 			}
@@ -1646,6 +1656,12 @@ public class BiResult implements GetCellInterface {
 				}
 				if(p_queryPlan == null || p_queryPlan.maxPrefetch > 0) {
 					TableRec ttr = su.getQueryResult(selStr.toString(),whereCl);
+					if(ttr.getRecordCount() >= recLimit) {
+						BiResult pBr = this;
+						for(;pBr.getParent() != null;pBr = pBr.getParent());
+						pBr.lastErrorMessage = "Record Limit " + recLimit + " Reached ";
+						throw new Exception("Record Limit " + recLimit + " Reached ");
+					}
 					if(p_queryPlan != null) {
 						p_queryPlan.prefetchLimitReached = ttr.getRecordCount() >= p_queryPlan.maxPrefetch;
 						p_queryPlan.prefetchList = new ArrayList<Object>();
@@ -1703,6 +1719,12 @@ public class BiResult implements GetCellInterface {
 			
 			if(!getView().useViewCache) {
 				resultTr = su.getQueryResult(selStr.toString(),whereCl);
+				if(resultTr.getRecordCount() >= recLimit) {
+					BiResult pBr = this;
+					for(;pBr.getParent() != null;pBr = pBr.getParent());
+					pBr.lastErrorMessage = "Record Limit " + recLimit + " Reached ";
+					throw new Exception("Record Limit " + recLimit + " Reached ");
+				}
 //				resultTr = new BiTableRec(su.getQueryResult(selStr.toString(),whereCl));
 			} else {
 				/*
@@ -6101,6 +6123,9 @@ public class BiResult implements GetCellInterface {
 	public void appendWherecl(Wherecl p_wherecl) {
 		currentWherecl.andWherecl(p_wherecl);
 	}
+//	public void unionWherecl(Wherecl p_wherecl) {
+//		unionWherecl = p_wherecl;
+//	}
 	
 	public static boolean isTrStat(Object p_obj){
 		return p_obj instanceof TrStat;
@@ -7956,7 +7981,7 @@ public class BiResult implements GetCellInterface {
   		return(visitUrl);
     }
     
-    public Wherecl conditionToWhereCl() throws Exception {
+    public Wherecl conditionToWhereCl(boolean addExtraWhere) throws Exception {
 		HashMap<String,Condition> conditionList = new HashMap<String,Condition> ();
 		Wherecl whereCl = new Wherecl();
 		conditionList = makeConditionList(false);
@@ -7978,7 +8003,7 @@ public class BiResult implements GetCellInterface {
 				conditionParser.setParseMode(BiView.BiViewWhereclParser.GETOBJECT_MODE_COLUMN);
 			} 
 		}
-		addExtraWhereStr(whereCl,(HashSet<BiTable>)null);
+		if(addExtraWhere) addExtraWhereStr(whereCl,(HashSet<BiTable>)null);
 		return(whereCl);
     }
     

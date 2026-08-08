@@ -2,11 +2,14 @@ package com.uniinformation.bicore.wc;
 
 import java.util.Vector;
 
+import com.kyoko.common.DateUtil;
 import com.kyoko.common.ReturnMsg;
 import com.kyoko.common.StringUtil;
 import com.uniinformation.bicore.BiCellCollection;
 import com.uniinformation.bicore.BiResult;
 import com.uniinformation.bicore.BiView;
+import com.uniinformation.bicore.erpv4.BiResultErpv4;
+import com.uniinformation.bicore.erpv4.Erpv4BaseCellCollection;
 import com.uniinformation.cell.CellCollection;
 import com.uniinformation.cell.CellException;
 import com.uniinformation.erpv4.GenbucketUtil;
@@ -17,7 +20,7 @@ import com.uniinformation.utils.UniLog;
 import com.uniinformation.utils.Wherecl;
 import com.uniinformation.webcore.SessionHelper;
 
-public class BiResultStmov extends BiResult {
+public class BiResultStmov extends BiResultErpv4 {
 
 	public BiResultStmov(BiResult p_parent, BiView p_view, SelectUtil p_su,
 			Vector p_tabList, String p_whereStr, SessionHelper p_sh)
@@ -29,7 +32,9 @@ public class BiResultStmov extends BiResult {
 	protected ReturnMsg biBeforeDeleteCurrent(CellCollection col) {
 		ReturnMsg rtnMsg = super.biBeforeDeleteCurrent(col);
 		if(rtnMsg != null && !rtnMsg.getStatus()) return(rtnMsg);
-		if(getCellString("stm_void").equals("Y")) return(rtnMsg);
+		if(col.testCell("stm_void2") != null) {
+			if(getCellString("stm_void2").equals("Y")) return(rtnMsg);
+		}
 		rtnMsg = genbucketBegin();
 		if(rtnMsg != null && !rtnMsg.getStatus()) return(rtnMsg);
 		rtnMsg = genbucketAdd(col.getCell("stm_mrg").getInt(),-1.0);
@@ -84,9 +89,14 @@ public class BiResultStmov extends BiResult {
 	protected ReturnMsg biBeforeUpdateCurrent(CellCollection pcol) {
 		ReturnMsg rtnMsg = super.biBeforeUpdateCurrent(pcol);
 		if(rtnMsg != null && !rtnMsg.getStatus()) return(rtnMsg);
-		if(getCellString("stm_void").equals("Y")) return(rtnMsg);
+		if(pcol.testCell("stm_void2") != null) {
+			if( getCellString("stm_void").equals("Y") && getCellString("stm_void2").equals("Y")) return(rtnMsg);
+		}
 		rtnMsg = genbucketBegin();
 		if(rtnMsg != null && !rtnMsg.getStatus()) return(rtnMsg);
+		if(pcol.testCell("stm_void2") != null) {
+			if( getCellString("stm_void2").equals("Y")) return(rtnMsg);
+		}
 		rtnMsg = genbucketAdd(pcol.getCell("stm_mrg").getInt(),-1.0);
 		if(rtnMsg != null && !rtnMsg.getStatus()) return(rtnMsg);
 		return(new ReturnMsg(true));
@@ -95,11 +105,19 @@ public class BiResultStmov extends BiResult {
 	protected ReturnMsg biAfterAddUpdateCurrent(BiCellCollection col, boolean p_isUpdate) {
 		ReturnMsg rtnMsg = super.biAfterAddUpdateCurrent(col,p_isUpdate);
 		if(rtnMsg != null && !rtnMsg.getStatus()) return(rtnMsg);
-		if(getCellString("stm_void").equals("Y")) return(rtnMsg);
-		rtnMsg = genbucketAdd(col.getCell("stm_mrg").getInt(),1.0);
-		if(rtnMsg != null && !rtnMsg.getStatus()) return(rtnMsg);
+		if(col.testCell("stm_void2") != null) {
+		if( getCellString("stm_void").equals("Y") && getCellString("stm_void2").equals("Y")) return(rtnMsg);
+		}
+		if(!getCellString("stm_void").equals("Y")) {
+			rtnMsg = genbucketAdd(col.getCell("stm_mrg").getInt(),1.0);
+			if(rtnMsg != null && !rtnMsg.getStatus()) return(rtnMsg);
+		}
 		rtnMsg = genbucketCommit();
 		if(rtnMsg != null && !rtnMsg.getStatus()) return(rtnMsg);
 		return(new ReturnMsg(true));
+	}
+	@Override
+	protected BiCellCollection createColumnCollection(BiCellCollection p_parent) {
+		return(new WcCellCollection(p_parent, this));
 	}
 }

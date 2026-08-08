@@ -72,60 +72,60 @@ public class ZkBiTranslateHelper extends TranslateUtil {
 //		}
 //		UniLog.logm(null,"bye");
 //	}
-	public static void listField(SessionHelper p_sh, BiView view){
-		try{
-			if (view == null) return;
-			Vector<BiColumn> cols = view.getColumns();
-			for(int i=0;i<cols.size();i++) {
-				BiColumn col = cols.get(i);
-				BiField field = col.getField();
-				if (field == null){
-					//UniLog.log1("%s(%s) field is null, ignore", col.getCellLabel(), col.getEngName());
-					continue;
-				}
-				if (!col.isInList(p_sh) && col.isInvisible(p_sh)){
-					//UniLog.log1("%s(%s) field is invisible, ignore", col.getCellLabel(), col.getEngName());
-					continue;
-				}
-				UniLog.log1("view:%s cell:%s label:%s", view.getName(), col.getCellLabel(), col.getEngName());
-				/*
-				BiTable table = field.getTable();
-				BiChain chain = view.findChain(table);
-				if (chain.getParent() != null){
-					CellCollection subChainCC =  chain.getParent().getCollection("subChains");
-					BiTable subChainTable = subChainCC == null ? null : (BiTable)subChainCC.getCollection("table");
-					
-					if (subChainTable != null){
-						if (!subChainTable.equals(view.getTable())){
-							UniLog.log1("view:%s subChainTable:%s  table:%s label:%s(%s) field:%s", view.getName(),
-									subChainTable == null ? "null" : subChainTable.getName(), table.getName(), col.getLabel(), col.getEngName(), field.getName());
-						}
-					}
-					
-				}
-				
-				BiTable tableDep = col.getTableDepend();
-				boolean tableDepFlag = false;
-				if (tableDep != null && !tableDep.getName().equals(view.getTable().getName())){
-					tableDepFlag = true;
-				}
-				UniLog.log1("view:%s checkdep: col:%d: label:%s parent:%s tableDep:%s joinFlag:%s size:%d", view.getName(), i, col.getLabel(), ((BiView)col.getParent()).getName(), tableDep == null ? "null" : tableDep.getName(), tableDepFlag, col.getTableDepends().size());
-				if (tableDepFlag){
-					BiJoin join = tableDep.getJoin(view.getTable());
-					if (join != null){
-						for (int j=0; j<join.getJoinCount(); j++){
-							UniLog.log1("view:%s join from:%s to:%s", view.getName(), join.getFromField(j).getName(), join.getToField(j).getName());
-						}
-					}
-				}
-				*/
-			}
-		}
-		catch(Exception ex){
-			ex.printStackTrace();
-		}
-		
-	}
+//	public static void listField(SessionHelper p_sh, BiView view){
+//		try{
+//			if (view == null) return;
+//			Vector<BiColumn> cols = view.getColumns();
+//			for(int i=0;i<cols.size();i++) {
+//				BiColumn col = cols.get(i);
+//				BiField field = col.getField();
+//				if (field == null){
+//					//UniLog.log1("%s(%s) field is null, ignore", col.getCellLabel(), col.getEngName());
+//					continue;
+//				}
+//				if (!col.isInList(p_sh) && col.isInvisible(p_sh)){
+//					//UniLog.log1("%s(%s) field is invisible, ignore", col.getCellLabel(), col.getEngName());
+//					continue;
+//				}
+//				UniLog.log1("view:%s cell:%s label:%s", view.getName(), col.getCellLabel(), col.getEngName());
+//				/*
+//				BiTable table = field.getTable();
+//				BiChain chain = view.findChain(table);
+//				if (chain.getParent() != null){
+//					CellCollection subChainCC =  chain.getParent().getCollection("subChains");
+//					BiTable subChainTable = subChainCC == null ? null : (BiTable)subChainCC.getCollection("table");
+//					
+//					if (subChainTable != null){
+//						if (!subChainTable.equals(view.getTable())){
+//							UniLog.log1("view:%s subChainTable:%s  table:%s label:%s(%s) field:%s", view.getName(),
+//									subChainTable == null ? "null" : subChainTable.getName(), table.getName(), col.getLabel(), col.getEngName(), field.getName());
+//						}
+//					}
+//					
+//				}
+//				
+//				BiTable tableDep = col.getTableDepend();
+//				boolean tableDepFlag = false;
+//				if (tableDep != null && !tableDep.getName().equals(view.getTable().getName())){
+//					tableDepFlag = true;
+//				}
+//				UniLog.log1("view:%s checkdep: col:%d: label:%s parent:%s tableDep:%s joinFlag:%s size:%d", view.getName(), i, col.getLabel(), ((BiView)col.getParent()).getName(), tableDep == null ? "null" : tableDep.getName(), tableDepFlag, col.getTableDepends().size());
+//				if (tableDepFlag){
+//					BiJoin join = tableDep.getJoin(view.getTable());
+//					if (join != null){
+//						for (int j=0; j<join.getJoinCount(); j++){
+//							UniLog.log1("view:%s join from:%s to:%s", view.getName(), join.getFromField(j).getName(), join.getToField(j).getName());
+//						}
+//					}
+//				}
+//				*/
+//			}
+//		}
+//		catch(Exception ex){
+//			ex.printStackTrace();
+//		}
+//		
+//	}
 		
 	/***
 	 * create a translation popup window, when close, will detach

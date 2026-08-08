@@ -32,11 +32,19 @@ public class GenerateStorageDet extends BiActionHandler implements JxActionListe
 		
 		JxZkBiBase jxf = (JxZkBiBase) field.getJxForm();
 		BiResultStorageChg br = (BiResultStorageChg) jxf.getBr();
+		if(jxf.isDirty()) {
+			Messagebox.show("Please save the storage record before generating storage details.");
+			return;
+		}
 		Messagebox.show("Confirm Generate Storate Detail ?", "Message", Messagebox.YES|Messagebox.NO, Messagebox.EXCLAMATION,
 			new EventListener() {
 			   public void onEvent(Event evt) throws Exception {
 			    	if (((Integer)evt.getData()) == Messagebox.YES){
-			    		br.regen_storagedet();
+					br.regen_storagedet_direct();
+					BiResult storageDetails = br.getSubLink("graphql.StorageDet");
+					JxField storageDetailList = jxf.jxAdd(
+							"list_" + JxZkBiBase.replaceViewName("graphql.StorageDet"));
+					jxf.bindSublinkList(storageDetailList,storageDetails);
 			    	} else{
 			    		return;
 			    	}

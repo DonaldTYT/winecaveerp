@@ -1,0 +1,27 @@
+<zk>
+	<window title="Sending Stock-Out Invoices" border="normal" width="500px" closable="false">
+		<vlayout sclass="zkbi-form-content" spacing="12px">
+			<label id="emailProgressStatus" value="Preparing email job..." />
+			<progressmeter id="emailProgressMeter" value="0" width="100%" />
+
+			<hlayout spacing="20px">
+				<hlayout spacing="5px">
+					<label value="Sent:" />
+					<label id="emailSentCount" value="0" />
+				</hlayout>
+				<hlayout spacing="5px">
+					<label value="Failed:" />
+					<label id="emailFailedCount" value="0" />
+				</hlayout>
+				<hlayout spacing="5px">
+					<label value="Skipped:" />
+					<label id="emailSkippedCount" value="0" />
+				</hlayout>
+			</hlayout>
+
+			<div align="center" width="100%">
+				<button id="btAbort" label="Abort" width="100px" />
+			</div>
+		</vlayout>
+	</window>
+</zk>

@@ -4,12 +4,15 @@ import java.net.URLDecoder;
 import java.util.Collection;
 import java.util.Date;
 import java.util.Iterator;
+import java.util.Objects;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.commons.lang3.time.DateUtils;
+import org.apache.commons.lang3.tuple.Pair;
 import org.zkoss.zk.ui.*;
 import org.zkoss.zk.ui.util.*;
 import org.zkoss.zk.ui.event.*;
@@ -19,7 +22,7 @@ import org.zkoss.zk.ui.select.annotation.Wire;
 import org.zkoss.zul.*;
 import org.zkoss.zul.impl.MessageboxDlg;
 
-import com.kyoko.common.*;
+import com.uniinformation.utils.CaptchaUtil;
 import com.uniinformation.utils.FilingUtil;
 import com.uniinformation.utils.UniLog;
 import com.uniinformation.utils.ZkUtil;
@@ -33,6 +36,9 @@ import com.uniinformation.zkbi.ZkBiEventListener;
 import com.uniinformation.zkbi.ZkBiLogHelper;
 import com.uniinformation.zkbi.ZkBiLogHelper.ETYPE;
 import com.uniinformation.zkcomp.S2Listbox;
+import com.kyoko.common.DateUtil;
+import com.kyoko.common.ReturnMsg;
+import com.kyoko.common.StringUtil;
 import com.uniinformation.bicore.BiSchema;
 import com.uniinformation.erpv4.BiConfig;
 import com.uniinformation.jx.JxForm;
@@ -40,6 +46,7 @@ import com.uniinformation.jx.zk.*;
 import java.awt.image.RenderedImage;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.OutputStream;
 public class JxZkLogin extends SelectorComposer<Window> {
 	@Wire 
@@ -70,6 +77,14 @@ public class JxZkLogin extends SelectorComposer<Window> {
 	Image co_logo;
 	@Wire
 	Html htmlSysEnv;
+
+	@Wire 
+	private Textbox txCaptcha;
+	@Wire 
+	private Image imgCaptcha;
+
+	private String captchaCode;
+	private Timer captchaCodeTimer;
 	
 	
 	String targetURL = "";
@@ -231,7 +246,8 @@ public class JxZkLogin extends SelectorComposer<Window> {
              	new ZkBiEventListener() {
      				public void onZkBiEvent(Event event) throws Exception {
      					//UniLog.log("Submit Pressed");
-     					login(sessionHelper,false);
+     					if (validateCaptcha())
+     						login(sessionHelper,false);
      				}
      			} 		 
         	);
@@ -328,6 +344,21 @@ public class JxZkLogin extends SelectorComposer<Window> {
       		catch(Exception ex) {
       			UniLog.log1("error:" + ex.getMessage());
       		}
+      	}
+      	
+      	if (Objects.equals(BiConfig.getString(sessionHelper, "LOGIN_USE_NUMBER_IMAGE_CAPTCHA"), "Y")) {
+      		ZkUtil.closestComponent(imgCaptcha, "vbox").setVisible(true);
+     		refreshCaptcha();
+      		imgCaptcha.addEventListener(Events.ON_CLICK, event -> {
+      			refreshCaptcha();
+	      	});
+      		txCaptcha.addEventListener(Events.ON_OK, event -> {
+      			Events.echoEvent(Events.ON_OK, txPassword, null);
+      		});
+      		ZkUtil.timerEvent(null, comp, 1000, () -> {
+      			if (txLoginId.isReadonly() && txPassword.isReadonly())
+      				txCaptcha.setFocus(true);
+      		});
       	}
       	
    		ZkUtil.registerClientInfoEvent(comp, sessionHelper, false, 0, false);   //andrew230609 to minimize the side effect, do not enable jsIdleCtrl
@@ -540,5 +571,32 @@ public class JxZkLogin extends SelectorComposer<Window> {
 		else {
 			return true;
 		}
+	}
+	
+	private void refreshCaptcha() throws Exception {
+ 		Pair<String, String> p = CaptchaUtil.generateNumberImage(4, NumberUtils.toInt(imgCaptcha.getWidth().replaceAll("[^0-9]", "")), 
+ 																NumberUtils.toInt(imgCaptcha.getHeight().replaceAll("[^0-9]", "")));
+      	captchaCode = p.getLeft();
+    	imgCaptcha.setSrc("data:image/png;base64," + p.getRight());
+    	captchaCodeTimer = ZkUtil.timerEvent(captchaCodeTimer, imgCaptcha, 180000, () -> {
+      		captchaCode = null;
+      	});
+	}
+	
+	private boolean validateCaptcha() {
+		if (!ZkUtil.isRealVisible(imgCaptcha))
+			return true;
+		String inputText = txCaptcha.getText();
+		if (StringUtils.isBlank(inputText)) {
+			ZkUtil.showErrMsg("Please input captcha");
+			txCaptcha.setFocus(true);
+			return false;
+		}
+		if (StringUtils.isBlank(captchaCode) || !Objects.equals(captchaCode, inputText)) {
+			ZkUtil.showErrMsg("Wrong captcha");
+			txCaptcha.setFocus(true);
+			return false;
+		}
+		return true;
 	}
 }

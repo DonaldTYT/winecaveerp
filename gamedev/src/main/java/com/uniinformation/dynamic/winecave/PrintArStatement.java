@@ -1,7 +1,11 @@
 package com.uniinformation.dynamic.winecave;
 
 import java.text.DecimalFormat;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
+import java.util.Locale;
 
 import org.apache.commons.lang3.StringUtils;
 import org.zkoss.zsoup.helper.StringUtil;
@@ -21,6 +25,20 @@ import com.uniinformation.zkbi.ZkBiComposerBase;
 
 public class PrintArStatement extends PrintMultiDoc {
 
+	public static class AgingSummary {
+		public Date beforeDate;
+		public String period;
+		public double totalAmountDue;
+		public double invoiceAmount;
+
+		public AgingSummary(Date p_beforeDate, String p_period) {
+			beforeDate = p_beforeDate;
+			period = p_period;
+		}
+	}
+
+	final ArrayList<AgingSummary> agingSummaryList = new ArrayList<AgingSummary>();
+
 	public PrintArStatement() {
 		super(null);
 	}
@@ -31,6 +49,124 @@ public class PrintArStatement extends PrintMultiDoc {
 	BiResultArApStatement arBr;
 	String vcode ;
 	vIndexes vIdx;
+
+	public void resetAgingSummaryList(Date[] p_beforeDates, String[] p_periods) {
+		if(p_beforeDates == null || p_periods == null ||
+				p_beforeDates.length != p_periods.length) {
+			throw new IllegalArgumentException("Aging dates and periods must have the same length");
+		}
+		agingSummaryList.clear();
+		for(int i=0;i<p_beforeDates.length;i++) {
+			Date beforeDate = p_beforeDates[i];
+			agingSummaryList.add(new AgingSummary(
+					beforeDate == null ? null : new Date(beforeDate.getTime()),
+					p_periods[i]));
+		}
+	}
+
+	void resetAgingSummaryBalances() {
+		for(AgingSummary summary : agingSummaryList) {
+			summary.totalAmountDue = 0.0;
+			summary.invoiceAmount = 0.0;
+		}
+	}
+
+	void addInvoiceToAgingSummary(Date p_invoiceDate, double p_outstandingBalance) {
+		if(p_invoiceDate == null) return;
+		AgingSummary invoicePeriod = null;
+		for(AgingSummary summary : agingSummaryList) {
+			if(summary.beforeDate != null && p_invoiceDate.before(summary.beforeDate)) {
+				summary.totalAmountDue += p_outstandingBalance;
+				if(invoicePeriod == null ||
+						summary.beforeDate.before(invoicePeriod.beforeDate)) {
+					invoicePeriod = summary;
+				}
+			}
+		}
+		if(invoicePeriod == null) {
+			for(AgingSummary summary : agingSummaryList) {
+				if(summary.beforeDate != null &&
+						(invoicePeriod == null ||
+						 invoicePeriod.beforeDate.before(summary.beforeDate))) {
+					invoicePeriod = summary;
+				}
+			}
+		}
+		if(invoicePeriod != null) invoicePeriod.invoiceAmount += p_outstandingBalance;
+	}
+
+	private void setupDefaultAgingSummaryList(Date p_statementEndDate) {
+		if(!agingSummaryList.isEmpty() || p_statementEndDate == null) return;
+		Date[] beforeDates = new Date[5];
+		String[] periods = new String[5];
+		SimpleDateFormat monthFormat = new SimpleDateFormat("MMMM yyyy", Locale.ENGLISH);
+		Calendar beforeDate = Calendar.getInstance();
+		beforeDate.setTime(p_statementEndDate);
+		beforeDate.set(Calendar.DAY_OF_MONTH, 1);
+		beforeDate.set(Calendar.HOUR_OF_DAY, 0);
+		beforeDate.set(Calendar.MINUTE, 0);
+		beforeDate.set(Calendar.SECOND, 0);
+		beforeDate.set(Calendar.MILLISECOND, 0);
+		beforeDate.add(Calendar.MONTH, 1);
+		for(int i=0;i<beforeDates.length;i++) {
+			beforeDates[i] = beforeDate.getTime();
+			if(i == 0) {
+				periods[i] = "Current Month";
+			} else {
+				Calendar periodMonth = (Calendar) beforeDate.clone();
+				periodMonth.add(Calendar.MONTH, -1);
+				periods[i] = (i == beforeDates.length-1 ? "On or before " : "")+
+						monthFormat.format(periodMonth.getTime());
+			}
+			beforeDate.add(Calendar.MONTH, -1);
+		}
+		resetAgingSummaryList(beforeDates, periods);
+	}
+
+	private String formatAgingBalance(DecimalFormat p_df, double p_balance) {
+		if(p_balance == 0.0) return "";
+		return p_df.format(p_balance);
+	}
+
+	private void printAgingSummary(DecimalFormat p_df, Date p_statementEndDate)
+			throws Exception {
+		if(agingSummaryList.isEmpty() || p_statementEndDate == null) return;
+		int y = 0;
+		double totalInvoiceAmount = 0.0;
+		AgingSummary currentPeriod = null;
+		ppj.addBottomField("val_agentdet", "Aging Information:", 0, y);
+		ppj.addBottomField("val_agentdet", "Total Amount Due", 330, y);
+		ppj.addBottomField("val_agentdet", "Invoice Amount", 450, y);
+		y += 20;
+		ppj.addBottomField("val_agentdet", "HKD", 380, y);
+		ppj.addBottomField("val_agentdet", "HKD", 480, y);
+		y += 20;
+		for(AgingSummary summary : agingSummaryList) {
+			ppj.addBottomField("val_agentdet", summary.period, 0, y);
+			ppj.addBottomField("val_agentdet",
+					formatAgingBalance(p_df, summary.totalAmountDue), 350, y);
+			ppj.addBottomField("val_agentdet",
+					formatAgingBalance(p_df, summary.invoiceAmount), 450, y);
+			totalInvoiceAmount += summary.invoiceAmount;
+			if(summary.beforeDate != null &&
+					(currentPeriod == null ||
+					 currentPeriod.beforeDate.before(summary.beforeDate))) {
+				currentPeriod = summary;
+			}
+			y += 20;
+		}
+		ppj.addBottomField("val_agentdet", "_____________", 450, y);
+		y += 20;
+		ppj.addBottomField("val_agentdet", p_df.format(totalInvoiceAmount), 450, y);
+		y += 40;
+		String asAt = DateUtil.dateToDateTimeStr(p_statementEndDate, "yy/MM/dd");
+		double totalAmountDue = currentPeriod == null ? 0.0 : currentPeriod.totalAmountDue;
+		ppj.addBottomField("val_agentdet", "Total amount due as at "+asAt, 0, y);
+		ppj.addBottomField("val_agentdet", "HKD", 280, y);
+		ppj.addBottomField("val_agentdet", p_df.format(totalAmountDue), 350, y);
+		ppj.addBottomField("val_agentdet", "=============", 350, y+20);
+	}
+
 	@Override
 	protected boolean skipPrint() {
 		arBr = (BiResultArApStatement) br;
@@ -51,6 +187,7 @@ public class PrintArStatement extends PrintMultiDoc {
 		double losbal
 		) throws Exception {
 		if(losbal == 0.0) return;
+		addInvoiceToAgingSummary(date, losbal);
 		ppj.addDetailRecord();
 		ppj.addDetailRecordField("dvinvoice", sno,0,0);
 		if(module.equals("AP")) {
@@ -86,6 +223,8 @@ public class PrintArStatement extends PrintMultiDoc {
 			
 	@Override
 	protected void printOneDoc() throws Exception {
+		setupDefaultAgingSummaryList(br.getCellDate("stmt_edate"));
+		resetAgingSummaryBalances();
 		/*
 		BiResultArApStatement arBr = (BiResultArApStatement) br;
 		String vcode = br.getCellString("vd_vcode");
@@ -193,13 +332,7 @@ public class PrintArStatement extends PrintMultiDoc {
 			}
 		}
 		*/
-		ppj.addBottomField("val_desp","本月結欠",0,0);
-		double cf = br.getCellDouble("stmt_cf");
-		if(cf >= 0) {
-			ppj.addBottomField("val_drtotal", df.format(cf),0,0);
-		} else {
-			ppj.addBottomField("val_crtotal", df.format(-cf)+"(結餘",0,0);
-		}
+		printAgingSummary(df, br.getCellDate("stmt_edate"));
 		super.printOneDoc();
 	}
 	

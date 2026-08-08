@@ -65,6 +65,15 @@ abstract public class BiActionHandler {
 	public ZkBiAiAgentContext getAiAgentContext() {
 		return null;
 	}
+
+	/**
+	 * Attaches the owning list composer to handlers that were constructed by a
+	 * detail form using a no-argument constructor.
+	 */
+	public void attachAiAgentComposer(ZkBiComposerBase composer) {
+		if (biBase == null)
+			biBase = composer;
+	}
 	
 	public final void delayStart() {
 		if(startAction != null) {

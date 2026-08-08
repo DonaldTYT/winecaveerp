@@ -583,14 +583,18 @@ public class WinecaveSessionHelper extends Erpv4SessionHelper {
 								new Wherecl().genInList("and", "pdls_irg", "in", icodes).appendString( "and pdls_irg = st_irg and consgp_irg = pdls_irg and or_org = pdls_org and consgp_ctime = 0 and consgp_org = pdls_org and pdls_loc = 'WH01'")
 						);
 						*/
-		TableRec tr = su.getQueryResult(
-				"select pdls_irg,pdls_org,st_icode,pdls_stockqty,consgp_price,consgp_salebybtl,st_msize1,or_cocode,st_standardprice,st_issalable from stock , podetlocstatus, orders, outer consgpreal ",
-								new Wherecl()
-									.genInList("and", "st_irg", "in", irgs)
-									.appendString( "and pdls_irg = st_irg and consgp_irg = pdls_irg and or_org = pdls_org and consgp_ctime = 0 and consgp_org = pdls_org and pdls_loc = 'WH01'")
-									.setOrderby("pdls_irg")
-						);
-		su.close();
+		TableRec tr;
+		try {
+			tr = su.getQueryResult(
+					"select pdls_irg,pdls_org,st_icode,pdls_stockqty,consgp_price,consgp_salebybtl,st_msize1,or_cocode,st_standardprice,st_issalable from stock , podetlocstatus, orders, outer consgpreal ",
+									new Wherecl()
+										.genInList("and", "st_irg", "in", irgs)
+										.appendString( "and pdls_irg = st_irg and consgp_irg = pdls_irg and or_org = pdls_org and consgp_ctime = 0 and consgp_org = pdls_org and pdls_loc = 'WH01'")
+										.setOrderby("pdls_irg")
+							);
+		} finally {
+			su.close();
+		}
 		int lastIrg = -1;
 		double lastQty = 0;
 		double lastQtyPerCase = 0;
@@ -702,9 +706,14 @@ public class WinecaveSessionHelper extends Erpv4SessionHelper {
 		int org = Integer.parseInt(sku.substring(idx+1));
 		String icode = sku.substring(0, idx).toUpperCase();
 		SelectUtil su =  sp.getBiSchema().getSelectUtil();	
-		TableRec tr = su.getQueryResult("select pdls_stockqty,consgp_price,consgp_salebybtl,st_msize1,or_cocode,st_standardprice,st_issalable from stock , podetlocstatus, orders, outer consgpreal where st_icode = ? and pdls_irg = st_irg and pdls_org = ? and consgp_irg = pdls_irg and or_org = pdls_org and consgp_ctime = 0 and consgp_org = pdls_org and pdls_loc = 'WH01'",
-								new Wherecl().appendArgument(icode).appendArgument(org)
-						);
+		TableRec tr;
+		try {
+			tr = su.getQueryResult("select pdls_stockqty,consgp_price,consgp_salebybtl,st_msize1,or_cocode,st_standardprice,st_issalable from stock , podetlocstatus, orders, outer consgpreal where st_icode = ? and pdls_irg = st_irg and pdls_org = ? and consgp_irg = pdls_irg and or_org = pdls_org and consgp_ctime = 0 and consgp_org = pdls_org and pdls_loc = 'WH01'",
+									new Wherecl().appendArgument(icode).appendArgument(org)
+							);
+		} finally {
+			su.close();
+		}
 		if(tr.getRecordCount() != 1) {
 			return(errorJson(null,"item not available"));
 		}

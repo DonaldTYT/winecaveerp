@@ -13,8 +13,6 @@ import javax.xml.bind.DatatypeConverter;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 
-import com.uniinformation.webcore.SessionHelper;
-
 import org.apache.commons.codec.binary.Base32;
 import org.apache.commons.codec.binary.Base64;
 
@@ -161,32 +159,6 @@ public class Base64Util {
 		try {
 			Base64 base64 = new Base64();
 			return base64.encodeBase64String(decodeBase32(p_str));
-		}
-		catch(Exception ex) {
-			ex.printStackTrace();
-			return null;
-		}
-	}
-	/***
-	 * encrypt string
-	 * remark: the encrypted string is much larger than original, as it contain iv(16byte), hash(32byte) and base64 (~+33%) + sha256
-	 * 
-	 * @param p_sh
-	 * @param p_inStr
-	 * @return
-	 */
-	public static String encryptStrToBase64(SessionHelper p_sh, String p_inStr) {
-		try {
-			return CryptoUtil.encryptToBase64(p_sh.getAESKey(), p_inStr.getBytes("UTF-8"), true);
-		}
-		catch(Exception ex) {
-			ex.printStackTrace();
-			return null;
-		}
-	}
-	public static String decryptStrFromBase64(SessionHelper p_sh, String p_eDataWithIvString) {
-		try {
-			return new String(CryptoUtil.decryptFromBase64(p_sh.getAESKey(),p_eDataWithIvString),"UTF-8");
 		}
 		catch(Exception ex) {
 			ex.printStackTrace();

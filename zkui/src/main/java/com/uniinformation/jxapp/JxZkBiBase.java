@@ -3351,6 +3351,17 @@ public class JxZkBiBase extends JxZkBase
 				
 					//abHelper.setDelayClickEvent(); //need to run after formint->new eventlistener
 					bf.zkcb = zkcb;
+					if (zkcb instanceof ZkBiComposerBase && bf.bahHash != null) {
+						ZkBiComposerBase composer = (ZkBiComposerBase)zkcb;
+						for (String buttonId : bf.bahHash.keySet()) {
+							BiActionHandler handler = bf.bahHash.get(buttonId);
+							JxField field = bf.jxAdd(buttonId);
+							Object nativeObject = field == null ? null : field.getNativeObject();
+							if (nativeObject instanceof Button)
+								composer.registerAiActionHandler(buttonId, handler,
+										(Button)nativeObject, false, "detail_form");
+						}
+					}
 					bf.parentComp = dWin.getParent();
 					bf.curComp = dWin;
 					bf.curDetailDecoration = dDerac;

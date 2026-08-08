@@ -16,6 +16,7 @@ import com.uniinformation.cell.CellCollection;
 import com.uniinformation.cell.CellException;
 import com.kyoko.common.*;
 import com.uniinformation.utils.Base64Util;
+import com.uniinformation.utils.BiUtil;
 import com.uniinformation.utils.SelectUtil;
 import com.uniinformation.utils.TableRec;
 import com.uniinformation.utils.UniLog;
@@ -54,7 +55,7 @@ public class BiResultLoginUser extends BiResult {
 					jo.put("lgu_phone",getCell("lgu_phone").getObject());
 					getCell("lgu_phone").resetValue();
 				}
-				getCell("lgu_credentials").set(Base64Util.encryptStrToBase64(getSessionHelper(), jo.toString()));
+				getCell("lgu_credentials").set(BiUtil.encryptStrToBase64(getSessionHelper(), jo.toString()));
 			} catch (Exception ex) {
 				UniLog.log(ex);
 				return(ReturnMsg.defaultFail);

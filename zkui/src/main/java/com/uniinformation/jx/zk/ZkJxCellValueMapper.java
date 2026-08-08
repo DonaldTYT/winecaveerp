@@ -6,12 +6,14 @@ import java.text.DecimalFormat;
 import java.util.Date;
 import java.util.Vector;
 
+import org.zkoss.zk.ui.Component;
 import org.zkoss.zul.Button;
 import org.zkoss.zul.Checkbox;
 import org.zkoss.zul.Combobox;
 import org.zkoss.zul.Comboitem;
 import org.zkoss.zul.Datebox;
 import org.zkoss.zul.Doublebox;
+import org.zkoss.zul.Html;
 import org.zkoss.zul.Label;
 import org.zkoss.zul.Listbox;
 import org.zkoss.zul.Listitem;
@@ -20,14 +22,14 @@ import org.zkoss.zul.Radiogroup;
 import org.zkoss.zul.Timebox;
 import org.zkoss.zul.impl.InputElement;
 
-import com.uniinformation.bicore.ColumnCell;
-import com.uniinformation.cell.Cell;
-import com.uniinformation.cell.CellException;
-import com.uniinformation.cell.CellValueMapper;
-import com.uniinformation.cell.AbstractGetItemProperty;
 import com.kyoko.common.DateUtil;
 import com.kyoko.common.ReturnMsg;
 import com.kyoko.common.StringUtil;
+import com.uniinformation.bicore.ColumnCell;
+import com.uniinformation.cell.AbstractGetItemProperty;
+import com.uniinformation.cell.Cell;
+import com.uniinformation.cell.CellException;
+import com.uniinformation.cell.CellValueMapper;
 import com.uniinformation.utils.UniLog;
 
 public class ZkJxCellValueMapper implements CellValueMapper {
@@ -71,6 +73,9 @@ public class ZkJxCellValueMapper implements CellValueMapper {
 						((Checkbox) ic).setChecked(bindedCell.getString().equals("Y"));
 						break;
 					}
+				}
+				if(ic instanceof Html) {
+					((Html) ic).setContent(c.toString());
 				}
 				if(ic instanceof Label) {
 					if(bindedCell instanceof ColumnCell) {

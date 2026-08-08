@@ -124,7 +124,7 @@ public class StockMovementLedgerBiActionHandler extends BiActionHandler {
 	public ReturnMsg beforeAction(BiResult p_result,int cnt) {
 		dsList = new ArrayList<Map<String, Object>>();
 		try {
-			selectWhere = br.conditionToWhereCl();
+			selectWhere = br.conditionToWhereCl(true);
 			if(selectWhere == null) selectWhere = new Wherecl();
 			selectWhere.andUniop("pds_rcvqty", ">", 0);
 			selectWhere.appendString(" and stmd_tdtype not in ('KI','KO') ");

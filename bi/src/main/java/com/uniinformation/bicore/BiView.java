@@ -1276,13 +1276,16 @@ public class BiView extends BiChain {
 		new GsonBuilder().create().toJson(MapUtil.of("hello1","world1","aaa",111), new FileWriter("/tmp/a2.json"));
 	}
 	
+	Vector<BiColumn> cachedPickList = null;
 	List<BiColumn> getPickList() {
+		if(cachedPickList != null) return(cachedPickList);
 		Vector<BiColumn> v = new Vector<BiColumn>();
 		for(BiColumn bc : getColumns()) {
 			if(bc.inPickList()) {
 				v.add(bc);
 			}
 		}
+		cachedPickList = v;
 		return(v);
 	}
 

@@ -14,10 +14,13 @@ import com.uniinformation.bicore.BiResult;
 import com.uniinformation.bicore.BiView;
 import com.uniinformation.bicore.erpv4.BiResultErpv4;
 import com.uniinformation.cell.CellException;
+import com.uniinformation.jx.JxField;
+import com.uniinformation.jx.JxForm;
 import com.uniinformation.rpccall.RpcClient;
 import com.uniinformation.rpccall.Value;
 import com.uniinformation.utils.SelectUtil;
 import com.uniinformation.utils.TableRec;
+import com.uniinformation.utils.UniLog;
 import com.uniinformation.utils.VectorUtil;
 import com.uniinformation.utils.Wherecl;
 import com.uniinformation.webcore.SessionHelper;
@@ -83,7 +86,7 @@ public class BiResultStockOutChg extends BiResultErpv4 {
 		return(cocode.trim()+"\u0000"+org+"\u0000"+irg);
 	}
 
-	private ArrayList<StockOutDetailRow> calculateStockOutDetailRows(Date stockOutDate) throws Exception {
+	private ArrayList<StockOutDetailRow> calculateStockOutDetailRows(Date stockOutDate,JxForm jxf) throws Exception {
 		Date fromDate = DateUtil.monthStart(DateUtil.prevmonth(stockOutDate,1));
 		Date toDate = DateUtil.monthEnd(fromDate);
 		boolean movementGrouping = useStockMovementGrouping(stockOutDate);
@@ -163,9 +166,12 @@ public class BiResultStockOutChg extends BiResultErpv4 {
 		return(generatedRows);
 	}
 
-	private void markDetailRowsDeleted(BiResult result) throws CellException {
+	private void markDetailRowsDeleted(BiResult result,JxField sv) throws CellException {
 		for(int i=0;i<result.getRowCount();i++) {
 			result.markDelete(result.getTrStatObj(i),true);
+			if(sv != null) {
+				sv.gridSetDataFormat(-1,i,"add_deleted");
+			}
 		}
 	}
 
@@ -179,7 +185,7 @@ public class BiResultStockOutChg extends BiResultErpv4 {
 	}
 
 	private BiCellCollection getDetailRow(BiResult result,Map<Integer,Integer> rowsBySequence,
-			int sequence) throws Exception {
+			int sequence, JxField sv) throws Exception {
 		Integer rowIndex = rowsBySequence.get(sequence);
 		if(rowIndex != null) {
 			Object trStat = result.getTrStatObj(rowIndex);
@@ -192,6 +198,9 @@ public class BiResultStockOutChg extends BiResultErpv4 {
 		if(rtn == null || !rtn.getStatus()) {
 			throw new Exception(rtn == null
 					? "Unable to add row to "+STOCK_OUT_DETAIL_LINK : rtn.getMsg());
+		}
+		if(sv != null) {
+			sv.addItemToList(rtn.getData(), result.getRowCount()-1);
 		}
 		rowsBySequence.put(sequence,result.getRowCount()-1);
 		return(row);
@@ -254,7 +263,7 @@ public class BiResultStockOutChg extends BiResultErpv4 {
 		return(new ArrayList<StockOutQtyRow>(qtyByKey.values()));
 	}
 
-	private Map<String,Integer> prepareChargeRows(BiResult chargeResult) throws CellException {
+	private Map<String,Integer> prepareChargeRows(BiResult chargeResult,JxField sv) throws CellException {
 		Map<String,Integer> rowIndexByCustomer = new LinkedHashMap<String,Integer>();
 		for(int i=0;i<chargeResult.getRowCount();i++) {
 			BiCellCollection row = chargeResult.getRowCollectionV(i);
@@ -262,6 +271,9 @@ public class BiResultStockOutChg extends BiResultErpv4 {
 			row.getCell("stmp_cvol").set(0);
 			row.getCell("stmp_sno").set("");
 			chargeResult.markDelete(chargeResult.getTrStatObj(i),true);
+			if(sv != null) {
+				sv.gridSetDataFormat(-1,i,"add_deleted");
+			}
 			String cocode = row.getCellString("stmp_cocode").trim();
 			if(!rowIndexByCustomer.containsKey(cocode)) rowIndexByCustomer.put(cocode,i);
 		}
@@ -269,7 +281,7 @@ public class BiResultStockOutChg extends BiResultErpv4 {
 	}
 
 	private BiCellCollection getChargeRow(BiResult result,Map<String,Integer> rowsByCustomer,
-			String cocode) throws Exception {
+			String cocode,JxField sv) throws Exception {
 		Integer rowIndex = rowsByCustomer.get(cocode);
 		if(rowIndex != null) {
 			Object trStat = result.getTrStatObj(rowIndex);
@@ -280,6 +292,9 @@ public class BiResultStockOutChg extends BiResultErpv4 {
 		BiCellCollection row = result.newRowCollection();
 		row.getCell("stmp_cocode").set(cocode);
 		ReturnMsg rtn = result.addSubRecord(row,result.getRowCount(),"");
+		if(sv != null) {
+			sv.addItemToList(rtn.getData(), result.getRowCount()-1);
+		}
 		if(rtn == null || !rtn.getStatus()) {
 			throw new Exception(rtn == null
 					? "Unable to add row to "+STOCK_OUT_CHARGE_LINK : rtn.getMsg());
@@ -315,7 +330,7 @@ public class BiResultStockOutChg extends BiResultErpv4 {
 	 */
 	public ArrayList<String> verify_only() throws Exception {
 		Date stockOutDate = getValidatedStockOutDate();
-		ArrayList<StockOutDetailRow> expectedRows = calculateStockOutDetailRows(stockOutDate);
+		ArrayList<StockOutDetailRow> expectedRows = calculateStockOutDetailRows(stockOutDate,null);
 		Vector<BiCellCollection> actualRows = getSubLink(STOCK_OUT_DETAIL_LINK).getRowCollectionList();
 		Map<Integer,Integer> actualIndexBySequence = new LinkedHashMap<Integer,Integer>();
 		boolean[] matchedActualRows = new boolean[actualRows.size()];
@@ -371,16 +386,18 @@ public class BiResultStockOutChg extends BiResultErpv4 {
 		return(differences);
 	}
 
-	public void regen_stockoutdet() throws Exception {
+	public void regen_stockoutdet(JxForm jxf) throws Exception {
 		Date stockOutDate = getValidatedStockOutDate();
-		ArrayList<StockOutDetailRow> generatedRows = calculateStockOutDetailRows(stockOutDate);
+		ArrayList<StockOutDetailRow> generatedRows = calculateStockOutDetailRows(stockOutDate,jxf);
 		BiResult detailResult = getSubLink(STOCK_OUT_DETAIL_LINK);
-		markDetailRowsDeleted(detailResult);
+		JxField sv = null;
+		if(jxf != null) sv = jxf.jxAdd("list_"+ getSubLink(STOCK_OUT_DETAIL_LINK).getView().getName().replace(".", "_"));
+		markDetailRowsDeleted(detailResult,sv);
 		Map<Integer,Integer> existingRowsBySequence = indexDetailRowsBySequence(detailResult);
 
 		int sequence = 1;
 		for(StockOutDetailRow generated : generatedRows) {
-			BiCellCollection row = getDetailRow(detailResult,existingRowsBySequence,sequence);
+			BiCellCollection row = getDetailRow(detailResult,existingRowsBySequence,sequence,sv);
 			row.getCell("stord_mrg").set(getCellInt("storh_mrg"));
 			row.getCell("stord_idx").set(sequence++);
 			row.getCell("stord_cocode").set(generated.cocode);
@@ -390,16 +407,21 @@ public class BiResultStockOutChg extends BiResultErpv4 {
 			row.getCell("stord_sqty").set(generated.storageQty);
 			row.getCell("stord_cqty").set(generated.consignmentQty);
 			row.getCell("stord_stmrg").set(generated.stockMovementMrg);
+			
+			if(sequence % 100 == 0) {
+				UniLog.log("doKeepAlive regen_stockoutdet" + inBeginWork());
+			}
 		}
 	}
 
-	public void cal_stockout_charge() throws Exception {
+	public void cal_stockout_charge(JxForm jxf) throws Exception {
 		Date stockOutDate = getValidatedStockOutDate();
 		BiResult detailResult = getSubLink(STOCK_OUT_DETAIL_LINK);
 		BiResult chargeResult = getSubLink(STOCK_OUT_CHARGE_LINK);
-		Map<String,Integer> chargeRowsByCustomer = prepareChargeRows(chargeResult);
+		JxField sv = null;
+		if(jxf != null) sv = jxf.jxAdd("list_"+ getSubLink(STOCK_OUT_CHARGE_LINK).getView().getName().replace(".", "_"));
+		Map<String,Integer> chargeRowsByCustomer = prepareChargeRows(chargeResult,sv);
 		boolean applyMinimumVolume = useStockMovementGrouping(stockOutDate);
-
 		for(StockOutQtyRow qty : aggregateStockOutQty(detailResult)) {
 			int storageVolume = (int) storageutil_cal_volume(qty.irg,"Btl",qty.storageQty);
 			int consignmentVolume = (int) storageutil_cal_volume(qty.irg,"Btl",qty.consignmentQty);
@@ -410,7 +432,7 @@ public class BiResultStockOutChg extends BiResultErpv4 {
 			}
 
 			BiCellCollection charge = getChargeRow(
-					chargeResult,chargeRowsByCustomer,qty.cocode);
+					chargeResult,chargeRowsByCustomer,qty.cocode,sv);
 			charge.getCell("stmp_svol").set(
 					charge.getCellInt("stmp_svol")+storageVolume);
 			charge.getCell("stmp_cvol").set(

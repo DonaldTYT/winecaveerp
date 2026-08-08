@@ -69,7 +69,7 @@ public class BiPickGetItemProperty extends AbstractGetItemProperty {
 
 	@Override
 	public int getRowCount() {
-		return br.getRowCount();
+		return br != null ? br.getRowCount() : 0;
 	}
 
 	@Override

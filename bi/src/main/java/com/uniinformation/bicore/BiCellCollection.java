@@ -21,6 +21,7 @@ import com.uniinformation.cell.CellFormula;
 import com.uniinformation.cell.IgnoreValue;
 import com.kyoko.common.*;
 import com.uniinformation.utils.Base64Util;
+import com.uniinformation.utils.BiUtil;
 import com.uniinformation.utils.DynamicClassLoader;
 import com.uniinformation.utils.TableRec;
 import com.uniinformation.utils.UniLog;
@@ -51,6 +52,7 @@ public class BiCellCollection extends CellCollection {
 			,FUNC_getRecordCount
 			,FUNC_makeSlug
 			,FUNC_jsonValue
+			,FUNC_getPickListFromJsonImage
 			,NOT_DEFINED,
 			};
 	BiDynamicFunction dnf = null;
@@ -333,7 +335,7 @@ public class BiCellCollection extends CellCollection {
 			case FUNC_decrypt:{
 				String encryptedString = (String ) args.get(0);
 				if(br.getSessionHelper().getAESKey() == null || StringUtils.isBlank(encryptedString)) return(args.get(2));
-				JSONObject rootJo = new JSONObject(Base64Util.decryptStrFromBase64(br.getSessionHelper(), encryptedString));
+				JSONObject rootJo = new JSONObject(BiUtil.decryptStrFromBase64(br.getSessionHelper(), encryptedString));
 				String colName = (String) args.get(1);
 				if(rootJo.has(colName)) return(rootJo.get(colName));
 				return(args.get(2));
@@ -346,7 +348,7 @@ public class BiCellCollection extends CellCollection {
 					rootJo.put(s, getCell(s).getObject());
 					getCell(s).resetValue();
 				}
-				return(Base64Util.encryptStrToBase64(br.getSessionHelper(), rootJo.toString()));
+				return(BiUtil.encryptStrToBase64(br.getSessionHelper(), rootJo.toString()));
 			}
 			case FUNC_loginid:{
 				return(br.getSessionHelper().getLoginId());
@@ -545,6 +547,22 @@ public class BiCellCollection extends CellCollection {
 				if(dnf == null) return(0.0);
 				return(dnf.eval(args));
 			}
+		case FUNC_getPickListFromJsonImage : {
+			byte[] ba = ((byte []) args.get(0));
+			if(ba == null || ba.length <= 0) return("");
+			String js = new String(ba,"UTF-8");
+			if(!StringUtils.isBlank(js)) {
+				JSONObject jo = new JSONObject(js);
+				String viewName = (String) args.get(1);
+				BiView bv = br.getView().getSchema().getViewByName(viewName);
+				String ss = "";
+				for(BiColumn bc : bv.getPickList()) {
+					ss += jo.optString(bc.getLabel());
+				}
+				return(ss);
+			}
+			return("");
+		}
 		}
 		return(super.evalFunction(p_fname, args));
 	}

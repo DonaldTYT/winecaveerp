@@ -284,6 +284,10 @@ public class JxZkListbox extends JxZkElement {
 											ZkUtil.appendStyle(lcx, "white-space:nowrap");
 										}
 									}	
+									String paddingStr = ZkUtil.extractColDecorationValue(col.getDecoration(), "padding");
+									if (StringUtils.isNotBlank(paddingStr))
+										ZkUtil.appendStyle(lcx, "padding:" + paddingStr);
+
 									final String linkurl = ((ColumnCell) o).getBiResult().getLinkedUrl(
 												((Cell) o).getCellLabel(),
 												((ColumnCell) o).getCollection()
@@ -404,6 +408,8 @@ public class JxZkListbox extends JxZkElement {
 										if(((align > 0 ? align : -align) & 8) != 0) {
 											ZkUtil.appendStyle(lcx, "white-space:nowrap");
 										}
+									} else {
+//										ZkUtil.appendStyle(lcx, "text-align:left;");
 									}
 									if(!isMobile) {
 										final String linkurl = gipi.getLinkedUrl(p_data, i);
@@ -1251,6 +1257,8 @@ public class JxZkListbox extends JxZkElement {
 			 public void render(Listitem p_listItem, Object p_data, int p_idx) throws Exception {
 //				UniLog.log("jxListBox render row " + p_idx + " selected = " + listbox.getSelectedIndex() + " editrow " + editingRow + " listmodel selection " + listModelList.getSelection() );
 				//ZkUtil.addDragAndDrop(p_listItem);
+				if (listbox.hasAttribute("hasOnItemRendererCallback"))
+					Events.echoEvent("onItemRendererCallback", listbox, MapUtil.of("listItem", p_listItem, "data", p_data, "idx", p_idx));
 				
 				boolean deletedFlag = false;
 				boolean insertedFlag = false;

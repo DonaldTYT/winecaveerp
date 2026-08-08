@@ -22,9 +22,9 @@ import org.zkoss.zul.*;
 import org.zkoss.zul.impl.MessageboxDlg;
 
 import com.uniinformation.utils.MapUtil;
-import com.kyoko.common.ReturnMsg;
 import com.uniinformation.utils.TOTPUtil;
 import com.uniinformation.utils.UniLog;
+import com.uniinformation.utils.TranslateUtil;
 import com.uniinformation.utils.ZkUtil;
 import com.uniinformation.webcore.BanIpHelper;
 import com.uniinformation.webcore.LabelHelper;
@@ -33,6 +33,7 @@ import com.uniinformation.webcore.ZkSessionHelper;
 import com.uniinformation.zkbi.ZkBiEventListener;
 import com.uniinformation.zkbi.ZkBiLogHelper;
 import com.uniinformation.zkbi.ZkBiTranslateHelper;
+import com.kyoko.common.ReturnMsg;
 import com.uniinformation.jx.JxForm;
 import com.uniinformation.jx.zk.*;
 

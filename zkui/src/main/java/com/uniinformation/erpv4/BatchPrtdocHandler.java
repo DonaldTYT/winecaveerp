@@ -92,7 +92,7 @@ public abstract class BatchPrtdocHandler extends BiActionHandler implements Prtd
 			} else {
 				ByteArrayInputStream is = new ByteArrayInputStream(os.toByteArray());
 				if(batchDownloadReport) {
-    			    Filedownload.save(is, "application/pdf", "PaymentNotice"+ ".pdf");
+				    Filedownload.save(is, "application/pdf", getDocumentName(br)+ ".pdf");
 				} else {
 					ZkUtil.printFromStream(is, "application/pdf", sh);
 				}
@@ -130,7 +130,7 @@ public abstract class BatchPrtdocHandler extends BiActionHandler implements Prtd
 		    		if(rtn == null || rtn.getStatus()) {
 				   		ByteArrayInputStream is = new ByteArrayInputStream(os.toByteArray());
 				   		if(batchDownloadReport) {
-    			       		Filedownload.save(is, "application/pdf", "PaymentNotice"+ ".pdf");
+							Filedownload.save(is, "application/pdf", getDocumentName(br)+ ".pdf");
 				   		} else {
 					   		ZkUtil.printFromStream(is, "application/pdf", sh);
 				   		}

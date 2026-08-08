@@ -48,6 +48,7 @@ import com.uniinformation.utils.TableRec;
 import com.uniinformation.utils.UniLog;
 import com.uniinformation.utils.VectorUtil;
 import com.uniinformation.utils.Wherecl;
+import com.uniinformation.utils.TranslateUtil;
 import com.uniinformation.utils.ZkUtil;
 import com.uniinformation.utils.poi.ExcelPoi;
 import com.uniinformation.webcore.SessionHelper;
@@ -59,7 +60,6 @@ import com.uniinformation.zkbi.ZkBiComposerReport;
 import com.uniinformation.zkbi.ZkBiEventListener;
 import com.uniinformation.zkbi.ZkBiMsgbox;
 import com.uniinformation.zkbi.ZkBiMsgbox.ZkBiMsgboxButton;
-import com.uniinformation.zkbi.ZkBiTranslateHelper;
 import com.uniinformation.zkcomp.ZkBiButton;
 import com.uniinformation.zkf.ZkForm;
 
@@ -550,6 +550,8 @@ public class ZkBiComposerStockList extends ZkBiComposerReport{
 					biColColMap.put(biCol.getLabel(), i);
 				}
 			}
+			
+			final boolean hasCostColumn ;
 
 			if (!biColMap.containsKey("pds_org"))
 				throw new Exception("'Ref No.' Column not found");
@@ -561,6 +563,8 @@ public class ZkBiComposerStockList extends ZkBiComposerReport{
 				throw new Exception("'Selling Unit' Column not found"); 
 			if (!biColMap.containsKey("consgp_price"))
 				throw new Exception("'Selling Price' Column not found");
+
+			if (biColMap.containsKey("consgp_cost")) hasCostColumn = true; else hasCostColumn = false;
 						
 			//add read excel row event
 			Iterator<EventListener<? extends Event>> it = comp.getEventListeners("onStockListImportRow").iterator();
@@ -593,6 +597,10 @@ public class ZkBiComposerStockList extends ZkBiComposerReport{
 							int org = (Integer)getPoiObjectByBiCol(biColMap.get("pds_org"), i, biColColMap.get("pds_org"), false);
 							String icode = (String)getPoiObjectByBiCol(biColMap.get("st_icode"), i, biColColMap.get("st_icode"), false);
 							double price = (Double)getPoiObjectByBiCol(biColMap.get("consgp_price"), i, biColColMap.get("consgp_price"), false);
+							double cost = 0.0;
+							if(hasCostColumn) {
+								cost = (Double)getPoiObjectByBiCol(biColMap.get("consgp_cost"), i, biColColMap.get("consgp_cost"), false);
+							}
 							if (org <= 0)
 								throw new Exception(String.format("'Ref No.' not found at row %d", i + 1));
 							else if (StringUtils.isBlank(icode))
@@ -630,6 +638,20 @@ public class ZkBiComposerStockList extends ZkBiComposerReport{
 									boolean salebybtl = !"Case".equals(sellUnit);
 									double dd = (Double) getPoiObjectByBiCol(biColMap.get("consgp_qty"), i, biColColMap.get("consgp_qty"), false);
 									if(!salebybtl) dd *= msize1;
+									if(hasCostColumn) {
+									if(price == 0 && cost == 0 && result.getCellDouble("consgp_price") == 0) {
+										skipCount++;
+										skip = true;
+									} else if(
+											result.getCellDouble("pdlswh01_stockqty") == dd 
+											&& result.getCellString("consgp_unit").equals(sellUnit)
+											&& ((price > 0 && result.getCellDouble("consgp_price") == price)
+											    || (cost > 0 && result.getCellDouble("consgp_cost") == cost))
+											) {
+										skipCount++;
+										skip = true;
+									}
+									} else {
 									if(price == 0 && result.getCellDouble("consgp_price") == 0) {
 										skipCount++;
 										skip = true;
@@ -641,6 +663,7 @@ public class ZkBiComposerStockList extends ZkBiComposerReport{
 										skipCount++;
 										skip = true;
 									}
+									}
 									if(!skip) {
 									int consignment = (int) dd;
 									int storage = totalQty - consignment;
@@ -650,7 +673,24 @@ public class ZkBiComposerStockList extends ZkBiComposerReport{
 									
 									//rpccall
     								RpcClient rpc = sessionHelper.getRpcClient();
-        							Value v = rpc.callSegment("updateConsignmentDetail", 
+        							Value v;
+        							if(hasCostColumn && price <= 0.0) {
+        							v = rpc.callSegment("updateConsignmentDetail", 
+     											new VectorUtil()
+        											.addElement(0)
+        											.addElement(owner)
+        											.addElement(irg)
+        											.addElement(org)
+        											.addElement(storage)
+        											.addElement(consignment)
+        											.addElement(salebybtl)
+        											.addElement(price)
+        											.addElement(soldQty)
+        											.addElement(cost)
+        											.toVector()
+        										);
+        							} else {
+        							v = rpc.callSegment("updateConsignmentDetail", 
      											new VectorUtil()
         											.addElement(0)
         											.addElement(owner)
@@ -663,6 +703,7 @@ public class ZkBiComposerStockList extends ZkBiComposerReport{
         											.addElement(soldQty)
         											.toVector()
         										);
+        							}
         							if (v == null || !v.toString().startsWith("OK"))
         								throw new Exception("Update Failed " + (v == null ? "" : v.toString()) + " at row " + (i + 1));
 									
@@ -739,7 +780,7 @@ public class ZkBiComposerStockList extends ZkBiComposerReport{
 				BiColumn bl = (BiColumn) xv.get(i);
 				if(bl.isInList(sh) && !bl.isSkipImport() &&
 						(bl.getEngName().equals(colHdr) ||
-						colHdr.equals( ZkBiTranslateHelper.getText(sessionHelper, bl.getCellFullName(), "LABEL", sessionHelper.getLabel(bl)))
+						colHdr.equals( TranslateUtil.getText(sessionHelper, bl.getCellFullName(), "LABEL", sessionHelper.getLabel(bl)))
 						)) {
 					return(bl);
 				}
@@ -1030,7 +1071,7 @@ public class ZkBiComposerStockList extends ZkBiComposerReport{
 				BiColumn bl = (BiColumn) xv.get(i);
 				if(bl.isInList(sh) && !bl.isSkipImport() &&
 						(bl.getEngName().equals(colHdr) ||
-						colHdr.equals( ZkBiTranslateHelper.getText(sessionHelper, bl.getCellFullName(), "LABEL", sessionHelper.getLabel(bl)))
+						colHdr.equals( TranslateUtil.getText(sessionHelper, bl.getCellFullName(), "LABEL", sessionHelper.getLabel(bl)))
 						)) {
 					return(bl);
 				}
