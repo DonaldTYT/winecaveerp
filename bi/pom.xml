@@ -411,7 +411,7 @@
   <exclusions>
     <exclusion>
       <groupId>com.kikyosoft</groupId>
-      <artifactId>springdummy</artifactId>
+      <artifactId>sessiondummy</artifactId>
     </exclusion>
   </exclusions>
 </dependency>

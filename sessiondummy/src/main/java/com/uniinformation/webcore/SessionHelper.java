@@ -9,6 +9,10 @@ import javax.servlet.http.HttpServletResponse;
 
 public abstract class SessionHelper {
 
+    public static enum EVENT_TYPE {
+        APPLICATION
+    }
+
     public static <T extends SessionHelper> T getSessionHelperDummy(
             String p_iniAgent,
             String p_loginid,
@@ -34,4 +38,14 @@ public abstract class SessionHelper {
     public abstract InputStream openResourceAsStream(String p_path);
 
     public abstract String getWebContentRealPath(String p_path, boolean p_withSeparator);
+
+    public abstract Object lookupEventQueue(
+            String p_name,
+            EVENT_TYPE p_type,
+            boolean p_autoCreate);
+
+    public abstract void publishEventQueue(
+            Object p_que,
+            String p_eventStr,
+            Object p_data);
 }

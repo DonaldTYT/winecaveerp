@@ -61,6 +61,13 @@ public class ZkSessionHelper extends SessionHelper {
 		// TODO Auto-generated method stub
 		return null;
 	}
+	@Override
+	public Object lookupEventQueue(String p_name, EVENT_TYPE p_type, boolean p_autoCreate) {
+		return null;
+	}
+	@Override
+	public void publishEventQueue(Object p_que, String p_eventStr, Object p_data) {
+	}
 	
 	public static void showMsg(String p_format, Object...p_args){
 	}

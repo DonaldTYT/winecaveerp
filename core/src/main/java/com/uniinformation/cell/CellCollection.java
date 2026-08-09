@@ -166,6 +166,8 @@ public class CellCollection implements Serializable,FunctionInterface,VariableIn
 			return(c.getDate());
 		else if(c.getType() == Cell.VTYPE_BOOLEAN)
 			return(new Boolean(c.getBoolean()));
+		else if(c.getType() == Cell.VTYPE_BYTEARRAY)
+			return(c.getObject());
 		else
 			return(new Double(c.getDouble()));
 	}

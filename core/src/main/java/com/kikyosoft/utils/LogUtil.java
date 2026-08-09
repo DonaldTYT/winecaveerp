@@ -34,3 +34,4 @@ public class LogUtil {
 		log(1, p_string);
 	}
 }
+

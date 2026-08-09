@@ -50,7 +50,7 @@
     </dependency>
     <dependency>
       <groupId>com.kikyosoft</groupId>
-      <artifactId>springdummy</artifactId>
+      <artifactId>sessiondummy</artifactId>
       <version>0.0.1-SNAPSHOT</version>
     </dependency>
   </dependencies>

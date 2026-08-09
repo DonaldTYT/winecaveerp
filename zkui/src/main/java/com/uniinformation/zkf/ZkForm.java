@@ -23,6 +23,7 @@ import org.zkoss.zul.Div;
 import org.zkoss.zul.Doublebox;
 import org.zkoss.zul.Hbox;
 import org.zkoss.zul.Hlayout;
+import org.zkoss.zul.Html;
 import org.zkoss.zul.Intbox;
 import org.zkoss.zul.Label;
 import org.zkoss.zul.Listbox;
@@ -35,6 +36,8 @@ import org.zkoss.zul.Vlayout;
 import org.zkoss.zul.Window;
 import org.zkoss.zul.impl.InputElement;
 
+import com.kyoko.common.ChineseConvert;
+import com.kyoko.common.ReturnMsg;
 import com.uniinformation.bicore.BiResult;
 import com.uniinformation.bicore.BiSchema;
 import com.uniinformation.cell.AbstractGetItemProperty;
@@ -48,7 +51,6 @@ import com.uniinformation.jx.zk.ZkJxCellValueMapper;
 import com.uniinformation.jx.zk.ZkJxPickInput;
 import com.uniinformation.jx.zk.ZkJxQueryInput;
 import com.uniinformation.jxapp.JxZkBiBase;
-import com.kyoko.common.*;
 import com.uniinformation.utils.UniLog;
 import com.uniinformation.utils.ZkUtil;
 import com.uniinformation.webcore.SessionHelper;
@@ -293,7 +295,7 @@ public class ZkForm {
 				 if(child instanceof Button 
 						 || child instanceof Toolbarbutton
 						 ) {
-					 if(p_col.testCell(child.getId()) != null) {
+					 if(p_col != null && p_col.testCell(child.getId()) != null) {
 					 	((Button) child).setLabel(p_col.getCellString(child.getId()));
 					 }
 					 if(listener != null) {
@@ -360,6 +362,9 @@ public class ZkForm {
 	 						} else if(child instanceof Intbox)  {
 		 						c = new Cell(0);
 			 					c.set(((Intbox) child).getValue());
+				 			} else if(child instanceof Html)  {
+					 			c = new Cell("");
+						 		c.set(((Html) child).getContent());
 				 			} else if(child instanceof Label)  {
 					 			c = new Cell("");
 						 		c.set(((Label) child).getValue());

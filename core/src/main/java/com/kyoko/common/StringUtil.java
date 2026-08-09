@@ -1436,5 +1436,36 @@ public class StringUtil
 		}
 		return list.get(list.size() - 1);
 	}
+	
+	public static String tidyMultiRowString(String input) {
+	    if (input == null) {
+	        return null;
+	    }
+
+	    final String ROW_DELIMITER = "\u0013"; // hex 0x13
+
+	    // Normalize all common newline styles into '\n'
+	    String normalized = input
+	            .replace("\r\n", "\n")
+	            .replace('\r', '\n')
+	            .replace('\u0013', '\n'); // also treat existing 0x13 as row break
+
+	    String[] rows = normalized.split("\n", -1);
+
+	    StringBuilder out = new StringBuilder();
+
+	    for (String row : rows) {
+	        // Trim leading/trailing spaces, then collapse repeated spaces/tabs inside the row
+	        String tidyRow = row.trim().replaceAll("[ \\t]+", " ");
+
+	        if (out.length() > 0) {
+	            out.append(ROW_DELIMITER);
+	        }
+
+	        out.append(tidyRow);
+	    }
+
+	    return out.toString();
+	}
 
 }

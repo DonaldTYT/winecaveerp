@@ -1,6 +1,7 @@
 package com.uniinformation.zkf;
 
 import org.zkoss.zk.ui.Component;
+import org.zkoss.zk.ui.Executions;
 import org.zkoss.zk.ui.event.Event;
 import org.zkoss.zk.ui.event.EventListener;
 
@@ -15,6 +16,10 @@ public class ZkCellActionWorkSheet extends ZkCellActionForm {
 	@Override
 	public void doAfterCompose(Component arg0) throws Exception {
 		super.doAfterCompose(arg0);
+		if(!accessOkFlag) {
+//			throw new Exception("Invalid Access");
+			return;
+		}
 	}
 	@Override 
 	protected void beforeMapCollection() {

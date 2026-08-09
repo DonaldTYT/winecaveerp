@@ -12,12 +12,18 @@
 !/erp/**
 !/gamedev/
 !/gamedev/**
+!/gamedev-build/
+!/gamedev-build/**
 !/jspwrapper/
 !/jspwrapper/**
 !/saleorsync/
 !/saleorsync/**
+!/saleorsync-build/
+!/saleorsync-build/**
 !/scorpion/
 !/scorpion/**
+!/sessiondummy/
+!/sessiondummy/**
 !/springwrapper/
 !/springwrapper/**
 !/zkapp/
@@ -41,6 +47,10 @@
 **/.claude/
 **/.codex/
 **/.codex_tmp/
+
+# Eclipse metadata already tracked for the SessionHelper placeholder project.
+!/sessiondummy/.classpath
+!/sessiondummy/.project
 
 # Logs, temp files, and generated archives
 **/*.log

@@ -2,6 +2,7 @@ package com.uniinformation.zkbi;
 import java.net.URLDecoder;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
@@ -73,14 +74,15 @@ import com.kyoko.common.DateUtil;
 import com.uniinformation.bicore.BiColumn;
 import com.uniinformation.bicore.BiField;
 import com.uniinformation.bicore.BiResult;
+import com.uniinformation.cell.AbstractGetItemProperty;
 import com.uniinformation.jx.zk.ZkJxQueryInput;
 import com.uniinformation.jx.zk.ZkJxQueryInput.EventListenerCallback;
-import com.uniinformation.cell.AbstractGetItemProperty;
 import com.uniinformation.utils.ConditionPresets;
 import com.uniinformation.utils.ConditionPresets.ConditionFieldMap;
 import com.uniinformation.utils.SelectUtil;
 import com.uniinformation.utils.UniLog;
 import com.uniinformation.utils.Wherecl;
+import com.uniinformation.utils.TranslateUtil;
 import com.uniinformation.utils.ZkUtil;
 import com.uniinformation.utils.whereclpar.Condition;
 import com.uniinformation.utils.whereclpar.Expression;
@@ -110,6 +112,7 @@ public class ZkBiAdvSearch {
 	private String viewId;
 	
 	private boolean isEmbedMode, isFromEmbedPage;
+	private Set<String> datePlusDayEndTimeList;
 
 	private Callback callback;
 	//private Map<String, ConditionFieldMapWrapper> conditionPresetMap = new LinkedHashMap<String, ConditionFieldMapWrapper>();
@@ -207,6 +210,7 @@ public class ZkBiAdvSearch {
 		this.refSelectedPreset = selectedPreset;
 		this.viewId = viewId;
 		this.isFromEmbedPage = isFromEmbedPage;
+		datePlusDayEndTimeList = (Set<String>)parentComp.getAttribute("advSearchDatePlusDayEndTimeList");
 
 		operatorMap = new LinkedHashMap<ConditionOp, Pair<String, String>>(){{
 			put(ConditionOp.EQ, Pair.of(sh.getLabel("equal"), sh.getLabel("field value = keyword")));
@@ -1402,11 +1406,22 @@ public class ZkBiAdvSearch {
 		}
 		return list;
 	}
-	private Expression getInputExpression(XulElement valueComp, BiColumn bc) throws Exception {
+	private Expression getInputExpression(XulElement valueComp, BiColumn bc, ConditionOp operator, boolean isRightComp) throws Exception {
 		Object obj;
 		if (valueComp instanceof ZkJxQueryInput) {
+			ZkJxQueryInput vc = (ZkJxQueryInput)valueComp;
 			obj = ((ZkJxQueryInput)valueComp).getQueryObject();
 			obj = indexOfOptionList(getTypeIntOptionList(bc), obj);
+			if (datePlusDayEndTimeList != null && datePlusDayEndTimeList.contains(bc.getLabel()) 
+					&& Arrays.asList(ZkJxQueryInput.TYPE_DATE, ZkJxQueryInput.TYPE_DATETIME).contains(vc.getQueryInputType())
+					&& StringUtils.equals(bc.getColumnType(true), "datetime") 
+					&& ((Arrays.asList(ConditionOp.BETWEEN, ConditionOp.NOT_BETWEEN).contains(operator) && isRightComp) 
+							|| operator == ConditionOp.LE)) {
+				if (obj instanceof Date)
+					obj = new Date(DateUtil.nextday((Date)obj).getTime() - 1000);
+				else if (obj instanceof String)
+					obj = ((String)obj).replace("00:00:00", "23:59:59");
+			}
 		} else if (valueComp instanceof Timebox)
 			obj = StringUtils.isNotBlank(((Timebox)valueComp).getText()) ? TIMEBOX_DATE + " " + ((Timebox)valueComp).getText() : "";
 		else if (valueComp instanceof InputElement)
@@ -1418,7 +1433,7 @@ public class ZkBiAdvSearch {
 			obj = "";
 		if (obj instanceof Date && StringUtils.equals(bc.getColumnType(true), "datetime"))
 			obj = DateUtil.dateToDateTimeStr((Date)obj);
-		UniLog.log("getInputExpression obj:" + obj);
+		UniLog.log1("getInputExpression obj:%s, class:%s", obj, obj != null ? obj.getClass() : null);
 		if (obj != null) {
 			if (obj instanceof Integer)
 				return new Expression((Integer)obj);
@@ -1510,8 +1525,8 @@ public class ZkBiAdvSearch {
 			switch (operator) {
 			case BETWEEN:
 			case NOT_BETWEEN:
-				Expression vExp0 = getInputExpression(valueComp0, bc);
-				Expression vExp1 = getInputExpression(valueComp1, bc);
+				Expression vExp0 = getInputExpression(valueComp0, bc, operator, false);
+				Expression vExp1 = getInputExpression(valueComp1, bc, operator, true);
 				return new Condition(fExp, operator.id, vExp0, vExp1);
 			case IN_ITEMLIST:
 			case NOTIN_ITEMLIST:
@@ -1523,7 +1538,7 @@ public class ZkBiAdvSearch {
 			case NLK:
 			case REGEXP:
 			case NOT_REGEXP:
-				return new Condition(fExp, operator.id, getInputExpression(valueComp2, bc));
+				return new Condition(fExp, operator.id, getInputExpression(valueComp2, bc, operator, false));
 			case IS_NOT_NULL:
 			case IS_NULL:
 				return new Condition(fExp, operator.id);
@@ -1538,7 +1553,7 @@ public class ZkBiAdvSearch {
 				else
 					return new Condition(fExp, Condition.COMPARE_OP_NE, new Expression(""));
 			default:
-				return new Condition(fExp, operator.id, getInputExpression(valueComp0, bc));
+				return new Condition(fExp, operator.id, getInputExpression(valueComp0, bc, operator, false));
 			}
 		} else 
 			return oldCondition;
@@ -2446,7 +2461,7 @@ public class ZkBiAdvSearch {
 		return win;
 	}
 	private String getBiColumnTranslateName(BiColumn bc) {
-		return ZkBiTranslateHelper.getText(sessionHelper, bc.getCellFullName(), "LABEL", sessionHelper.getLabel(bc));
+		return TranslateUtil.getText(sessionHelper, bc.getCellFullName(), "LABEL", sessionHelper.getLabel(bc));
 	}
 	private void makeCustomCondition() {
 		customParamValue = makeCustomCondition(false, false);

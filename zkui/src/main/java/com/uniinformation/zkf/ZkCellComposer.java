@@ -1,18 +1,20 @@
 package com.uniinformation.zkf;
 
 import org.apache.commons.lang.StringUtils;
-import org.zkoss.zul.Fileupload;
+import org.zkoss.zhtml.Fileupload;
 import org.zkoss.zk.ui.Component;
 import org.zkoss.zk.ui.util.Clients;
 import org.zkoss.zk.ui.util.Composer;
 
 import com.google.gson.JsonObject;
+import com.kyoko.common.ReturnMsg;
 import com.uniinformation.cell.CellCollection;
 
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Constructor;
 import java.net.URLDecoder;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -27,19 +29,21 @@ import org.zkoss.zk.ui.util.Composer;
 import org.zkoss.zul.Messagebox;
 
 import com.uniinformation.utils.GsonUtil;
-import com.kyoko.common.*;
 import com.uniinformation.utils.UniLog;
+import com.uniinformation.utils.ZipUtil;
+import com.uniinformation.utils.TranslateUtil;
 import com.uniinformation.utils.ZkUtil;
 import com.uniinformation.webcore.SessionHelper;
 import com.uniinformation.webcore.ZkComposerBase;
 import com.uniinformation.zkbi.ZkBiEventListener;
 import com.uniinformation.zkbi.ZkBiLogHelper;
 import com.uniinformation.zkbi.ZkBiLogHelper.ETYPE;
-import com.uniinformation.zkbi.ZkBiTranslateHelper;
+import com.uniinformation.zkbi.ZkBiMsgbox;
+import com.uniinformation.zkbi.ZkBiMsgbox.ZkBiMsgboxButton;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
-public class ZkCellComposer extends ZkComposerBase implements Composer<Component> {
+public class ZkCellComposer extends ZkComposerBase {
 	protected EventListener onClickListener;
 	protected ZkForm zkf;
 	
@@ -90,20 +94,29 @@ public class ZkCellComposer extends ZkComposerBase implements Composer<Component
     		    	params,
     		    	null,
     		    	null,
-    		    	-1,-1,true,
+    		    	1,-1,true,
     		    	new ZkBiEventListener <UploadEvent>(){
     		    		@Override
 						public void onZkBiEvent(UploadEvent event) throws Exception {
     		    			// TODO Auto-generated method stub
 						    org.zkoss.util.media.Media media = event.getMedia();
 						    if(media != null) {
-						    	try  {
-						    		InputStream is = media.getStreamData();
-						    		processAction(p_event.getName(),p_event.getTarget(),needResponse,is);
-						    		is.close();
+					    		String restoreMatchName = (String)p_event.getTarget().getAttribute("restoreMatchName");
+					    		String restorePassword = (String)p_event.getTarget().getAttribute("restorePassword");
+					    		UniLog.log1("restoreMatchName:%s, restorePassword:%s", restoreMatchName, restorePassword);
+						    	if (StringUtils.isNotEmpty(restoreMatchName) && !media.getName().matches(restoreMatchName)) {
+						    		ZkBiMsgbox.show(ZkBiMsgbox.Type.error, sessionHelper.getLabel("Invalid file name"));
+						    		return;
+						    	}
+						    	try {
+						    		try (InputStream is = StringUtils.endsWithIgnoreCase(media.getName(), ".zip") ?
+						    								ZipUtil.extractSpecFileFromZip(media.getStreamData(), restorePassword, null) :
+					    									media.getStreamData()) {
+							    		processAction(p_event.getName(),p_event.getTarget(),needResponse,is);
+						    		}
 						    	} catch (Exception ex) {
 						    		UniLog.log(ex);
-						    		throw(ex);
+						    		throw ex;
 						    	}
 						    }
 						
@@ -116,17 +129,14 @@ public class ZkCellComposer extends ZkComposerBase implements Composer<Component
 				if(strNeedResponse == null) needResponse = true; else {
 					needResponse = strNeedResponse.equals("Y");
 				}
-			    Messagebox.show(confirmMsg, "Message", Messagebox.YES|Messagebox.NO, Messagebox.EXCLAMATION,
-			    	     new EventListener() {
-			    	       public void onEvent(Event evt) throws Exception {
-			    	    	   if (((Integer)evt.getData()) == Messagebox.YES){
-			    	    		   processAction(p_event.getName(),p_event.getTarget(),needResponse,null);
-//			    	    		   onOkPressed(sessionHelper,ZkCellActionForm.this);
-			    	    	   } else{
-			    	    	   }
-			    	      }
-			    	    }
-			    );
+				ZkBiMsgbox.show(ZkBiMsgbox.Type.warning, sessionHelper.getLabel(confirmMsg), Arrays.stream(new String[] {"Ok", "Cancel"}).map(s -> sessionHelper.getLabel(s)).toArray(String[]::new), new ZkBiEventListener<Event>() {
+					@Override
+					public void onZkBiEvent(Event event) throws Exception {
+						ZkBiMsgboxButton btn = (ZkBiMsgboxButton) event.getTarget();
+						if (btn.getIdx() == 0)
+	    	    		   processAction(p_event.getName(),p_event.getTarget(),needResponse,null);
+					}}
+				);
 			} else {
 				final boolean needResponse;
 				if(strNeedResponse == null) needResponse = false; else {

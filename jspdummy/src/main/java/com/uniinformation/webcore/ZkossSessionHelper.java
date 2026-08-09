@@ -19,7 +19,23 @@ public class ZkossSessionHelper extends SessionHelper {
         return null;
     }
 
+    @Override
+    public Object lookupEventQueue(String p_name, EVENT_TYPE p_type, boolean p_autoCreate) {
+        return null;
+    }
+
+    @Override
+    public void publishEventQueue(Object p_que, String p_eventStr, Object p_data) {
+    }
+
     public static SessionHelper getSessionHelper() {
         return null;
     }
+
+	public static void showMsg(String p_format, Object...p_args){
+	}
+	public static void showWarnMsg(String p_format, Object...p_args){
+	}
+	public static void showErrMsg(String p_format, Object...p_args){
+	}
 }

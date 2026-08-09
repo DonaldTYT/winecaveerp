@@ -5632,20 +5632,19 @@ abstract public class SessionHelper {
 		setIniAgent(defaultIniAgent, defaultIniAgentAllowUpdate, p_request);
     }
 	public static enum EVENT_TYPE{ APPLICATION};
-	public Object lookupEventQueue(String p_name,EVENT_TYPE p_type,boolean p_autoCreate) {
-		return(null);
-	}
-	public void publishEventQueue(Object p_que,String p_eventStr,Object p_data) {
-	}
+	abstract public Object lookupEventQueue(String p_name,EVENT_TYPE p_type,boolean p_autoCreate);
+	abstract public void publishEventQueue(Object p_que,String p_eventStr,Object p_data);
 	public boolean useNewMobileScreenAdjust() {
 		if(!isMobile()) return(false);
 		if(!useJxFormG2) return(false);
 		return(newMobileScreenAdjust);
 	}
+	/*
 	public static void showMsg(String p_format, Object...p_args){
 	}
 	public static void showWarnMsg(String p_format, Object...p_args){
 	}
 	public static void showErrMsg(String p_format, Object...p_args){
 	}
+	*/
 }

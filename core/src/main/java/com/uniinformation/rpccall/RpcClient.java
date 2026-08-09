@@ -8,7 +8,7 @@ import com.kyoko.common.ReturnMsg;
 import com.uniinformation.rpccall.*;
 import com.uniinformation.utils.UniLog;
 
-public class RpcClient implements RpcClientCallableWithCallback,AutoCloseable
+public class RpcClient implements RpcClientCallableWithCallback ,AutoCloseable
 {
   private int rpcserialnum = 0;
   public String hostName = null;
@@ -70,7 +70,6 @@ public class RpcClient implements RpcClientCallableWithCallback,AutoCloseable
   {
     conn.removeServlet(name);
   }
-
   protected void finalize() throws Throwable
   {
     super.finalize();
@@ -123,11 +122,9 @@ public class RpcClient implements RpcClientCallableWithCallback,AutoCloseable
 	  }
 	  conn = null;
   }
-  
   public boolean isClosed() {
-	    return(finalized);
+    return(finalized);
   }
-  
   public Value callSegmentWithException(String segname) throws Exception {
     try {
       if (conn == null) open();

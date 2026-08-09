@@ -14,6 +14,7 @@ import org.zkoss.zul.Button;
 import org.zkoss.zul.Messagebox;
 
 import com.google.gson.JsonObject;
+import com.kyoko.common.ReturnMsg;
 import com.uniinformation.cell.CellCollection;
 import com.uniinformation.prtdoc.PrtdocClass;
 import com.uniinformation.utils.DynamicClassLoader;
@@ -81,6 +82,9 @@ public class ZkCellActionForm extends ZkCellComposer {
 //		};
 		if(onClickListener == null) onClickListener = new ActionFormListener();
 		super.doAfterCompose(arg0);
+		if(!accessOkFlag) {
+			return;
+		}
 //		if (btOK != null){
 //			btOK.addEventListener(Events.ON_CLICK, 
 //				new EventListener(){
