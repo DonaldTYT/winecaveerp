@@ -127,7 +127,7 @@ public class ProcessScanLog extends CronJob {
 
 		SessionHelper sh = p_sh;
 		if (sh == null) {
-			sh = ZkSessionHelper.getSessionHelperDummy(null,"dummy",null);
+			sh = ZkSessionHelper.getSessionHelperDummy(null,"dummy",p_sh == null ? null : p_sh.getSvc());
 		}
 		BiResult brStudent = null;
 		BiResult brScanLog = null;

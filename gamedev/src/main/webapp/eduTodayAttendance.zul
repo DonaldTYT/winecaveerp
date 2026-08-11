@@ -43,6 +43,10 @@
     .attbox.expired {
 		background:lightcoral;
     }
+    .attbox.multicourse {
+		background:red;
+		color:white;
+    }
 }
 </style>
 <zscript>
@@ -595,6 +599,7 @@
 	   			<h:div style="padding:3px; min-width:40px;" class="attbox leave">Leave</h:div>
 	   			<h:div style="padding:3px; min-width:40px;" class="attbox warn">Warning</h:div>
 	   			<h:div style="padding:3px; min-width:40px;" class="attbox expired">Expired</h:div>
+			<h:div style="padding:3px; min-width:40px;" class="attbox multicourse">Present in multiple courses</h:div>
 	   			<h:div style="padding:3px; min-width:40px;" class="attbox">Within subscription period</h:div>
 	   			<h:div style="padding:3px; min-width:40px;" class="attbox outrange">Out of subscription period</h:div>
 	   			

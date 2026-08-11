@@ -310,6 +310,7 @@ public class ZkBiComposerTodayAttendance extends ZkComposerBase {
 				sm.put("isCompletedAtt", isCompletedAtt);
 				UniLog.log1("sessionRg:%d, sessionStartTime:%s, sessionEndTime:%s, isCompletedAtt:%b", sessionRg, sessionStartTime, sessionEndTime, isCompletedAtt);
 			}
+			markMultiCourseAttendance();
 		}
 		catch (Exception e) {
 			e.printStackTrace();
@@ -382,8 +383,12 @@ public class ZkBiComposerTodayAttendance extends ZkComposerBase {
 							final String status = (String)atm.get("status");
 							final String subStatus = (String)atm.get("subStatus");
 							final boolean isInEnrolledList = (Boolean)atm.get("isInEnrolledList");
+							final boolean isMultiCourseAttendance = Boolean.TRUE.equals(atm.get("isMultiCourseAttendance"));
+							final int attendedCourseCount = isMultiCourseAttendance ? (Integer)atm.get("attendedCourseCount") : 0;
 							final Div div = new Div() {{
-								setSclass("attbox " + status + (isInEnrolledList ? "" : " outrange"));
+								setSclass("attbox " + status + (isMultiCourseAttendance ? " multicourse" : "") + (isInEnrolledList ? "" : " outrange"));
+								if (isMultiCourseAttendance)
+									setTooltiptext(String.format("Present in %d courses on %s", attendedCourseCount, sdf.format(currentDate)));
 								appendChild(new Label(sdName));
 								appendChild(new Br());
 								appendChild(new Label(sdNo));
@@ -447,6 +452,33 @@ public class ZkBiComposerTodayAttendance extends ZkComposerBase {
 		}
 		if (markListitem != null)
 			Clients.scrollIntoView(markListitem);
+	}
+
+	private void markMultiCourseAttendance() {
+		Map<Integer, Set<Integer>> studentCourseMap = new HashMap<Integer, Set<Integer>>();
+		for (Map<String, Object> session : sessionList) {
+			int courseRg = (Integer)session.get("courseRg");
+			List<Map<String, Object>> attendanceList = (List<Map<String, Object>>)session.get("attendanceList");
+			for (Map<String, Object> attendance : attendanceList) {
+				if (StringUtils.equals((String)attendance.get("attStatus"), "Present")) {
+					int studentRg = (Integer)attendance.get("studentRg");
+					studentCourseMap.computeIfAbsent(studentRg, key -> new HashSet<Integer>()).add(courseRg);
+				}
+			}
+		}
+
+		for (Map<String, Object> session : sessionList) {
+			List<Map<String, Object>> attendanceList = (List<Map<String, Object>>)session.get("attendanceList");
+			for (Map<String, Object> attendance : attendanceList) {
+				int studentRg = (Integer)attendance.get("studentRg");
+				Set<Integer> attendedCourses = studentCourseMap.get(studentRg);
+				boolean isMultiCourseAttendance = StringUtils.equals((String)attendance.get("attStatus"), "Present")
+						&& attendedCourses != null && attendedCourses.size() > 1;
+				attendance.put("isMultiCourseAttendance", isMultiCourseAttendance);
+				if (isMultiCourseAttendance)
+					attendance.put("attendedCourseCount", attendedCourses.size());
+			}
+		}
 	}
 
 

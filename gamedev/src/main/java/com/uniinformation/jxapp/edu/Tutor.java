@@ -70,13 +70,13 @@ import com.uniinformation.utils.ListUtil;
 import com.uniinformation.utils.TableRec;
 import com.uniinformation.utils.UniLog;
 import com.uniinformation.utils.Wherecl;
+import com.uniinformation.utils.TranslateUtil;
 import com.uniinformation.utils.ZkUtil;
 import com.uniinformation.utils.poi.ExcelPoi;
 import com.uniinformation.webcore.GridHelper;
 import com.uniinformation.webcore.SessionHelper;
 import com.uniinformation.zkbi.ZkBiAbstractLongOp;
 import com.uniinformation.zkbi.ZkBiEventListener;
-import com.uniinformation.zkbi.ZkBiTranslateHelper;
 
 public class Tutor extends JxZkBiBase {
 	@Override
