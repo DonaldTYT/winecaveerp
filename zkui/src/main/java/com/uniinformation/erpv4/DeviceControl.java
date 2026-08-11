@@ -5,13 +5,16 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
+import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketTimeoutException;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.Hashtable;
+import java.util.List;
 import java.util.StringTokenizer;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -37,24 +40,44 @@ public class DeviceControl extends CronJob {
 	public static int queueIdx = 0;
 	static final String BIND_SCANNER_PREFIX = "BindBcnToSession:";
 	AtomicBoolean fStop = new AtomicBoolean(false); //1 stopping, 2 stopped
+	private static final AtomicBoolean shutdownRequested = new AtomicBoolean(false);
+	private static final long SHUTDOWN_WAIT_MS = 10000L;
 	static HashSet<String>tcpDeviceList;
 	static HashSet<String>barcodeScannerList;  //andrew230922 seems it's useless
 	static HashSet<String>labelPrinterList;  //andrew230922 seems it's useless
 
 	SessionHelper sh;
+	private volatile DatagramSocket udpSocket;
+	private volatile TcpDeviceListener tcpDeviceListener;
+	private volatile Thread tcpDeviceListenerThread;
 	
 	static Hashtable<String ,Socket> tcpListenHash;
 	public class TcpDeviceListener implements Runnable {
-		ServerSocket serverSocket;
+		volatile ServerSocket serverSocket;
+		volatile Socket pendingSocket;
+
+		void shutdown() {
+			closeSocket(pendingSocket);
+			pendingSocket = null;
+			closeServerSocket(serverSocket);
+			serverSocket = null;
+		}
+
 		@Override
 		public void run() {
 			UniLog.log("Device Listerner tarted");
-			tcpListenHash = new Hashtable<String,Socket>();
-			for(;;) {
+			Hashtable<String,Socket> listenerSockets = new Hashtable<String,Socket>();
+			tcpListenHash = listenerSockets;
+			while(!shutdownRequested.get()) {
 				try {
 					Thread.sleep(1000);
+					if(shutdownRequested.get()) break;
 					if(serverSocket == null) {
 						serverSocket = new ServerSocket(5678);
+						if(shutdownRequested.get()) {
+							shutdown();
+							break;
+						}
 						if(serverSocket == null) {
 							UniLog.log("Tcp Listen Error");
 							continue;
@@ -64,9 +87,14 @@ public class DeviceControl extends CronJob {
 					}
 					UniLog.log("Device Listener try accept");
 					Socket socket = serverSocket.accept();
+					pendingSocket = socket;
+					if(shutdownRequested.get()) {
+						closeSocket(socket);
+						break;
+					}
 					UniLog.log("Device Listener Connected");
 					if(socket != null) {
-						synchronized(tcpListenHash) {
+						synchronized(listenerSockets) {
 							socket.setSoTimeout(10000);
 							InputStream input = socket.getInputStream();
 							String ss="";
@@ -86,9 +114,9 @@ public class DeviceControl extends CronJob {
 								UniLog.log("Device Addr = " + ss.trim());
 								/*
 								if(tcpDeviceList.contains(ss.trim())) {
-									Socket ssc = tcpListenHash.get(ss.trim());
+									Socket ssc = listenerSockets.get(ss.trim());
 									if(ssc != null) ssc.close();
-									tcpListenHash.put(ss.trim(), socket);
+									listenerSockets.put(ss.trim(), socket);
 								} else {
 									UniLog.log("device " + ss.trim() + " not in tcpDeviceList, refjected");
 									socket.close();
@@ -102,9 +130,15 @@ public class DeviceControl extends CronJob {
 						}
 					}
 				} catch (Exception ex) {
-					UniLog.log(ex);
+					if(!shutdownRequested.get()) {
+						UniLog.log(ex);
+					}
+				} finally {
+					pendingSocket = null;
 				}
 			}
+			shutdown();
+			UniLog.log("Device Listener stopped");
 		}
 	}
 	
@@ -116,13 +150,15 @@ public class DeviceControl extends CronJob {
 		String queueid;
 		String devip;
 		int devport;
-		Thread readerThread;
-		Socket socket=null;
+		volatile Thread readerThread;
+		volatile Socket socket=null;
+		volatile Socket pendingSocket=null;
 		StringBuffer sb=null;
 		Object photoEventData;
 		int tcpTimeout = 0;
 		boolean isPassive = false;
 		private boolean attached = false;
+		private final AtomicBoolean readerShutdownRequested = new AtomicBoolean(false);
 		SessionHelper sh;
 		public DevHandler(String p_devid, SessionHelper p_sh) {
 			devid = p_devid;
@@ -167,9 +203,40 @@ public class DeviceControl extends CronJob {
 			return(socket);
 		}
 		public void startReader() {
-			if(readerThread == null) {
-				readerThread = new Thread(this);
+			if(readerThread == null && !readerShutdownRequested.get() && !shutdownRequested.get()) {
+				readerThread = new Thread(this, "DeviceReader-" + devid);
+				readerThread.setDaemon(true);
 				readerThread.start();
+			}
+		}
+
+		public void shutdownReader() {
+			readerShutdownRequested.set(true);
+			Thread threadToStop = readerThread;
+			Socket currentSocket = socket;
+			if(currentSocket != null) closeSocket(currentSocket);
+			Socket currentPendingSocket = pendingSocket;
+			if(currentPendingSocket != null) closeSocket(currentPendingSocket);
+			if(threadToStop != null) {
+				// Interrupt releases wait()/sleep(); closing the sockets above releases
+				// connect()/read(). No handler monitor is acquired during shutdown.
+				threadToStop.interrupt();
+			}
+		}
+
+		public void awaitReaderShutdown(long p_deadlineMs) {
+			Thread threadToWait = readerThread;
+			if(threadToWait == null || threadToWait == Thread.currentThread()) return;
+			long waitMs = Math.max(0L, p_deadlineMs - System.currentTimeMillis());
+			if(waitMs == 0L) return;
+			try {
+				threadToWait.join(waitMs);
+			}
+			catch(InterruptedException ex) {
+				Thread.currentThread().interrupt();
+			}
+			if(threadToWait.isAlive()) {
+				UniLog.log1("device reader stop timeout: %s state:%s", devid, threadToWait.getState());
 			}
 		}
 		synchronized public boolean unsetQueueid(String p_queueid) {
@@ -239,6 +306,10 @@ public class DeviceControl extends CronJob {
 			if(readerThread != null) {
 				UniLog.log("restart reader " + devid);
 				try {
+					if(pendingSocket != null) {
+						pendingSocket.close();
+						pendingSocket = null;
+					}
 					if(socket != null) {
 						socket.close();
 							socket = null;
@@ -260,7 +331,7 @@ public class DeviceControl extends CronJob {
 		public void run() {
 			// TODO Auto-generated method stub
 			UniLog.log("Device Reader " + devid + " started");
-			for(;;) {
+			while(!readerShutdownRequested.get() && !shutdownRequested.get()) {
 			try {
 				String curqueueid = null;
 				synchronized(DevHandler.this) {
@@ -321,11 +392,17 @@ public class DeviceControl extends CronJob {
 					sb = null;
 					String ip = BiConfig.getString(sh, devid+"_IP"); 
 					int port = BiConfig.getInteger(sh, devid+"_PORT", -1);
-					Socket mySocket = null;
+					Socket mySocket = new Socket();
+					pendingSocket = mySocket;
+					if(readerShutdownRequested.get() || shutdownRequested.get()) {
+						closeSocket(mySocket);
+						pendingSocket = null;
+						break;
+					}
 					if(ip != null) {
-						mySocket = new Socket(ip, port);
+						mySocket.connect(new InetSocketAddress(ip, port));
 					} else {
-						mySocket = new Socket(devip, devport);
+						mySocket.connect(new InetSocketAddress(devip, devport));
 					}
 					if(mySocket != null) {
 						if(tcpTimeout > 0) {
@@ -343,13 +420,20 @@ public class DeviceControl extends CronJob {
 								sh.publishEventQueue(que, "onBarcodeAttached", devid);
 								attachedQue = curqueueid;
 								synchronized(DevHandler.this) {
+									if(readerShutdownRequested.get() || shutdownRequested.get()) {
+										closeSocket(mySocket);
+										pendingSocket = null;
+										break;
+									}
 									socket = mySocket;
+									pendingSocket = null;
 								}
 							} else {
 								UniLog.log("event que " + queueid + " not exist , remove quueid and close socket" );
 								synchronized(DevHandler.this) {
 									queueid = null;
 									mySocket.close();
+									pendingSocket = null;
 								}
 								continue;
 							}
@@ -435,9 +519,25 @@ public class DeviceControl extends CronJob {
 					}
 				}
 			} catch (Exception iex) {
-				UniLog.log(iex);
+				if(!readerShutdownRequested.get() && !shutdownRequested.get()) {
+					UniLog.log(iex);
+				}
 			}
 			}
+			synchronized(this) {
+				if(pendingSocket != null) {
+					closeSocket(pendingSocket);
+					pendingSocket = null;
+				}
+				if(socket != null) {
+					closeSocket(socket);
+					socket = null;
+				}
+				if(readerThread == Thread.currentThread()) {
+					readerThread = null;
+				}
+			}
+			UniLog.log("Device Reader " + devid + " stopped");
 		}
 	}
 	
@@ -455,7 +555,7 @@ public class DeviceControl extends CronJob {
 	@Override
 	public int runOnce() throws Exception {
 		// TODO Auto-generated method stub
-
+		if(fStop.get() || shutdownRequested.get()) return 0;
 		
 		int udpPort = BiConfig.getInteger(sh, "DeviceControlUDPPort", 5678);
 		int udpSoTimeout = BiConfig.getInteger(sh, "DeviceControlUDPSoTimeout", 20000);
@@ -463,11 +563,13 @@ public class DeviceControl extends CronJob {
 		UniLog.log1("Device Control Poll. port:%d soTimeout:%d",udpPort, udpSoTimeout);
 		
 		DatagramSocket socket = new DatagramSocket(udpPort);
+		udpSocket = socket;
 		try {
+		if(fStop.get() || shutdownRequested.get()) return 0;
 		socket.setSoTimeout(udpSoTimeout);
 		
 		byte[] buf = new byte[256];
-		for(;;) {
+		while(!fStop.get() && !shutdownRequested.get()) {
 //			Thread.sleep(20000);
 //			UniLog.log("in Device Control Loop");
 			DatagramPacket packet = new DatagramPacket(buf, buf.length);
@@ -514,17 +616,25 @@ public class DeviceControl extends CronJob {
 			}
 		}
 		} catch (Exception ex) {
+			if(fStop.get() || shutdownRequested.get()) return 0;
 			//UniLog.log(ex);
 			UniLog.log1("error:" + ex.getMessage());
-			socket.close();
 			throw(ex);
+		} finally {
+			socket.close();
+			if(udpSocket == socket) {
+				udpSocket = null;
+			}
 		}
+		return 0;
 	}
 
 	@Override
 	public void setSessionHelper(SessionHelper p_sh) throws Exception {
 		// TODO Auto-generated method stub
 		UniLog.log("HAHA in Device Control Set SessionHelper");
+		shutdownRequested.set(false);
+		fStop.set(false);
 		sh = p_sh;
 		tcpDeviceList = new HashSet<String>();
 		barcodeScannerList = new HashSet<String>();
@@ -562,13 +672,16 @@ public class DeviceControl extends CronJob {
 			}
 		}
 		if(tcpDeviceList != null &&  !tcpDeviceList.isEmpty()) {
-			Thread devThread = new Thread(new TcpDeviceListener());
-			devThread.start();
+			tcpDeviceListener = new TcpDeviceListener();
+			tcpDeviceListenerThread = new Thread(tcpDeviceListener, "DeviceTcpListener-5678");
+			tcpDeviceListenerThread.setDaemon(true);
+			tcpDeviceListenerThread.start();
 		}
 		
 	}
 
 	public static boolean attachListiner(String p_devid,String p_msgqueue,boolean p_force) {
+		if(shutdownRequested.get()) return false;
 		synchronized(devList) {
 			DevHandler dhdr = devList.get(p_devid);
 			if(dhdr == null) return(false);
@@ -578,6 +691,7 @@ public class DeviceControl extends CronJob {
 	}
 
 	public static boolean detachListiner(String p_devid,String p_msgqueue) {
+		if(shutdownRequested.get()) return false;
 		synchronized(devList) {
 			DevHandler dhdr = devList.get(p_devid);
 			if(dhdr == null) return(false);
@@ -602,6 +716,7 @@ public class DeviceControl extends CronJob {
 		return(false);
 	}
 	static public void refreshDevIp(SessionHelper p_sh,String p_devid,String p_devip,int p_devport,String sessionId) {
+		if(shutdownRequested.get()) return;
 		synchronized(devList) {
 			DevHandler dhdr = devList.get(p_devid);
 			if(dhdr == null) {
@@ -655,6 +770,7 @@ public class DeviceControl extends CronJob {
 	}
 	
 	public static void postBarcode(SessionHelper p_sh,String p_devid,String p_barcode) {
+		if(shutdownRequested.get()) return;
 		UniLog.log("postBarcode (" + p_devid +")(" + p_barcode+")");
 		synchronized(devList) {
 			DevHandler dhdr = devList.get(p_devid);
@@ -739,7 +855,103 @@ public class DeviceControl extends CronJob {
 	@Override
 	public void stop() {
 		UniLog.log1("called");
+		shutdownRequested.set(true);
 		fStop.set(true);
+
+		// Closing sockets is required to unblock receive(), accept(), and read()
+		// immediately. Thread interruption alone does not unblock all of them.
+		DatagramSocket currentUdpSocket = udpSocket;
+		if(currentUdpSocket != null) {
+			currentUdpSocket.close();
+		}
+
+		TcpDeviceListener currentTcpListener = tcpDeviceListener;
+		if(currentTcpListener != null) {
+			currentTcpListener.shutdown();
+		}
+		Thread currentTcpListenerThread = tcpDeviceListenerThread;
+		if(currentTcpListenerThread != null) {
+			currentTcpListenerThread.interrupt();
+		}
+
+		List<DevHandler> handlers;
+		synchronized(devList) {
+			handlers = new ArrayList<DevHandler>(devList.values());
+		}
+		for(DevHandler handler : handlers) {
+			handler.shutdownReader();
+		}
+
+		closeTcpListenSockets();
+
+		long shutdownDeadline = System.currentTimeMillis() + SHUTDOWN_WAIT_MS;
+		awaitThreadShutdown(currentTcpListenerThread, shutdownDeadline, "DeviceTcpListener");
+		for(DevHandler handler : handlers) {
+			handler.awaitReaderShutdown(shutdownDeadline);
+		}
+
+		// These collections are static and otherwise retain device handlers,
+		// sockets, SessionHelpers, and the old webapp class loader on redeploy.
+		synchronized(devList) {
+			devList.clear();
+		}
+		closeTcpListenSockets();
+		tcpDeviceListener = null;
+		tcpDeviceListenerThread = null;
+		udpSocket = null;
+		tcpDeviceList = null;
+		barcodeScannerList = null;
+		labelPrinterList = null;
+		sh = null;
+		UniLog.log1("DeviceControl stopped");
+	}
+
+	private static void awaitThreadShutdown(Thread p_thread, long p_deadlineMs, String p_name) {
+		if(p_thread == null || p_thread == Thread.currentThread()) return;
+		long waitMs = Math.max(0L, p_deadlineMs - System.currentTimeMillis());
+		if(waitMs > 0L) {
+			try {
+				p_thread.join(waitMs);
+			}
+			catch(InterruptedException ex) {
+				Thread.currentThread().interrupt();
+			}
+		}
+		if(p_thread.isAlive()) {
+			UniLog.log1("thread stop timeout: %s state:%s", p_name, p_thread.getState());
+		}
+	}
+
+	private static void closeTcpListenSockets() {
+		Hashtable<String,Socket> sockets = tcpListenHash;
+		if(sockets == null) return;
+		synchronized(sockets) {
+			for(Socket socket : sockets.values()) {
+				closeSocket(socket);
+			}
+			sockets.clear();
+		}
+		tcpListenHash = null;
+	}
+
+	private static void closeSocket(Socket p_socket) {
+		if(p_socket == null) return;
+		try {
+			p_socket.close();
+		}
+		catch(IOException ex) {
+			UniLog.log(ex);
+		}
+	}
+
+	private static void closeServerSocket(ServerSocket p_serverSocket) {
+		if(p_serverSocket == null) return;
+		try {
+			p_serverSocket.close();
+		}
+		catch(IOException ex) {
+			UniLog.log(ex);
+		}
 	}
 	
 	synchronized public static String getUniqueEventQueid() {
@@ -759,9 +971,11 @@ public class DeviceControl extends CronJob {
 	}
 	
 	public static void postPhoto(SessionHelper p_sh,String p_devid, Object p_eventdata) {
+		if(shutdownRequested.get()) return;
 		UniLog.log("postPhoto(" + p_devid +")");
 		synchronized(devList) {
 			DevHandler dhdr = devList.get(p_devid);
+			if(dhdr == null && shutdownRequested.get()) return;
 			synchronized(dhdr) {
 				dhdr.photoEventData = p_eventdata;
 				dhdr.notifyAll();

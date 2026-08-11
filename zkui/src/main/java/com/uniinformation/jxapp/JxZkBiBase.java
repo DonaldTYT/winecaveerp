@@ -2628,12 +2628,12 @@ public class JxZkBiBase extends JxZkBase
 			}
 			
 			Vector<BiColumn> resultColumns;
-			if(result.getView().getPreferOrders() == null) {
+			if(result.getView().getPreferListOrders() == null) {
 				resultColumns = result.getColumns();
 			} else {
 				resultColumns = new Vector<BiColumn>();
 				Vector<BiColumn> vCols = result.getColumns();
-				for(String col : result.getView().getPreferOrders()) {
+				for(String col : result.getView().getPreferListOrders()) {
 					BiColumn bc = result.getColumnByLabel(col);
 					
 					if(vCols.contains(bc)) {

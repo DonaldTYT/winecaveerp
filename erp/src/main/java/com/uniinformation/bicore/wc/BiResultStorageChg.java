@@ -14,6 +14,8 @@ import com.uniinformation.bicore.BiResult;
 import com.uniinformation.bicore.BiView;
 import com.uniinformation.bicore.erpv4.BiResultErpv4;
 import com.uniinformation.cell.CellException;
+import com.uniinformation.jx.JxField;
+import com.uniinformation.jx.JxForm;
 import com.uniinformation.rpccall.RpcClient;
 import com.uniinformation.rpccall.Value;
 import com.uniinformation.utils.SelectUtil;
@@ -26,6 +28,9 @@ public class BiResultStorageChg extends BiResultErpv4 {
 	private static final String STORAGE_DETAIL_LINK = "graphql.StorageDet";
 	private static final String STORAGE_CHARGE_LINK = "graphql.StmpostExtSM";
 	private static final int MINIMUM_STORAGE_CHARGE = 90;
+	private static final int VENDOR_QUERY_BATCH_SIZE = 500;
+	private static final double VERIFY_TOLERANCE = 0.000001;
+	private static final int MAX_VERIFY_DIFFERENCES = 30;
 
 	private static class StorageDetailRow {
 		String cocode;
@@ -40,6 +45,18 @@ public class BiResultStorageChg extends BiResultErpv4 {
 			org = p_org;
 			irg = p_irg;
 			pkg = p_pkg;
+		}
+	}
+
+	private static class StorageChargeVolumeRow {
+		String cocode;
+		double storageVolume;
+		double consignmentVolume;
+		double unitPrice;
+		double amount;
+
+		StorageChargeVolumeRow(String p_cocode) {
+			cocode = p_cocode;
 		}
 	}
 
@@ -149,42 +166,60 @@ public class BiResultStorageChg extends BiResultErpv4 {
 		return(row);
 	}
 
-	private BiCellCollection getStorageChargeRow(BiResult result,String cocode) throws Exception {
+	private Map<String,Integer> prepareStorageChargeRows(
+			BiResult result,JxField chargeListField) throws CellException {
+		Map<String,Integer> rowsByCustomer = new LinkedHashMap<String,Integer>();
 		for(int i=0;i<result.getRowCount();i++) {
 			BiCellCollection row = result.getRowCollectionV(i);
-			if(row.getCellString("stmp_cocode").equals(cocode)) {
-				Object trStat = result.getTrStatObj(i);
-				if(result.isMarkedDelete(trStat)) {
-					row.getCell("stmp_svol").set(0.0);
-					row.getCell("stmp_cvol").set(0.0);
-					result.markDelete(trStat,false);
-				}
-				return(row);
+			row.getCell("stmp_svol").set(0.0);
+			row.getCell("stmp_cvol").set(0.0);
+			row.getCell("stmp_sno").set("");
+			result.markDelete(result.getTrStatObj(i),true);
+			if(chargeListField != null) {
+				chargeListField.gridSetDataFormat(-1,i,"add_deleted");
 			}
+			String cocode = row.getCellString("stmp_cocode").trim();
+			if(!rowsByCustomer.containsKey(cocode)) rowsByCustomer.put(cocode,i);
+		}
+		return(rowsByCustomer);
+	}
+
+	private BiCellCollection getStorageChargeRow(
+			BiResult result,Map<String,Integer> rowsByCustomer,String cocode,
+			JxField chargeListField) throws Exception {
+		String customerCode = cocode.trim();
+		Integer rowIndex = rowsByCustomer.get(customerCode);
+		if(rowIndex != null) {
+			Object trStat = result.getTrStatObj(rowIndex);
+			if(result.isMarkedDelete(trStat)) result.markDelete(trStat,false);
+			return(result.getRowCollectionV(rowIndex));
 		}
 
 		BiCellCollection row = result.newRowCollection();
-		row.getCell("stmp_cocode").set(cocode);
+		row.getCell("stmp_cocode").set(customerCode);
 		ReturnMsg rtn = result.addSubRecord(row,result.getRowCount(),"");
 		if(rtn == null || !rtn.getStatus()) {
 			throw new Exception(rtn == null
 					? "Unable to add row to " + STORAGE_CHARGE_LINK : rtn.getMsg());
 		}
+		if(chargeListField != null) {
+			chargeListField.addItemToList(rtn.getData(),result.getRowCount()-1);
+		}
+		rowsByCustomer.put(customerCode,result.getRowCount()-1);
 		return(row);
 	}
 
-	private double storageutil_cal_volume(int irg,String unit,double qty) {
-		RpcClient rpc = getSelectUtil().getRpcClient();
-		Value value = rpc.callSegment(
-				"storageutil_cal_volume",
-				new VectorUtil().addElement(irg).addElement(unit).addElement(qty).toVector()
-				);
-		return(value.toDouble());
+	private double storageutil_cal_volume(BiCellCollection detail,String unit,double qty) {
+		double volume = detail.getCellDouble("st_msize2") * qty;
+		if(unit != null && unit.trim().equalsIgnoreCase("CASE")) {
+			volume *= detail.getCellDouble("st_msize1");
+		}
+		return(volume);
 	}
 
 	private double storageutil_cal_charge(
-			String cocode,double uprice,double volume,Date storageDate) {
-		RpcClient rpc = getSelectUtil().getRpcClient();
+			RpcClient rpc,String cocode,double uprice,double volume,
+			Date storageDate,Date storageEndDate) {
 		Value value = rpc.callSegment(
 				"storageutil_cal_charge",
 				new VectorUtil()
@@ -194,28 +229,114 @@ public class BiResultStorageChg extends BiResultErpv4 {
 				.addElement(0.0)
 				.addElement(0.0)
 				.addElement(storageDate)
-				.addElement(DateUtil.monthEnd(storageDate))
+				.addElement(storageEndDate)
 				.addElement(MINIMUM_STORAGE_CHARGE)
 				.toVector()
 				);
 		return(value.toDouble());
 	}
 
-	private double getVendorStorageCharge(String cocode) throws Exception {
-		TableRec result = getSelectUtil().getQueryResult(
-				"select vd_storchg from vendor where vd_vcode = ?",
-				new Wherecl().appendArgument(cocode)
-				);
-		if(result.getRecordCount() <= 0) return(0.0);
-		result.setRecPointer(0);
-		return(result.getFieldDouble("vd_storchg"));
+	private Map<String,Double> getVendorStorageCharges(ArrayList<String> customerCodes) throws Exception {
+		Map<String,Double> chargesByCustomer = new LinkedHashMap<String,Double>();
+		for(int batchStart=0;batchStart<customerCodes.size();batchStart+=VENDOR_QUERY_BATCH_SIZE) {
+			int batchEnd = Math.min(customerCodes.size(),batchStart+VENDOR_QUERY_BATCH_SIZE);
+			StringBuilder sql = new StringBuilder(
+					"select vd_vcode,vd_storchg from vendor where vd_vcode in (");
+			Wherecl arguments = new Wherecl();
+			for(int i=batchStart;i<batchEnd;i++) {
+				if(i > batchStart) sql.append(',');
+				sql.append('?');
+				arguments.appendArgument(customerCodes.get(i));
+			}
+			sql.append(')');
+			TableRec result = getSelectUtil().getQueryResult(sql.toString(),arguments);
+			for(int i=0;i<result.getRecordCount();i++) {
+				result.setRecPointer(i);
+				chargesByCustomer.put(
+						result.getFieldString("vd_vcode").trim(),
+						result.getFieldDouble("vd_storchg"));
+			}
+		}
+		return(chargesByCustomer);
 	}
 
-	private double getChargeVolume(BiCellCollection row) {
-		String flag = row.getCellString("stmp_flg");
-		if(flag.equals("Storg.")) return(row.getCellDouble("stmp_svol"));
-		if(flag.equals("Consg.")) return(row.getCellDouble("stmp_cvol"));
-		return(row.getCellDouble("stmp_svol") + row.getCellDouble("stmp_cvol"));
+	private boolean compareStorageChargeDouble(ArrayList<String> differences,String rowKey,
+			String field,double expected,double actual) {
+		if(Double.isNaN(expected) != Double.isNaN(actual)
+				|| (!Double.isNaN(expected) && Math.abs(expected-actual) > VERIFY_TOLERANCE)) {
+			differences.add(rowKey+" "+field+": expected="+expected+", actual="+actual);
+		}
+		return(differences.size() >= MAX_VERIFY_DIFFERENCES);
+	}
+
+	private boolean compareStorageChargeString(ArrayList<String> differences,String rowKey,
+			String field,String expected,String actual) {
+		if(!expected.equals(actual)) {
+			differences.add(rowKey+" "+field+": expected="+expected+", actual="+actual);
+		}
+		return(differences.size() >= MAX_VERIFY_DIFFERENCES);
+	}
+
+	private ArrayList<String> verifyStorageChargeRows(
+			BiResult chargeResult,Map<String,StorageChargeVolumeRow> expectedRows,
+			int storageMrg) {
+		ArrayList<String> differences = new ArrayList<String>();
+		boolean[] matchedActualRows = new boolean[chargeResult.getRowCount()];
+		Map<String,Integer> actualIndexByCustomer = new LinkedHashMap<String,Integer>();
+		for(int i=0;i<chargeResult.getRowCount();i++) {
+			if(chargeResult.isMarkedDelete(chargeResult.getTrStatObj(i))) {
+				matchedActualRows[i] = true;
+				continue;
+			}
+			String cocode = chargeResult.getRowCollectionV(i)
+					.getCellString("stmp_cocode").trim();
+			if(!actualIndexByCustomer.containsKey(cocode)) actualIndexByCustomer.put(cocode,i);
+		}
+
+		for(StorageChargeVolumeRow expected : expectedRows.values()) {
+			if(expected.storageVolume == 0.0 && expected.consignmentVolume == 0.0) continue;
+			String rowKey = "cocode="+expected.cocode;
+			Integer actualIndex = actualIndexByCustomer.get(expected.cocode);
+			if(actualIndex == null) {
+				differences.add(rowKey+": missing from "+STORAGE_CHARGE_LINK);
+				if(differences.size() >= MAX_VERIFY_DIFFERENCES) return(differences);
+				continue;
+			}
+			matchedActualRows[actualIndex] = true;
+			BiCellCollection actual = chargeResult.getRowCollectionV(actualIndex);
+			if(actual.getCellInt("stmp_mrg") != storageMrg) {
+				differences.add(rowKey+" stmp_mrg: expected="+storageMrg
+						+", actual="+actual.getCellInt("stmp_mrg"));
+				if(differences.size() >= MAX_VERIFY_DIFFERENCES) return(differences);
+			}
+			if(compareStorageChargeString(differences,rowKey,"stmp_ptype",
+					"SM",actual.getCellString("stmp_ptype"))) return(differences);
+			/*
+			if(compareStorageChargeString(differences,rowKey,"stmp_sno",
+					"",actual.getCellString("stmp_sno"))) return(differences);
+					*/
+			if(compareStorageChargeString(differences,rowKey,"stmp_flg",
+					"Both",actual.getCellString("stmp_flg"))) return(differences);
+			if(compareStorageChargeDouble(differences,rowKey,"stmp_svol",
+					expected.storageVolume,actual.getCellDouble("stmp_svol"))) return(differences);
+			if(compareStorageChargeDouble(differences,rowKey,"stmp_cvol",
+					expected.consignmentVolume,actual.getCellDouble("stmp_cvol"))) return(differences);
+			if(compareStorageChargeDouble(differences,rowKey,"stmp_uprice",
+					expected.unitPrice,actual.getCellDouble("stmp_uprice"))) return(differences);
+			if(compareStorageChargeDouble(differences,rowKey,"stmp_amount",
+					expected.amount,actual.getCellDouble("stmp_amount"))) return(differences);
+			if(compareStorageChargeDouble(differences,rowKey,"stmp_net",
+					expected.amount,actual.getCellDouble("stmp_net"))) return(differences);
+		}
+
+		for(int i=0;i<chargeResult.getRowCount();i++) {
+			if(matchedActualRows[i]) continue;
+			BiCellCollection actual = chargeResult.getRowCollectionV(i);
+			differences.add("cocode="+actual.getCellString("stmp_cocode").trim()
+					+": unexpected row in "+STORAGE_CHARGE_LINK);
+			if(differences.size() >= MAX_VERIFY_DIFFERENCES) return(differences);
+		}
+		return(differences);
 	}
 
 	private void compareStorageDetailInt(ArrayList<String> differences,String rowKey,
@@ -358,49 +479,95 @@ public class BiResultStorageChg extends BiResultErpv4 {
 	}
 
 	public void cal_storage_charge() throws Exception {
+		cal_storage_charge(false,null);
+	}
+
+	public void cal_storage_charge(JxForm jxf) throws Exception {
+		cal_storage_charge(false,jxf);
+	}
+
+	/**
+	 * Calculates storage charges. In verification mode the expected values are
+	 * compared with the current charge rows without modifying the charge BiResult.
+	 *
+	 * @return field-level differences; empty when updating or when verification matches
+	 */
+	public ArrayList<String> cal_storage_charge(boolean verifyOnly) throws Exception {
+		return(cal_storage_charge(verifyOnly,null));
+	}
+
+	public ArrayList<String> cal_storage_charge(boolean verifyOnly,JxForm jxf) throws Exception {
 		Date storageDate = getValidatedStorageDate();
+		Date storageEndDate = DateUtil.monthEnd(storageDate);
+		int storageMrg = getCellInt("storh_mrg");
 		BiResult detailResult = getSubLink(STORAGE_DETAIL_LINK);
 		BiResult chargeResult = getSubLink(STORAGE_CHARGE_LINK);
+		RpcClient rpc = getSelectUtil().getRpcClient();
+		Map<String,StorageChargeVolumeRow> volumesByCustomer =
+				new LinkedHashMap<String,StorageChargeVolumeRow>();
 
-		markAllRowsDeleted(chargeResult);
 		for(int i=0;i<detailResult.getRowCount();i++) {
 			if(detailResult.isMarkedDelete(detailResult.getTrStatObj(i))) continue;
-			BiCellCollection detail = detailResult.getRowCollectionV(i);
-			String cocode = detail.getCellString("stord_cocode");
-			BiCellCollection charge = getStorageChargeRow(chargeResult,cocode);
-
-			double storageVolume = storageutil_cal_volume(
-					detail.getCellInt("stord_irg"),"Btl",detail.getCellInt("stord_sqty"));
-			double consignmentVolume = storageutil_cal_volume(
-					detail.getCellInt("stord_irg"),"Btl",detail.getCellInt("stord_cqty"));
-			charge.getCell("stmp_svol").set(charge.getCellDouble("stmp_svol") + storageVolume);
-			charge.getCell("stmp_cvol").set(charge.getCellDouble("stmp_cvol") + consignmentVolume);
+			if(!detailResult.loadOneRecV(i)) {
+				throw new Exception("Unable to load storage detail row " + i);
+			}
+			BiCellCollection detail = detailResult.getCurrentCollection();
+			String cocode = detail.getCellString("stord_cocode").trim();
+			StorageChargeVolumeRow volumes = volumesByCustomer.get(cocode);
+			if(volumes == null) {
+				volumes = new StorageChargeVolumeRow(cocode);
+				volumesByCustomer.put(cocode,volumes);
+			}
+			volumes.storageVolume += storageutil_cal_volume(
+					detail,"Btl",detail.getCellInt("stord_sqty"));
+			volumes.consignmentVolume += storageutil_cal_volume(
+					detail,"Btl",detail.getCellInt("stord_cqty"));
 		}
 
-		for(int i=0;i<chargeResult.getRowCount();i++) {
-			Object trStat = chargeResult.getTrStatObj(i);
-			if(chargeResult.isMarkedDelete(trStat)) continue;
-			BiCellCollection charge = chargeResult.getRowCollectionV(i);
-			if(charge.getCellDouble("stmp_svol") == 0.0
-					&& charge.getCellDouble("stmp_cvol") == 0.0) {
-				chargeResult.markDelete(trStat,true);
-				continue;
+		ArrayList<String> chargedCustomerCodes = new ArrayList<String>();
+		for(StorageChargeVolumeRow volumes : volumesByCustomer.values()) {
+			if(volumes.storageVolume != 0.0 || volumes.consignmentVolume != 0.0) {
+				chargedCustomerCodes.add(volumes.cocode);
 			}
+		}
+		Map<String,Double> vendorCharges = getVendorStorageCharges(chargedCustomerCodes);
 
-			charge.getCell("stmp_mrg").set(getCellInt("storh_mrg"));
+		for(StorageChargeVolumeRow volumes : volumesByCustomer.values()) {
+			if(volumes.storageVolume == 0.0 && volumes.consignmentVolume == 0.0) continue;
+			Double vendorCharge = vendorCharges.get(volumes.cocode);
+			volumes.unitPrice = vendorCharge == null ? 0.0 : vendorCharge;
+			volumes.amount = storageutil_cal_charge(
+					rpc,volumes.cocode,volumes.unitPrice,
+					volumes.storageVolume+volumes.consignmentVolume,
+					storageDate,storageEndDate);
+		}
+
+		if(verifyOnly) {
+			return(verifyStorageChargeRows(chargeResult,volumesByCustomer,storageMrg));
+		}
+
+		JxField chargeListField = null;
+		if(jxf != null) {
+			chargeListField = jxf.jxAdd(
+					"list_"+chargeResult.getView().getName().replace(".","_"));
+		}
+		Map<String,Integer> chargeRowsByCustomer =
+				prepareStorageChargeRows(chargeResult,chargeListField);
+		for(StorageChargeVolumeRow volumes : volumesByCustomer.values()) {
+			if(volumes.storageVolume == 0.0 && volumes.consignmentVolume == 0.0) continue;
+			BiCellCollection charge = getStorageChargeRow(
+					chargeResult,chargeRowsByCustomer,volumes.cocode,chargeListField);
+			charge.getCell("stmp_mrg").set(storageMrg);
 			charge.getCell("stmp_ptype").set("SM");
 			charge.getCell("stmp_sno").set("");
 			charge.getCell("stmp_flg").set("Both");
-			charge.getCell("stmp_uprice").set(
-					getVendorStorageCharge(charge.getCellString("stmp_cocode")));
-			double amount = storageutil_cal_charge(
-					charge.getCellString("stmp_cocode"),
-					charge.getCellDouble("stmp_uprice"),
-					getChargeVolume(charge),
-					storageDate);
-			charge.getCell("stmp_amount").set(amount);
-			charge.getCell("stmp_net").set(amount);
+			charge.getCell("stmp_svol").set(volumes.storageVolume);
+			charge.getCell("stmp_cvol").set(volumes.consignmentVolume);
+			charge.getCell("stmp_uprice").set(volumes.unitPrice);
+			charge.getCell("stmp_amount").set(volumes.amount);
+			charge.getCell("stmp_net").set(volumes.amount);
 		}
+		return(new ArrayList<String>());
 	}
 
 }

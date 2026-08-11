@@ -6,4 +6,14 @@
 
   <display-name>saleorsync</display-name>
 
+  <!-- Remove SessionHelper active-user tracking and clean session data on timeout/invalidation. -->
+  <listener>
+    <listener-class>com.uniinformation.webcore.SessionListener</listener-class>
+  </listener>
+
+  <!-- Anonymous and not-yet-authenticated sessions expire after one minute. -->
+  <session-config>
+    <session-timeout>1</session-timeout>
+  </session-config>
+
 </web-app>

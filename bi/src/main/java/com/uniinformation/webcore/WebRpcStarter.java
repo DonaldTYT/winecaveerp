@@ -62,19 +62,11 @@ public class WebRpcStarter extends HttpServlet {
 	@Override
 	public void destroy() {
 		UniLog.log1("called");
-		
-		int timeRemain = 10000;
-		WebRpcServer.stoptWebRpcServer();
 		try {
-			while(timeRemain > 0 && WebRpcServer.checkWebRpcServer()) {
-				UniLog.log1("waiting for WebRpcServer end. timeRemain:%d", timeRemain);
-				Thread.sleep(1000);
-				timeRemain-=1000;
-			}
+			WebRpcServer.stopWebRpcServer(10000L);
 		}
-		catch(InterruptedException ex) {
-			ex.printStackTrace();
-			UniLog.log1("got interrupt");
+		finally {
+			super.destroy();
 		}
 	}
 }

@@ -19,7 +19,7 @@ public class RpcServer implements Runnable
   // static private Hashtable service_table = new Hashtable();
   private RpcServletProvider service;
   RpcServerListener listener = null;
-  private boolean finterrupted = false;
+  private volatile boolean finterrupted = false;
   private String defaultServletClass = null;
   private AtomicBoolean isRunningFlag = new AtomicBoolean(false);
 
@@ -28,6 +28,11 @@ public class RpcServer implements Runnable
 	  isRunningFlag.set(true);
 	  UniLog.log("RpcServer run");
 	  for(;;) {
+		  if (finterrupted) {
+			  UniLog.log("Rpc Service stopped");
+			  isRunningFlag.set(false);
+			  return;
+		  }
 		  try {
 			  Socket incoming;
 			  ServerSocket ssock1;
@@ -81,6 +86,11 @@ public class RpcServer implements Runnable
 			  servthread.start();
 		  }
 		  catch (Exception e) {
+			  if (finterrupted) {
+				  UniLog.log("Rpc Service stopped");
+				  isRunningFlag.set(false);
+				  return;
+			  }
 			  UniLog.log(e);
 		  }
 	  }
@@ -207,6 +217,21 @@ public class RpcServer implements Runnable
   /* close the listening socket and stop the accept thread */
   public void stop() {
      finterrupted = true;
+     ServerSocket socketToClose;
+     synchronized(this) {
+        socketToClose = sock;
+        sock = null;
+     }
+     if (socketToClose != null) {
+        try {
+           // Closing the listener immediately releases the port and wakes a
+           // thread blocked in accept().
+           socketToClose.close();
+        }
+        catch (IOException ex) {
+           UniLog.log(ex);
+        }
+     }
   }
   /* after execute of a server connection */
   void afterExecute(RpcServerConnection p_conn) {

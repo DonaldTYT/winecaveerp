@@ -12,11 +12,17 @@ import com.uniinformation.rpccall.Value;
 import com.kyoko.common.*;
 import com.uniinformation.utils.UniLog;
 import com.uniinformation.utils.VectorUtil;
+import com.uniinformation.utils.ZipUtil;
 import com.uniinformation.webcore.SessionHelper;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
+import org.apache.commons.lang3.StringUtils;
 import org.json.JSONObject;
 import org.zkoss.zk.ui.Component;
 import org.zkoss.zul.Filedownload;
@@ -105,7 +111,20 @@ public class PerfJsonRpcCall implements com.uniinformation.zkf.ZkfAction,RpcServ
 			} 
 			if(rtnFileName != null) {
 				InputStream is = p_sh.newErpFileInputStream(rtnFileName);
-    			Filedownload.save(is, rtnFileType, rtnSaveName);
+				String backupZipName = (String)p_target.getAttribute("backupZipName");
+				String backupZipPassword = (String)p_target.getAttribute("backupZipPassword");
+				if (StringUtils.isNotBlank(backupZipName)) {
+					UniLog.log1("backupZipName:%s, backupZipPassword:%s", backupZipName, backupZipPassword);
+					backupZipName = processFileNameTemplate(backupZipName);
+					UniLog.log1("backupZipName:%s", backupZipName);
+					ByteArrayOutputStream fos = new ByteArrayOutputStream();
+					ZipUtil.createZip(backupZipPassword, true, fos, is, rtnSaveName);
+					fos.close();
+					is.close();
+					is = new ByteArrayInputStream(fos.toByteArray());
+					Filedownload.save(is, "application/zip", backupZipName);
+				} else
+					Filedownload.save(is, rtnFileType, rtnSaveName);
 			}
     		return(new ReturnMsg(true,ms));
 		} else {
@@ -141,6 +160,13 @@ public class PerfJsonRpcCall implements com.uniinformation.zkf.ZkfAction,RpcServ
 		// TODO Auto-generated method stub
 		return null;
 	}
+	
+/*
+ *  The following 2 method are removed to make PerfJsonRpcCall independent of ERP related code.
+ *  This 2 method do not have reference from the java source, most likely be call by perf code via rpc.
+ *  may need fix if the perf source that call these 2 method is to be use again in future
+ *  2026-08-07 by DT
+ */
 	
 //	public String getGlDaBalance(String p_cocode,String p_ano,String p_ccy,java.util.Date p_date) {
 //		try {
@@ -187,4 +213,32 @@ public class PerfJsonRpcCall implements com.uniinformation.zkf.ZkfAction,RpcServ
 		rtnFileType = p_filetype;
 		return("OK");
 	}
+	
+	private static String processFileNameTemplate(String input) {
+        Pattern pattern = Pattern.compile("\\{(.+)\\}");
+        Matcher matcher = pattern.matcher(input);
+        StringBuffer result = new StringBuffer();
+        while (matcher.find()) {
+            String type = matcher.group(1);
+            String format = null;
+            int pos;
+            if ((pos = type.indexOf(':')) >= 0) {
+            	format = type.substring(pos + 1);
+            	type = type.substring(0, pos);
+            }
+            try {
+                String formattedValue;
+                if (StringUtils.equals(type, "now"))
+                    formattedValue = DateUtil.dateToDateTimeStr(DateUtil.now(), format);
+                else
+                    formattedValue = matcher.group(0);
+                matcher.appendReplacement(result, formattedValue);
+            } catch (Exception e) {
+            	UniLog.log(e);
+                matcher.appendReplacement(result, matcher.group(0));
+            }
+        }
+        matcher.appendTail(result);
+        return result.toString();
+    }
 }

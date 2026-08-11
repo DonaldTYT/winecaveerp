@@ -58,8 +58,8 @@ public class PrintOldStockOutInv extends PrintOldDocMulti {
 	private static final ArrayList<String> mail_cc_list = new ArrayList<String>(Arrays.asList(
 			"anita@winecavehk.com",
 			"storage@winecavehk.com",
-			"general@winecavehk.com",
-			"tyt223@gmail.com"));
+			"general@winecavehk.com"
+			));
 	private ZkBiAiAgentContext aiAgentContext;
 
 	public PrintOldStockOutInv() {
@@ -324,7 +324,11 @@ public class PrintOldStockOutInv extends PrintOldDocMulti {
 				String cocode = invoice.getCellString("stmp_cocode");
 				updateProgress(String.format("Processing %d of %d: %s",
 						nextIndex,invoices.size(),cocode));
-				if(RealSendEmail && isBlank(invoice.getCellString("vd_email"))) {
+				if(invoice.getCellDouble("stmp_net") == 0.0) {
+					skippedCount++;
+					updateEmailRemark(invoice,"skip");
+					UniLog.log("Skip " + getInvoiceDescription() + " with zero net amount: " + cocode);
+				} else if(RealSendEmail && isBlank(invoice.getCellString("vd_email"))) {
 					skippedCount++;
 					updateEmailRemark(invoice,"skip");
 					UniLog.log("Skip " + getInvoiceDescription() + " with no customer email: " + cocode);

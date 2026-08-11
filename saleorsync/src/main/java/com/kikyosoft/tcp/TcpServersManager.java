@@ -29,7 +29,24 @@ public class TcpServersManager implements SmartLifecycle {
  public void stop() {
      if (running.compareAndSet(true, false)) {
          System.out.println("[TCP] Manager stopping servers...");
-         for (TcpServerInstance s : servers) s.stop();
+         // Signal every listener first. A slow worker pool from one server must
+         // not delay closing the listening socket and clients of another server.
+         for (TcpServerInstance s : servers) s.requestStop();
+
+         long deadline = System.currentTimeMillis() + 15000L;
+         for (TcpServerInstance s : servers) {
+             s.awaitStopped(Math.max(0L, deadline - System.currentTimeMillis()));
+         }
+     }
+ }
+
+ @Override
+ public void stop(Runnable callback) {
+     try {
+         stop();
+     } finally {
+         // Required by SmartLifecycle so Spring can continue context shutdown.
+         callback.run();
      }
  }
 

@@ -50,6 +50,9 @@ maxAge = 3600
 @RequestMapping("/erp")
 public class ErpApiController {
 
+  private static final int ANONYMOUS_SESSION_TIMEOUT_SECONDS = 60;
+  private static final int AUTHENTICATED_SESSION_TIMEOUT_SECONDS = 30 * 60;
+
   private final ObjectMapper om = new ObjectMapper();
 
   @PostMapping(value = "/login",
@@ -111,11 +114,14 @@ public class ErpApiController {
       HttpServletResponse response
   ) {
 	  WinecaveSessionHelper sp = (WinecaveSessionHelper) WinecaveSessionHelper.getSessionHelper(request, response,true);
+	  setExistingSessionTimeout(request, ANONYMOUS_SESSION_TIMEOUT_SECONDS);
     if (!erpLogin(sp,loginid, password,request,response)) {
       // You can also tweak the raw response here if needed
       // response.setHeader("X-Auth-Reason", "Bad credentials");
       return ResponseEntity.status(401).body(ErpLoginResponse.error("Invalid loginid or password"));
     }
+
+	setExistingSessionTimeout(request, AUTHENTICATED_SESSION_TIMEOUT_SECONDS);
 
     // Ensure servlet session exists & attach attributes for later ERP APIs
 //    session.setAttribute("erp_user_loginid", loginid);
@@ -133,6 +139,13 @@ public class ErpApiController {
     String shortName = sp.getWebLoginId();
 
     return ResponseEntity.ok(ErpLoginResponse.ok(saleorEmail, saleorPassword, shortName));
+  }
+
+  private static void setExistingSessionTimeout(HttpServletRequest request, int timeoutSeconds) {
+    HttpSession session = request.getSession(false);
+    if (session != null) {
+      session.setMaxInactiveInterval(timeoutSeconds);
+    }
   }
 
   // ---------- Helpers ----------
@@ -239,8 +252,8 @@ public class ErpApiController {
       HttpServletRequest request,
       HttpServletResponse response
   ) {
-	WinecaveSessionHelper sp = (WinecaveSessionHelper) WinecaveSessionHelper.getSessionHelper(request, response);
-	if(!sp.isLogin()) {
+	SessionHelper currentSessionHelper = SessionHelper.checkSessionHelper(request);
+	if (!(currentSessionHelper instanceof WinecaveSessionHelper) || !currentSessionHelper.isLogin()) {
 		/*
 		  return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
 	                .body(Map.of(
@@ -252,6 +265,7 @@ public class ErpApiController {
 		return ResponseEntity.ok(java.util.Map.of("ok", false, "loginid", "Not Logged In"));
 //		return ResponseEntity.ok(java.util.Map.of("ok", true , "loginid", "Not Logged In"));
 	} else {
+		WinecaveSessionHelper sp = (WinecaveSessionHelper) currentSessionHelper;
 		synchronized(sp) {
 		Date dNow = new Date();
 		Date dLast= sp.getLastAccess();

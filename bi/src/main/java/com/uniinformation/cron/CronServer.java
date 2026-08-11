@@ -107,63 +107,79 @@ public class CronServer implements Runnable{
 	public static void stop(long p_timeout) {
 		long timeout = p_timeout < 60000 ? 60000 : p_timeout;
 		UniLog.log1("called: timeout:%d", timeout);
-		
-		//request to stop all thread
-		if(agentHash == null) {
-			return;
-		}
-		synchronized(agentHash) {
-			for (String key : agentHash.keySet()) {
-				try {
-					UniLog.log1("stop %s",key);
-					agentHash.get(key).fStop.set(true);
-					agentHash.get(key).cronJob.stop();
-					agentHash.get(key).servthread.interrupt();
-				}
-				catch(Exception ex) {
-					ex.printStackTrace();
-				}
+
+		List<CronServer> servers;
+		Hashtable<String,CronServer> currentAgentHash;
+		synchronized(CronServer.class) {
+			currentAgentHash = agentHash;
+			if(currentAgentHash == null) return;
+			synchronized(currentAgentHash) {
+				servers = new ArrayList<CronServer>(currentAgentHash.values());
 			}
 		}
-		
-		//wait for all thread end. 
-		long expireTime = new Date().getTime() + timeout;
-		synchronized(agentHash) {
-			for (;;) {
-				int aliveCnt = 0;
-				long curTime = new Date().getTime();
-				int timeRemain = (int) (expireTime - curTime) /1000;
-				for (String key : agentHash.keySet()) {
-					try {
-						Thread thread = agentHash.get(key).servthread;
-						if (thread.isAlive()) {
-							UniLog.log1("cron:%s still alive:%s state:%s timeremain:%d",key, thread.isAlive(), thread.getState(), timeRemain);
-							aliveCnt++;
-						}
-					}
-					catch(Exception ex) {
-						ex.printStackTrace();
-					}
-				}
-				if (aliveCnt == 0) {
-					UniLog.log1("no more thread alive.");
-					break;
-				}
-				if (curTime > expireTime) {
-					UniLog.log1("stop timeout");
-					break;
-				}
-				
-				//sleep awhile
-				try {
-					Thread.sleep(5000);
-				}
-				catch(Exception ex) {
-					ex.printStackTrace();
-				}
+
+		// Do not hold the registry lock while calling application stop methods.
+		// A slow or synchronized CronJob.stop() must not prevent the other jobs
+		// from receiving their shutdown signal.
+		for(CronServer server : servers) {
+			server.fStop.set(true);
+			try {
+				UniLog.log1("stop %s:%s", server.agent,
+					server.cronJob == null ? "null" : server.cronJob.getClass().getName());
+				if(server.cronJob != null) server.cronJob.stop();
+			}
+			catch(Exception ex) {
+				UniLog.log(ex);
+			}
+			finally {
+				// Always interrupt the outer poll/sleep thread, even when stop() fails.
+				if(server.servthread != null) server.servthread.interrupt();
 			}
 		}
-		
-		
+
+		long expireTime = System.currentTimeMillis() + timeout;
+		for(CronServer server : servers) {
+			Thread thread = server.servthread;
+			if(thread == null || thread == Thread.currentThread()) continue;
+			long waitMs = Math.max(0L, expireTime - System.currentTimeMillis());
+			if(waitMs > 0L) {
+				try {
+					thread.join(waitMs);
+				}
+				catch(InterruptedException ex) {
+					Thread.currentThread().interrupt();
+					break;
+				}
+			}
+			if(thread.isAlive()) {
+				UniLog.log1("cron:%s still alive state:%s", server.agent, thread.getState());
+			}
+		}
+
+		for(CronServer server : servers) {
+			Thread thread = server.servthread;
+			if(thread != null && thread.isAlive()) continue;
+			if(server.sessionHelper != null) {
+				try {
+					server.sessionHelper.cleanSessionData();
+				}
+				catch(Exception ex) {
+					UniLog.log(ex);
+				}
+			}
+			server.sessionHelper = null;
+			server.cronJob = null;
+			server.svc = null;
+		}
+
+		synchronized(CronServer.class) {
+			if(agentHash == currentAgentHash) {
+				synchronized(currentAgentHash) {
+					currentAgentHash.clear();
+				}
+				agentHash = null;
+			}
+		}
+		UniLog.log1("cron shutdown complete");
 	}
 }

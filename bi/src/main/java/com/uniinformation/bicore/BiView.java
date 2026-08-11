@@ -1442,9 +1442,6 @@ public class BiView extends BiChain {
 	public List<String> getPreferListOrders() {
 		return(preferListOrders);
 	}
-	public List<String> getPreferOrders() {
-		return(preferListOrders);
-	}
 	
 	public boolean allowUndo() {
 		return(allowUndo);

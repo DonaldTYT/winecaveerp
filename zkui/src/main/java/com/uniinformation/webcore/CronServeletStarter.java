@@ -139,7 +139,22 @@ public class CronServeletStarter extends HttpServlet  {
 	@Override
 	public void destroy() {
 		UniLog.log1("called");
-		CronServer.stop(60000);
-		super.destroy();
+		try {
+			if (!WebRpcServer.stopWebRpcServer(15000L)) {
+				UniLog.log1("cron RpcServer did not stop within timeout");
+			}
+		}
+		catch (Exception ex) {
+			UniLog.log(ex);
+		}
+		try {
+			CronServer.stop(60000);
+		}
+		catch (Exception ex) {
+			UniLog.log(ex);
+		}
+		finally {
+			super.destroy();
+		}
 	}
 }

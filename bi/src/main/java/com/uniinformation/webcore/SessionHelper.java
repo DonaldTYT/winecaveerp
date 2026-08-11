@@ -670,7 +670,14 @@ abstract public class SessionHelper {
 		return(fLogin);
 	} 
 	
-	final public static SessionHelper testSessionHelper(HttpServletRequest p_request) {
+	/***
+	 * Return the SessionHelper already attached to the current HTTP session.
+	 * This method never creates an HTTP session or a SessionHelper.
+	 *
+	 * @param p_request current HTTP request
+	 * @return the attached SessionHelper, or null when no session/helper exists
+	 */
+	final public static SessionHelper checkSessionHelper(HttpServletRequest p_request) {
 		if (p_request == null) {
 			return null;
 		}
@@ -680,6 +687,13 @@ abstract public class SessionHelper {
 		}
 		SessionHelper sessionHelper = (SessionHelper) session.getAttribute(getNameByContextPath(p_request.getContextPath()));
 		return(sessionHelper);
+	}
+	/***
+	 * @deprecated Use {@link #checkSessionHelper(HttpServletRequest)}.
+	 */
+	@Deprecated
+	final public static SessionHelper testSessionHelper(HttpServletRequest p_request) {
+		return checkSessionHelper(p_request);
 	}
 	/***
 	 * check login status by http request
@@ -2282,20 +2296,41 @@ abstract public class SessionHelper {
 	}
 
 	public void cleanSessionData() {
-		try {
-			if(sessionData != null) {
-				for(Iterator it = sessionData.values().iterator();it.hasNext();) {
-					Object o = it.next();
-					cleanSessionObject(o);
-	
-				}
-				cleanExpiredSessionDataEx();
+		Hashtable currentSessionData = sessionData;
+		if(currentSessionData == null) {
+			return;
+		}
+
+		List sessionObjects;
+		synchronized(currentSessionData) {
+			sessionObjects = new ArrayList(currentSessionData.values());
+		}
+		for(Object o : sessionObjects) {
+			long cleanupStart = System.currentTimeMillis();
+			try {
+				cleanSessionObject(o);
 			}
-			//((ZkSessionHelper)this).cleanDeviceQue();
+			catch(Exception ex) {
+				// One failed object must not prevent the remaining session resources
+				// from being closed.
+				UniLog.log(ex);
+			}
+			finally {
+				long cleanupElapsed = System.currentTimeMillis() - cleanupStart;
+				if(cleanupElapsed >= 1000L) {
+					UniLog.log1("slow session object cleanup: class:%s elapsedMs:%d",
+						o == null ? "null" : o.getClass().getName(), cleanupElapsed);
+				}
+			}
+		}
+
+		try {
+			cleanExpiredSessionDataEx();
 		}
 		catch(Exception ex) {
-			ex.printStackTrace();
+			UniLog.log(ex);
 		}
+		//((ZkSessionHelper)this).cleanDeviceQue();
 	}
 
 	public InputStream openResourceAsStream(String p_path) {
@@ -3916,35 +3951,34 @@ abstract public class SessionHelper {
 				return;
 			}
 
-			synchronized(activeUserListHM){
-				ActiveUserInfo userInfo = activeUserListHM.get(sessionKey);
+			ActiveUserInfo userInfo = activeUserListHM.get(sessionKey);
 
-				//add new active user
-				if (userInfo == null && p_sh != null){
-					Date curDate = new Date();
-					userInfo = new ActiveUserInfo(p_sh.getLoginId(), p_sh.getAgent(), p_sh.getRemoteAddr(), curDate, curDate, sessionKey);
-					activeUserListHM.put(sessionKey, userInfo);
+			// Add without a map-wide lock. Concurrent requests for the same new
+			// session converge on the object that wins putIfAbsent().
+			if (userInfo == null && p_sh != null){
+				Date curDate = new Date();
+				ActiveUserInfo newUserInfo = new ActiveUserInfo(p_sh.getLoginId(), p_sh.getAgent(), p_sh.getRemoteAddr(), curDate, curDate, sessionKey);
+				ActiveUserInfo existingUserInfo = activeUserListHM.putIfAbsent(sessionKey, newUserInfo);
+				userInfo = existingUserInfo == null ? newUserInfo : existingUserInfo;
+			}
+			if (userInfo == null) {
+				UniLog.log1("userinfo is null");
+				return;
+			}
+
+			// Synchronize only this session's record; unrelated sessions can update
+			// concurrently.
+			synchronized(userInfo) {
+				if (p_sh != null) {
+					userInfo.loginId = p_sh.loginId;
+					userInfo.agent = p_sh.iniAgent;
+					userInfo.ip = p_sh.remoteAddr;
+					userInfo.activeDesktopStr = p_sh.activeDesktopStr;
 				}
-				if (userInfo == null) {
-					UniLog.log1("userinfo is null");
-					return;
-				}
 
-				//update active user
-				synchronized(userInfo) {
-					//with sh, can update all data
-					if (p_sh != null) {
-						userInfo.loginId = p_sh.loginId;
-						userInfo.agent = p_sh.iniAgent;
-						userInfo.ip = p_sh.remoteAddr;
-						userInfo.activeDesktopStr = p_sh.activeDesktopStr;
-					}
-
-					//without sh, can update access time / url only
-					userInfo.lastAccessTime = new Date();
-					if (StringUtils.isNotBlank(p_url)) { //if url is blank, preserve last url
-						userInfo.lastAccessUrl = p_url; 
-					}
+				userInfo.lastAccessTime = new Date();
+				if (StringUtils.isNotBlank(p_url)) { //if url is blank, preserve last url
+					userInfo.lastAccessUrl = p_url;
 				}
 			}
 			
@@ -3955,12 +3989,7 @@ abstract public class SessionHelper {
 		
 	}
 	public static void deleteActiveUser(String p_key){
-		UniLog.logm(null,"key:%s", p_key);
-		synchronized(activeUserListHM){
-			if (activeUserListHM.get(p_key) != null){
-				activeUserListHM.remove(p_key);
-			}
-		}
+		activeUserListHM.remove(p_key);
 	}
 	/***
 	 * users count including nologin session
@@ -3996,13 +4025,16 @@ abstract public class SessionHelper {
 	 * @return
 	 */
 	public ActiveUserInfo getActiveUserInfo(){
-		synchronized(activeUserListHM){
-			ActiveUserInfo aui = activeUserListHM.get(sessionKey);
+		ActiveUserInfo aui = activeUserListHM.get(sessionKey);
+		if(aui == null) {
+			return null;
+		}
+		synchronized(aui){
 			try{
-				return(aui == null ? null : aui.clone());
+				return(aui.clone());
 			}
 			catch(Exception ex){
-				ex.printStackTrace();
+				UniLog.log(ex);
 				return(null);
 			}
 		}
@@ -5597,14 +5629,14 @@ abstract public class SessionHelper {
     }
     
     private void parseUserAgent(HttpServletRequest p_request) {
-    	userAgent = null;
-    	try {
-    		String userAgentStr = p_request.getHeader("User-Agent");
-		  	userAgent = userAgentAnalyzeruaa.parse(userAgentStr);
-		  	UniLog.log1("userAgent:%s", userAgent);
-    	} catch (Exception e) {
-    		UniLog.log(e);
-    	}
+        userAgent = null;
+        try {
+            String userAgentStr = p_request.getHeader("User-Agent");
+            userAgent = userAgentAnalyzeruaa.parse(userAgentStr);
+            UniLog.log1("userAgent:%s", userAgentStr);
+        } catch (Exception e) {
+            UniLog.log(e);
+        }
     }
     
     public UserAgent getUserAgent() {

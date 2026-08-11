@@ -38,6 +38,9 @@ maxAge = 3600
 @RequestMapping("/bicore")
 public class BiCoreController {
 
+  private static final int ANONYMOUS_SESSION_TIMEOUT_SECONDS = 60;
+  private static final int AUTHENTICATED_SESSION_TIMEOUT_SECONDS = 30 * 60;
+
   private final ObjectMapper om = new ObjectMapper();
 
   @GetMapping(value = "/ping", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -57,8 +60,10 @@ public class BiCoreController {
     String password = request.getParameter("password");
 	  try {
 		  SessionHelper sp = ZkSessionHelper.getSessionHelper(request, response,true);
+		  request.getSession(false).setMaxInactiveInterval(ANONYMOUS_SESSION_TIMEOUT_SECONDS);
 		  ReturnMsg rtn =sp.login(loginid, password) ;
 		  if(rtn != null && rtn.getStatus()) {
+			  request.getSession(false).setMaxInactiveInterval(AUTHENTICATED_SESSION_TIMEOUT_SECONDS);
 			  return ResponseEntity.ok(java.util.Map.of("ok", true));
 		  } else {
 			  return ResponseEntity.ok(java.util.Map.of("ok", false));
