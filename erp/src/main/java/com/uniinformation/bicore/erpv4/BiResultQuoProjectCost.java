@@ -62,7 +62,7 @@ public class BiResultQuoProjectCost extends BiResultErpv4 {
 			UniLog.log(p_ex);
 		}
 	}	
-
+	
 	AbstractGetItemProperty getDetList() {
 		return(orddetList);
 	}

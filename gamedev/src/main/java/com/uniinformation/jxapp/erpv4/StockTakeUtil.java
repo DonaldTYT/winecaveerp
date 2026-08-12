@@ -1,6 +1,7 @@
 package com.uniinformation.jxapp.erpv4;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Comparator;
 import java.util.Hashtable;
 import java.util.Set;
@@ -8,15 +9,16 @@ import java.util.Vector;
 
 import com.kyoko.common.DateUtil;
 import com.kyoko.common.ReturnMsg;
-//import com.sun.xml.internal.ws.policy.privateutil.PolicyUtils.Collections;
 import com.uniinformation.bicore.BiCellCollection;
 import com.uniinformation.bicore.BiResult;
 import com.uniinformation.bicore.erpv4.BiResultStmov;
+import com.uniinformation.cell.AbstractGetItemProperty;
 import com.uniinformation.cell.Cell;
 import com.uniinformation.erpv4.Erpv4Config;
+import com.uniinformation.erpv4.GenbucketUtil;
 import com.uniinformation.jx.JxField;
 import com.uniinformation.jx.JxForm;
-import com.uniinformation.cell.AbstractGetItemProperty;
+import com.uniinformation.jxapp.JxZkBiBase;
 import com.uniinformation.utils.SelectUtil;
 import com.uniinformation.utils.TableRec;
 import com.uniinformation.utils.UniLog;
@@ -121,7 +123,7 @@ public class StockTakeUtil {
 		
 	}
 
-	public boolean fixFiFo(BiResult p_br,JxForm p_jxf,Double p_tolQty) throws Exception {
+	public boolean fixFiFo(BiResult p_br,JxZkBiBase p_jxf,Double p_tolQty) throws Exception {
 		boolean needFix = false;
 		UniLog.log("fix fifo");
 		BiResult sr = p_br.getSubLinkByTable("stocktake");
@@ -192,7 +194,7 @@ public class StockTakeUtil {
 		return(needFix);
 	}
 	
-	public boolean fixFiFo2(BiResult p_br,JxForm p_jxf,double tolQty) throws Exception {
+	public boolean fixFiFo2(BiResult p_br,JxZkBiBase p_jxf,double tolQty) throws Exception {
 		boolean needFix = false;
 		UniLog.log("fix fifo");
 		BiResult sr = p_br.getSubLinkByTable("stocktake");
@@ -245,7 +247,7 @@ public class StockTakeUtil {
 	}	
 	
 	
-	public void syncBalance(BiResult p_br,JxForm p_jxf) throws Exception {
+	public void syncBalance(BiResult p_br,JxZkBiBase p_jxf) throws Exception {
 		UniLog.log("Sync Balance");
 
 
@@ -320,7 +322,7 @@ public class StockTakeUtil {
 	}	
 	
 
-	public void syncDelta(BiResult p_br,JxForm p_jxf) throws Exception {
+	public void syncDelta(BiResult p_br,JxZkBiBase p_jxf) throws Exception {
 //		for(Enumeration e : balanceHash.keys()) {
 		
 		UniLog.log("Sync Delta");
@@ -460,7 +462,7 @@ public class StockTakeUtil {
 		return(sr.getRowCount() > 0) ;
 	}
 
-	public void convertStock(BiResult p_br,int p_fromIrg,int p_toIrg,JxForm p_jxf) throws Exception {
+	public void convertStock(BiResult p_br,int p_fromIrg,int p_toIrg,JxZkBiBase p_jxf) throws Exception {
 		
 		UniLog.log("Sync Delta");
 //		BiResult sr = p_br.getSubLinkByTable("stmovd_any");

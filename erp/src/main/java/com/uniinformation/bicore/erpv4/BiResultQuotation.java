@@ -37,7 +37,6 @@ import com.uniinformation.utils.Wherecl;
 
 import com.uniinformation.webcore.SessionHelper;
 
-//import org.zkoss.json.parser.JSONParser;
 import org.apache.commons.lang3.StringUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -165,11 +164,14 @@ public class BiResultQuotation extends BiResultErpv4 {
 			} else {
 				totGr += col.getCell("ind_amount").getDouble();
 				if(modeG2) {
+					/*
 					if(comboCol == null) {
 						col.getCell("ind_subitem").set("N");
 					} else {
 						col.getCell("ind_subitem").setMode(Cell.VMODE_NORMAL);
 					}
+					*/
+					col.getCell("ind_subitem").setMode(Cell.VMODE_NORMAL);
 				}
 				if(comboCol != null && (!modeG2 || col.getCell("ind_subitem").getBoolean())) {
 					double sd = comboCol.getCell("ind_setamount").getDouble();

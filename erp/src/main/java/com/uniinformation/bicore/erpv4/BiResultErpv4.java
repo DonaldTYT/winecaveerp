@@ -11,6 +11,7 @@ import org.json.JSONObject;
 
 import com.uniinformation.bicore.erpv4.Erpv4BaseCellCollection;
 import com.google.gson.JsonObject;
+import com.kyoko.common.ReturnMsg;
 import com.uniinformation.bicore.BiCellCollection;
 import com.uniinformation.bicore.BiResult;
 import com.uniinformation.bicore.BiView;
@@ -18,7 +19,7 @@ import com.uniinformation.cell.Cell;
 import com.uniinformation.cell.CellCollection;
 import com.uniinformation.cell.CellException;
 import com.uniinformation.cell.CellValueAction;
-import com.uniinformation.erpv4.BiConfig;
+import com.uniinformation.erpv4.Erpv4Config;
 import com.uniinformation.erpv4.PrtdocMulti;
 import com.uniinformation.prtdoc.PrtdocClass;
 import com.uniinformation.prtdoc.PrtdocJson;
@@ -26,7 +27,6 @@ import com.uniinformation.rpccall.RpcClient;
 import com.uniinformation.rpccall.Strval;
 import com.uniinformation.rpccall.Value;
 import com.uniinformation.utils.DynamicClassLoader;
-import com.kyoko.common.*;
 import com.uniinformation.utils.SelectUtil;
 import com.uniinformation.utils.UniLog;
 import com.uniinformation.utils.VectorUtil;
@@ -62,7 +62,7 @@ public class BiResultErpv4 extends BiResult {
 		rpc.callSegment("setCocodeBaseccy",
 				new VectorUtil()
 				.addElement(p_cocode)
-				.addElement(BiConfig.getBaseCcy(p_br.getSessionHelper(),p_cocode))
+				.addElement(Erpv4Config.getBaseCcy(p_br.getSessionHelper(),p_cocode))
 				.toVector()
 				);
 		Value val = rpc.callSegment("getrg_byrgcontrol_bycategory",
@@ -111,7 +111,7 @@ public class BiResultErpv4 extends BiResult {
 			String coCode = p_coCode;
 			String docCode = p_docCode;
 			String paperType = p_paperType;
-			if(coCode == null) coCode = BiConfig.getDefaultCoCode(getSessionHelper());
+			if(coCode == null) coCode = Erpv4Config.getDefaultCoCode(getSessionHelper());
 			if(docCode == null) docCode = "GENINV01";
 			if(paperType == null) paperType = "A4P";
     		PrtdocJson ppj = PrtdocJson.newPrtdocJson(	

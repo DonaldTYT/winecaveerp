@@ -7,6 +7,8 @@ import java.util.Vector;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import com.kyoko.common.DateUtil;
+import com.kyoko.common.ReturnMsg;
 import com.uniinformation.bicore.BiColumn;
 import com.uniinformation.bicore.BiTable;
 import com.uniinformation.bicore.BiView;
@@ -14,7 +16,6 @@ import com.uniinformation.bicore.ColumnCell;
 import com.uniinformation.cell.Cell;
 import com.uniinformation.cell.CellCollection;
 import com.uniinformation.rpccall.Value;
-import com.kyoko.common.*;
 import com.uniinformation.utils.UniLog;
 import com.uniinformation.utils.VectorUtil;
 import com.uniinformation.webcore.SessionHelper;
@@ -200,7 +201,7 @@ public class RecSyncErpv4 extends RecSyncBi {
 		@Override
 		protected String getRemoteHosts(CellCollection p_bicol) {
 			// TODO Auto-generated method stub
-			String RecSyncHost = BiConfig.getString(sessionHelper,"RecSyncHost" );
+			String RecSyncHost = Erpv4Config.getString(sessionHelper,"RecSyncHost" );
 			JSONArray ja = new JSONArray();
 			ja.put(RecSyncHost);
 			return(ja.toString());
@@ -268,12 +269,6 @@ public class RecSyncErpv4 extends RecSyncBi {
 	public void setSessionHelper(SessionHelper p_sh) throws Exception {
 		super.setSessionHelper(p_sh);
 		RecSync.addRpcClass(p_sh.getAgent(),"com.uniinformation.erpv4.RecSyncErpv4RpcServlet");
-	}
-	public String getErpCostCache(int p_irg,int p_org) throws Exception {
-		return (CostCalculation.getWaCostCache(sessionHelper, p_irg, p_org));
-	}
-	public String getErpStockStatus(int p_irg,int p_org) throws Exception {
-		return (CostCalculation.getErpStockStatus(sessionHelper, p_irg, p_org));
 	}
 
 }

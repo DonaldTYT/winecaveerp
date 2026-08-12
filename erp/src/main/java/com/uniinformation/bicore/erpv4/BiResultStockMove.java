@@ -168,8 +168,6 @@ public class BiResultStockMove extends BiResultErpv4 {
 								UniLog.log(cex);
 							}
 //							double balance = accu.getBalanceEnd(BaseAccumulator.accMaxDate);
-//							double freestock = getCell("stg_freestock").getDouble();
-//							double reserved = getCell("stg_reserved").getDouble();
 							String cocode = Erpv4Config.getDefaultCoCode(getSessionHelper());
 							int org = Erpv4Config.getCoWtAvOrg(getSessionHelper(), cocode);
 							boolean iog = Erpv4Config.ignoreOrgInCost(getSessionHelper());
@@ -201,7 +199,7 @@ public class BiResultStockMove extends BiResultErpv4 {
 			String module = col.getCellString("stm_module");
 			String stmtype = col.getCellString("stm_type");
 			String ref1 = col.getCellString("stm_ref1");
-			UniLog.log("HAHA230303 getLinkedView " + ref1 + " : " + module + " : " + stmtype);
+//			UniLog.log("HAHA230303 getLinkedView " + ref1 + " : " + module + " : " + stmtype);
 			if(stmtype.equals("GM")) return("erpv4.GR");
 			if(module.equals("cstmo")) {
 				return("erpv4.MoCustomer");

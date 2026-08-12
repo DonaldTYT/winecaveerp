@@ -223,7 +223,7 @@ public class BiResultStockLedgerMulti extends BiResultLedger {
 		return(super.brEvalFunction(p_functName, p_args));
     }
 	@Override
-	public void setLedgerDate(Date p_openBalDate, Date p_closeBalDate) {
+	public void setLedgerDate(Date d1, Date d2) {
 		// TODO Auto-generated method stub
 		
 	}

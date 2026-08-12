@@ -33,7 +33,6 @@ import com.uniinformation.jx.zk.ZkJxPickInput;
 import com.uniinformation.jxapp.JxSelOpt;
 import com.uniinformation.jxapp.JxZkBiBase;
 import com.uniinformation.prtdoc.PrtdocClass;
-import com.uniinformation.utils.AttachmentUploadInterface;
 import com.uniinformation.utils.BiMedia;
 import com.uniinformation.utils.DynamicClassLoader;
 import com.uniinformation.utils.ListUtil;
@@ -45,6 +44,7 @@ import com.uniinformation.utils.ZkUtil;
 import com.uniinformation.webcore.SessionHelper;
 import com.uniinformation.zkbi.ZkBiCellValueMapper;
 import com.uniinformation.zkbi.ZkBiGetItemProperty;
+import com.uniinformation.utils.AttachmentUploadInterface;
 
 public class QuotationG2 extends JxZkBiBase{
 

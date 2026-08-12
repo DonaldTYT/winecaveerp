@@ -7,17 +7,15 @@ import java.util.List;
 import java.util.Vector;
 
 import com.kyoko.common.DateUtil;
-import com.uniinformation.erpv4.BiConfig;
 import com.uniinformation.erpv4.Erpv4Config;
 import com.uniinformation.utils.SelectUtil;
 import com.uniinformation.utils.TableRec;
 import com.uniinformation.utils.TranslateListGetItemProperty;
-import com.uniinformation.utils.TranslateUtil;
 import com.uniinformation.utils.UniLog;
 import com.uniinformation.utils.VectorUtil;
 import com.uniinformation.utils.Wherecl;
+import com.uniinformation.utils.TranslateUtil;
 import com.uniinformation.webcore.SessionHelper;
-//import com.uniinformation.zkbi.ZkBiTranslateHelper;
 
 public class Erpv4StockAttribute {
 	/*

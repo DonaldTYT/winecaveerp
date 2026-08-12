@@ -5,9 +5,6 @@ import java.io.ByteArrayOutputStream;
 import java.util.HashSet;
 import java.util.Vector;
 
-//import org.zkoss.zk.ui.Component;
-//import org.zkoss.zul.Messagebox;
-
 import com.kyoko.common.DateUtil;
 import com.kyoko.common.ReturnMsg;
 import com.kyoko.common.StringUtil;
@@ -33,10 +30,7 @@ import com.uniinformation.utils.SelectUtil;
 import com.uniinformation.utils.TableRec;
 import com.uniinformation.utils.UniLog;
 import com.uniinformation.utils.Wherecl;
-//import com.uniinformation.utils.ZkUtil;
 import com.uniinformation.webcore.SessionHelper;
-//import com.uniinformation.zkbi.BiActionHandler;
-//import com.uniinformation.zkbi.ZkBiComposerBase;
 
 public class BiResultStmov extends BiResultErpv4 {
 	static public final String GEN_MO_STMOVD_LINK = "erpv4.MoGenericDet";
@@ -638,7 +632,7 @@ public class BiResultStmov extends BiResultErpv4 {
 						if(mrg == 64) {
 							if(wcl == null ) wcl = new Wherecl();
 							/* HAHA Modified */
-							wcl.appendString(" and toloc.loc_code in ('HZ01','CTL03','TST06','DVR02','PDHQ','PPDVRT','DSCT1','DSCT2','PO005','NC005','PANA05') ").stripAnd();
+							wcl.appendString(" and toloc.loc_code in ('HZ01','CTL03','TST06','DVR02','PDHQ','PPDVRT','DSCT1','DSCT2','PO005','NC005','PANA05','PRHT02') ").stripAnd();
 						} 
 					}
 					if(p_lookupTable.getName().equals("fromloc")) {

@@ -8,7 +8,6 @@ import com.uniinformation.bicore.BiResult;
 import com.uniinformation.bicore.ColumnCell;
 import com.uniinformation.cell.AbstractGetItemProperty;
 import com.uniinformation.jxapp.JxZkBiBase;
-//import com.uniinformation.utils.AbstractGetItemProperty;
 import com.uniinformation.zkbi.ZkBiGetItemProperty;
 
 public class PresetMaster extends JxZkBiBase {

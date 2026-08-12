@@ -11,6 +11,9 @@ import java.util.Vector;
 
 import org.apache.commons.lang3.StringUtils;
 
+import com.kyoko.common.DateUtil;
+import com.kyoko.common.Sprintf;
+import com.kyoko.common.StringUtil;
 import com.uniinformation.bicore.BiCellCollection;
 import com.uniinformation.bicore.BiResult;
 import com.uniinformation.bicore.BiSchema;
@@ -27,7 +30,6 @@ import com.uniinformation.rpccall.Value;
 import com.uniinformation.utils.FilingUtil;
 import com.uniinformation.utils.FilingUtilObject;
 import com.uniinformation.utils.ImageUtil;
-import com.kyoko.common.*;
 import com.uniinformation.utils.TableRec;
 import com.uniinformation.utils.UniLog;
 import com.uniinformation.utils.VectorUtil;
@@ -58,6 +60,7 @@ public class Erpv4BaseCellCollection extends BiCellCollection {
 					FUNC_voicemsgToResourceUrl,
 //					FUNC_ResourceUrlToHtmlImage,
 					FUNC_getPoFromAllocate,
+					FUNC_getLoginPhoneNum,
 					NOT_DEFINED }
 
 	/*
@@ -369,12 +372,8 @@ public class Erpv4BaseCellCollection extends BiCellCollection {
 //			if(Double.isNaN(dd)) {
 //				UniLog.log("Average Cost is NAN, show last avcost");
 //				dd = CostCalculation.getLastWaCost(br.getSessionHelper(),irg, org);
-//				if(testCell("stg_costvalid") != null) {
-//					getCell("stg_costvalid").set("Projected");
 //				}
 //			} else {
-//				if(testCell("stg_costvalid") != null) {
-//					getCell("stg_costvalid").set("Calculated");
 //				}
 //			}
 			return(dd);
@@ -601,7 +600,7 @@ public class Erpv4BaseCellCollection extends BiCellCollection {
 			if(StringUtils.isBlank(messageGroup) || messageId == 0 || StringUtils.isBlank(suffix)) return("");
 			String ss = (String.format("message://%s/%d/%s&ext=%s", messageGroup,messageId,suffix,suffix.toLowerCase()));
 			return(ss);
-		}		
+		}
 		case FUNC_filingToHtmlImage: {
 			int maxH = 300;
 			int maxW = 300;
@@ -712,10 +711,13 @@ public class Erpv4BaseCellCollection extends BiCellCollection {
 			case FUNC_getGlDaPosEndlBal: return(acuPair.getLacu().getPosBalanceEnd(bdate));
 			case FUNC_getGlDaNegBeginlBal: return(acuPair.getLacu().getNegBalanceBegin(bdate));
 			case FUNC_getGlDaNegEndlBal: return(acuPair.getLacu().getNegBalanceEnd(bdate));
-				
 			default: return(0.0);
 			}
 		}
+		case FUNC_getLoginPhoneNum :
+				if(br.getSessionHelper() instanceof Erpv4SessionHelper) {
+					return(((Erpv4SessionHelper) br.getSessionHelper()).getLoginPhoneNum());
+				} else return("");
 		case FUNC_getPoFromAllocate: {
 			int org = Cell.objectToInt(p_args.get(0));
 			if(org == 0) return("");

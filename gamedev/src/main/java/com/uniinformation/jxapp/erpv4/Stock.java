@@ -150,8 +150,11 @@ public class Stock extends JxZkBiBase {
 				JxField sv = jxAdd("list_"+replaceViewName(sr.getView().getName()));
 				if(sr instanceof BiResultStockMove) {
 					if(getBr().getView().linkOnDemand(sr.getView())) {
+						String ss = Erpv4Config.getString(getBr().getSessionHelper(),"NoStockMovement");
+						if(!"Y".equals(ss)) {
 						getBr().fetchOneSubLink(getBr().getCurrentCollection(),sr,null) ;
 						bindSublinkList(sv , sr);
+						}
 					}
 					((BiResultStockMove) sr).reloadStockMove();
 				}

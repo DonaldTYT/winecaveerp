@@ -677,6 +677,9 @@ public class CostCalculation extends CostCalculator {
 	}
 	
 	static public String getErpStockStatus(SessionHelper p_sh,int p_irg,int p_org) throws Exception {
+		if(!Erpv4Config.useStockGen(p_sh)) {
+			throw new Exception("stock_gen not used, cannot run getErpStockStatus");
+		}
 		SelectUtil su = new SelectUtil();
 		su.init(p_sh.getBiSchema().getConn());
 		TableRec tr;

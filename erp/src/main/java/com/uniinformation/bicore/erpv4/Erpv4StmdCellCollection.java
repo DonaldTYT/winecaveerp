@@ -2,8 +2,6 @@ package com.uniinformation.bicore.erpv4;
 
 import java.util.Vector;
 
-//import org.zkoss.zss.api.model.CellData.CellType;
-
 import com.kyoko.common.DateUtil;
 import com.kyoko.common.StringUtil;
 import com.uniinformation.bicore.BiCellCollection;

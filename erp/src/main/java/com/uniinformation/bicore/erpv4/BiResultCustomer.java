@@ -19,10 +19,10 @@ import com.uniinformation.rpccall.Value;
 import com.uniinformation.utils.ChnftrParser;
 import com.uniinformation.utils.SelectUtil;
 import com.uniinformation.utils.TranslateListGetItemProperty;
-import com.uniinformation.utils.TranslateUtil;
 import com.uniinformation.utils.UniLog;
 import com.uniinformation.utils.VectorUtil;
 import com.uniinformation.utils.Wherecl;
+import com.uniinformation.utils.TranslateUtil;
 import com.uniinformation.webcore.SessionHelper;
 
 public class BiResultCustomer extends BiResultErpv4 {

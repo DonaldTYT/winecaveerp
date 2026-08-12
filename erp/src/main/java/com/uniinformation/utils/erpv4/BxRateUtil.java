@@ -7,7 +7,7 @@ import java.util.Vector;
 
 import org.apache.commons.lang3.StringUtils;
 
-import com.kyoko.common.*;
+import com.kyoko.common.DateUtil;
 import com.uniinformation.utils.SelectUtil;
 import com.uniinformation.utils.TableRec;
 import com.uniinformation.utils.Wherecl;

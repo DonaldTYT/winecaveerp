@@ -31,6 +31,7 @@ import com.uniinformation.bicore.BiResult;
 import com.uniinformation.bicore.ColumnCell;
 import com.uniinformation.bicore.erpv4.BiResultMO;
 import com.uniinformation.bicore.erpv4.BiResultStmov;
+import com.uniinformation.cell.AbstractGetItemProperty;
 import com.uniinformation.cell.Cell;
 import com.uniinformation.cell.CellCollection;
 import com.uniinformation.cell.CellException;
@@ -45,7 +46,6 @@ import com.uniinformation.jx.zk.ZkJxPickInput;
 import com.uniinformation.jxapp.JxSelOpt;
 import com.uniinformation.jxapp.JxZkBiBase;
 import com.uniinformation.prtdoc.PrtdocClass;
-//import com.uniinformation.utils.AbstractGetItemProperty;
 import com.uniinformation.utils.DynamicClassLoader;
 import com.uniinformation.utils.SelectUtil;
 import com.uniinformation.utils.TableRec;
@@ -597,9 +597,10 @@ public class MO extends JxZkBiBase {
 //				jxSetVisible("scr2",true);
 				UniLog.log("HAHA activate scan barcode");
 //			   	Clients.evalJavaScript("setBrowserWindowId('"+browserWindowId.getUuid()+"')");
-				if("WEBCAM".equals( getSessionHelper().getURLParam("BarcodeScanner"))) {
+				/*if("WEBCAM".equals( getSessionHelper().getURLParam("BarcodeScanner"))) {
 					ZkUtil.js("startWebcamScanner()");
-				} else Clients.evalJavaScript("launchScanner()");
+				} else Clients.evalJavaScript("launchScanner()");*/
+				Clients.evalJavaScript("android.connectBarcodeScanner2('postbarcodeData')");
 			}
 		};
 		new JxFieldAction("btScanE") {

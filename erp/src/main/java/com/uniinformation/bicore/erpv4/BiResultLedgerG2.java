@@ -7,6 +7,8 @@ import java.util.Hashtable;
 import java.util.List;
 import java.util.Vector;
 
+import com.kyoko.common.DateUtil;
+import com.kyoko.common.ReturnMsg;
 import com.uniinformation.accumulator.CalculationErrorException;
 import com.uniinformation.accumulator.CostCalculator;
 import com.uniinformation.bicore.BiCellCollection;
@@ -21,8 +23,6 @@ import com.uniinformation.cell.CellException;
 import com.uniinformation.cell.CellPair;
 import com.uniinformation.erpv4.CostCalculation;
 import com.uniinformation.erpv4.Erpv4Config;
-import com.uniinformation.erpv4.BiConfig;
-import com.kyoko.common.*;
 import com.uniinformation.utils.SelectUtil;
 import com.uniinformation.utils.UniLog;
 import com.uniinformation.utils.Wherecl;
@@ -68,7 +68,7 @@ public abstract class BiResultLedgerG2 extends BiResultErpv4 implements BiLedger
 		super(p_parent, p_view, p_su, p_tabList, p_whereStr, p_sh, p_allowLookupItemList);
 		balBeginDate = Erpv4Config.getCostOpeningErpDate(sh);
 //		try {
-//			defaultOrg = BiConfig.getCoWtAvOrg(sh, BiConfig.getDefaultCoCode(sh));
+//			defaultOrg = Erpv4Config.getCoWtAvOrg(sh, Erpv4Config.getDefaultCoCode(sh));
 //		} catch (Exception ex) {
 //			UniLog.log(ex);
 //		}

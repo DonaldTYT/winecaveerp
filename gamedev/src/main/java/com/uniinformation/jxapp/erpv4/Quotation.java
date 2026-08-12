@@ -35,6 +35,7 @@ import com.uniinformation.bicore.ColumnCell;
 import com.uniinformation.bicore.erpv4.BiResultInvoice;
 import com.uniinformation.bicore.erpv4.BiResultQuoDet;
 import com.uniinformation.bicore.erpv4.BiResultQuotation;
+import com.uniinformation.cell.AbstractGetItemProperty;
 import com.uniinformation.cell.Cell;
 import com.uniinformation.cell.CellCollection;
 import com.uniinformation.cell.CellException;
@@ -47,7 +48,6 @@ import com.uniinformation.jx.zk.ZkJxPickInput;
 import com.uniinformation.jxapp.JxZkBiBase;
 import com.uniinformation.rpccall.RpcClient;
 import com.uniinformation.rpccall.Value;
-import com.uniinformation.cell.AbstractGetItemProperty;
 import com.uniinformation.utils.ChnftrParser;
 import com.uniinformation.utils.ChnftrRpcServlet;
 import com.uniinformation.utils.ListUtil;
@@ -529,7 +529,7 @@ public class Quotation extends JxZkBiBase {
 						.toVector()
 					);
 			//val = rpc.callSegment("erpv4SetImageDir", new VectorUtil() .addElement("c:\\images\\") .toVector());
-			val = rpc.callSegment("erpv4SetImageDir", new VectorUtil() .addElement(getSessionHelper().getWebContentRealPath("images", true)) .toVector());
+			val = rpc.callSegment("erpv4SetImageDir", new VectorUtil() .addElement(getBr().getSessionHelper().getWebContentRealPath("images", true)) .toVector());
 			
 			List<String> termsList = ChnftrParser.splitText(getBr().getCell("inv_term").getString().trim(), "helv_nr", "chinese", 10, 535);
 			List<String> deliveryList = ChnftrParser.splitText(getBr().getCell("inv_quodeli").getString().trim(), "helv_nr", "chinese", 10, 535);
@@ -595,7 +595,7 @@ public class Quotation extends JxZkBiBase {
 						.toVector()
 					);
 			//val = rpc.callSegment("erpv4SetImageDir", new VectorUtil() .addElement("c:\\images\\") .toVector());
-			val = rpc.callSegment("erpv4SetImageDir", new VectorUtil() .addElement(getSessionHelper().getWebContentRealPath("images", true)) .toVector());
+			val = rpc.callSegment("erpv4SetImageDir", new VectorUtil() .addElement(getBr().getSessionHelper().getWebContentRealPath("images", true)) .toVector());
 			
 			val = rpc.callSegment("erpv4_print_mccon",
 						new VectorUtil()

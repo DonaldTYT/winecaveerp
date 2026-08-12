@@ -4,12 +4,12 @@ import java.util.Date;
 import java.util.Vector;
 
 import com.google.gson.JsonObject;
+import com.kyoko.common.DateUtil;
 import com.uniinformation.bicore.BiCellCollection;
 import com.uniinformation.bicore.erpv4.BiResultErpv4;
-import com.uniinformation.erpv4.BiConfig;
+import com.uniinformation.erpv4.Erpv4Config;
 import com.uniinformation.prtdoc.PrtdocClass;
 import com.uniinformation.prtdoc.PrtdocJson;
-import com.kyoko.common.*;
 import com.uniinformation.utils.GsonUtil;
 import com.uniinformation.utils.TableRec;
 import com.uniinformation.utils.VectorUtil;
@@ -25,7 +25,7 @@ public class PrtdocMulti extends PrtdocClass  {
 		coCode = GsonUtil.getString(p_actionData, "coCode",null);
 		String docCode = GsonUtil.getString(p_actionData, "docCode",null);
 		String paperType = GsonUtil.getString(p_actionData, "paperType",null);
-		if(coCode == null) coCode = BiConfig.getDefaultCoCode(br.getSessionHelper());
+		if(coCode == null) coCode = Erpv4Config.getDefaultCoCode(br.getSessionHelper());
 		if(docCode == null) docCode = "GENINV01";
 		if(paperType == null) paperType = "A4P";
     	ppj = PrtdocJson.newPrtdocJson(	

@@ -15,7 +15,7 @@ import com.uniinformation.utils.UniLog;
 import com.uniinformation.webcore.SessionHelper;
 
 public class BiResultAccountLedger extends BiResultLedger {
-	double cumulatedPandL = 0.0;
+//	private double cumulatedPandL = 0.0;
 	boolean notCarrayPandLaccount = false;
 	Date pAndLStartDate;
 	public BiResultAccountLedger(BiResult p_parent, BiView p_view, SelectUtil p_su, Vector p_tabList, String p_whereStr,
@@ -58,7 +58,7 @@ public class BiResultAccountLedger extends BiResultLedger {
 					) {
 				Date d = bbr.getCellDate("jn_xdate");
 				if(d.before(pAndLStartDate)) {
-					cumulatedPandL += lamt;
+//					cumulatedPandL += lamt;
 					return;
 				}
 			}
@@ -120,7 +120,7 @@ public class BiResultAccountLedger extends BiResultLedger {
 	
 	@Override
 	void beforeQuery() {
-		cumulatedPandL = 0.0;
+//		cumulatedPandL = 0.0;
 		notCarrayPandLaccount = false;
 		if(rptCol.testCell("notCarryPandLaccount") != null && rptCol.getBoolean("notCarryPandLaccount")) {
 			notCarrayPandLaccount = true;
@@ -129,7 +129,7 @@ public class BiResultAccountLedger extends BiResultLedger {
 	}
 
 	@Override
-	public void setLedgerDate(Date p_openBalDate, Date p_closeBalDate) {
+	public void setLedgerDate(Date d1, Date d2) {
 		// TODO Auto-generated method stub
 		
 	}

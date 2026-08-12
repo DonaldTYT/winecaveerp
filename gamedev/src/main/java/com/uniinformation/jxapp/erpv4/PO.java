@@ -187,7 +187,7 @@ public class PO extends JxZkBiBase {
 							.toVector()
 						);
 				//val = rpc.callSegment("erpv4SetImageDir", new VectorUtil() .addElement("c:\\images\\") .toVector());
-				val = rpc.callSegment("erpv4SetImageDir", new VectorUtil() .addElement(getSessionHelper().getWebContentRealPath("images", true)) .toVector());
+				val = rpc.callSegment("erpv4SetImageDir", new VectorUtil() .addElement(getBr().getSessionHelper().getWebContentRealPath("images", true)) .toVector());
 				
 				val = rpc.callSegment("erpv4_print_po",
 							new VectorUtil()

@@ -41,6 +41,7 @@ public class MoTransferG2 extends MoPos {
 						if(getBr().getCellString("stm_fromloc").equals("PO001")) transitLoc = "PO005";
 						if(getBr().getCellString("stm_fromloc").equals("NC001")) transitLoc = "NC005";
 						if(getBr().getCellString("stm_fromloc").equals("PANA01")) transitLoc = "PANA05";
+						if(getBr().getCellString("stm_fromloc").equals("PRHT01")) transitLoc = "PRHT02";
 						if(transitLoc != null && !getBr().getCellBoolean("tloc_tfronly")) {
 							transitBin = getBr().getCellString("stm_toloc");
 							/*
@@ -113,6 +114,7 @@ public class MoTransferG2 extends MoPos {
 						if(getBr().getCellString("stm_fromloc").equals("PO001")) transitLoc = "PO005";
 						if(getBr().getCellString("stm_fromloc").equals("NC001")) transitLoc = "NC005";
 						if(getBr().getCellString("stm_fromloc").equals("PANA01")) transitLoc = "PANA05";
+						if(getBr().getCellString("stm_fromloc").equals("PRHT01")) transitLoc = "PRHT02";
 						if(transitLoc != null && !getBr().getCellBoolean("tloc_tfronly")) {
 							transitBin = getBr().getCellString("stm_toloc");
 						} else {

@@ -25,7 +25,6 @@ import com.uniinformation.utils.TableRec;
 import com.uniinformation.utils.UniLog;
 import com.uniinformation.utils.Wherecl;
 import com.uniinformation.webcore.SessionHelper;
-//import com.uniinformation.zkbi.ZkBiCellValueMapper;
 
 public class BiResultQuoDet extends BiResultErpv4 {
 	
@@ -416,7 +415,7 @@ public class BiResultQuoDet extends BiResultErpv4 {
 	@Override
 	protected TableRec getLookupTabTr(BiTable p_lookupTable, Wherecl p_wherecl,BiCellCollection p_col) throws Exception{	
 		Wherecl wcl = p_wherecl;
-		if(Erpv4Config.isMultiCompany(sh)) {
+		if(Erpv4Config.useStockGen(sh) && Erpv4Config.isMultiCompany(sh)) {
 			if(p_col != null && p_lookupTable.getName().equals("stock_gen")) {
 				if(wcl == null ) wcl = new Wherecl();
 				String cocode = p_col.getCellString("inv_cocode");
@@ -442,7 +441,7 @@ public class BiResultQuoDet extends BiResultErpv4 {
 			wcl1.appendString(" and vdpr_vcode = '"+getParent().getCellString("inv_vcode")+"' ").stripAnd();
 			p_where.andWherecl(wcl1);
 		}
-		if(Erpv4Config.isMultiCompany(sh)) {
+		if(Erpv4Config.useStockGen(sh) && Erpv4Config.isMultiCompany(sh)) {
 			String cocode = Erpv4Config.getDefaultCoCode(sh);
 			if(getView().getColumnByLabel("stg_cocode") != null) {
 				Wherecl wcl1 = new Wherecl();

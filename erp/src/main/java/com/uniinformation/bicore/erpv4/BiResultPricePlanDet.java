@@ -9,8 +9,8 @@ import com.uniinformation.bicore.BiView;
 import com.uniinformation.cell.CellException;
 import com.uniinformation.utils.SelectUtil;
 import com.uniinformation.utils.TranslateListGetItemProperty;
-import com.uniinformation.utils.TranslateUtil;
 import com.uniinformation.utils.VectorUtil;
+import com.uniinformation.utils.TranslateUtil;
 import com.uniinformation.webcore.SessionHelper;
 
 public class BiResultPricePlanDet extends BiResultErpv4 {

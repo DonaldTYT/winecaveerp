@@ -95,7 +95,7 @@ public class BiResultQuotationG2 extends BiResultQuotation implements BiCoreRpcS
 		return(ReturnMsg.defaultOk);
 	}
 	
-	ReturnMsg doCreateAutoInvoice(BiCellCollection col,boolean isUpdate) {
+	protected ReturnMsg doCreateAutoInvoice(BiCellCollection col,boolean isUpdate) {
 		ReturnMsg rtn = super.biAfterAddUpdateCurrent(col, isUpdate);
 		if(rtn != null && !rtn.getStatus()) return(rtn);
 		if(OneToOneQuoInvoice == null ){
@@ -115,6 +115,9 @@ public class BiResultQuotationG2 extends BiResultQuotation implements BiCoreRpcS
 //					Object tr = rtn.getData();
 				} else {
 					scol =sr.getRowCollectionV(0);
+					if(!scol.getCellString("invh_vcode").equals(getCellString("inv_vcode"))) {
+						return(new ReturnMsg(false,"Cannot Change Customer for Confirmed Order, Please Unconfirm First"));
+					}
 					Object o = sr.getTrStatObj(new Integer(0));
 					sr.markDelete( o, false);
 					for(int i=rows-1;i>0;i--) {
@@ -129,6 +132,7 @@ public class BiResultQuotationG2 extends BiResultQuotation implements BiCoreRpcS
 					scol.getCell("invh_post").set("P");
 					scol.getCell("invh_voidflag").set(false);
 					scol.getCell("invh_payratio").set(100);
+					scol.getCell("invh_vcode").set(getCellString("inv_vcode"));
 				} catch (CellException cex) {
 					UniLog.log(cex);
 					return(new ReturnMsg(false,cex.toString()));

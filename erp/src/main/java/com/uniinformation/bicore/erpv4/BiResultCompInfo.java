@@ -8,7 +8,7 @@ import com.uniinformation.bicore.BiResult;
 import com.uniinformation.bicore.BiTable;
 import com.uniinformation.bicore.BiView;
 import com.uniinformation.cell.CellException;
-import com.uniinformation.erpv4.BiConfig;
+import com.uniinformation.erpv4.Erpv4Config;
 import com.uniinformation.utils.SelectUtil;
 import com.uniinformation.utils.TableRec;
 import com.uniinformation.utils.Wherecl;
@@ -38,7 +38,7 @@ public class BiResultCompInfo extends BiResultErpv4 {
 		HashSet<BiTable> ht = super.addExtraWhereStr(p_where, p_hash);
 		if(!sh.hasAccessRight("#allcomp")) {
 				Wherecl wcl1 = new Wherecl();
-				wcl1.appendString(" and co_cocode = '"+BiConfig.getDefaultCoCode(sh)+"' ").stripAnd();
+				wcl1.appendString(" and co_cocode = '"+Erpv4Config.getDefaultCoCode(sh)+"' ").stripAnd();
 				p_where.andWherecl(wcl1);
 		}
 		return(ht);

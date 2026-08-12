@@ -2,6 +2,7 @@ package com.uniinformation.bicore.erpv4;
 
 import java.util.Vector;
 
+import com.kyoko.common.StringUtil;
 import com.uniinformation.bicore.BiCellCollection;
 import com.uniinformation.bicore.BiResult;
 import com.uniinformation.bicore.BiView;
@@ -10,7 +11,6 @@ import com.uniinformation.cell.CellCollection;
 import com.uniinformation.cell.CellException;
 import com.uniinformation.cell.CellValueAction;
 import com.uniinformation.utils.SelectUtil;
-import com.kyoko.common.*;
 import com.uniinformation.utils.TableRec;
 import com.uniinformation.utils.UniLog;
 import com.uniinformation.webcore.SessionHelper;

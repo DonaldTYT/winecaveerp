@@ -8,6 +8,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Vector;
 
+import com.kyoko.common.DateUtil;
+import com.kyoko.common.ReturnMsg;
 import com.uniinformation.accumulator.BaseAccumulator;
 import com.uniinformation.accumulator.CalculationErrorException;
 import com.uniinformation.accumulator.CostCalculator;
@@ -22,10 +24,8 @@ import com.uniinformation.bicore.ColumnCell;
 import com.uniinformation.cell.CellCollection;
 import com.uniinformation.cell.CellException;
 import com.uniinformation.erpv4.CostCalculation;
-import com.uniinformation.erpv4.BiConfig;
 import com.uniinformation.erpv4.Erpv4Config;
 import com.uniinformation.erpv4.StockOpening;
-import com.kyoko.common.*;
 import com.uniinformation.utils.SelectUtil;
 import com.uniinformation.utils.TableRec;
 import com.uniinformation.utils.UniLog;
@@ -66,8 +66,8 @@ public class BiResultStockLedger extends BiResultErpv4 implements BiReportInterf
 		super(p_parent, p_view, p_su, p_tabList, p_whereStr, p_sh);
 		balBeginDate = Erpv4Config.getCostOpeningErpDate(sh);
 		try {
-			defaultOrg = Erpv4Config.getCoWtAvOrg(sh, BiConfig.getDefaultCoCode(sh));
-			String ss = BiConfig.getString(sh, "alwaysUseCostCalculation");
+			defaultOrg = Erpv4Config.getCoWtAvOrg(sh, Erpv4Config.getDefaultCoCode(sh));
+			String ss = Erpv4Config.getString(sh, "alwaysUseCostCalculation");
 			if(ss != null && ss.equals("Y")) alwaysUseCostCalculation = true;
 					
 		} catch (Exception ex) {
@@ -544,8 +544,8 @@ public class BiResultStockLedger extends BiResultErpv4 implements BiReportInterf
 	{
 		HashSet<BiTable> ht = super.addExtraWhereStr(p_where, p_hash);
 		/*
-		if(BiConfig.isMultiCompany(sh)) {
-		String cocode = BiConfig.getDefaultCoCode(sh);
+		if(Erpv4Config.isMultiCompany(sh)) {
+		String cocode = Erpv4Config.getDefaultCoCode(sh);
 		if(getCell("stm_cocode") != null) {
 			Wherecl wcl1 = new Wherecl();
 			wcl1.appendString(" and stm_cocode = '"+cocode+"' ").stripAnd();

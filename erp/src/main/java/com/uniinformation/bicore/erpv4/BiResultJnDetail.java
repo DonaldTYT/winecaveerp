@@ -130,8 +130,6 @@ public class BiResultJnDetail extends BiResultErpv4 {
 								UniLog.log(cex);
 							}
 //							double balance = accu.getBalanceEnd(BaseAccumulator.accMaxDate);
-//							double freestock = getCell("stg_freestock").getDouble();
-//							double reserved = getCell("stg_reserved").getDouble();
 							String cocode = Erpv4Config.getDefaultCoCode(getSessionHelper());
 							int org = Erpv4Config.getCoWtAvOrg(getSessionHelper(), cocode);
 							try {

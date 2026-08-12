@@ -1,7 +1,7 @@
 package com.uniinformation.erpv4;
 
+import com.kyoko.common.ReturnMsg;
 import com.uniinformation.bicore.BiView;
-import com.kyoko.common.*;
 import com.uniinformation.utils.SelectUtil;
 import com.uniinformation.utils.TableRec;
 import com.uniinformation.utils.UniLog;
@@ -108,6 +108,9 @@ public class GenbucketUtil {
 				return(errStr);
 			}
 			if(prefix.equals("STOCKGEN")) {
+				if(!Erpv4Config.useStockGen(p_sh)) {
+					throw new Exception("stock_gen not use, should not have STOCKGEN in genbucket");
+				}
 				if(Erpv4Config.getAllowNegativeStock(p_sh)) {
 					return(errStr);
 				}

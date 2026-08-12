@@ -50,6 +50,9 @@ public class BiResultMoStockTake extends BiResultMO {
 			SelectUtil su = getSelectUtil();
 			TableRec tr = null;
 			if(Erpv4Config.isMultiCompany(getSessionHelper())) {
+				if(!Erpv4Config.useStockGen(getSessionHelper())) {
+					return(new ReturnMsg(false,"stock_gen not used, cannot generate balance for multi-company"));
+				}
 				int lcrg = Erpv4Config.getDefaultLcrg(getSessionHelper());
 				tr = su.getQueryResult("select * from locationcode where loc_mrg = ? and loc_tfronly <> 'Y' and loc_transit <> 'Y'",
 					new Wherecl().appendArgument(lcrg)

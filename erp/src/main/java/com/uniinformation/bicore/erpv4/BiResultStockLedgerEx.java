@@ -307,7 +307,7 @@ public class BiResultStockLedgerEx extends BiResultErpv4 implements BiLedgerRepo
 	}
 
 	@Override
-	public void setLedgerDate(Date p_openBalDate, Date p_closeBalDate) {
+	public void setLedgerDate(Date d1, Date d2) {
 		// TODO Auto-generated method stub
 		
 	}

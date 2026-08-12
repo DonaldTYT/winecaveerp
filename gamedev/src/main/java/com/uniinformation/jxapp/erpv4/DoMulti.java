@@ -100,7 +100,7 @@ public class DoMulti extends DO {
 							.toVector()
 						);
 				//val = rpc.callSegment("erpv4SetImageDir", new VectorUtil().addElement("c:\\images\\").toVector());
-				val = rpc.callSegment("erpv4SetImageDir", new VectorUtil().addElement(getSessionHelper().getWebContentRealPath("images", true)).toVector());
+				val = rpc.callSegment("erpv4SetImageDir", new VectorUtil().addElement(getBr().getSessionHelper().getWebContentRealPath("images", true)).toVector());
 				String cocode = null;
 				if(getBr().getCell("stm_cocode") != null)  {
 					cocode = getBr().getCellString("stm_cocode");

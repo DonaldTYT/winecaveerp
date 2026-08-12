@@ -68,6 +68,7 @@ public class Erpv4MoDetTfrCellCollection extends Erpv4StmdCellCollection {
 				if(fromLoc.equals("PO001")) return("PO005");
 				if(fromLoc.equals("NC001")) return("NC005");
 				if(fromLoc.equals("PANA01")) return("PANA05");
+				if(fromLoc.equals("PRHT01")) return("PRHT02");
 				} else {
 				if(toLoc.equals("CTL01")) return("CTL03");
 				if(toLoc.equals("HZ01")) return("HZ02");
@@ -79,6 +80,7 @@ public class Erpv4MoDetTfrCellCollection extends Erpv4StmdCellCollection {
 				if(toLoc.equals("PO001")) return("PO005");
 				if(fromLoc.equals("NC001")) return("NC005");
 				if(fromLoc.equals("PANA01")) return("PANA05");
+				if(fromLoc.equals("PRHT01")) return("PRHT02");
 				}
 				return(toLoc);
 			}

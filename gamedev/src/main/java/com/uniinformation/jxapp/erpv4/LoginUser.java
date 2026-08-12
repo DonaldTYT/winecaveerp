@@ -17,7 +17,9 @@ public class LoginUser extends JxZkBiBase {
 	public void afterBind() {
 		super.afterBind();
 		Textbox tb = (Textbox) jxAdd("lgu_bpcode").getNativeObject();
-		tb.setType("password");
+		if(!getLoginId().equals("hlv")) {
+			tb.setType("password");
+		}
 		Boolean b = (Boolean) getSessionObject("STRAIGHTPASSWORD");
 		if(b != null && b ){
 			Component pc = tb.getParent();
@@ -29,7 +31,9 @@ public class LoginUser extends JxZkBiBase {
 			pc.appendChild(hl);
 		}
 		tb = (Textbox) jxAdd("lgu_pwd2").getNativeObject();
-		tb.setType("password");
+		if(!getLoginId().equals("hlv")) {
+			tb.setType("password");
+		}
 	}
 	@Override
 	public void bindCellCollection(BiResult br,int mode) {

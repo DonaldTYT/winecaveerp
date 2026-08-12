@@ -19,7 +19,6 @@ import com.uniinformation.cell.CellCollection;
 import com.uniinformation.cell.CellException;
 import com.uniinformation.cell.CellValueAction;
 import com.uniinformation.erpv4.Erpv4Config;
-//import com.uniinformation.jxapp.afs.WcJsonPrtdocInvoice;
 import com.uniinformation.prtdoc.PrtdocClass;
 import com.uniinformation.prtdoc.PrtdocJson;
 import com.uniinformation.prtdoc.PrtdocPerfJson;

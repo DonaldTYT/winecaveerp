@@ -288,7 +288,7 @@ public DoGetItemProperty(BiResult p_br, JxZkBiBase p_bibase) {
 							.toVector()
 						);
 				//val = rpc.callSegment("erpv4SetImageDir", new VectorUtil().addElement("c:\\images\\").toVector());
-				val = rpc.callSegment("erpv4SetImageDir", new VectorUtil().addElement(getSessionHelper().getWebContentRealPath("images", true)).toVector());
+				val = rpc.callSegment("erpv4SetImageDir", new VectorUtil().addElement(getBr().getSessionHelper().getWebContentRealPath("images", true)).toVector());
 				
 				String paperType = Erpv4Config.getString(getSessionHelper(),"DnPaperType");
 				
@@ -373,7 +373,7 @@ public DoGetItemProperty(BiResult p_br, JxZkBiBase p_bibase) {
 							.addElement(1)
 							.toVector()
 						);
-				val = rpc.callSegment("erpv4SetImageDir", new VectorUtil().addElement(getSessionHelper().getWebContentRealPath("images", true)).toVector());
+				val = rpc.callSegment("erpv4SetImageDir", new VectorUtil().addElement(getBr().getSessionHelper().getWebContentRealPath("images", true)).toVector());
 				/*
 				val = rpc.callSegment("erpv4SetImageDir",
 							new VectorUtil()
@@ -436,7 +436,7 @@ public DoGetItemProperty(BiResult p_br, JxZkBiBase p_bibase) {
 							.addElement(1)
 							.toVector()
 						);
-				val = rpc.callSegment("erpv4SetImageDir", new VectorUtil().addElement(getSessionHelper().getWebContentRealPath("images", true)).toVector());
+				val = rpc.callSegment("erpv4SetImageDir", new VectorUtil().addElement(getBr().getSessionHelper().getWebContentRealPath("images", true)).toVector());
 				/*
 				val = rpc.callSegment("erpv4SetImageDir",
 							new VectorUtil()
