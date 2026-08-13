@@ -120,6 +120,11 @@ public class JxZkListbox extends JxZkElement {
    	boolean loadOnDemand = false;
    	int onDemandLoadCount= 200;
    	int onDemandIdx = 0;
+	boolean onDemandLoadInProgress = false;
+	boolean onDemandLoadEventPending = false;
+	long onDemandGeneration = 0;
+	boolean useLazyLoad = true;
+	static final String ON_LOAD_NEXT_BATCH = "onLoadNextBatch";
    	
 	Listbox listbox;
 //	Vector <Cell[]> rows;
@@ -1145,6 +1150,18 @@ public class JxZkListbox extends JxZkElement {
 		listbox.addEventListener(Events.ON_OK, zkEventListener);
 		listbox.addEventListener(Events.ON_CANCEL, zkEventListener);
 		listbox.addEventListener(Events.ON_SELECT, zkEventListener);
+		listbox.addEventListener(ON_LOAD_NEXT_BATCH, new EventListener<Event>() {
+			@Override
+			public void onEvent(Event event) throws Exception {
+				Object data = event.getData();
+				if(!(data instanceof Long) || ((Long) data).longValue() != onDemandGeneration) return;
+				onDemandLoadEventPending = false;
+				int previousLastRow = listModelList.size() - 1;
+				if(loadRecordToList(appliedFilter) > 0 && previousLastRow >= 0) {
+					listbox.scrollToIndex(previousLastRow);
+				}
+			}
+		});
 		sh = ZkSessionHelper.getSessionHelper();
 		/*
 		//obsoleted
@@ -1397,20 +1414,8 @@ public class JxZkListbox extends JxZkElement {
 				
 				//andrew211108 fix smartac po cannot pick popup listitem
 				p_listItem.addEventListener(Events.ON_CLICK, zkEventListener);
-				if(loadOnDemand) {
-					if(p_idx + 1 >= listModelList.size()) {
-						loadRecordToList(null);
-						/*
-						int loadStart = listModelList.size();
-						int loadEnd;
-						loadEnd = gipi.getRowCount();
-						if(loadEnd - loadStart > onDemandLoadCount) loadEnd = loadStart + onDemandLoadCount;
-						for(int i=loadStart;i<loadEnd;i++) {
-							listModelList.add(gipi.getRow(i));
-						}
-						*/
-						listbox.invalidate();
-					}
+				if(loadOnDemand && p_idx + 1 >= listModelList.size()) {
+					queueNextOnDemandBatch();
 				}
 			 }
 		};
@@ -2056,7 +2061,7 @@ public class JxZkListbox extends JxZkElement {
 			if(p_itemList != null) itemList = new Vector(p_itemList); else itemList = null;
 		}
 		listModelList.clear();
-		onDemandIdx = 0;
+		resetOnDemandLoad();
 		rowAttrHM.clear();
 		appliedFilter = null;
 		if(filterInput != null) filterInput.setText("");
@@ -2084,8 +2089,16 @@ public class JxZkListbox extends JxZkElement {
 				loadRecordToList(null);
 			} else {
 				n = gipi.getRowCount();
-				for(int i = 0;i<n;i++) {
-					listModelList.add(gipi.getRow(i));
+				if(useLazyLoad) {
+					List<Object> modelRows = new ArrayList<Object>(n);
+					for(int i = 0;i<n;i++) {
+						modelRows.add(gipi.getRow(i));
+					}
+					listModelList.addAll(modelRows);
+				} else {
+					for(int i = 0;i<n;i++) {
+						listModelList.add(gipi.getRow(i));
+					}
 				}
 			}
 			n = gipi.getColumnCount(null);
@@ -2125,7 +2138,7 @@ public class JxZkListbox extends JxZkElement {
 //					}
 //				}
 //			}
-			listbox.invalidate();
+			if(!useLazyLoad && !loadOnDemand) listbox.invalidate();
 		}
 	}
 //	@Override
@@ -2256,7 +2269,7 @@ public class JxZkListbox extends JxZkElement {
 		} else if(p_attr.equals("filter")) {
 			if(gipi == null && itemList == null) return;
 			listModelList.clear();
-			onDemandIdx = 0;
+			resetOnDemandLoad();
 			if(p_value == null || p_value.trim().equals("")) {
 //				listModelList.clear();
 				appliedFilter = null;
@@ -2336,6 +2349,8 @@ public class JxZkListbox extends JxZkElement {
 		} else if(p_attr.equals("onDemand")) {
 				onDemandLoadCount = Integer.parseInt(p_value);
 				if(onDemandLoadCount > 0) loadOnDemand = true; else loadOnDemand = false;
+		} else if(p_attr.equals("useLazyLoad")) {
+				useLazyLoad = Boolean.parseBoolean(p_value);
 		} else{
 			UniLog.logm(this, "unknow attribute %s", p_value);
 		}
@@ -2628,27 +2643,35 @@ public class JxZkListbox extends JxZkElement {
 		}
 	}
 	
+	void resetOnDemandLoad() {
+		onDemandIdx = 0;
+		onDemandLoadInProgress = false;
+		onDemandLoadEventPending = false;
+		onDemandGeneration++;
+	}
+
+	void queueNextOnDemandBatch() {
+		if(!loadOnDemand || gipi == null || onDemandIdx >= gipi.getRowCount()
+				|| onDemandLoadInProgress || onDemandLoadEventPending) return;
+		onDemandLoadEventPending = true;
+		Events.postEvent(ON_LOAD_NEXT_BATCH, listbox, Long.valueOf(onDemandGeneration));
+	}
+
 	int loadRecordToList(String filter) {
-		int n;
-		int m = listModelList.size();
-		for(n=0;onDemandIdx<gipi.getRowCount();onDemandIdx++) {
-			if(filter == null ) {
-				listModelList.add(gipi.getRow(onDemandIdx));
-				n++;
-				if(n >= onDemandLoadCount) {
-					return(n);
-				}
-			} else {
-				Object o = gipi.getRow(onDemandIdx);
-				if(ZkBiSearchHelper.match(gipi.getString(o), filter)) {
-					listModelList.add(o);
-					n++;
-					if(n >= onDemandLoadCount) {
-						return(n);
-					}
+		if(!loadOnDemand || gipi == null || onDemandLoadInProgress) return(0);
+		onDemandLoadInProgress = true;
+		try {
+			List<Object> modelRows = new ArrayList<Object>(onDemandLoadCount);
+			while(onDemandIdx < gipi.getRowCount() && modelRows.size() < onDemandLoadCount) {
+				Object o = gipi.getRow(onDemandIdx++);
+				if(filter == null || ZkBiSearchHelper.match(gipi.getString(o), filter)) {
+					modelRows.add(o);
 				}
 			}
+			if(!modelRows.isEmpty()) listModelList.addAll(modelRows);
+			return(modelRows.size());
+		} finally {
+			onDemandLoadInProgress = false;
 		}
-		return(n);
 	}
 }

@@ -21,6 +21,11 @@ div.product-text-section {
 div.product-photo-section {
 	min-height: 305px;
 }
+@media (min-width: 992px) {
+	div.product-summary-section {
+		min-height: 238px;
+	}
+}
 div.product-detail-form .z-hlayout-inner {
 	vertical-align: top;
 }
@@ -86,7 +91,7 @@ div.z-grid.zkbi-detail-grid {
 
 		<bs-row>
 			<div sclass="col-12 col-lg-6">
-				<div sclass="product-section">
+				<div sclass="product-section product-summary-section">
 					<div sclass="product-section-title">Codes and Units</div>
 					<hlayout>
 						<zkbidiv jxId="st_origin" labelWidth="110px" compWidth="150px"></zkbidiv>
@@ -115,7 +120,7 @@ div.z-grid.zkbi-detail-grid {
 			</div>
 
 			<div sclass="col-12 col-lg-6">
-				<div sclass="product-section">
+				<div sclass="product-section product-summary-section">
 					<div sclass="product-section-title">Cost, Price and Web</div>
 					<hlayout>
 						<zkbidiv jxId="st_standardcost" labelWidth="120px" compWidth="90px"></zkbidiv>

@@ -36,6 +36,7 @@ public class JxSelOpt extends JxForm {
 	public void afterBind() {
 		jxBtSelect = jxAdd("btSelect");
 		jxPickListBox = jxAdd("pickListBox");
+		jxPickListBox.setAttribute("useLazyLoad", "true");
 //		jxFormArea = jxAdd("formArea");
 		
 		new JxFieldAction("btClear") {

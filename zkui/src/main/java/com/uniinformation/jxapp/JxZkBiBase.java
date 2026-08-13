@@ -167,6 +167,7 @@ public class JxZkBiBase extends JxZkBase
 	
 	
 	private BiResult br = null;  //andrew200717: br change to private to avoid br null exception, please use getBr() to obtain biresult object
+	private final Map<String, PickBySelectCacheEntry> pickBySelectCache = new HashMap<String, PickBySelectCacheEntry>();
 	protected JxZkBiBaseCallback zkcb = null;
 	public boolean isMobile = false;
 	boolean hasAUDColumn = true;
@@ -202,6 +203,16 @@ public class JxZkBiBase extends JxZkBase
 	public JxZkBiBase(){
 		super();
 //		sessionHelper = getSessionHelper();
+	}
+
+	private static class PickBySelectCacheEntry {
+		private final BiResult biResult;
+		private String condition;
+
+		private PickBySelectCacheEntry(BiResult p_biResult, String p_condition) {
+			biResult = p_biResult;
+			condition = p_condition;
+		}
 	}
 	
 	static class DetailDecoration {
@@ -1926,8 +1937,21 @@ public class JxZkBiBase extends JxZkBase
 			BiColumn bc = ccell.getBiColumn();
 			String pv = bc.getPickViewName();
 			if(pv != null) {
-//				JxZkBiBase.pickBySelect(sessionHelper,pv,null, new ZkBiEventListener() {
-				JxZkBiBase.pickBySelect(sessionHelper,pv,getBr().getPickColumnCondition(ccell), new ZkBiEventListener() {
+				String condition = getBr().getPickColumnCondition(ccell);
+				PickBySelectCacheEntry cacheEntry = pickBySelectCache.get(pv);
+				boolean queryRequired = cacheEntry == null || !StringUtils.equals(cacheEntry.condition, condition);
+				if(cacheEntry == null) {
+					BiSchema schema = BiSchema.loadSchema(sessionHelper);
+					BiView pickView = schema.getViewByName(pv);
+					if(pickView == null) {
+						throw new ZkBiRuntimeException("Pick view not found: " + pv);
+					}
+					BiResult pickResult = pickView.newBiResult(sessionHelper.getLoginId(), null, null, sessionHelper);
+					cacheEntry = new PickBySelectCacheEntry(pickResult, condition);
+				}
+
+				final PickBySelectCacheEntry selectedCacheEntry = cacheEntry;
+				ZkBiEventListener selectListener = new ZkBiEventListener() {
 
 					@Override
 					public void onZkBiEvent(Event arg0) throws Exception {
@@ -1938,10 +1962,16 @@ public class JxZkBiBase extends JxZkBase
 						ccell.set(o);
 						afterPickField(pcl);
 					}
-					
-					}
-				);
-				
+				};
+
+				JxSelOpt selopt = JxSelOpt.createPopupJxSelOpt(sessionHelper);
+				if(queryRequired) {
+					JxZkBiBase.pickBySelect(selopt, selectedCacheEntry.biResult, condition, selectListener);
+					selectedCacheEntry.condition = condition;
+					pickBySelectCache.put(pv, selectedCacheEntry);
+				} else {
+					JxZkBiBase.pickBySelect(selopt, selectedCacheEntry.biResult, selectListener);
+				}
 			}
 		}
 	}
@@ -4208,6 +4238,10 @@ public class JxZkBiBase extends JxZkBase
 		pbr.clearOrderBy();
 		if(p_condition != null) pbr.addCustomCondition(p_condition);
 		pbr.query();
+		pickBySelect(p_selopt,p_br,p_listener);
+	}
+	public static void pickBySelect(final JxSelOpt p_selopt,BiResult p_br,final EventListener p_listener) throws Exception {
+		BiResult pbr = p_br;
 		p_selopt.setOnSelectAction (
 			new JxActionListener() {
 				public void actionPerformed(JxField fd) {
@@ -4227,7 +4261,9 @@ public class JxZkBiBase extends JxZkBase
 		);
 		BiGetItemProperty gipi = new BiGetItemProperty(pbr);
 		gipi.setItemMode(BiGetItemProperty.GETITEM_MODE_PICK);
-		p_selopt.jxAdd("pickListBox").setItemListInterface( gipi);
+		JxField pickListBox = p_selopt.jxAdd("pickListBox");
+		pickListBox.setAttribute("onDemand", "100");
+		pickListBox.setItemListInterface(gipi);
 		p_selopt.setUserData(gipi);
 		if(p_br.getSessionHelper().isMobile()) {
 		} else {
