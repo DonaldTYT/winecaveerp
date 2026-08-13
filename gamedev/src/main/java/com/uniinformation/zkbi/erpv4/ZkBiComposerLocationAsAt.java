@@ -102,7 +102,7 @@ public class ZkBiComposerLocationAsAt extends ZkBiComposerAnalysis {
 							BiCellCollection col = sr.newRowCollection();								
 							sr.addSubRecord(col, -1 ,"");
 
-							col.getCell("stmd_tdtype").set("JO");
+							col.getCell("stmd_tdtype").set(Erpv4Config.getStmd_JO(getSessionHelper()));
 							col.getCell("stmd_irg").set(result.getCellInt("stmd_irg"));
 							col.getCell("stmd_entryqty").set(result.getCellDouble("stmd_sumqty"));
 							col.getCell("stmd_eratio").set(1.0);

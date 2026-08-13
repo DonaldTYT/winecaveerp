@@ -138,7 +138,9 @@ public class CostCalculation extends CostCalculator {
 						su = new SelectUtil();
 						su.init(p_sh.getBiSchema().getConn());
 						TableRec tr;
-						tr = su.getQueryResult("select * from stmovd where stmd_irg = ? and stmd_org = ? and stmd_tdtype in (" + Erpv4Config.STOCKIN_TDtypes + ") and stmd_qty > 0",
+						tr = su.getQueryResult("select * from stmovd where stmd_irg = ? and stmd_org = ? and stmd_tdtype in ('"
+								+ Erpv4Config.getStmd_RI(p_sh) + "','" + Erpv4Config.getStmd_MI(p_sh) + "','"
+								+ Erpv4Config.getStmd_JI(p_sh) + "','" + Erpv4Config.getStmd_BI(p_sh) + "') and stmd_qty > 0",
 								new Wherecl().appendArgument(p_irg).appendArgument(p_org)
 								);
 						double tQty  = 1;
@@ -221,10 +223,10 @@ public class CostCalculation extends CostCalculator {
 //								}
 								continue;
 							}
-							if(Erpv4BaseCellCollection.stkInQty.contains(tt)) {
+							if(Erpv4Config.isStkInTdtype(p_sh, tt)) {
 								cl.updateBalanceWithCost(d, qty, 0, 1,exprice1);
 								UniLog.log("cache weighted average stock in cost " + p_irg + " " + p_org + " " + DateUtil.toDateString(d, "yymmdd") + " " + qty + " " + exprice1);
-							} else if(Erpv4BaseCellCollection.stkOutQty.contains(tt)) {
+							} else if(Erpv4Config.isStkOutTdtype(p_sh, tt)) {
 								cl.updateBalanceWithCost(d, 0,-qty, 1,0);
 							}
 							if(requireLoc) {

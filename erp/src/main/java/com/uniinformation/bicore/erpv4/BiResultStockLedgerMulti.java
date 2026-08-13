@@ -102,7 +102,7 @@ public class BiResultStockLedgerMulti extends BiResultLedger {
 			double oQty = getCell("stmd_outqty").getDouble();
 			double iCost = 0.0;
 			double oCost = getCell("stmd_unitcost").getDouble() * oQty;
-			if(Erpv4BaseCellCollection.stkInQty.contains(getCellString("stmd_tdtype"))) {
+			if(Erpv4Config.isStkInTdtype(getSessionHelper(), getCellString("stmd_tdtype"))) {
 				iCost = getCell("stmd_exprice1").getDouble();
 			}
 			ca.updateBalanceWithCost(idx, iQty, 0, 1,iCost);
@@ -144,9 +144,9 @@ public class BiResultStockLedgerMulti extends BiResultLedger {
 //						int cc;
 //						cc = 0;
 //					}
-					if(getCellString("stmd_tdtype").equals("KO")) {
+					if(getCellString("stmd_tdtype").equals(Erpv4Config.getStmd_KO(getSessionHelper()))) {
 						dd = CostCalculation.getWaCost(getSessionHelper(), irg, org, d);
-					} else if(Erpv4BaseCellCollection.stkInQty.contains(getCellString("stmd_tdtype"))) {
+					} else if(Erpv4Config.isStkInTdtype(getSessionHelper(), getCellString("stmd_tdtype"))) {
 						dd = getCellDouble("stmd_qty");
 						if(dd !=  0) {
 							dd = getCellDouble("stmd_exprice1") / dd;
@@ -158,7 +158,7 @@ public class BiResultStockLedgerMulti extends BiResultLedger {
 //							dd = CostCalculation.getLastWaCost(getSessionHelper(),irg, org);
 //						}
 					}
-					if(getCellString("stmd_tdtype").equals("KI")) {
+					if(getCellString("stmd_tdtype").equals(Erpv4Config.getStmd_KI(getSessionHelper()))) {
 						if(dd == 0.0 ) {
 							dd = CostCalculation.getWaCost(getSessionHelper(), irg, org, d);
 						}
@@ -174,16 +174,16 @@ public class BiResultStockLedgerMulti extends BiResultLedger {
 			if("sttfr".equals(module)) {
 				int tfrMode = Cell.objectToInt(p_args.get(3));
 				/*
-				if("KI".equals(tdtype)) {
+				if(Erpv4Config.getStmd_KI(getSessionHelper()).equals(tdtype)) {
 					if(tfrMode == 1) return(0.0);
 				}
 				*/
-				if("KO".equals(tdtype)) {
+				if(Erpv4Config.getStmd_KO(getSessionHelper()).equals(tdtype)) {
 					if(tfrMode == 1) return(qty);
 				}
 			}
 		}
-		if(Erpv4BaseCellCollection.stmdInQty.contains(tdtype)) return(qty); else return(0.0);
+		if(Erpv4Config.isStmdInTdtype(getSessionHelper(), tdtype)) return(qty); else return(0.0);
 	}
 	@Override
 	protected double getOutQty(Vector p_args) throws Exception {
@@ -193,22 +193,27 @@ public class BiResultStockLedgerMulti extends BiResultLedger {
 			String module = (String) p_args.get(2);
 			if("sttfr".equals(module)) {
 				int tfrMode = Cell.objectToInt(p_args.get(3));
-				if("KO".equals(tdtype)) {
+				if(Erpv4Config.getStmd_KO(getSessionHelper()).equals(tdtype)) {
 					if(tfrMode == 1) return(0.0);
 				}
 				/*
-				if("KI".equals(tdtype)) {
+				if(Erpv4Config.getStmd_KI(getSessionHelper()).equals(tdtype)) {
 					if(tfrMode == 1) return(qty);
 				}
 				*/
 			}
 		}
-		if(Erpv4BaseCellCollection.stmdOutQty.contains(tdtype)) return(qty); else return(0.0);
+		if(Erpv4Config.isStmdOutTdtype(getSessionHelper(), tdtype)) return(qty); else return(0.0);
 	}
 	@Override
 	void beforeQuery() {
 //		addCustomCondition(" stmd_tdtype in ('BI','MI','JI','RI','SO','MO','JO','RO') ");
-		addCustomCondition(" stmd_tdtype in ('BI','MI','JI','RI','SO','MO','JO','RO','KI','KO') ");
+		addCustomCondition(" stmd_tdtype in ('" + Erpv4Config.getStmd_BI(getSessionHelper()) + "','"
+				+ Erpv4Config.getStmd_MI(getSessionHelper()) + "','" + Erpv4Config.getStmd_JI(getSessionHelper()) + "','"
+				+ Erpv4Config.getStmd_RI(getSessionHelper()) + "','" + Erpv4Config.getStmd_SO(getSessionHelper()) + "','"
+				+ Erpv4Config.getStmd_MO(getSessionHelper()) + "','" + Erpv4Config.getStmd_JO(getSessionHelper()) + "','"
+				+ Erpv4Config.getStmd_RO(getSessionHelper()) + "','" + Erpv4Config.getStmd_KI(getSessionHelper()) + "','"
+				+ Erpv4Config.getStmd_KO(getSessionHelper()) + "') ");
 	}
 	@Override
 	public String getReportTitle() {

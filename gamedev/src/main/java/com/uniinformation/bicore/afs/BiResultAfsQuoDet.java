@@ -96,7 +96,10 @@ public class BiResultAfsQuoDet extends BiResultQuoDet {
 								sccy = (String) tr.getField("st_standardcostcur");
 								sprice = (Double) tr.getField("st_standardcost");
 								if(sccy == null || sccy.trim().equals("") || sprice <= 0.0) {
-									tr = getSelectUtil().getQueryResult("select stmd_mrg,stmd_uprice,stmd_cur from stmovd where stmd_tdtype in("+Erpv4Config.STOCKIN_TDtypes+") and stmd_irg = "+ myCol.getCell("ind_irg").getInt() + " and stmd_uprice > 0 order by stmd_mrg desc", null);
+									tr = getSelectUtil().getQueryResult("select stmd_mrg,stmd_uprice,stmd_cur from stmovd where stmd_tdtype in('"
+											+ Erpv4Config.getStmd_RI(getSessionHelper()) + "','" + Erpv4Config.getStmd_MI(getSessionHelper()) + "','"
+											+ Erpv4Config.getStmd_JI(getSessionHelper()) + "','" + Erpv4Config.getStmd_BI(getSessionHelper())
+											+ "') and stmd_irg = "+ myCol.getCell("ind_irg").getInt() + " and stmd_uprice > 0 order by stmd_mrg desc", null);
 									if(tr.getRecordCount() <= 0) {
 										UniLog.log("HAHA181203 stock record no historical cost, skipped");
 										myCol.getCell("ind_rprice").set(0.0);

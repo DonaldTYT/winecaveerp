@@ -54,7 +54,7 @@ public class ZkBiComposerStockList extends ZkBiComposerAggregateReport  {
 							BiCellCollection col = sr.newRowCollection();								
 							sr.addSubRecord(col, -1 ,"");
 
-							col.getCell("stmd_tdtype").set("JO");
+							col.getCell("stmd_tdtype").set(Erpv4Config.getStmd_JO(getSessionHelper()));
 							col.getCell("stmd_irg").set(result.getCellInt("stsn_irg"));
 							col.getCell("stmd_entryqty").set(result.getCellDouble("stsn_nqty"));
 							col.getCell("stmd_eratio").set(1.0);

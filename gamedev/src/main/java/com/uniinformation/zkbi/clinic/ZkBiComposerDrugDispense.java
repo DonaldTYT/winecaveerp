@@ -21,6 +21,7 @@ import com.uniinformation.bicore.BiCellCollection;
 import com.uniinformation.bicore.BiResult;
 import com.uniinformation.cell.Cell;
 import com.uniinformation.cell.CellCollection;
+import com.uniinformation.erpv4.Erpv4Config;
 import com.uniinformation.erpv4.clinic.DispenseUpload;
 import com.uniinformation.utils.SelectUtil;
 import com.uniinformation.utils.TableRec;
@@ -188,7 +189,7 @@ public class ZkBiComposerDrugDispense extends ZkBiComposerBase  {
 	    							dcol.getCell("st_icode").set(tr.getFieldString("st_icode"));
 	    							dcol.getCell("stmd_entryqty").sync(dd.quantity);
 	    							dcol.getCell("stmd_uprice").sync(dd.price/dd.quantity);
-	    							dcol.getCell("stmd_tdtype").set("MO");
+								dcol.getCell("stmd_tdtype").set(Erpv4Config.getStmd_MO(getSessionHelper()));
 	    							sr.addSubRecord(dcol, null);
 	    						} else {
 	    							rec.errNo = "Drug " + dd.drugName + " not exist";
@@ -392,7 +393,7 @@ public class ZkBiComposerDrugDispense extends ZkBiComposerBase  {
 	    															dcol.getCell("st_icode").set(tr.getFieldString("st_icode"));
 	    															dcol.getCell("stmd_entryqty").sync(dd.quantity);
 	    															dcol.getCell("stmd_uprice").sync(dd.price/dd.quantity);
-	    															dcol.getCell("stmd_tdtype").set("MO");
+														dcol.getCell("stmd_tdtype").set(Erpv4Config.getStmd_MO(getSessionHelper()));
 	    															sr.addSubRecord(dcol, null);
 	    														} else {
 	    															rec.errNo = "Drug " + dd.drugName + " not exist";

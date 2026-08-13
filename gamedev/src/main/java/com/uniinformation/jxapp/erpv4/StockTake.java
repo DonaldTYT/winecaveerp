@@ -49,7 +49,7 @@ public class StockTake extends JxZkBiBase {
 						if(sid > 0) {
 							reloadCurrentBySid(sid, JxZkBiBase.MODE_UPDATE);
 						} else {
-							stu.getBalance(getBr().getSelectUtil(), getBr().getCellInt("stm_nref4"), getBr().getCell("stm_date").getDate(), getBr().getCellInt("stm_mrg"),locList);
+							stu.getBalance(getBr().getSelectUtil(), getSessionHelper(), getBr().getCellInt("stm_nref4"), getBr().getCell("stm_date").getDate(), getBr().getCellInt("stm_mrg"),locList);
 							stu.syncBalance(getBr(),this);
 						}
 					} catch (Exception ex) {
@@ -89,7 +89,7 @@ public class StockTake extends JxZkBiBase {
 						if(sid > 0) {
 							reloadCurrentBySid(sid, JxZkBiBase.MODE_UPDATE);
 						} else {
-							stu.getBalance(getBr().getSelectUtil(), getBr().getCellInt("stm_nref4"), getBr().getCell("stm_date").getDate(), getBr().getCellInt("stm_mrg"),locList);
+							stu.getBalance(getBr().getSelectUtil(), getSessionHelper(), getBr().getCellInt("stm_nref4"), getBr().getCell("stm_date").getDate(), getBr().getCellInt("stm_mrg"),locList);
 							stu.syncBalance(getBr(),StockTake.this);
 						}
 				} catch (Exception ex) {
@@ -105,7 +105,7 @@ public class StockTake extends JxZkBiBase {
 			public void actionPerformed(JxField jxfield) {
 				// TODO Auto-generated method stub
 				try {
-					stu.getBalance(getBr().getSelectUtil(), getBr().getCellInt("stm_nref4"), getBr().getCell("stm_date").getDate(), getBr().getCellInt("stm_mrg"),locList);
+					stu.getBalance(getBr().getSelectUtil(), getSessionHelper(), getBr().getCellInt("stm_nref4"), getBr().getCell("stm_date").getDate(), getBr().getCellInt("stm_mrg"),locList);
 					stu.syncBalance(getBr(),StockTake.this);
 				} catch (Exception ex) {
 					UniLog.log(ex);
@@ -132,7 +132,7 @@ public class StockTake extends JxZkBiBase {
 				try {
 					StockTakeUtil stkutil = new StockTakeUtil(Erpv4Config.getString(getSessionHelper(), StockTakeUtil.STOCKTAKEFILTER));
 					stkutil.init();
-					stkutil.getBalance(getBr().getSelectUtil(),getBr().getCellInt("stm_nref4"),getBr().getCell("stm_date").getDate(),0,locList);
+					stkutil.getBalance(getBr().getSelectUtil(),getSessionHelper(),getBr().getCellInt("stm_nref4"),getBr().getCell("stm_date").getDate(),0,locList);
 					stkutil.syncBalance(getBr(),StockTake.this);
 				} catch (Exception ex) {
 					UniLog.log(ex);
@@ -174,7 +174,7 @@ public class StockTake extends JxZkBiBase {
 		stu = new StockTakeUtil(Erpv4Config.getString(getSessionHelper(),StockTakeUtil.STOCKTAKEFILTER));
 		if(mode == JxZkBiBase.MODE_UPDATE) {
 			try {
-				stu.getBalance(p_br.getSelectUtil(), p_br.getCellInt("stm_nref4"), p_br.getCell("stm_date").getDate(), p_br.getCellInt("stm_mrg"),locList);
+				stu.getBalance(p_br.getSelectUtil(), p_br.getSessionHelper(), p_br.getCellInt("stm_nref4"), p_br.getCell("stm_date").getDate(), p_br.getCellInt("stm_mrg"),locList);
 				syncPickList();
 			} catch (Exception ex) {
 				UniLog.log(ex);
@@ -338,7 +338,7 @@ public class StockTake extends JxZkBiBase {
 						if(sid > 0) {
 							reloadCurrentBySid(sid, JxZkBiBase.MODE_UPDATE);
 						} else {
-							stu.getBalance(getBr().getSelectUtil(), getBr().getCellInt("stm_nref4"), getBr().getCell("stm_date").getDate(), getBr().getCellInt("stm_mrg"),locList);
+							stu.getBalance(getBr().getSelectUtil(), getSessionHelper(), getBr().getCellInt("stm_nref4"), getBr().getCell("stm_date").getDate(), getBr().getCellInt("stm_mrg"),locList);
 							stu.syncBalance(getBr(),this);
 						}
 					} catch (Exception ex) {

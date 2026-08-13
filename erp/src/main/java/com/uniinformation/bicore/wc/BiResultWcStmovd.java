@@ -7,6 +7,7 @@ import com.uniinformation.bicore.BiResult;
 import com.uniinformation.bicore.BiView;
 import com.uniinformation.cell.CellCollection;
 import com.uniinformation.cell.CellException;
+import com.uniinformation.erpv4.Erpv4Config;
 import com.uniinformation.rpccall.RpcClient;
 import com.uniinformation.rpccall.Value;
 import com.uniinformation.utils.SelectUtil;
@@ -86,7 +87,7 @@ public class BiResultWcStmovd extends BiResult {
 			col.getCell("stmd_stkqty").set(0.0);
 //			col.getCell("stmd_pcost").set(f);
 			f += 1.0;
-			if(stmd_tdtype.equals("MO")) {
+			if(stmd_tdtype.equals(Erpv4Config.getStmd_MO(getSessionHelper()))) {
 				col.getCell("stmd_sprice").set(
 								col.getCell("stmd_exprice1").getDouble() /
 								col.getCell("stmd_qty").getDouble() 
@@ -111,7 +112,8 @@ public class BiResultWcStmovd extends BiResult {
 					col.getCell("stmd_pcost").set(col.getCell("stmd_fref1").getDouble());
 				}
 			}
-			if(stmd_tdtype.equals("PD") || stmd_tdtype.equals("MI") ) {
+			if(stmd_tdtype.equals(Erpv4Config.getStmd_PD(getSessionHelper()))
+					|| stmd_tdtype.equals(Erpv4Config.getStmd_MI(getSessionHelper()))) {
 				if(or_cocode.equals("WINECAVE")) {
 					col.getCell("stmd_stkqty").set(col.getCell("stmd_qty").getDouble());
 					col.getCell("stmd_pcost").set(

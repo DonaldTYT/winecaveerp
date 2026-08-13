@@ -16,6 +16,7 @@ import com.uniinformation.bicore.ColumnCell;
 import com.uniinformation.cell.Cell;
 import com.uniinformation.cell.CellException;
 import com.uniinformation.cell.CellValueAction;
+import com.uniinformation.erpv4.Erpv4Config;
 import com.uniinformation.utils.SelectUtil;
 import com.uniinformation.utils.TableRec;
 import com.uniinformation.utils.UniLog;
@@ -96,7 +97,8 @@ public class BiResultGrG2 extends BiResultGR {
 			pdlist = new ArrayList<PdsControl>();
 			try {
 			TableRec tr;
-			tr = getSelectUtil().getQueryResult("select stmd_org,stmd_irg,stmd_tdindex from stmov,stmovd where stm_mrg = stmd_mrg and stm_status = 'Confirmed' and stmd_tdtype = 'PD' and stmd_qty > 0 and stm_mrg = " + p_mrg);
+			tr = getSelectUtil().getQueryResult("select stmd_org,stmd_irg,stmd_tdindex from stmov,stmovd where stm_mrg = stmd_mrg and stm_status = 'Confirmed' and stmd_tdtype = '"
+					+ Erpv4Config.getStmd_PD(getSessionHelper()) + "' and stmd_qty > 0 and stm_mrg = " + p_mrg);
 			for(int i=0;i<tr.getRecordCount();i++) {
 				tr.setRecPointer(i);
 				int org = tr.getFieldInt("stmd_org");

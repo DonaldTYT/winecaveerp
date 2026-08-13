@@ -11,6 +11,7 @@ import com.uniinformation.bicore.BiView;
 import com.uniinformation.cell.CellCollection;
 import com.uniinformation.cell.CellException;
 import com.uniinformation.erpv4.CostCalculation;
+import com.uniinformation.erpv4.Erpv4Config;
 import com.uniinformation.erpv4.GenbucketUtil;
 import com.uniinformation.rpccall.RpcClient;
 import com.uniinformation.rpccall.Value;
@@ -52,7 +53,7 @@ public class BiResultOsOrderDet extends BiResult {
 		try {
 			for(CellCollection col:recs) {
 				col.getCell("stmd_tdindex").set(n);
-				args.add("SI");
+				args.add(Erpv4Config.getStmd_SI(getSessionHelper()));
 				args.add(col.getCell("stmd_org").getInt());
 				args.add(col.getCell("stmd_irg").getInt());
 				if(col.testCell("stmd_loc") != null) {

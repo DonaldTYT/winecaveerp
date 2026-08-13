@@ -210,7 +210,8 @@ public class GR extends JxZkBiBase {
 		super.bindCellCollection(p_br, mode);
 		cgList = new Vector();
 		try {
-			TableRec tr = p_br.getSelectUtil().getQueryResult("select distinct stmd_ref from stmovd where stmd_tdtype in("+Erpv4Config.PURCHASE_TDtypes+") order by 1", null);
+			TableRec tr = p_br.getSelectUtil().getQueryResult("select distinct stmd_ref from stmovd where stmd_tdtype in('"
+					+ Erpv4Config.getStmd_PD(p_br.getSessionHelper()) + "') order by 1", null);
 			for(int i=0;i<tr.getRecordCount();i++) {
 				tr.setRecPointer(i);
 				cgList.add((String) tr.getField("stmd_ref"));

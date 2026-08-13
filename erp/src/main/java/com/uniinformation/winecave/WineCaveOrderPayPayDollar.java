@@ -18,6 +18,7 @@ import org.apache.commons.lang.math.NumberUtils;
 import com.google.gson.Gson;
 import com.kikyosoft.utils.DateUtil;
 import com.kyoko.common.CoreLog;
+import com.uniinformation.erpv4.Erpv4Config;
 import com.uniinformation.rpccall.RpcClient;
 import com.uniinformation.rpccall.Value;
 import com.uniinformation.utils.IniHelper;
@@ -191,7 +192,7 @@ public class WineCaveOrderPayPayDollar extends WineCaveOrderPay {
 															+" from stmov,stmovd"
 															+" where stm_type = 'OM' and stm_mrg = "+p_invrg
 //															+" and stm_pmmethod = 'Online' "
-															+" and stmd_mrg = stm_mrg and stmd_tdtype = 'MO'"
+													+" and stmd_mrg = stm_mrg and stmd_tdtype = '" + Erpv4Config.getStmd_MO(sp) + "'"
 															+" group by stm_mrg, stm_ref1, stm_date, stm_fref2, stm_discount"
 															, null
 														);

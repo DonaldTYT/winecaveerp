@@ -36,7 +36,9 @@ public class BiResultAfsDoDet extends BiResult {
 				if(irg <= 0 || org <= 0) return;
 				try {
 					TableRec tr = su.getQueryResult("select serial_id,stmd_nref1 , stmd_nref2 , stmd_nref3 , stmd_fref1 from stmovd where "
-							+ " stmd_tdtype in (" + Erpv4Config.STOCKIN_TDtypes+") "
+							+ " stmd_tdtype in ('" + Erpv4Config.getStmd_RI(getSessionHelper()) + "','"
+							+ Erpv4Config.getStmd_MI(getSessionHelper()) + "','" + Erpv4Config.getStmd_JI(getSessionHelper()) + "','"
+							+ Erpv4Config.getStmd_BI(getSessionHelper()) + "') "
 							+ " and stmd_org = " + org
 							+ " and stmd_irg = " + irg
 							+ " and stmd_fref1 > 0"

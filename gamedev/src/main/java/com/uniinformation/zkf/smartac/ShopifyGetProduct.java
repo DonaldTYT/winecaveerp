@@ -427,7 +427,7 @@ public class ShopifyGetProduct extends ZkCellActionForm{
 			UniLog.log("sync " + tr2.getRecordCount() + " records");
 			for(int i=0;i<tr2.getRecordCount();i++) {
 				tr2.setRecPointer(i);
-				if(tr2.getFieldString("stmd_tdtype").equals("KO")) {
+				if(tr2.getFieldString("stmd_tdtype").equals(Erpv4Config.getStmd_KO(p_br.getSessionHelper()))) {
 					if(fromLocId == 0L) {
 						if(!tr2.getFieldString("stmd_apisynced").equals("")) {
 							su.executeUpdate("update stmovd set stmd_apisynced = '' where serial_id = ?", 
@@ -458,7 +458,7 @@ public class ShopifyGetProduct extends ZkCellActionForm{
 					}
 				}
 				
-				if(tr2.getFieldString("stmd_tdtype").equals("KI")) {
+				if(tr2.getFieldString("stmd_tdtype").equals(Erpv4Config.getStmd_KI(p_br.getSessionHelper()))) {
 					if(toLocId == 0L) {
 						if(!tr2.getFieldString("stmd_apisynced").equals("")) {
 							su.executeUpdate("update stmovd set stmd_apisynced = '' where serial_id = ?", 
@@ -518,7 +518,7 @@ public class ShopifyGetProduct extends ZkCellActionForm{
 			UniLog.log("unsync " + tr2.getRecordCount() + " records");
 			for(int i=0;i<tr2.getRecordCount();i++) {
 				tr2.setRecPointer(i);
-				if(tr2.getFieldString("stmd_tdtype").equals("KO")) {
+				if(tr2.getFieldString("stmd_tdtype").equals(Erpv4Config.getStmd_KO(p_br.getSessionHelper()))) {
 					if(fromLocId == 0L) {
 						if(!tr2.getFieldString("stmd_apisynced").equals("")) {
 							su.executeUpdate("update stmovd set stmd_apisynced = '' where serial_id = ?", 
@@ -548,7 +548,7 @@ public class ShopifyGetProduct extends ZkCellActionForm{
 						}
 					}
 				}
-				if(tr2.getFieldString("stmd_tdtype").equals("KI")) {
+				if(tr2.getFieldString("stmd_tdtype").equals(Erpv4Config.getStmd_KI(p_br.getSessionHelper()))) {
 					if(toLocId == 0L) {
 						if(!tr2.getFieldString("stmd_apisynced").equals("")) {
 							su.executeUpdate("update stmovd set stmd_apisynced = '' where serial_id = ?", 

@@ -39,7 +39,7 @@ public class BiResultMoDet extends BiResultStmovd{
 			public void cellAction_onchange(Cell p_value)
 					throws CellException {
 				CellCollection col = ((ColumnCell) p_value).getCollection();
-				if(col.getCell("stmd_tdtype").getString().equals("MO")) {
+				if(col.getCell("stmd_tdtype").getString().equals(Erpv4Config.getStmd_MO(sh))) {
 					if(col.testCell("or_ocode") != null) col.getCell("or_ocode").setMode(Cell.VMODE_NORMAL);
 					if(col.testCell("inv_invno") != null) col.getCell("inv_invno").setMode(Cell.VMODE_DISPONLY);
 					if(col.testCell("stmd_uprice") != null) {
@@ -50,7 +50,7 @@ public class BiResultMoDet extends BiResultStmovd{
 //								col.getCell("stmd_uprice").setMode(Cell.VMODE_NORMAL);
 								col.getCell("stmd_uprice").protect(false);
 					}
-				} else if(col.getCell("stmd_tdtype").getString().equals("JO")) {
+				} else if(col.getCell("stmd_tdtype").getString().equals(Erpv4Config.getStmd_JO(sh))) {
 					if(col.testCell("or_ocode") != null) col.getCell("or_ocode").setMode(Cell.VMODE_NORMAL);
 					if(col.testCell("inv_invno") != null) col.getCell("inv_invno").setMode(Cell.VMODE_DISPONLY);
 					if(col.testCell("stmd_uprice") != null) {
@@ -61,7 +61,7 @@ public class BiResultMoDet extends BiResultStmovd{
 //								col.getCell("stmd_uprice").setMode(Cell.VMODE_NORMAL);
 								col.getCell("stmd_uprice").protect(false);
 					}
-				} else if(col.getCell("stmd_tdtype").getString().equals("RO")) {
+				} else if(col.getCell("stmd_tdtype").getString().equals(Erpv4Config.getStmd_RO(sh))) {
 					if(col.testCell("or_ocode") != null) col.getCell("or_ocode").setMode(Cell.VMODE_NORMAL);
 					if(col.testCell("inv_invno") != null) col.getCell("inv_invno").setMode(Cell.VMODE_DISPONLY);
 					if(col.testCell("stmd_uprice") != null) {
@@ -71,7 +71,7 @@ public class BiResultMoDet extends BiResultStmovd{
 							else
 								col.getCell("stmd_uprice").protect(false);
 					}
-				} else if(col.getCell("stmd_tdtype").getString().equals("JI")) {
+				} else if(col.getCell("stmd_tdtype").getString().equals(Erpv4Config.getStmd_JI(sh))) {
 					if(col.testCell("or_ocode") != null) col.getCell("or_ocode").setMode(Cell.VMODE_DISPONLY);
 					if(col.testCell("inv_invno") != null) col.getCell("inv_invno").setMode(Cell.VMODE_NORMAL);
 					if(col.testCell("stmd_uprice") != null) {
@@ -82,7 +82,7 @@ public class BiResultMoDet extends BiResultStmovd{
 //								col.getCell("stmd_uprice").setMode(Cell.VMODE_NORMAL);
 								col.getCell("stmd_uprice").protect(false);
 					}
-				} else if(col.getCell("stmd_tdtype").getString().equals("RI")) {
+				} else if(col.getCell("stmd_tdtype").getString().equals(Erpv4Config.getStmd_RI(sh))) {
 					if(col.testCell("or_ocode") != null) col.getCell("or_ocode").setMode(Cell.VMODE_DISPONLY);
 					if(col.testCell("inv_invno") != null) col.getCell("inv_invno").setMode(Cell.VMODE_NORMAL);
 					if(col.testCell("stmd_uprice") != null) {
@@ -93,7 +93,7 @@ public class BiResultMoDet extends BiResultStmovd{
 //								col.getCell("stmd_uprice").setMode(Cell.VMODE_NORMAL);
 								col.getCell("stmd_uprice").protect(false);
 					}
-				} else if(col.getCell("stmd_tdtype").getString().equals("MI")) {
+				} else if(col.getCell("stmd_tdtype").getString().equals(Erpv4Config.getStmd_MI(sh))) {
 					if(col.testCell("or_ocode") != null) col.getCell("or_ocode").setMode(Cell.VMODE_DISPONLY);
 					if(col.testCell("inv_invno") != null) col.getCell("inv_invno").setMode(Cell.VMODE_NORMAL);
 					if(col.testCell("stmd_uprice") != null) {
@@ -135,7 +135,7 @@ public class BiResultMoDet extends BiResultStmovd{
 			double sprice=0.0f;
 			String updField=null;
 			sprice = col.getDouble("stmd_uprice");
-			if(col.getCellString("stmd_tdtype").equals("MO")) {
+			if(col.getCellString("stmd_tdtype").equals(Erpv4Config.getStmd_MO(sh))) {
 				if(col.testCell("vd_priceclass") != null && col.testCell("stmd_rprice") != null) {
 					uprice =	col.getCell("stmd_rprice").getDouble();
 					Erpv4StockAttribute stAttr = ((Erpv4StmdCellCollection) col).getStockAttribute();
@@ -181,8 +181,8 @@ public class BiResultMoDet extends BiResultStmovd{
 		if(col.getCell("stm_module").getString().equals("vstmo")) {
 			col.getCell("stmd_tdtype").setItemPropertyInterface(
 					new GipiNamedItemList()
-						.appendItem("MI",Erpv4Config.getStmdName(sh, "MI"))
-						.appendItem("RO", Erpv4Config.getStmdName(sh, "RO"))
+						.appendItem(Erpv4Config.getStmd_MI(sh), Erpv4Config.getStmdName(sh, Erpv4Config.getStmd_MI(sh)))
+						.appendItem(Erpv4Config.getStmd_RO(sh), Erpv4Config.getStmdName(sh, Erpv4Config.getStmd_RO(sh)))
 					);
 		}
 		if(col.getCell("stm_module").getString().equals("cstmo")) {
@@ -196,15 +196,15 @@ public class BiResultMoDet extends BiResultStmovd{
 					*/
 			col.getCell("stmd_tdtype").setItemPropertyInterface(
 					new GipiNamedItemList()
-						.appendItem("MO",Erpv4Config.getStmdName(sh, "MO"))
-						.appendItem("RI", Erpv4Config.getStmdName(sh, "RI"))
+						.appendItem(Erpv4Config.getStmd_MO(sh), Erpv4Config.getStmdName(sh, Erpv4Config.getStmd_MO(sh)))
+						.appendItem(Erpv4Config.getStmd_RI(sh), Erpv4Config.getStmdName(sh, Erpv4Config.getStmd_RI(sh)))
 					);
 		}
 		if(col.getCell("stm_module").getString().equals("stadj")) {
 			col.getCell("stmd_tdtype").setItemList(
 						new VectorUtil()
-						.addElement("JI")
-						.addElement("JO")
+						.addElement(Erpv4Config.getStmd_JI(sh))
+						.addElement(Erpv4Config.getStmd_JO(sh))
 						.toVector()
 					);
 		}

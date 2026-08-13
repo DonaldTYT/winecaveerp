@@ -108,7 +108,7 @@ public class BiResultStockLedgerG2 extends BiResultLedgerG2 {
 			double oQty = getCell("stmd_outqty").getDouble();
 			double iCost = 0.0;
 			double oCost = getCell("stmd_unitcost").getDouble() * oQty;
-			if(Erpv4BaseCellCollection.stkInQty.contains(getCellString("stmd_tdtype"))) {
+			if(Erpv4Config.isStkInTdtype(getSessionHelper(), getCellString("stmd_tdtype"))) {
 				iCost = getCell("stmd_exprice1").getDouble();
 			}
 			ca.updateBalanceWithCost(idx, iQty, 0, 1,iCost);
@@ -151,7 +151,7 @@ public class BiResultStockLedgerG2 extends BiResultLedgerG2 {
 						dd = CostCalculation.getCostOfGoodSold(getSessionHelper(),irg, org, openBalDate);
 					}
 					*/
-					if(Erpv4BaseCellCollection.stkInQty.contains(getCellString("stmd_tdtype"))) {
+					if(Erpv4Config.isStkInTdtype(getSessionHelper(), getCellString("stmd_tdtype"))) {
 						dd = getCellDouble("stmd_netqty");
 						if(dd !=  0) {
 							dd = getCellDouble("stmd_exprice1") / dd;
@@ -169,13 +169,13 @@ public class BiResultStockLedgerG2 extends BiResultLedgerG2 {
 	protected double getInQty(Vector p_args) throws Exception {
 		String tdtype = (String) p_args.get(0);
 		double qty = ((Double) p_args.get(1));
-		if(Erpv4BaseCellCollection.stmdInQty.contains(tdtype)) return(qty); else return(0.0);
+		if(Erpv4Config.isStmdInTdtype(getSessionHelper(), tdtype)) return(qty); else return(0.0);
 	}
 	@Override
 	protected double getOutQty(Vector p_args) throws Exception {
 		String tdtype = (String) p_args.get(0);
 		double qty = ((Double) p_args.get(1));
-		if(Erpv4BaseCellCollection.stmdOutQty.contains(tdtype)) return(qty); else return(0.0);
+		if(Erpv4Config.isStmdOutTdtype(getSessionHelper(), tdtype)) return(qty); else return(0.0);
 	}
 
 	@Override

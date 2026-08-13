@@ -142,7 +142,9 @@ public class AfsGR extends GR {
 						if(bcol.testCell("orddet_ref") != null) {
 							if(bcol.getCellString("orddet_ref").equals("")) {
 								UniLog.log("Set Default Custom Group");
-								tr = su.getQueryResult("select stmd_mrg,stmd_ref from stmovd where stmd_tdtype = 'PD' and stmd_ref <> '' and stmd_irg = " + bcol.getCellInt("stmd_irg") + " order by stmd_mrg desc",null);
+								tr = su.getQueryResult("select stmd_mrg,stmd_ref from stmovd where stmd_tdtype = '"
+										+ Erpv4Config.getStmd_PD(getSessionHelper()) + "' and stmd_ref <> '' and stmd_irg = "
+										+ bcol.getCellInt("stmd_irg") + " order by stmd_mrg desc",null);
 								if(tr.getRecordCount() > 0) {
 									tr.setRecPointer(0);
 									bcol.getCell("orddet_ref").set(tr.getFieldString("stmd_ref"));

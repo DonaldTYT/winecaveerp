@@ -280,7 +280,7 @@ public class BiResultQuoDet extends BiResultErpv4 {
 		try {
 			for(CellCollection col:recs) {
 				col.getCell("stmd_tdindex").set(n);
-				args.add("SI");
+				args.add(Erpv4Config.getStmd_SI(getSessionHelper()));
 				args.add(col.getCell("stmd_org").getInt());
 				args.add(col.getCell("stmd_irg").getInt());
 				if(col.testCell("stmd_loc") != null) {
@@ -377,7 +377,7 @@ public class BiResultQuoDet extends BiResultErpv4 {
 						scol.getCell("stmd_irg").set(p_col.getCell("ind_irg").getInt());
 						scol.getCell("stmd_qirg").set(p_col.getCell("ind_irg").getInt());
 						scol.getCell("stmd_qty").set(p_col.getCell("ind_stqty").getDouble());
-						scol.getCell("stmd_tdtype").set("SI");
+						scol.getCell("stmd_tdtype").set(Erpv4Config.getStmd_SI(getSessionHelper()));
 						scol.getCell("stmd_tdindex").set(0);
 						scol.getCell("stmd_org").set(Erpv4Config.getCoWtAvOrg(sh, p_col.getCellString("inv_cocode")));
 						if(p_col.testCell("inv_loc") != null && scol.testCell("stmd_loc") != null)  {

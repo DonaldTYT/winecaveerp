@@ -228,14 +228,19 @@ public class BiResultStock extends BiResultErpv4 {
 	void reloadStockMove() {
 		try {
 			SelectUtil su = getSelectUtil();
-			TableRec tr = getSelectUtil().getQueryResult("select stmd_mrg,stmd_uprice,stmd_cur from stmovd where stmd_tdtype in("+Erpv4Config.STOCKIN_TDtypes+") and stmd_irg = "+ getCell("st_irg").getInt() + " and stmd_uprice > 0 order by stmd_mrg desc", null);
+			TableRec tr = getSelectUtil().getQueryResult("select stmd_mrg,stmd_uprice,stmd_cur from stmovd where stmd_tdtype in('"
+					+ Erpv4Config.getStmd_RI(getSessionHelper()) + "','" + Erpv4Config.getStmd_MI(getSessionHelper()) + "','"
+					+ Erpv4Config.getStmd_JI(getSessionHelper()) + "','" + Erpv4Config.getStmd_BI(getSessionHelper())
+					+ "') and stmd_irg = "+ getCell("st_irg").getInt() + " and stmd_uprice > 0 order by stmd_mrg desc", null);
 			if(tr.getRecordCount() > 0) {
 				tr.setRecPointer(0);
 				getCell("st_lastpcost").set(
 							String.format("%s %.2f", tr.getField("stmd_cur"),tr.getField("stmd_uprice"))
 						);
 			}
-			tr = getSelectUtil().getQueryResult("select inv_cid,ind_odrg,ind_uprice,ind_cid from stmovd,quodet,quotation where stmd_tdtype = 'SO' and stmd_irg = "+ getCell("st_irg").getInt() + " and ind_odrg = stmd_qorg and inv_rg = ind_rg and ind_uprice > 0 order by ind_odrg desc", null);
+			tr = getSelectUtil().getQueryResult("select inv_cid,ind_odrg,ind_uprice,ind_cid from stmovd,quodet,quotation where stmd_tdtype = '"
+					+ Erpv4Config.getStmd_SO(getSessionHelper()) + "' and stmd_irg = "+ getCell("st_irg").getInt()
+					+ " and ind_odrg = stmd_qorg and inv_rg = ind_rg and ind_uprice > 0 order by ind_odrg desc", null);
 			if(tr.getRecordCount() > 0) {
 				tr.setRecPointer(0);
 				getCell("st_lastsprice").set(

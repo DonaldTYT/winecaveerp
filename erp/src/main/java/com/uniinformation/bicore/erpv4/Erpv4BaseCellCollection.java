@@ -3,7 +3,6 @@ package com.uniinformation.bicore.erpv4;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.text.SimpleDateFormat;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
@@ -42,11 +41,6 @@ public class Erpv4BaseCellCollection extends BiCellCollection {
 //	HashMap <String,Double> currentXrateMap = null;
 	BxRateUtil rateUtil=null;
 	
-	static public Set<String> stkInQty = new HashSet<String>(Arrays.asList("BI", "MI", "JI","RI"));
-	static public Set<String> stkOutQty = new HashSet<String>(Arrays.asList("MO", "JO","RO","SO"));
-	static public Set<String> stmdOutQty = new HashSet<String>(Arrays.asList("MO","JO","RO","KO","SO"));
-	static public Set<String> stmdInQty = new HashSet<String>(Arrays.asList("MI", "JI","RI","KI","BI"));
-//	static HashSet<String> stkInQty = new HashSet<String> () = {"ABC"};
 	private enum FuncName { FUNC_baseccy, FUNC_getCurrentXrate, FUNC_getXrateByDate, FUNC_getStDimFactor, FUNC_getStDimW, FUNC_getStDimL, FUNC_getStDimH, 
 					FUNC_getStmdInQty, FUNC_getStmdOutQty,FUNC_getMunit,FUNC_getDunit,FUNC_defaultCocode,FUNC_getDueDate,FUNC_datePeriod,FUNC_getConfig,FUNC_callsegi,FUNC_callsegs,FUNC_getWtAvOrg,
 					FUNC_getAverageCost,FUNC_convToRef4,FUNC_ref4ToExpD,FUNC_ref4ToLotNo,FUNC_getStmdDirection,FUNC_getCrossRateByDate,Func_convToRef4Ex,FUNC_getLocBalance,FUNC_getRemoteFreeStock,
@@ -230,17 +224,17 @@ public class Erpv4BaseCellCollection extends BiCellCollection {
 		case FUNC_getStmdInQty : {
 				String tdtype = (String) p_args.get(0);
 				double qty = ((Double) p_args.get(1));
-				if(stkInQty.contains(tdtype)) return(qty); else return(0.0);
+				if(Erpv4Config.isStkInTdtype(br.getSessionHelper(), tdtype)) return(qty); else return(0.0);
 			}
 		case FUNC_getStmdOutQty : {
 				String tdtype = (String) p_args.get(0);
 				double qty = ((Double) p_args.get(1));
-				if(stkOutQty.contains(tdtype)) return(qty); else return(0.0);
+				if(Erpv4Config.isStkOutTdtype(br.getSessionHelper(), tdtype)) return(qty); else return(0.0);
 			}
 		case FUNC_getStmdDirection : {
 			String tdtype = (String) p_args.get(0);
-			if(stmdOutQty.contains(tdtype)) return(-1.0);
-			if(stmdInQty.contains(tdtype)) return(1.0);
+			if(Erpv4Config.isStmdOutTdtype(br.getSessionHelper(), tdtype)) return(-1.0);
+			if(Erpv4Config.isStmdInTdtype(br.getSessionHelper(), tdtype)) return(1.0);
 			return(0.0);
 		}
 		case FUNC_getMunit: {
@@ -403,7 +397,7 @@ public class Erpv4BaseCellCollection extends BiCellCollection {
 			String tdType = (String) p_args.get(3);
 			if(StringUtils.isBlank(tdType)) return(0.0);
 			double dd = 0.0;
-			if(stkInQty.contains(tdType)) {
+			if(Erpv4Config.isStkInTdtype(br.getSessionHelper(), tdType)) {
 				dd = (Double) p_args.get(4);
 			} else {
 				dd = CostCalculation.getWaCost(br.getSessionHelper(),irg, org, d);

@@ -376,7 +376,7 @@ public class ZkBiComposerOsOrderDet extends ZkBiComposerBase {
             					if(consumed > 0) {
             						StmdRec stmdr=null;
             						for(int i=0;i<stmdRecs.size();i++) {
-            							if(stmdRecs.get(i).type.equals("SI") &&
+							if(stmdRecs.get(i).type.equals(Erpv4Config.getStmd_SI(getSessionHelper())) &&
             									stmdRecs.get(i).irg == result.getCell("qdst_qirg").getInt() &&
             									stmdRecs.get(i).org == org
             									) {
@@ -387,7 +387,7 @@ public class ZkBiComposerOsOrderDet extends ZkBiComposerBase {
             						if(stmdr == null) {
             							stmdr = new StmdRec(
             									0,
-            									"SI",
+										Erpv4Config.getStmd_SI(getSessionHelper()),
             									result.getCell("qdst_qirg").getInt(),
             									org,
             									0

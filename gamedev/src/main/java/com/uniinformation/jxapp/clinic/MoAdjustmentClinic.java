@@ -46,7 +46,7 @@ public class MoAdjustmentClinic extends MoPos {
 				if(qty > 0) {
 					BiCellCollection col = sr.newRowCollection();
 
-					col.getCell("stmd_tdtype").set("JI");
+					col.getCell("stmd_tdtype").set(Erpv4Config.getStmd_JI(getSessionHelper()));
 					col.getCell("stmd_irg").set(jr.getInt("stsn_irg"));
 					col.getCell("stmd_org").set(jr.getInt("stsn_org"));
 					col.getCell("stmd_ref4").set(jr.getString("stsn_ref4"));

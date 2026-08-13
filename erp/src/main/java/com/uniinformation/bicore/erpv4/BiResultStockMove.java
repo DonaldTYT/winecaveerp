@@ -143,21 +143,21 @@ public class BiResultStockMove extends BiResultErpv4 {
 								if(sto != null && i==0) iqty += sto.balance;
 								String stmtype = col.getCell("stmd_tdtype").getString();
 								if(
-										stmtype.equals("MI")
-										|| stmtype.equals("RI")
-										|| stmtype.equals("BI")
-										|| stmtype.equals("JI")
-										|| stmtype.equals("KI")
+										stmtype.equals(Erpv4Config.getStmd_MI(getSessionHelper()))
+										|| stmtype.equals(Erpv4Config.getStmd_RI(getSessionHelper()))
+										|| stmtype.equals(Erpv4Config.getStmd_BI(getSessionHelper()))
+										|| stmtype.equals(Erpv4Config.getStmd_JI(getSessionHelper()))
+										|| stmtype.equals(Erpv4Config.getStmd_KI(getSessionHelper()))
 										) {
 //									accu.updateBalance(col.getCell("stm_date").getDate(), col.getCell("stmd_onhandqty").getDouble(), 0, 1);
 									iqty += col.getCell("stmd_movqty").getDouble();
 								}
 								if(
-										stmtype.equals("MO")
-										|| stmtype.equals("RO")
-										|| stmtype.equals("SO")
-										|| stmtype.equals("JO")
-										|| stmtype.equals("KO")
+										stmtype.equals(Erpv4Config.getStmd_MO(getSessionHelper()))
+										|| stmtype.equals(Erpv4Config.getStmd_RO(getSessionHelper()))
+										|| stmtype.equals(Erpv4Config.getStmd_SO(getSessionHelper()))
+										|| stmtype.equals(Erpv4Config.getStmd_JO(getSessionHelper()))
+										|| stmtype.equals(Erpv4Config.getStmd_KO(getSessionHelper()))
 										) {
 									oqty += col.getCell("stmd_movqty").getDouble();
 //									accu.updateBalance(col.getCell("stm_date").getDate(), 0,col.getCell("stmd_onhandqty").getDouble(), 1);

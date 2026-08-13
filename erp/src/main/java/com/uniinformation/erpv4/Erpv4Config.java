@@ -20,14 +20,56 @@ import com.uniinformation.utils.Wherecl;
 import com.uniinformation.webcore.SessionHelper;
 
 public class Erpv4Config extends BiConfig {
-//	static public String STOCK_IN_TDtypes="'PD','MI','JI'";
+	// static public String STOCKIN_TDtypes="'RI','MI','JI','BI'";
+	// static public String PURCHASE_TDtypes="'PD'";
 
-//	static public String STOCK_IN_TDtypes="'RI','MI','JI'";
-	
-	
-	static public String STOCKIN_TDtypes="'RI','MI','JI','BI'";
-	static public String PURCHASE_TDtypes="'PD'";
 	static public enum LOCATION_TYPE {LOCATION_TYPE_ANY,LOCATION_TYPE_DEFAULT,LOCATION_TYPE_TRANSFER,LOCATION_TYPE_BYLCRG_EXCLUDE_TRANSIT,LOCATION_TYPE_COMPANY_DEFAULT,LOCATION_TYPE_COMPANY_EXCLUDE_TRANSIT}
+
+	private static String getStmdType(SessionHelper sh, String type) {
+		String key = "stmd_" + type;
+		String value = (String) getAgentData(sh.getAgent(), key);
+		if (value == null) {
+			value = BiConfig.getString(sh, "STMD_" + type);
+			if (value == null) value = type;
+			putAgent(sh.getAgent(), key, value);
+		}
+		return value;
+	}
+
+	static public String getStmd_BI(SessionHelper sh) { return getStmdType(sh, "BI"); }
+	static public String getStmd_JI(SessionHelper sh) { return getStmdType(sh, "JI"); }
+	static public String getStmd_JO(SessionHelper sh) { return getStmdType(sh, "JO"); }
+	static public String getStmd_KI(SessionHelper sh) { return getStmdType(sh, "KI"); }
+	static public String getStmd_KO(SessionHelper sh) { return getStmdType(sh, "KO"); }
+	static public String getStmd_MI(SessionHelper sh) { return getStmdType(sh, "MI"); }
+	static public String getStmd_MO(SessionHelper sh) { return getStmdType(sh, "MO"); }
+	static public String getStmd_PD(SessionHelper sh) { return getStmdType(sh, "PD"); }
+	static public String getStmd_RI(SessionHelper sh) { return getStmdType(sh, "RI"); }
+	static public String getStmd_RO(SessionHelper sh) { return getStmdType(sh, "RO"); }
+	static public String getStmd_SI(SessionHelper sh) { return getStmdType(sh, "SI"); }
+	static public String getStmd_SO(SessionHelper sh) { return getStmdType(sh, "SO"); }
+
+	static public boolean isStkInTdtype(SessionHelper sh, String type) {
+		return getStmd_BI(sh).equals(type) || getStmd_MI(sh).equals(type)
+				|| getStmd_JI(sh).equals(type) || getStmd_RI(sh).equals(type);
+	}
+
+	static public boolean isStkOutTdtype(SessionHelper sh, String type) {
+		return getStmd_MO(sh).equals(type) || getStmd_JO(sh).equals(type)
+				|| getStmd_RO(sh).equals(type) || getStmd_SO(sh).equals(type);
+	}
+
+	static public boolean isStmdInTdtype(SessionHelper sh, String type) {
+		return getStmd_MI(sh).equals(type) || getStmd_JI(sh).equals(type)
+				|| getStmd_RI(sh).equals(type) || getStmd_KI(sh).equals(type)
+				|| getStmd_BI(sh).equals(type);
+	}
+
+	static public boolean isStmdOutTdtype(SessionHelper sh, String type) {
+		return getStmd_MO(sh).equals(type) || getStmd_JO(sh).equals(type)
+				|| getStmd_RO(sh).equals(type) || getStmd_KO(sh).equals(type)
+				|| getStmd_SO(sh).equals(type);
+	}
 	
 	static public boolean isMultiDepartment(SessionHelper sp) {
 		String ss = getString(sp,"multiDepartment");
@@ -355,9 +397,15 @@ public class Erpv4Config extends BiConfig {
 			p_sp.putSessionData("USEGMMI", b);
 		}
 		if(b) {
-			return("'RI','MI','JI','KI','RO','MO','JO','KO','SO'");
+			return("'" + getStmd_RI(p_sp) + "','" + getStmd_MI(p_sp) + "','"
+					+ getStmd_JI(p_sp) + "','" + getStmd_KI(p_sp) + "','" + getStmd_RO(p_sp) + "','"
+					+ getStmd_MO(p_sp) + "','" + getStmd_JO(p_sp) + "','" + getStmd_KO(p_sp) + "','"
+					+ getStmd_SO(p_sp) + "'");
 		} else {
-			return("'RI','MI','JI','KI','RO','MO','JO','KO','SO','BI'");
+			return("'" + getStmd_RI(p_sp) + "','" + getStmd_MI(p_sp) + "','"
+					+ getStmd_JI(p_sp) + "','" + getStmd_KI(p_sp) + "','" + getStmd_RO(p_sp) + "','"
+					+ getStmd_MO(p_sp) + "','" + getStmd_JO(p_sp) + "','" + getStmd_KO(p_sp) + "','"
+					+ getStmd_SO(p_sp) + "','" + getStmd_BI(p_sp) + "'");
 		}
 	}
 	

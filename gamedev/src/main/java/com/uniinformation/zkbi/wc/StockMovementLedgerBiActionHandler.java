@@ -3,6 +3,7 @@ package com.uniinformation.zkbi.wc;
 import com.uniinformation.bicore.BiResult;
 import com.uniinformation.birt.ScriptedDataSetEventHander;
 import com.uniinformation.cell.Cell;
+import com.uniinformation.erpv4.Erpv4Config;
 import com.uniinformation.utils.BIRTUtil;
 import com.uniinformation.utils.TableRec;
 import com.uniinformation.utils.UniLog;
@@ -127,7 +128,8 @@ public class StockMovementLedgerBiActionHandler extends BiActionHandler {
 			selectWhere = br.conditionToWhereCl(true);
 			if(selectWhere == null) selectWhere = new Wherecl();
 			selectWhere.andUniop("pds_rcvqty", ">", 0);
-			selectWhere.appendString(" and stmd_tdtype not in ('KI','KO') ");
+			selectWhere.appendString(" and stmd_tdtype not in ('" + Erpv4Config.getStmd_KI(p_result.getSessionHelper())
+					+ "','" + Erpv4Config.getStmd_KO(p_result.getSessionHelper()) + "') ");
 			selectWhere.appendString(" and pds_irg = st_irg and or_org = pds_org and stmd_irg = pds_irg and stmd_org = pds_org and stm_mrg = stmd_mrg");
 		} catch (Exception ex) {
 			UniLog.log(ex);

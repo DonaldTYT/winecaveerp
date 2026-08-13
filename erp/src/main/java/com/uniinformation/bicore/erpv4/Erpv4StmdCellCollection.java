@@ -186,7 +186,8 @@ public class Erpv4StmdCellCollection extends Erpv4BaseCellCollection {
 						String fifoRef4 = null;
 						boolean skipExpired = false;
 						if("Y".equals(Erpv4Config.getString(br.getSessionHelper(), "MoSkipExpired")))  {
-							if(getCellString("stm_module").equals("cstmo") && (getCellString("stmd_tdtype").equals("MO"))  ){
+							if(getCellString("stm_module").equals("cstmo")
+									&& getCellString("stmd_tdtype").equals(Erpv4Config.getStmd_MO(br.getSessionHelper()))) {
 								skipExpired = true;
 							}
 						}

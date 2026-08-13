@@ -235,23 +235,23 @@ public class BiResultStockLedger extends BiResultErpv4 implements BiReportInterf
 			case FUNC_getStmdInQty : {
 				String tdtype = (String) p_args.get(0);
 				double qty = ((Double) p_args.get(1));
-				if("KI".equals(tdtype)) {
+				if(Erpv4Config.getStmd_KI(getSessionHelper()).equals(tdtype)) {
 					int cc;
 					cc = 0;
 				}
 				if(location != null) {
-					if(stmdInQty.contains(tdtype)) return(qty); else return(0.0);
+					if(Erpv4Config.isStmdInTdtype(getSessionHelper(), tdtype)) return(qty); else return(0.0);
 				} else {
-					if(stkInQty.contains(tdtype)) return(qty); else return(0.0);
+					if(Erpv4Config.isStkInTdtype(getSessionHelper(), tdtype)) return(qty); else return(0.0);
 				}
 			}
 			case FUNC_getStmdOutQty : {
 				String tdtype = (String) p_args.get(0);
 				double qty = ((Double) p_args.get(1));
 				if(location != null) {
-					if(stmdOutQty.contains(tdtype)) return(qty); else return(0.0);
+					if(Erpv4Config.isStmdOutTdtype(getSessionHelper(), tdtype)) return(qty); else return(0.0);
 				} else {
-					if(stkOutQty.contains(tdtype)) return(qty); else return(0.0);
+					if(Erpv4Config.isStkOutTdtype(getSessionHelper(), tdtype)) return(qty); else return(0.0);
 				}
 			}
 			}
@@ -345,7 +345,7 @@ public class BiResultStockLedger extends BiResultErpv4 implements BiReportInterf
 						double iQty = getCell("stmd_inqty").getDouble();
 						double oQty = getCell("stmd_outqty").getDouble();
 						double iCost = 0.0;
-						if(Erpv4BaseCellCollection.stkInQty.contains(getCellString("stmd_tdtype"))) {
+						if(Erpv4Config.isStkInTdtype(getSessionHelper(), getCellString("stmd_tdtype"))) {
 							iCost = getCell("stmd_exprice1").getDouble();
 						}
 						if(d.after(DateUtil.minDate))  {
@@ -478,7 +478,11 @@ public class BiResultStockLedger extends BiResultErpv4 implements BiReportInterf
 			}
 			addCustomCondition(cd);
 		} else {
-			addCustomCondition(" stmd_tdtype in ('BI','MI','JI','RI','SO','MO','JO','RO') ");
+			addCustomCondition(" stmd_tdtype in ('" + Erpv4Config.getStmd_BI(getSessionHelper()) + "','"
+					+ Erpv4Config.getStmd_MI(getSessionHelper()) + "','" + Erpv4Config.getStmd_JI(getSessionHelper()) + "','"
+					+ Erpv4Config.getStmd_RI(getSessionHelper()) + "','" + Erpv4Config.getStmd_SO(getSessionHelper()) + "','"
+					+ Erpv4Config.getStmd_MO(getSessionHelper()) + "','" + Erpv4Config.getStmd_JO(getSessionHelper()) + "','"
+					+ Erpv4Config.getStmd_RO(getSessionHelper()) + "') ");
 		}
 		if(getQueryIncludeNoDetail()) {
 			addCustomCondition(" (stmd_openbal <> 0 or stmd_inqty <> 0 or stmd_outqty <> 0) ");

@@ -89,7 +89,7 @@ public class ZkBiComposerStockTake extends ZkBiComposerBase {
 									tr.setRecPointer(i);
 									int irg = tr.getFieldInt("st_irg");
 									stkutil.init();
-									stkutil.getBalance(su,irg,bDate,0,locList);
+									stkutil.getBalance(su,getSessionHelper(),irg,bDate,0,locList);
 									if(!stkutil.isEmpty()) {
 
 										UniLog.log("generate empty stock take record for " + irg);
@@ -390,7 +390,7 @@ public class ZkBiComposerStockTake extends ZkBiComposerBase {
 				String fromLoc = result.getCell("stm_fromloc").getString();
 				SelectUtil su = result.getSelectUtil();
 				stkutil.init();
-				stkutil.getBalance(su,irg,bDate,0,locList);
+				stkutil.getBalance(su,getSessionHelper(),irg,bDate,0,locList);
 //				Hashtable<String,Double> deltaHash = stkutil.compBalance(result);
 				boolean isEmpty = stkutil.compBalance(result);
 				ReturnMsg rtn = null;
@@ -407,7 +407,7 @@ public class ZkBiComposerStockTake extends ZkBiComposerBase {
 						UniLog.log("Record " + result.getCellString("stm_ref1") + " Incorrect Balance , auto-update");
 //						result.getCell("stm_ctrspec").set("Auto Update");
 						stkutil.init();
-						stkutil.getBalance(su,irg,bDate,mrg,locList) ;
+						stkutil.getBalance(su,getSessionHelper(),irg,bDate,mrg,locList) ;
 						stkutil.syncDelta(result,  null);
 						rtn = result.updateCurrent();
 						if(rtn != null && !rtn.getStatus()) {
@@ -419,7 +419,7 @@ public class ZkBiComposerStockTake extends ZkBiComposerBase {
 						UniLog.log("Record " + result.getCellString("stm_ref1") + " Incorrect Balance , auto-update");
 //						result.getCell("stm_ctrspec").set("Auto Update");
 						stkutil.init();
-						stkutil.getBalance(su,irg,bDate,0,locList) ;
+						stkutil.getBalance(su,getSessionHelper(),irg,bDate,0,locList) ;
 						stkutil.syncBalance(result,  null);
 						rtn = result.updateCurrent();
 						if(rtn != null && !rtn.getStatus()) {
@@ -431,7 +431,7 @@ public class ZkBiComposerStockTake extends ZkBiComposerBase {
 						UniLog.log("Record " + result.getCellString("stm_ref1") + " Update Total, auto-update");
 //						result.getCell("stm_ctrspec").set("Auto Update");
 						stkutil.init();
-						stkutil.getBalance(su,irg,bDate,mrg,locList) ;
+						stkutil.getBalance(su,getSessionHelper(),irg,bDate,mrg,locList) ;
 						stkutil.syncBalance(result,  null);
 						
 						BiResult sr = result.getSubLinkByTable("stocktake");
@@ -452,7 +452,7 @@ public class ZkBiComposerStockTake extends ZkBiComposerBase {
 					UniLog.log("Record " + result.getCellString("stm_ref1") + " Incorrect Balance , auto-update");
 					result.getCell("stm_ctrspec").set("Auto Update");
 					stkutil.init();
-					stkutil.getBalance(su,irg,bDate,mrg,locList) ;
+					stkutil.getBalance(su,getSessionHelper(),irg,bDate,mrg,locList) ;
 					stkutil.syncDelta(result,  null);
 					ReturnMsg rtn = result.updateCurrent();
 					if(rtn != null && !rtn.getStatus()) {

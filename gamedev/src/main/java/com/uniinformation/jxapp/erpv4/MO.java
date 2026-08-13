@@ -317,15 +317,16 @@ public class MO extends JxZkBiBase {
 						} else {
 							String tdtype = col.getCellString("stmd_tdtype");
 							if(		
-									tdtype.equals("KO")
-								    || tdtype.equals("MO")
-								    || tdtype.equals("RO")
-								    || tdtype.equals("JO")) {
+									tdtype.equals(Erpv4Config.getStmd_KO(getSessionHelper()))
+								    || tdtype.equals(Erpv4Config.getStmd_MO(getSessionHelper()))
+								    || tdtype.equals(Erpv4Config.getStmd_RO(getSessionHelper()))
+								    || tdtype.equals(Erpv4Config.getStmd_JO(getSessionHelper()))) {
 								Cell loc = col.testCell("stmd_loc");
 								Cell bin = col.testCell("stmd_bin");
 								Cell nref4 = col.testCell("stmd_nref4");
 								if(loc != null && !loc.getString().equals("")) {
-									if(nref4 != null && nref4.getInt() == 1 && tdtype.equals("KO")) {
+									if(nref4 != null && nref4.getInt() == 1
+											&& tdtype.equals(Erpv4Config.getStmd_KO(getSessionHelper()))) {
 										if(wcl == null) wcl = new Wherecl();
 										String tloc = col.getCellString("stmdki_loc");
 										String tbin = col.getCellString("stmdki_bin");
@@ -375,7 +376,8 @@ public class MO extends JxZkBiBase {
 								}
 								/*
 								if(bin != null) {
-									if(nref4 != null && nref4.getInt() == 1 && tdtype.equals("KO")) {
+									if(nref4 != null && nref4.getInt() == 1
+											&& tdtype.equals(Erpv4Config.getStmd_KO(getSessionHelper()))) {
 										loc = col.getCell("stmdki_loc");
 										bin = col.getCell("stmdki_bin");
 									} 
@@ -527,10 +529,10 @@ public class MO extends JxZkBiBase {
 						boolean useSerialNoInputForm = false;
 						if(serialNoInput != null) {
 						Cell nref4 = col.getCell("stmd_nref4");
-						if(tdtype.equals("KO") && nref4.getInt() == 1) {
+						if(tdtype.equals(Erpv4Config.getStmd_KO(getSessionHelper())) && nref4.getInt() == 1) {
 							useSerialNoInputForm = true;
 						}
-						if(tdtype.equals("MI") /* && nref4.getInt() == 1 */) {
+						if(tdtype.equals(Erpv4Config.getStmd_MI(getSessionHelper())) /* && nref4.getInt() == 1 */) {
 							useSerialNoInputForm = true;
 						}
 						}
@@ -804,11 +806,11 @@ public class MO extends JxZkBiBase {
 		if(sr.getView().getName().equals(detViewId)) {
 			try {
 				if(getBr().getCell("stm_module").getString().equals("cstmo")) {
-					cl.getCell("stmd_tdtype").set("MO");
+					cl.getCell("stmd_tdtype").set(Erpv4Config.getStmd_MO(getSessionHelper()));
 				} else if(getBr().getCell("stm_module").getString().equals("sttfr")) {
-					cl.getCell("stmd_tdtype").set("KO");
+					cl.getCell("stmd_tdtype").set(Erpv4Config.getStmd_KO(getSessionHelper()));
 				} else if(getBr().getCell("stm_module").getString().equals("vstmo")) {
-					cl.getCell("stmd_tdtype").set("MI");
+					cl.getCell("stmd_tdtype").set(Erpv4Config.getStmd_MI(getSessionHelper()));
 				} else if(getBr().getCell("stm_module").getString().equals("cotfr")) {
 				} else {
 					cl.getCell("stmd_tdtype").set("");
@@ -829,13 +831,13 @@ public class MO extends JxZkBiBase {
 		int rowIdx = getGipi(sr.getView().getName()).getIndexOf(tr);
 		sv.addItemToList(tr, rowIdx);
 		if(col.getCellString("stm_module").equals("vstmo")) {
-			col.getCell("stmd_tdtype").set("MI");
+			col.getCell("stmd_tdtype").set(Erpv4Config.getStmd_MI(getSessionHelper()));
 		} else if(col.getCellString("stm_module").equals("sttfr")) {
-			col.getCell("stmd_tdtype").set("KO");
+			col.getCell("stmd_tdtype").set(Erpv4Config.getStmd_KO(getSessionHelper()));
 		} else if(col.getCellString("stm_module").equals("cotfr")) {
-			col.getCell("stmd_tdtype").set("JO");
+			col.getCell("stmd_tdtype").set(Erpv4Config.getStmd_JO(getSessionHelper()));
 		} else {
-			col.getCell("stmd_tdtype").set("MO");
+			col.getCell("stmd_tdtype").set(Erpv4Config.getStmd_MO(getSessionHelper()));
 		}
 		col.getCell("stmd_irg").set(p_irg);
 		col.getCell("stmd_org").set(p_org);

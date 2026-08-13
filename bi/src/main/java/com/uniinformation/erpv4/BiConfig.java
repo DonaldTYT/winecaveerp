@@ -32,10 +32,22 @@ import com.uniinformation.webcore.SessionHelper;
 import com.uniinformation.webcore.erpv4.Erpv4SessionHelper;
 
 public class BiConfig {
-//	static public String STOCK_IN_TDtypes="'PD','MI','JI'";
-
-//	static public String STOCK_IN_TDtypes="'RI','MI','JI'";
 	public static String defIniFileName = "erpv4config.ini";
+	private static final HashMap<String, HashMap<String, Object>> agentData = new HashMap<String, HashMap<String, Object>>();
+
+	public static synchronized void putAgent(String agent, String key, Object data) {
+		HashMap<String, Object> dataMap = agentData.get(agent);
+		if (dataMap == null) {
+			dataMap = new HashMap<String, Object>();
+			agentData.put(agent, dataMap);
+		}
+		dataMap.put(key, data);
+	}
+
+	public static synchronized Object getAgentData(String agent, String key) {
+		HashMap<String, Object> dataMap = agentData.get(agent);
+		return dataMap == null ? null : dataMap.get(key);
+	}
 	
 	
 	static public String getBaseCcy(SessionHelper sp,String p_cocode) {

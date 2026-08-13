@@ -8,6 +8,7 @@ import org.apache.commons.lang3.StringUtils;
 import com.uniinformation.bicore.BiCellCollection;
 import com.uniinformation.bicore.BiDynamicFunction;
 import com.uniinformation.cell.Cell;
+import com.uniinformation.erpv4.Erpv4Config;
 
 public class StockLedgerMultiG2 extends BiDynamicFunction {
 
@@ -18,10 +19,10 @@ public class StockLedgerMultiG2 extends BiDynamicFunction {
 	public StockLedgerMultiG2(BiCellCollection p_col) {
 		super(p_col);
 		stmdTypeSet = new HashSet();
-		stmdTypeSet.add("KO");
-		stmdTypeSet.add("KI");
-		stmdTypeSet.add("JI");
-		stmdTypeSet.add("JO");
+		stmdTypeSet.add(Erpv4Config.getStmd_KO(p_col.getBr().getSessionHelper()));
+		stmdTypeSet.add(Erpv4Config.getStmd_KI(p_col.getBr().getSessionHelper()));
+		stmdTypeSet.add(Erpv4Config.getStmd_JI(p_col.getBr().getSessionHelper()));
+		stmdTypeSet.add(Erpv4Config.getStmd_JO(p_col.getBr().getSessionHelper()));
 		exchangeLocs = new HashSet();
 		exchangeLocs.add("CTL06");
 		exchangeLocs.add("DVR03");
@@ -60,7 +61,8 @@ public class StockLedgerMultiG2 extends BiDynamicFunction {
 					return(stmddesc);
 			} else {
 				if(
-						stmdtype.equals("JO") || stmdtype.equals("JI")
+						stmdtype.equals(Erpv4Config.getStmd_JO(col.getBr().getSessionHelper()))
+						|| stmdtype.equals(Erpv4Config.getStmd_JI(col.getBr().getSessionHelper()))
 						) {
 					if (module.equals("stake")){
 						return("Stock Take Adjustment");
@@ -76,7 +78,8 @@ public class StockLedgerMultiG2 extends BiDynamicFunction {
 						return(stmddesc);
 					}
 				} else if(
-						stmdtype.equals("KO") || stmdtype.equals("KI")
+						stmdtype.equals(Erpv4Config.getStmd_KO(col.getBr().getSessionHelper()))
+						|| stmdtype.equals(Erpv4Config.getStmd_KI(col.getBr().getSessionHelper()))
 						) {
 					if( module.equals("stkg2")) {
 						return("Stock Take Adjustment");

@@ -22,6 +22,7 @@ import com.uniinformation.bicore.ColumnCell;
 import com.uniinformation.bicore.erpv4.BiResultQuoDet;
 import com.uniinformation.cell.Cell;
 import com.uniinformation.cell.CellCollection;
+import com.uniinformation.erpv4.Erpv4Config;
 import com.uniinformation.jx.JxActionListener;
 import com.uniinformation.jx.JxField;
 import com.uniinformation.jx.JxForm;
@@ -507,7 +508,8 @@ public class ServiceUnit extends JxZkBiBase {
 						}
 					}
 					tr = getBr().getSelectUtil().getQueryResult("select st_irg,st_icode,st_iname,ind_odrg,stsn_org, stsn_ref4,ind_irg,ind_seq from quodet,stock,poallocate,stockserial,stmovd where " + 
-							" ind_rg = ? and palc_qorg = ind_odrg and palc_serviceqty > 0 and stsn_serviceqty > 0 and stmd_qorg = ind_odrg and stmd_tdtype = 'SO' and stmd_org = palc_org and stmd_irg = palc_irg and stsn_irg = stmd_irg and stsn_org = stmd_org and stsn_ref4 = stmd_ref4" +
+							" ind_rg = ? and palc_qorg = ind_odrg and palc_serviceqty > 0 and stsn_serviceqty > 0 and stmd_qorg = ind_odrg and stmd_tdtype = '"
+							+ Erpv4Config.getStmd_SO(getSessionHelper()) + "' and stmd_org = palc_org and stmd_irg = palc_irg and stsn_irg = stmd_irg and stsn_org = stmd_org and stsn_ref4 = stmd_ref4" +
 							" and st_irg = ind_irg and ind_pdsrg  =  ? and ind_seq between ? and ? order by ind_seq",
 							new Wherecl()
 								.appendArgument(invrg)

@@ -98,7 +98,7 @@ public class BiResultMoStockTake extends BiResultMO {
 				tr.setRecPointer(i);
 				int irg = tr.getFieldInt("st_irg");
 				stkutil.init();
-				stkutil.getBalance(su,irg,bDate,0,locList);
+				stkutil.getBalance(su,getSessionHelper(),irg,bDate,0,locList);
 				if(!stkutil.isEmpty()) {
 					stkutil.syncBalance(this, null);
 					if(fixFifo) stkutil.fixFiFo(this, null,null);

@@ -14,6 +14,7 @@ import com.uniinformation.bicore.BiResult;
 import com.uniinformation.bicore.BiView;
 import com.uniinformation.bicore.erpv4.BiResultErpv4;
 import com.uniinformation.cell.CellException;
+import com.uniinformation.erpv4.Erpv4Config;
 import com.uniinformation.jx.JxField;
 import com.uniinformation.jx.JxForm;
 import com.uniinformation.rpccall.RpcClient;
@@ -100,7 +101,7 @@ public class BiResultStockOutChg extends BiResultErpv4 {
 					"and stm_mrg = stmd_mrg "+
 					"and stmd_loc in ('WH01','STOR') "+
 					"and stmd_bin <> '' "+
-					"and stmd_tdtype = 'SO' "+
+					"and stmd_tdtype = '" + Erpv4Config.getStmd_SO(getSessionHelper()) + "' "+
 					"and stmd_qty <> 0 "+
 					"and or_org = stmd_org "+
 					"and or_cocode <> 'WINECAVE' "+
@@ -119,7 +120,7 @@ public class BiResultStockOutChg extends BiResultErpv4 {
 					"and stm_mrg = stmd_mrg "+
 					"and stmd_loc in ('WH01','STOR') "+
 					"and stmd_bin <> '' "+
-					"and stmd_tdtype = 'SO' "+
+					"and stmd_tdtype = '" + Erpv4Config.getStmd_SO(getSessionHelper()) + "' "+
 					"and stmd_qty <> 0 "+
 					"and or_org = stmd_org "+
 					"and or_cocode <> 'WINECAVE' "+

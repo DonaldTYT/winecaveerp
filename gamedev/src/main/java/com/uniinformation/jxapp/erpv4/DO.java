@@ -223,7 +223,10 @@ public DoGetItemProperty(BiResult p_br, JxZkBiBase p_bibase) {
 						zjpi.setJxZkForm(tjxf);
 						String qstr =
 								"select * from poallocate , quodet , quotation, stock , outer (stmovd , stmov )"
-								+ "where palc_delqty > 0 and ind_odrg = palc_qorg and inv_rg = ind_rg and st_irg = palc_irg and stmd_org = palc_org and stmd_irg = palc_irg and stmd_tdtype in ("+Erpv4Config.STOCKIN_TDtypes+") and stm_mrg = stmd_mrg  and stmd_org < 2000000000 ";
+								+ "where palc_delqty > 0 and ind_odrg = palc_qorg and inv_rg = ind_rg and st_irg = palc_irg and stmd_org = palc_org and stmd_irg = palc_irg and stmd_tdtype in ('"
+								+ Erpv4Config.getStmd_RI(sessionHelper) + "','" + Erpv4Config.getStmd_MI(sessionHelper) + "','"
+								+ Erpv4Config.getStmd_JI(sessionHelper) + "','" + Erpv4Config.getStmd_BI(sessionHelper)
+								+ "') and stm_mrg = stmd_mrg  and stmd_org < 2000000000 ";
 						if(!Erpv4Config.allowMultipleCustomerDN(sessionHelper, getBr().getSelectUtil()) ||
 								!getBr().getCell("stm_ref2").isBlank()) {
 							qstr += " and inv_vcode = '"+ getBr().getCell("stm_ref2").getString() + "'";
@@ -550,7 +553,8 @@ public DoGetItemProperty(BiResult p_br, JxZkBiBase p_bibase) {
 		super.bindCellCollection(p_br, mode);
 		cgList = new Vector();
 		try {
-			TableRec tr = p_br.getSelectUtil().getQueryResult("select distinct stmd_ref from stmovd where stmd_tdtype ='SO' order by 1", null);
+			TableRec tr = p_br.getSelectUtil().getQueryResult("select distinct stmd_ref from stmovd where stmd_tdtype ='"
+					+ Erpv4Config.getStmd_SO(p_br.getSessionHelper()) + "' order by 1", null);
 			for(int i=0;i<tr.getRecordCount();i++) {
 				tr.setRecPointer(i);
 				cgList.add((String) tr.getField("stmd_ref"));

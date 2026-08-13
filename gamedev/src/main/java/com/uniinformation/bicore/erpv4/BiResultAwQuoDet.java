@@ -60,7 +60,7 @@ public class BiResultAwQuoDet extends BiResultQuoDet {
 						scol.getCell("stmd_irg").set(p_col.getCell("ind_irg").getInt());
 						scol.getCell("stmd_qirg").set(p_col.getCell("ind_irg").getInt());
 						scol.getCell("stmd_qty").set(p_col.getCell("ind_stqty").getDouble());
-						scol.getCell("stmd_tdtype").set("SI");
+						scol.getCell("stmd_tdtype").set(Erpv4Config.getStmd_SI(getSessionHelper()));
 						scol.getCell("stmd_tdindex").set(0);
 //						scol.getCell("stmd_org").set(Erpv4Config.getCoWtAvOrg(sh, p_col.getCellString("inv_cocode")));
 						scol.getCell("stmd_org").set(1900000000+p_col.getCell("ind_rg").getInt());

@@ -18,6 +18,7 @@ import com.uniinformation.utils.poi.ExcelPoi;
 import com.uniinformation.webcore.SessionHelper;
 import com.kyoko.common.StringUtil;
 import com.uniinformation.bicore.BiSchema;
+import com.uniinformation.erpv4.Erpv4Config;
 import com.uniinformation.rpccall.*;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.mail.EmailAttachment;
@@ -89,7 +90,9 @@ public class WineCaveApiUtil {
 //						ZkUtil.sendEmail(
 //								Pair.of( "sales@wineac.com",""), toList, null, "Web Order Received", null, "There is a new Web Order Reference " + orderRef + " \nReceived, Please followup" , null, p_sh);
 //					}
-					TableRec tr = su.getQueryResult("select distinct stm_ref1,vd_email,or_cocode from stmovd,orders,vendor,stmov where stmd_mrg = " + orderRef + " and stm_mrg = stmd_mrg and stmd_tdtype = 'MO' and or_org = stmd_org and vd_vcode = or_cocode");
+					TableRec tr = su.getQueryResult("select distinct stm_ref1,vd_email,or_cocode from stmovd,orders,vendor,stmov where stmd_mrg = "
+							+ orderRef + " and stm_mrg = stmd_mrg and stmd_tdtype = '" + Erpv4Config.getStmd_MO(p_sh)
+							+ "' and or_org = stmd_org and vd_vcode = or_cocode");
 					for(int i=0;i<tr.getRecordCount();i++) {
 						tr.setRecPointer(i);
 						email = tr.getFieldString("vd_email");

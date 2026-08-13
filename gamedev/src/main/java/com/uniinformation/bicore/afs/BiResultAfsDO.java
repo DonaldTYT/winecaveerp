@@ -54,7 +54,7 @@ public class BiResultAfsDO extends BiResultDO {
 				Vector <BiCellCollection> recs = getSubLinkResult(stmdLinkName);
 				for(CellCollection col:recs) {
 					TableRec tr = su.getQueryResult("select * from stmovd " +
-							" where stmd_tdtype in ("+Erpv4Config.PURCHASE_TDtypes+") "
+							" where stmd_tdtype in ('" + Erpv4Config.getStmd_PD(getSessionHelper()) + "') "
 									+ " and stmd_org = " + col.getCell("stmd_org").getInt() 
 									+ " and stmd_irg = " + col.getCell("stmd_irg").getInt(),null);
 					if(tr.getRecordCount() > 0) {
@@ -63,7 +63,7 @@ public class BiResultAfsDO extends BiResultDO {
 						Wherecl wcl = null;
 						if(((String) tr.getField("stmd_ref")).equals("") ) {
 							if(wcl == null) wcl = new Wherecl().appendString(
-							"stmd_tdtype in ("+Erpv4Config.PURCHASE_TDtypes+") "
+							"stmd_tdtype in ('" + Erpv4Config.getStmd_PD(getSessionHelper()) + "') "
 									+ " and stmd_org = " + col.getCell("stmd_org").getInt() 
 									+ " and stmd_irg = " + col.getCell("stmd_irg").getInt()
 									);
@@ -76,7 +76,7 @@ public class BiResultAfsDO extends BiResultDO {
 						}
 						if(((Double) tr.getField("stmd_fref1")).doubleValue() <= 0.0) {
 							if(wcl == null) wcl = new Wherecl().appendString(
-							"stmd_tdtype in ("+Erpv4Config.PURCHASE_TDtypes+") "
+							"stmd_tdtype in ('" + Erpv4Config.getStmd_PD(getSessionHelper()) + "') "
 									+ " and stmd_org = " + col.getCell("stmd_org").getInt() 
 									+ " and stmd_irg = " + col.getCell("stmd_irg").getInt()
 									);

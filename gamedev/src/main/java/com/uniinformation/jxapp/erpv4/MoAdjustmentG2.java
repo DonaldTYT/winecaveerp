@@ -59,7 +59,7 @@ public class MoAdjustmentG2 extends MoPos {
 							}
 							tr.setRecPointer(0);
 							toIrg = tr.getFieldInt("st_irg");
-							stu.getBalance(su, fromIrg, getBr().getCell("stm_date").getDate(), 0,locList);
+							stu.getBalance(su, getSessionHelper(), fromIrg, getBr().getCell("stm_date").getDate(), 0,locList);
 							stu.convertStock(getBr(), fromIrg,toIrg,MoAdjustmentG2.this);
 						}
 						if(arg0.getTarget() instanceof Button) {

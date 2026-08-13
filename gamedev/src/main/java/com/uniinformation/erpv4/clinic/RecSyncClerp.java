@@ -69,7 +69,7 @@ public class RecSyncClerp extends RecSyncErpv4 {
 					JSONObject jo2 = stmdList.getJSONObject(i);
 
 					if(MoSync.equals("clerpmaster")) {
-						if(jo2.getString("stmd_tdtype").equals("JI")
+						if(jo2.getString("stmd_tdtype").equals(Erpv4Config.getStmd_JI(getBr().getSessionHelper()))
 						   && p_jo.getString("stm_fromloc").equals("TST01")) {
 							if(ridx >= sr.getRowCount()) {
 								col = sr.newRowCollection();								
@@ -77,7 +77,7 @@ public class RecSyncClerp extends RecSyncErpv4 {
 							} else {
 								col = sr.getRowCollectionV(ridx);
 							}
-							col.getCell("stmd_tdtype").set("KO");
+							col.getCell("stmd_tdtype").set(Erpv4Config.getStmd_KO(getBr().getSessionHelper()));
 							col.getCell("stmd_irg").set(jo2.getInt("stmd_irg"));
 							col.getCell("stmd_qty").set(jo2.getDouble("stmd_qty"));
 							col.getCell("stmd_loc").set("CTR01");
@@ -90,7 +90,7 @@ public class RecSyncClerp extends RecSyncErpv4 {
 							} else {
 								col = sr.getRowCollectionV(ridx);
 							}
-							col.getCell("stmd_tdtype").set("KI");
+							col.getCell("stmd_tdtype").set(Erpv4Config.getStmd_KI(getBr().getSessionHelper()));
 							col.getCell("stmd_irg").set(jo2.getInt("stmd_irg"));
 							col.getCell("stmd_qty").set(jo2.getDouble("stmd_qty"));
 							col.getCell("stmd_loc").set("CTR02");
@@ -102,11 +102,11 @@ public class RecSyncClerp extends RecSyncErpv4 {
 						}
 						String stmdtype = jo2.getString("stmd_tdtype");
 						if( 
-								stmdtype.equals("MO")
-								|| stmdtype.equals("RI")
-								|| stmdtype.equals("MI")
-								|| stmdtype.equals("RO")
-								|| stmdtype.equals("JO")
+								stmdtype.equals(Erpv4Config.getStmd_MO(getBr().getSessionHelper()))
+								|| stmdtype.equals(Erpv4Config.getStmd_RI(getBr().getSessionHelper()))
+								|| stmdtype.equals(Erpv4Config.getStmd_MI(getBr().getSessionHelper()))
+								|| stmdtype.equals(Erpv4Config.getStmd_RO(getBr().getSessionHelper()))
+								|| stmdtype.equals(Erpv4Config.getStmd_JO(getBr().getSessionHelper()))
 								) {
 							if(ridx >= sr.getRowCount()) {
 								col = sr.newRowCollection();
@@ -129,7 +129,7 @@ public class RecSyncClerp extends RecSyncErpv4 {
 							col.getCell("stmd_tdindex").set(tdindex);
 							tdindex++;
 						}
-						if(jo2.getString("stmd_tdtype").equals("KO")) {
+						if(jo2.getString("stmd_tdtype").equals(Erpv4Config.getStmd_KO(getBr().getSessionHelper()))) {
 							String kiRef4 = null;
 							double kiQty = 0.0;
 							if(jo2.has("stmdki_loc")) {
@@ -140,7 +140,7 @@ public class RecSyncClerp extends RecSyncErpv4 {
 								JSONObject jo3 = stmdList.getJSONObject(i+1);
 //								if(i <= 0)  continue;
 //								JSONObject jo3 = stmdList.getJSONObject(i-1);
-								if(!jo3.getString("stmd_tdtype").equals("KI")) continue;
+								if(!jo3.getString("stmd_tdtype").equals(Erpv4Config.getStmd_KI(getBr().getSessionHelper()))) continue;
 								kiRef4 = jo3.getString("stmd_ref4");
 								kiQty = jo3.getDouble("stmd_qty");
 							}
@@ -156,7 +156,7 @@ public class RecSyncClerp extends RecSyncErpv4 {
 							} else {
 								col = sr.getRowCollectionV(ridx);
 							}
-							col.getCell("stmd_tdtype").set("KO");
+							col.getCell("stmd_tdtype").set(Erpv4Config.getStmd_KO(getBr().getSessionHelper()));
 							col.getCell("stmd_irg").set(jo2.getInt("stmd_irg"));
 							col.getCell("stmd_qty").set(jo2.getDouble("stmd_qty"));
 							col.getCell("stmd_loc").set("CTR02");
@@ -170,7 +170,7 @@ public class RecSyncClerp extends RecSyncErpv4 {
 							} else {
 								col = sr.getRowCollectionV(ridx);
 							}
-							col.getCell("stmd_tdtype").set("KI");
+							col.getCell("stmd_tdtype").set(Erpv4Config.getStmd_KI(getBr().getSessionHelper()));
 							col.getCell("stmd_irg").set(jo2.getInt("stmd_irg"));
 							col.getCell("stmd_qty").set(kiQty);
 							col.getCell("stmd_loc").set("CTR02");
@@ -183,7 +183,7 @@ public class RecSyncClerp extends RecSyncErpv4 {
 					}
 					
 					if(MoSync.equals("clerpslave")) {
-						if(jo2.getString("stmd_tdtype").equals("KO")) {
+						if(jo2.getString("stmd_tdtype").equals(Erpv4Config.getStmd_KO(getBr().getSessionHelper()))) {
 							if(jo2.has("stmdki_loc")) {
 								if(!jo2.getString("stmdki_loc").equals("CTR02")) continue;
 							} else {
@@ -191,7 +191,7 @@ public class RecSyncClerp extends RecSyncErpv4 {
 								JSONObject jo3 = stmdList.getJSONObject(i+1);
 //								if(i <= 0)  continue;
 //								JSONObject jo3 = stmdList.getJSONObject(i-1);
-								if(!jo3.getString("stmd_tdtype").equals("KI")) continue;
+								if(!jo3.getString("stmd_tdtype").equals(Erpv4Config.getStmd_KI(getBr().getSessionHelper()))) continue;
 								if(!jo3.getString("stmd_loc").equals("CTR02")) continue;
 							}
 							if(ridx >= sr.getRowCount()) {
@@ -200,7 +200,7 @@ public class RecSyncClerp extends RecSyncErpv4 {
 							} else {
 								col = sr.getRowCollectionV(ridx);
 							}
-							col.getCell("stmd_tdtype").set("JI");
+							col.getCell("stmd_tdtype").set(Erpv4Config.getStmd_JI(getBr().getSessionHelper()));
 							col.getCell("stmd_irg").set(jo2.getInt("stmd_irg"));
 							col.getCell("stmd_qty").set(jo2.getDouble("stmd_qty"));
 							col.getCell("stmd_loc").set("TST01");

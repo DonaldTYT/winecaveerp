@@ -22,6 +22,7 @@ import com.uniinformation.jxapp.JxZkBiBase;
 import com.uniinformation.utils.SelectUtil;
 import com.uniinformation.utils.TableRec;
 import com.uniinformation.utils.UniLog;
+import com.uniinformation.webcore.SessionHelper;
 
 public class StockTakeUtil {
 	static public final String STOCKTAKEFILTER="StockTakeFilter";
@@ -83,7 +84,7 @@ public class StockTakeUtil {
 		s += ")";
 		return(s);
 	}
-	public void getBalance(SelectUtil su,int p_irg,java.util.Date p_date,int p_mrg,Set<String> p_locList) throws Exception {
+	public void getBalance(SelectUtil su,SessionHelper sh,int p_irg,java.util.Date p_date,int p_mrg,Set<String> p_locList) throws Exception {
 //		setDirtyFlag(true);
 		balanceHash = new Hashtable<StHashKey,Double>();
 		if(p_irg > 0 && p_date.after(DateUtil.minDate)) {
@@ -111,7 +112,13 @@ public class StockTakeUtil {
 
 			String dateStr = DateUtil.dateToDateTimeStr(p_date,"yyyy/MM/dd");
 
-			whereStr = "select stmd_loc,stmd_ref4 ,sum(stmd_qty * stmd_direction) sumqty from stmovd,stmov  where stmd_irg = " + irg +  " and stmd_mrg <> " + mrg + " and stm_mrg = stmd_mrg and stm_status='Confirmed' and stmd_date <= '" + dateStr + "' and stmd_qty <> 0 and stmd_tdtype in('MI','RI','JI','KI','MO','RO','JO','KO','SO') ";
+			whereStr = "select stmd_loc,stmd_ref4 ,sum(stmd_qty * stmd_direction) sumqty from stmovd,stmov  where stmd_irg = " + irg +  " and stmd_mrg <> " + mrg
+					+ " and stm_mrg = stmd_mrg and stm_status='Confirmed' and stmd_date <= '" + dateStr + "' and stmd_qty <> 0 and stmd_tdtype in('"
+					+ Erpv4Config.getStmd_MI(sh) + "','" + Erpv4Config.getStmd_RI(sh) + "','"
+					+ Erpv4Config.getStmd_JI(sh) + "','" + Erpv4Config.getStmd_KI(sh) + "','"
+					+ Erpv4Config.getStmd_MO(sh) + "','" + Erpv4Config.getStmd_RO(sh) + "','"
+					+ Erpv4Config.getStmd_JO(sh) + "','" + Erpv4Config.getStmd_KO(sh) + "','"
+					+ Erpv4Config.getStmd_SO(sh) + "') ";
 			if(locFilter != null && !locFilter.trim().equals(""))
 				whereStr +=  " and " + locFilter;
 			if(p_locList != null) {
@@ -492,7 +499,7 @@ public class StockTakeUtil {
 			
 			col.getCell("stmd_org").set( Erpv4Config.getCoWtAvOrg(p_br.getSessionHelper(), col.getCellString("stm_cocode")));
 			col.getCell("stmd_irg").set(p_fromIrg);
-			col.getCell("stmd_tdtype").set("JO");
+			col.getCell("stmd_tdtype").set(Erpv4Config.getStmd_JO(p_br.getSessionHelper()));
 			col.getCell("stmd_ref4").set(stk.ref4);
 			col.getCell("stmd_loc").set(stk.loc);
 			col.getCell("stmd_entryqty").set(qty);
@@ -509,7 +516,7 @@ public class StockTakeUtil {
 			
 			col.getCell("stmd_org").set( Erpv4Config.getCoWtAvOrg(p_br.getSessionHelper(), col.getCellString("stm_cocode")));
 			col.getCell("stmd_irg").set(p_toIrg);
-			col.getCell("stmd_tdtype").set("JI");
+			col.getCell("stmd_tdtype").set(Erpv4Config.getStmd_JI(p_br.getSessionHelper()));
 			col.getCell("stmd_ref4").set(stk.ref4);
 			col.getCell("stmd_loc").set(stk.loc);
 			col.getCell("stmd_entryqty").set(qty);

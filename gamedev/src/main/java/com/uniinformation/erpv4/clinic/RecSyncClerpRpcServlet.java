@@ -10,6 +10,7 @@ import com.kyoko.common.ReturnMsg;
 import com.uniinformation.bicore.BiCellCollection;
 import com.uniinformation.bicore.BiResult;
 import com.uniinformation.bicore.BiView;
+import com.uniinformation.erpv4.Erpv4Config;
 import com.uniinformation.erpv4.RecSync;
 import com.uniinformation.rpccall.RpcServerConnection;
 import com.uniinformation.rpccall.RpcServlet;
@@ -100,8 +101,10 @@ public class RecSyncClerpRpcServlet implements RpcServlet{
 				JSONObject jd = ja.getJSONObject(i);
 				BiCellCollection bl = sr.newRowCollection();
 				/*
-				if(jd.getString("stmd_tdtype").equals("JI")) bl.getCell("stmd_tdtype").set("JO");
-				if(jd.getString("stmd_tdtype").equals("JO")) bl.getCell("stmd_tdtype").set("JI");
+				if(jd.getString("stmd_tdtype").equals(Erpv4Config.getStmd_JI(sh)))
+					bl.getCell("stmd_tdtype").set(Erpv4Config.getStmd_JO(sh));
+				if(jd.getString("stmd_tdtype").equals(Erpv4Config.getStmd_JO(sh)))
+					bl.getCell("stmd_tdtype").set(Erpv4Config.getStmd_JI(sh));
 				*/
 				bl.getCell("stmd_tdtype").set( jd.getString("stmd_tdtype"));
 				bl.getCell("stmd_irg").set(jd.getInt("stmd_irg"));
