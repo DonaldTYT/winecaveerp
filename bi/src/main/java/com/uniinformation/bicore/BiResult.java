@@ -487,7 +487,7 @@ public class BiResult implements GetCellInterface {
 //			}
 		
 	}
-	void setColumnCellFormula(BiCellCollection p_col,BiColumn biCol) {
+	void setColumnCellFormula(BiCellCollection p_col,BiColumn biCol,boolean noAddUpdateDelete) {
 			try {
 				Cell cell = p_col.getCell(biCol.getLabel());
 				if (StringUtils.isNotBlank(biCol.getFormula(parent == null))){
@@ -497,6 +497,7 @@ public class BiResult implements GetCellInterface {
 //						cell.setFormula(new ColumnCellFormula(biCol.getFormula(),(ColumnCell) cell),false);
 					}
 				}
+				if(!noAddUpdateDelete) {
 				String ol[] = biCol.getOptionList(this,p_col);
 				if (ol != null) {
 					Vector itemList = new Vector();
@@ -504,6 +505,7 @@ public class BiResult implements GetCellInterface {
 			    		itemList.add(opt);
 			    	}	
 			    	cell.setItemList(itemList);
+				}
 				}
 			}
 			catch (CellException ex) {
@@ -515,6 +517,7 @@ public class BiResult implements GetCellInterface {
 	{
 		Vector<BiColumn> cols = biView.getColumns();
 		Hashtable<String,String>defaultHash = new Hashtable<String,String>();
+		boolean noAddUpdateDelete = getParent() == null ? false: getParent().getView().linkNoAddUpDateDelete(getView());
 		for(int i = 0;i<cols.size();i++) {
 			createOneColumnCell(p_col,(BiColumn) cols.get(i), defaultHash);
 //			int mode = Cell.VMODE_NORMAL;
@@ -612,7 +615,7 @@ public class BiResult implements GetCellInterface {
 //			}
 		}
 		for(int i = 0;i<cols.size();i++) {
-			setColumnCellFormula(p_col,(BiColumn) cols.get(i));
+			setColumnCellFormula(p_col,(BiColumn) cols.get(i),noAddUpdateDelete);
 			/*
 			BiColumn biCol = (BiColumn) cols.get(i);
 			try {
@@ -634,7 +637,7 @@ public class BiResult implements GetCellInterface {
 			}
 			*/
 		}
-		addLookupTab(biView, p_col);
+		if(!noAddUpdateDelete) addLookupTab(biView, p_col);
 		for(int i = 0;i<cols.size();i++) {
 			BiColumn biCol = (BiColumn) cols.get(i);
 			try {
@@ -652,18 +655,19 @@ public class BiResult implements GetCellInterface {
 			}
 		}
 		try {
+		if(!noAddUpdateDelete) {
 		for(String clabel:defaultHash.keySet()) {
 			String defaultFormula = defaultHash.get(clabel);
 			com.uniinformation.utils.exprpar.Parser parser 
 				 = new com.uniinformation.utils.exprpar.Parser(ignoreCase,defaultFormula,p_col,p_col);
 			p_col.getCell(clabel).set(parser.evaluate());
 		}
+		}
 		setOnLoadValue(p_col,null);
 		} catch (Exception cex) {
 			//UniLog.log(cex);
 			UniLog.log1("error:"+cex.getMessage()); //andrew231106 too much invalid record index error, better hide the stacktrace
 		}
-		
 		if(getParent() != null) {
 			for(BiColumn bl : linkJoins.keySet()) {
 				BiColumn dl = linkJoins.get(bl);
@@ -2881,11 +2885,28 @@ public class BiResult implements GetCellInterface {
 					if(getParent() != null ) {
 						((BiCellVector) cv).resultStatList = sr.resultStatList;
 					}
+//					BiCellCollection bcs[] = new BiCellCollection[sr.getRowCount()];
+//					UniLog.log("before createCollections");
+//					for(int k = 0;k<sr.getRowCount();k++) {
+//						bcs[k] = sr.createColumnCollection(p_col);
+//						sr.createColumnCells(bcs[k]);
+//					}
+//					UniLog.log("before loadOneRec");
+//					for(int k = 0;k<sr.getRowCount();k++) {
+//						BiCellCollection rc = bcs[k];
+//						sr.loadOneRec(k, rc, true);
+//						sr.afterLoadCollection(true,rc);
+//						rc.setDirty(false);
+//						cv.add(rc);
+//						if(getView().linkAutoExpand(sr.getView())) {
+//							UniLog.log("Sublink " + sr.getView().getName() + " set to autoexpand , fetchOneRecV(0) and fetchSublink");
+//							sr.currentCol = rc;
+//							sr.fetchSubLink(rc);
+//						}
+//					}
+//					UniLog.log("after loadOneRec");
 					for(int k = 0;k<sr.getRowCount();k++) {
-//						BiCellCollection rc = sr.createColumnCollection(getParent() == null ? null : getParent().getCurrentCollection());
-//						BiCellCollection rc = sr.createColumnCollection(sr.currentCol);
 						BiCellCollection rc = sr.createColumnCollection(p_col);
-//						rc.setParent(p_col);
 						sr.createColumnCells(rc);
 						sr.loadOneRec(k, rc, true);
 						sr.afterLoadCollection(true,rc);
@@ -7658,7 +7679,7 @@ public class BiResult implements GetCellInterface {
 		BiColumn column;
 		column = new BiColumn(getView().getSchema(),p_label,null,p_header,true,false,p_formula,"",p_format,true,false,0,p_fdtype,p_fdlen,null,null,null,null,0,0,null,p_aggregate);
 		createOneColumnCell(currentCol,column, null);
-		setColumnCellFormula(currentCol,column);
+		setColumnCellFormula(currentCol,column,false);
 		tempColumnList.add(column);
 		if(StringUtils.isBlank(p_aggregate)) {
 		if (StringUtils.isNotBlank(p_addTobeforeLabel)) {
