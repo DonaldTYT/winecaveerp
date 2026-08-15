@@ -22,8 +22,13 @@
   <link rel="stylesheet" href="<c:url value='${larvaAssets}/fonts/feather.css'/>">
   <link rel="stylesheet" href="<c:url value='${larvaAssets}/fonts/fontawesome.css'/>">
   <link rel="stylesheet" href="<c:url value='${larvaAssets}/fonts/material.css'/>">
+  <link rel="stylesheet" href="<c:url value='/css/flaticon/flaticon-bes.css'/>">
+  <link rel="stylesheet" href="<c:url value='/css/flaticon/flaticon-dtmb.css'/>">
+  <link rel="stylesheet" href="<c:url value='/css/flaticon/flaticon-ec.css'/>">
+  <link rel="stylesheet" href="<c:url value='/css/flaticon/flaticon-ld.css'/>">
   <link rel="stylesheet" href="<c:url value='${larvaAssets}/css/style.css'/>" id="main-style-link">
   <link rel="stylesheet" href="<c:url value='${larvaAssets}/css/style-preset.css'/>">
+  <link rel="stylesheet" href="<c:url value='${larvaAssets}/css/webmenu-legacy-icons.css'/>">
 </head>
 <style>
     /* Full-bleed content on small screens: remove horizontal padding + gutters */
@@ -524,64 +529,28 @@ body.iframe-mode .iframe-wrap {
     <div class="row">
 
       <c:if test="${showStatsTiles}">
-        <div class="col-md-6 col-xl-3">
-          <div class="card"><div class="card-body">
-            <h6 class="mb-2 f-w-400 text-muted">Total Bottles in Storage</h6>
-            <h4 class="mb-3">
-              <fmt:formatNumber value="${metrics.totalPageViews}" type="number" groupingUsed="true"/>
-              <c:set var="pvPos" value="${metrics.pageViewsChangePct >= 0}"/>
-              <span class="badge ${pvPos ? 'bg-light-primary border border-primary' : 'bg-light-danger border border-danger'}">
-                <i class="ti ${pvPos ? 'ti-trending-up' : 'ti-trending-down'}"></i>
-                <fmt:formatNumber value="${metrics.pageViewsChangePct}" pattern="#0.0"/>%
-              </span>
-            </h4>
-            <p class="mb-0 text-muted text-sm">You made an extra <span class="text-primary">35,000</span> this year</p>
-          </div></div>
-        </div>
-
-        <div class="col-md-6 col-xl-3">
-          <div class="card"><div class="card-body">
-            <h6 class="mb-2 f-w-400 text-muted">Total Bottles in Consignment</h6>
-            <h4 class="mb-3">
-              <fmt:formatNumber value="${metrics.totalUsers}" type="number" groupingUsed="true"/>
-              <span class="badge bg-light-success border border-success">
-                <i class="ti ti-trending-up"></i>
-                <fmt:formatNumber value="${metrics.usersChangePct}" pattern="#0.0"/>%
-              </span>
-            </h4>
-            <p class="mb-0 text-muted text-sm">You made an extra <span class="text-success">8,900</span> this year</p>
-          </div></div>
-        </div>
-
-<%--
-        <div class="col-md-6 col-xl-3">
-          <div class="card"><div class="card-body">
-            <h6 class="mb-2 f-w-400 text-muted">Total Order</h6>
-            <h4 class="mb-3">
-              <fmt:formatNumber value="${metrics.totalOrders}" type="number" groupingUsed="true"/>
-              <span class="badge ${metrics.ordersChangePct >= 0 ? 'bg-light-success border border-success' : 'bg-light-warning border border-warning'}">
-                <i class="ti ${metrics.ordersChangePct >= 0 ? 'ti-trending-up' : 'ti-trending-down'}"></i>
-                <fmt:formatNumber value="${metrics.ordersChangePct}" pattern="#0.0"/>%
-              </span>
-            </h4>
-            <p class="mb-0 text-muted text-sm">You made an extra <span class="text-warning">1,943</span> this year</p>
-          </div></div>
-        </div>
-
-        <div class="col-md-6 col-xl-3">
-          <div class="card"><div class="card-body">
-            <h6 class="mb-2 f-w-400 text-muted">Total Sales</h6>
-            <h4 class="mb-3">
-              $<fmt:formatNumber value="${metrics.totalSales}" type="number" groupingUsed="true"/>
-              <span class="badge ${metrics.salesChangePct >= 0 ? 'bg-light-success border border-success' : 'bg-light-danger border border-danger'}">
-                <i class="ti ${metrics.salesChangePct >= 0 ? 'ti-trending-up' : 'ti-trending-down'}"></i>
-                <fmt:formatNumber value="${metrics.salesChangePct}" pattern="#0.0"/>%
-              </span>
-            </h4>
-            <p class="mb-0 text-muted text-sm">You made an extra <span class="text-danger">$20,395</span> this year</p>
-          </div></div>
-        </div>
- --%>
+        <c:forEach var="kpi" items="${kpiWidgets}">
+          <div class="${kpi.columnClass}">
+            <div class="card"><div class="card-body">
+              <div class="d-flex align-items-center justify-content-between">
+                <h6 class="mb-2 f-w-400 text-muted"><c:out value="${kpi.title}"/></h6>
+                <c:if test="${kpi.showIcon}"><i class="${kpi.icon} text-${kpi.tone}"></i></c:if>
+              </div>
+              <h4 class="mb-3 ${kpi.available ? '' : 'text-muted'}">
+                <c:out value="${kpi.prefix}"/><c:out value="${kpi.formattedValue}"/><c:out value="${kpi.suffix}"/>
+                <c:if test="${kpi.showBadge}">
+                  <span class="badge bg-light-${kpi.tone} border border-${kpi.tone}">
+                    <c:if test="${not empty kpi.badgeIcon}"><i class="${kpi.badgeIcon}"></i></c:if>
+                    <c:out value="${kpi.badgeText}"/>
+                  </span>
+                </c:if>
+              </h4>
+              <c:if test="${not empty kpi.note}">
+                <p class="mb-0 text-muted text-sm"><c:out value="${kpi.note}"/></p>
+              </c:if>
+            </div></div>
+          </div>
+        </c:forEach>
       </c:if>
       <c:if test="${showUniqueVisitor}">
         <div class="col-md-12 col-xl-8">

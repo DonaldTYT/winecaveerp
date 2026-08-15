@@ -72,23 +72,36 @@ public class CronServeletStarter extends HttpServlet  {
 	@Override
 	public void init() throws ServletException {
 		try {
-			IniHelper ini = SessionHelper.getIniHelper();
-			if (ini == null) {
+			IniHelper serverIni = SessionHelper.getIniHelper();
+			if (serverIni == null) {
 				UniLog.log1("ini is null");
 				return;
 			}
-			String iniAgent = ini.getAgent();
-			if (StringUtils.isBlank(iniAgent)) {
+			String serverAgent = serverIni.getAgent();
+			if (StringUtils.isBlank(serverAgent)) {
 				UniLog.log1("iniAgent is blank");
 				return;
 			}
-			
-			String cronLoginId = ini.getString("cronLoginId"); //support multiple cron loginId
+
+			/*
+			 * Cron work may belong to a shell/orchestrator agent while this webapp's
+			 * default agent is an ERP data agent.  RPC startup remains bound to the
+			 * default agent; cronAgent changes only the CronServer session.
+			 */
+			String cronAgent = StringUtils.defaultIfBlank(serverIni.getString("cronAgent"), serverAgent).trim();
+			IniHelper cronIni = StringUtils.equals(cronAgent, serverAgent)
+					? serverIni : SessionHelper.getIniHelper(cronAgent);
+			if(cronIni == null) {
+				UniLog.log1("cannot load cron ini for agent:%s", cronAgent);
+				return;
+			}
+
+			String cronLoginId = cronIni.getString("cronLoginId"); //support multiple cron loginId
 			if (StringUtils.isBlank(cronLoginId)) {
 				UniLog.log1("cronLoginId is blank. do not start cron server");
 				return;
 			}
-			startCronClass(ini,cronLoginId,iniAgent);
+			startCronClass(cronIni,cronLoginId,cronAgent);
 //			String[] cronLoginIdArr = StringUtils.split(cronLoginId, ",;:");
 //			
 //			String cronClass = ini.getString("cronClass");  //support multiple cron class
@@ -112,7 +125,7 @@ public class CronServeletStarter extends HttpServlet  {
 //				}
 //			}
 			
-			startCronRpcServer(ini,cronLoginId,iniAgent);
+			startCronRpcServer(serverIni,cronLoginId,serverAgent);
 
 //			String rpcPortStr = ini.getString("cronRpcPort"); 
 //			if(rpcPortStr == null || rpcPortStr.trim().equals("")) return;

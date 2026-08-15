@@ -129,6 +129,8 @@
 		<servlet-class>com.uniinformation.webcore.WebRpcStarter</servlet-class>
 		<load-on-startup>1</load-on-startup>
 	</servlet>	
+	-->
+
 	<servlet>
 		<description>
 		Control CronServer Running under Tomcat
@@ -137,7 +139,6 @@
 		<servlet-class>com.uniinformation.webcore.CronServeletStarter</servlet-class>
 		<load-on-startup>1</load-on-startup>
 	</servlet>	
- -->
   
   	
 </web-app>

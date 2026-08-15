@@ -1,0 +1,102 @@
+/* Compatibility for the icon colors stored with webmenu.webm_img. */
+.pc-sidebar .pc-micon i.navy { color: #001f3f; }
+.pc-sidebar .pc-micon i.blue { color: #0074d9; }
+.pc-sidebar .pc-micon i.aqua { color: #7fdbff; }
+.pc-sidebar .pc-micon i.teal { color: #39cccc; }
+.pc-sidebar .pc-micon i.olive { color: #3d9970; }
+.pc-sidebar .pc-micon i.green { color: #2ecc40; }
+.pc-sidebar .pc-micon i.lime { color: #01ff70; }
+.pc-sidebar .pc-micon i.yellow { color: #ffdc00; }
+.pc-sidebar .pc-micon i.orange { color: #ff851b; }
+.pc-sidebar .pc-micon i.red { color: #ff4136; }
+.pc-sidebar .pc-micon i.fuchsia { color: #f012be; }
+.pc-sidebar .pc-micon i.purple { color: #b10dc9; }
+.pc-sidebar .pc-micon i.maroon { color: #85144b; }
+.pc-sidebar .pc-micon i.white { color: #fff; }
+.pc-sidebar .pc-micon i.silver { color: #ddd; }
+.pc-sidebar .pc-micon i.gray { color: #aaa; }
+.pc-sidebar .pc-micon i.black { color: #111; }
+.pc-sidebar .pc-micon i.cyan { color: #00ffff; }
+.pc-sidebar .pc-micon i.darkcyan { color: #008b8b; }
+.pc-sidebar .pc-micon i.seagreen { color: #2e8b57; }
+.pc-sidebar .pc-micon i.royalblue { color: #4169e1; }
+.pc-sidebar .pc-micon i.cadetblue { color: #5f9ea0; }
+.pc-sidebar .pc-micon i.slateblue { color: #6a5acd; }
+.pc-sidebar .pc-micon i.slategray { color: #708090; }
+.pc-sidebar .pc-micon i.skyblue { color: #87ceeb; }
+.pc-sidebar .pc-micon i.peru { color: #cd853f; }
+.pc-sidebar .pc-micon i.tan { color: #d2b48c; }
+.pc-sidebar .pc-micon i.orchid { color: #da70d6; }
+.pc-sidebar .pc-micon i.crimson { color: #dc143c; }
+.pc-sidebar .pc-micon i.plum { color: #dda0dd; }
+.pc-sidebar .pc-micon i.salmon { color: #fa8072; }
+.pc-sidebar .pc-micon i.pink { color: #ffc0cb; }
+.pc-sidebar .pc-micon i.gold { color: #ffd700; }
+
+.pc-sidebar .pc-micon i.bg-navy { background-color: #001f3f; }
+.pc-sidebar .pc-micon i.bg-blue { background-color: #0074d9; }
+.pc-sidebar .pc-micon i.bg-aqua { background-color: #7fdbff; }
+.pc-sidebar .pc-micon i.bg-teal { background-color: #39cccc; }
+.pc-sidebar .pc-micon i.bg-olive { background-color: #3d9970; }
+.pc-sidebar .pc-micon i.bg-green { background-color: #2ecc40; }
+.pc-sidebar .pc-micon i.bg-lime { background-color: #01ff70; }
+.pc-sidebar .pc-micon i.bg-yellow { background-color: #ffdc00; }
+.pc-sidebar .pc-micon i.bg-orange { background-color: #ff851b; }
+.pc-sidebar .pc-micon i.bg-red { background-color: #ff4136; }
+.pc-sidebar .pc-micon i.bg-fuchsia { background-color: #f012be; }
+.pc-sidebar .pc-micon i.bg-purple { background-color: #b10dc9; }
+.pc-sidebar .pc-micon i.bg-maroon { background-color: #85144b; }
+.pc-sidebar .pc-micon i.bg-white { background-color: #fff; }
+.pc-sidebar .pc-micon i.bg-silver { background-color: #ddd; }
+.pc-sidebar .pc-micon i.bg-gray { background-color: #aaa; }
+.pc-sidebar .pc-micon i.bg-black { background-color: #111; }
+.pc-sidebar .pc-micon i.bg-cyan { background-color: #00ffff; }
+.pc-sidebar .pc-micon i.bg-darkcyan { background-color: #008b8b; }
+.pc-sidebar .pc-micon i.bg-seagreen { background-color: #2e8b57; }
+.pc-sidebar .pc-micon i.bg-royalblue { background-color: #4169e1; }
+.pc-sidebar .pc-micon i.bg-cadetblue { background-color: #5f9ea0; }
+.pc-sidebar .pc-micon i.bg-slateblue { background-color: #6a5acd; }
+.pc-sidebar .pc-micon i.bg-slategray { background-color: #708090; }
+.pc-sidebar .pc-micon i.bg-skyblue { background-color: #87ceeb; }
+.pc-sidebar .pc-micon i.bg-peru { background-color: #cd853f; }
+.pc-sidebar .pc-micon i.bg-tan { background-color: #d2b48c; }
+.pc-sidebar .pc-micon i.bg-orchid { background-color: #da70d6; }
+.pc-sidebar .pc-micon i.bg-crimson { background-color: #dc143c; }
+.pc-sidebar .pc-micon i.bg-plum { background-color: #dda0dd; }
+.pc-sidebar .pc-micon i.bg-salmon { background-color: #fa8072; }
+.pc-sidebar .pc-micon i.bg-pink { background-color: #ffc0cb; }
+.pc-sidebar .pc-micon i.bg-gold { background-color: #ffd700; }
+
+.pc-sidebar .pc-micon i.bb-navy { border-bottom: solid 3px #001f3f; }
+.pc-sidebar .pc-micon i.bb-blue { border-bottom: solid 3px #0074d9; }
+.pc-sidebar .pc-micon i.bb-aqua { border-bottom: solid 3px #7fdbff; }
+.pc-sidebar .pc-micon i.bb-teal { border-bottom: solid 3px #39cccc; }
+.pc-sidebar .pc-micon i.bb-olive { border-bottom: solid 3px #3d9970; }
+.pc-sidebar .pc-micon i.bb-green { border-bottom: solid 3px #2ecc40; }
+.pc-sidebar .pc-micon i.bb-lime { border-bottom: solid 3px #01ff70; }
+.pc-sidebar .pc-micon i.bb-yellow { border-bottom: solid 3px #ffdc00; }
+.pc-sidebar .pc-micon i.bb-orange { border-bottom: solid 3px #ff851b; }
+.pc-sidebar .pc-micon i.bb-red { border-bottom: solid 3px #ff4136; }
+.pc-sidebar .pc-micon i.bb-fuchsia { border-bottom: solid 3px #f012be; }
+.pc-sidebar .pc-micon i.bb-purple { border-bottom: solid 3px #b10dc9; }
+.pc-sidebar .pc-micon i.bb-maroon { border-bottom: solid 3px #85144b; }
+.pc-sidebar .pc-micon i.bb-white { border-bottom: solid 3px #fff; }
+.pc-sidebar .pc-micon i.bb-silver { border-bottom: solid 3px #ddd; }
+.pc-sidebar .pc-micon i.bb-gray { border-bottom: solid 3px #aaa; }
+.pc-sidebar .pc-micon i.bb-black { border-bottom: solid 3px #111; }
+.pc-sidebar .pc-micon i.bb-cyan { border-bottom: solid 3px #00ffff; }
+.pc-sidebar .pc-micon i.bb-darkcyan { border-bottom: solid 3px #008b8b; }
+.pc-sidebar .pc-micon i.bb-seagreen { border-bottom: solid 3px #2e8b57; }
+.pc-sidebar .pc-micon i.bb-royalblue { border-bottom: solid 3px #4169e1; }
+.pc-sidebar .pc-micon i.bb-cadetblue { border-bottom: solid 3px #5f9ea0; }
+.pc-sidebar .pc-micon i.bb-slateblue { border-bottom: solid 3px #6a5acd; }
+.pc-sidebar .pc-micon i.bb-slategray { border-bottom: solid 3px #708090; }
+.pc-sidebar .pc-micon i.bb-skyblue { border-bottom: solid 3px #87ceeb; }
+.pc-sidebar .pc-micon i.bb-peru { border-bottom: solid 3px #cd853f; }
+.pc-sidebar .pc-micon i.bb-tan { border-bottom: solid 3px #d2b48c; }
+.pc-sidebar .pc-micon i.bb-orchid { border-bottom: solid 3px #da70d6; }
+.pc-sidebar .pc-micon i.bb-crimson { border-bottom: solid 3px #dc143c; }
+.pc-sidebar .pc-micon i.bb-plum { border-bottom: solid 3px #dda0dd; }
+.pc-sidebar .pc-micon i.bb-salmon { border-bottom: solid 3px #fa8072; }
+.pc-sidebar .pc-micon i.bb-pink { border-bottom: solid 3px #ffc0cb; }
+.pc-sidebar .pc-micon i.bb-gold { border-bottom: solid 3px #ffd700; }

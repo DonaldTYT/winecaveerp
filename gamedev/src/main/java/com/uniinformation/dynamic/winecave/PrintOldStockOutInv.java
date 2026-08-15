@@ -54,7 +54,7 @@ import com.uniinformation.zkbi.ZkBiAiAgentContext;
 import com.uniinformation.zkf.ZkForm;
 
 public class PrintOldStockOutInv extends PrintOldDocMulti {
-	private static final boolean RealSendEmail = false;
+	private static final boolean RealSendEmail = true;
 	private static final ArrayList<String> mail_cc_list = new ArrayList<String>(Arrays.asList(
 			"anita@winecavehk.com",
 			"storage@winecavehk.com",

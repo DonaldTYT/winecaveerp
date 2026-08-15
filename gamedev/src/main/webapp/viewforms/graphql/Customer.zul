@@ -1,0 +1,40 @@
+<zk xmlns:n="native">
+	<style dynamic="true">
+	</style>
+	<div class="zkbi-detail-toolbar-container">
+		<div class="zkbi-detail-toolbar-leftarea">
+		</div>
+		<toolbar id="detail_toolbar" align="end">
+		</toolbar>
+	</div>
+	<tabbox id="zkbiListTop" width="100%" height="80vh" sclass="zkbi-detail-tabbox">
+		<tabs width="100%">
+			<tab label="Info"/>
+			<tab label="Sales Order"/>
+			<tab label="Storage"/>
+			<tab label="Consignment PO"/>
+			<tab label="Client Transfer"/>
+			<tab label="Stock In"/>
+		</tabs>
+		<tabpanels>
+			<tabpanel>
+				<grid id="detail_grid" sclass="zkbi-detail-grid"/>
+			</tabpanel>
+			<tabpanel>
+				<listbox id="list_graphql_CustSalesOrder" vflex="1"/>
+			</tabpanel>
+			<tabpanel>
+				<listbox id="list_graphql_CustStorage" vflex="1"/>
+			</tabpanel>
+			<tabpanel>
+				<listbox id="list_graphql_CustConsignPO" vflex="1"/>
+			</tabpanel>
+			<tabpanel>
+				<listbox id="list_graphql_TfrDetail" vflex="1"/>
+			</tabpanel>
+			<tabpanel>
+				<listbox id="list_graphql_MiDet" vflex="1"/>
+			</tabpanel>
+		</tabpanels>
+	</tabbox>
+</zk>

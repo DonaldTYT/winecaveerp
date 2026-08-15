@@ -33,6 +33,8 @@ public class ZkBiComposerExtended extends ZkBiComposerBase{
 
 	HashSet<String>pivotColumns;
 	protected Boolean headerAggregateFirst = null;
+	protected boolean useAverageForPivotSubtal = false;
+	protected boolean hideRowCount = false;
 	
 	@Override
     public void buildBrowserWindow(final BiResult result,final Component comp, int p_sortIdx, boolean p_sortDesc){
@@ -71,7 +73,7 @@ public class ZkBiComposerExtended extends ZkBiComposerBase{
 		}
 		}
 		
-		p_aop.addAggregate(AggregateOrPivot.AGGREGATES.valueOf("COUNT"));
+		if(!hideRowCount) p_aop.addAggregate(AggregateOrPivot.AGGREGATES.valueOf("COUNT"));
 	} 
 	protected void setPivots(BiResult p_result,AggregateOrPivot p_aop) {
 		Vector<BiColumn> cls = p_result.getListColumns();
@@ -130,6 +132,7 @@ public class ZkBiComposerExtended extends ZkBiComposerBase{
     
 	protected void regenAggregateAndPivot(BiResult p_result) throws Exception {
 		AggregateOrPivot aop = new AggregateOrPivot(p_result.getView().getHeader(),true);
+		if(useAverageForPivotSubtal) aop.setPivotSubtotalMode(true);
 		if(headerAggregateFirst != null) aop.setHeaderAggregateFirst(headerAggregateFirst);
 		setAggregates(p_result,aop);
 //		if(aop.getAggsArr().size() <= 0) {

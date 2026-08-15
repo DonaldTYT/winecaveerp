@@ -32,6 +32,7 @@ public class AggregateOrPivot {
 		int maxValCol = 200;
 		private boolean useNewPivotHeader = false;
 		private boolean hasPivotSubtotal = false;
+		private PivotSubtotalMode pivotSubtotalMode = PivotSubtotalMode.SUM;
 		private Boolean headerAggregateFirst = null;
 		public static boolean enableTranslateAggHeader = true; //andrew221201 translate aggregate header (experimental)
 		
@@ -50,7 +51,45 @@ public class AggregateOrPivot {
 			EXPRESSION,
 			EXPRESSION2
 		};	
-    	public ArrayList<ColRec> getColsArr() {
+
+		public static enum PivotSubtotalMode {
+			SUM,
+			AVERAGE
+		};
+
+		public void setPivotSubtotalMode(PivotSubtotalMode p_mode) {
+			pivotSubtotalMode = p_mode == null ? PivotSubtotalMode.SUM : p_mode;
+		}
+
+		public void setPivotSubtotalMode(boolean p_useAverage) {
+			pivotSubtotalMode = p_useAverage ? PivotSubtotalMode.AVERAGE : PivotSubtotalMode.SUM;
+		}
+
+		public PivotSubtotalMode getPivotSubtotalMode() {
+			return(pivotSubtotalMode);
+		}
+
+		/**
+		 * Returns the number of real pivot value columns. The all-null entry used
+		 * for the pivot subtotal is intentionally excluded.
+		 */
+		public int getPivotDataColumnCount() {
+			if(aggsArr == null || aggsArr.isEmpty() || aggsArr.get(0).colValsArr == null) return(0);
+			int count = 0;
+			for(Comparable[] pivotValues : aggsArr.get(0).colValsArr) {
+				boolean subtotalColumn = true;
+				for(Comparable pivotValue : pivotValues) {
+					if(pivotValue != null) {
+						subtotalColumn = false;
+						break;
+					}
+				}
+				if(!subtotalColumn) count++;
+			}
+			return(count);
+		}
+
+		public ArrayList<ColRec> getColsArr() {
 			return colsArr;
 		}
 
@@ -545,36 +584,35 @@ public class AggregateOrPivot {
     		}
     		return(l);
     	}
-    	public List<String> getColColumnIds() {
+	public List<String> getColColumnIds() {
     		ArrayList<String> l = new ArrayList<String>();
     		for(ColRec r : colsArr) {
     			l.add(r.getId());
     		}
-    		return(l);
-    	}
-    	public int addOrGetPivotList(Object p_o[]) throws Exception {
-    		for(int i=0;i<aggsArr.get(0).colValsArr.size();i++) {
-    			boolean matched = true;
-    			for(int j = 0;j<p_o.length;j++) {
-    				if(p_o[j] == null && aggsArr.get(0).colValsArr.get(i)[j] != null) {
-    					matched = false;
-    					break;
-    				}
-    				if(p_o[j] != null && aggsArr.get(0).colValsArr.get(i)[j] == null) {
-    					matched = false;
-    					break;
-    				}
-    				Object pivotCol;
-    				if(p_o[j] instanceof Double) {
-    					pivotCol = p_o[j].toString();
-    				} else if(p_o[j] instanceof Integer) {
-    					pivotCol = p_o[j].toString();
-    				} else {
-    					pivotCol = p_o[j];
-    				}
-    				if(! (aggsArr.get(0).colValsArr.get(i)[j]).equals(pivotCol)) {
-    					matched = false;
-    					break;
+		return(l);
+	}
+
+	/**
+	 * Ordinary pivot values are stored as a CellPair whose display value is
+	 * the source value's string representation. Compare incoming ordinary
+	 * values using that same representation so Date, Long, BigDecimal and
+	 * other value types can match an existing pivot. CellPair values retain
+	 * their special comparison semantics for custom pivot ordering.
+	 */
+	private boolean pivotValueEquals(Comparable p_stored,Object p_incoming) {
+		if(p_stored == p_incoming) return(true);
+		if(p_stored == null || p_incoming == null) return(false);
+		if(p_incoming instanceof CellPair) return(p_stored.equals(p_incoming));
+		return(p_stored.toString().equals(p_incoming.toString()));
+	}
+
+	public int addOrGetPivotList(Object p_o[]) throws Exception {
+		for(int i=0;i<aggsArr.get(0).colValsArr.size();i++) {
+			boolean matched = true;
+			for(int j = 0;j<p_o.length;j++) {
+				if(!pivotValueEquals(aggsArr.get(0).colValsArr.get(i)[j],p_o[j])) {
+					matched = false;
+					break;
     				}
     			}
     			if(matched) return(i);

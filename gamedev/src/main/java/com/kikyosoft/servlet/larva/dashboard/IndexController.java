@@ -16,6 +16,7 @@ import com.kikyosoft.utils.LogUtil;
 import com.kikyosoft.utils.MenuNode;
 import com.kikyosoft.utils.ReturnMsg;
 import com.kikyosoft.utils.SessionUtil;
+import com.kikyosoft.utils.ShellSessionUtil;
 import com.kikyosoft.utils.VectorUtil;
 import com.uniinformation.erpv4.BiConfig;
 import com.uniinformation.webcore.SessionHelper;
@@ -254,6 +255,10 @@ public class IndexController extends HttpServlet {
     m.setIncomeThisWeek(new BigDecimal("7650"));
     m.setSalesThisWeek(new BigDecimal("7650"));
 
+    // Agent-configured KPI tiles. Each tile uses an independent BI result so
+    // conditions and aggregate state cannot leak between configured widgets.
+    List<KpiWidget> kpiWidgets = KpiWidgetConfigurator.load(sp);
+
     // ----- Recent Orders -----
     List<OrderRow> recentOrders = Arrays.asList(
         new OrderRow("84564564","Camera Lens",40,"Rejected", new BigDecimal("40570")),
@@ -269,18 +274,12 @@ public class IndexController extends HttpServlet {
     );
     
 //    List <MenuNode> menu = null;
-    List <MenuNode> menu = (List<MenuNode>) sp.getSessionData("sideMenuNode");
-    if(menu == null) {
-    	menu = SessionUtil.generateSideMenu(menu,"Application","ti ti-dashboard","winecavescp",/* req.getContextPath() +  */ "/larva/dashboard" ,sp, /* sp.getRootMenu()  "menu_main.html" */ "menu_main.html");
-    	menu = SessionUtil.generateSideMenu(menu,null,"ti ti-dashboard","winecaveold",/* req.getContextPath() +  */ "/larva/dashboard" ,sp, /* sp.getRootMenu()  "menu_main.html" */ "oldwc_main.html");
-//      menu = SessionUtil.generateSideMenu(menu,"Application","ti ti-dashboard","erpv4winecave",/* req.getContextPath() +  */ "/larva/dashboard" ,sp, /* sp.getRootMenu()  "menu_main.html" */ "menu_main.html");
-//      menu = SessionUtil.generateSideMenu(menu,null,"ti ti-dashboard","winecavedevold",/* req.getContextPath() +  */ "/larva/dashboard" ,sp, /* sp.getRootMenu()  "menu_main.html" */ "oldwc_main.html");
-        menu = SessionUtil.generateSideMenu(menu,"Administration","ti ti-dashboard","",/* req.getContextPath() + */ "/larva/dashboard",sp, /* sp.getRootMenu()  "menu_main.html" */ "bicore_main.html");
-        if(sp.isAdminUser() || sp.hasAccessRight("#saleorsync")) {
-        	menu.add(new MenuNode("SalerSync",    "/larva/dashboard?showSetupScreen=true",    "ti ti-lock"));
-        }
-         sp.putSessionData("sideMenuNode",menu);
-    }
+    String sideMenuCacheKey = "sideMenuNode." + sp.getAgent();
+    List <MenuNode> menu = (List<MenuNode>) sp.getSessionData(sideMenuCacheKey);
+	if(menu == null) {
+		menu = SessionUtil.generateConfiguredSideMenu("/larva/dashboard",sp);
+		sp.putSessionData(sideMenuCacheKey,menu);
+	}
     req.setAttribute("sideMenu", menu);
     
     // ----- Analytics list (label, value) -----
@@ -301,7 +300,7 @@ public class IndexController extends HttpServlet {
     req.setAttribute("showSidebar",            getBool(req, "showSidebar", true));
     req.setAttribute("showHeader",             getBool(req, "showHeader", true));
     req.setAttribute("showFooter",             getBool(req, "showFooter", false));
-    req.setAttribute("showStatsTiles",         getBool(req, "showStatsTiles", false));
+    req.setAttribute("showStatsTiles",         getBool(req, "showStatsTiles", !kpiWidgets.isEmpty()));
     req.setAttribute("showUniqueVisitor",      getBool(req, "showUniqueVisitor", false));
     req.setAttribute("showIncomeOverview",     getBool(req, "showIncomeOverview", false));
     req.setAttribute("showRecentOrders",       getBool(req, "showRecentOrders", false));
@@ -312,24 +311,22 @@ public class IndexController extends HttpServlet {
     req.setAttribute("showListView", 		   getBool(req, "showListView", false));
     String iframeUrl = req.getParameter("iframeUrl");
     if(!StringUtils.isBlank(iframeUrl)) {
-// req.setAttribute("iFrameUrl", "http://192.168.1.204:8080/pmsdemo/vincero_compound_result.html?action=run");
-// String iframeUrl = "http://192.168.1.204:8080/pmsdemo/zkbiloader.html?action=browse&viewid=erpv4.Stock&page_id=Stock_01&zul=zkbiloader.zul&composer=erpv4.ZkBiComposerStock&sidemenu=N";
-    	String agent = req.getParameter("agent");
-    	String fullPathUrl = null;
-    	if(!StringUtils.isBlank(agent)) {
-//    		iframeUrl = "http://192.168.1.204:8080/pmsdemo/zkbiloader.html?action=browse&viewid=erpv4.Stock&page_id=Stock_01&zul=zkbiloader.zul&composer=erpv4.ZkBiComposerStock";
+    String agent = req.getParameter("agent");
+    String fullPathUrl = null;
+    if(!StringUtils.isBlank(agent)) {
     		Map<String,String> pm = new HashMap<String,String>();
-//   		pm.put("sidemenu", "N");
-    		/*
-    		if("winecavescp".equals(agent)) fullPathUrl = createIframeUrlWithPassport("192.168.33.3",5102,iframeUrl, sp.getLoginId(),pm);
-    		if("erpv4winecave".equals(agent)) fullPathUrl = createIframeUrlWithPassport("192.168.1.204",5102,iframeUrl, sp.getLoginId(),pm);
-    		if("winecaveold".equals(agent)) fullPathUrl = createIframeUrlWithPassport("192.168.33.3",5101,iframeUrl, sp.getLoginId(),pm);
-    		if("winecavedevold".equals(agent))  fullPathUrl = createIframeUrlWithPassport("192.168.1.204",5101,iframeUrl, sp.getLoginId(),pm);
-    		*/
-    		String agentRpcHost=BiConfig.getString(sp, "AgentRpcHost_"+agent);
-    		String agentRpcPort=BiConfig.getString(sp, "AgentRpcPort_"+agent);
-   			fullPathUrl = createIframeUrlWithPassport(agentRpcHost,Integer.parseInt(agentRpcPort),iframeUrl, sp.getLoginId(),pm);
-    	} else {
+		String agentBaseUrl=BiConfig.getString(sp, "AgentPath_"+agent);
+		String agentRpcHost=BiConfig.getString(sp, "AgentRpcHost_"+agent);
+		String agentRpcPort=BiConfig.getString(sp, "AgentRpcPort_"+agent);
+		if(ShellSessionUtil.isUrlUnderBase(iframeUrl, agentBaseUrl)) {
+			fullPathUrl = createIframeUrlWithPassport(agentRpcHost,Integer.parseInt(agentRpcPort),iframeUrl, sp.getLoginId(),pm);
+			if(fullPathUrl != null) {
+				ShellSessionUtil.registerLoggedInOrigin(sp, agent, agentBaseUrl);
+			}
+		} else {
+			LogUtil.log("Reject iframe URL outside configured agent base: agent=" + agent + " url=" + iframeUrl);
+		}
+    } else {
     		fullPathUrl="/"+iframeUrl;
     	}
     	if(fullPathUrl != null) {
@@ -348,6 +345,7 @@ public class IndexController extends HttpServlet {
     // ----- Attributes for JSP -----
     req.setAttribute("pageTitle", "Home");
     req.setAttribute("metrics", m);
+    req.setAttribute("kpiWidgets", kpiWidgets);
     req.setAttribute("recentOrders", recentOrders);
     req.setAttribute("analyticsReport", analyticsReport);
     req.setAttribute("transactions", transactions);

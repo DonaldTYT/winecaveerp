@@ -7146,22 +7146,37 @@ public class BiResult implements GetCellInterface {
 		return(false);
 	}
 	
-	/*
-	String makeGroupByString(BiCellCollection p_col,List <String> p_groupColumns) {
-		String s = "";
-		for(String lb : p_groupColumns) {
-			s += p_col.getCellString(lb);
+	private static final GroupKey EMPTY_GROUP_KEY = new GroupKey(new Object[0]);
+
+	private static final class GroupKey {
+		private final Object[] values;
+		private final int hashCode;
+
+		private GroupKey(Object[] p_values) {
+			values = p_values;
+			hashCode = Arrays.deepHashCode(values);
 		}
-		return(s);
+
+		@Override
+		public int hashCode() {
+			return(hashCode);
+		}
+
+		@Override
+		public boolean equals(Object p_other) {
+			if(this == p_other) return(true);
+			if(!(p_other instanceof GroupKey)) return(false);
+			return(Arrays.deepEquals(values,((GroupKey)p_other).values));
+		}
 	}
-	*/
-	String makeGroupByString(int p_recidx,List <String> p_groupColumns) throws Exception {
-		String s = "";
-		for(String lb : p_groupColumns) {
-			Object o = getColumnValueFromCache(lb,p_recidx);
-			if(o != null) s += o.toString();
+
+	private GroupKey makeGroupKey(int p_recidx,List<String> p_groupColumns) throws Exception {
+		if(p_groupColumns == null || p_groupColumns.isEmpty()) return(EMPTY_GROUP_KEY);
+		Object[] values = new Object[p_groupColumns.size()];
+		for(int i = 0;i < p_groupColumns.size();i++) {
+			values[i] = getColumnValueFromCache(p_groupColumns.get(i),p_recidx);
 		}
-		return(s);
+		return(new GroupKey(values));
 	}
 	
 	class AggregateDataSet {
@@ -7225,10 +7240,28 @@ public class BiResult implements GetCellInterface {
 		}
 	}
 	
-	Double doAggregateSum(Double p_org, double p_val) {
-		if(Double.isNaN(p_val)) return(p_org);
-		if(p_org == null) return(p_val);
-		return (p_org + p_val);
+	Double doAggregateSum(Double p_org, Number p_val) {
+		if(p_val == null) return(p_org);
+		double val = p_val.doubleValue();
+		if(Double.isNaN(val)) return(p_org);
+		if(p_org == null) return(val);
+		return (p_org + val);
+	}
+
+	private boolean allowAveragePivotSubtotal(AggregateOrPivot.AggregateRec p_aggregate) {
+		return(p_aggregate.aggregate == AggregateOrPivot.AGGREGATES.SUM
+				|| p_aggregate.aggregate == AggregateOrPivot.AGGREGATES.COUNT);
+	}
+
+	private void applyAveragePivotSubtotal(AggregateDataSet p_dataSet,int p_aggCnt,int p_divisor) {
+		if(p_dataSet == null || p_dataSet.value == null || p_divisor <= 0) return;
+		for(int j = 0;j < p_aggCnt;j++) {
+			if(!allowAveragePivotSubtotal(aop.getAggregate(j))) continue;
+			Object subtotal = p_dataSet.value[j];
+			if(subtotal instanceof Number) {
+				p_dataSet.value[j] = ((Number)subtotal).doubleValue() / p_divisor;
+			}
+		}
 	}
 	
 	protected int getRealPivotColumn( AggregateOrPivot.AggregateRec agg,int idx) {
@@ -7237,6 +7270,47 @@ public class BiResult implements GetCellInterface {
 	
 	protected int addOrGetPivotList(List<String>pivotColumns,Object colVals[],AggregateOrPivot aop) throws Exception {
 				return(aop.addOrGetPivotList(colVals));
+	}
+
+	/**
+	 * Builds and computes a non-pivot aggregate data set using explicit row
+	 * grouping columns. Aggregate definitions are taken from the visible
+	 * {@link BiColumn} metadata in this result.
+	 *
+	 * @param p_groupColumns column labels used to group the loaded result rows
+	 * @return the computed aggregate definition, or {@code null} when this
+	 *         result has no visible aggregate columns
+	 * @throws Exception when a grouping column is unknown or aggregation fails
+	 */
+	public AggregateOrPivot computeGroupedDataSet(List<String> p_groupColumns) throws Exception {
+		AggregateOrPivot groupedAop = new AggregateOrPivot(getView().getHeader(),true);
+		for(BiColumn column : getColumns()) {
+			if(column.getAggregate() == null || column.isInvisible(getSessionHelper())) {
+				continue;
+			}
+			AggregateOrPivot.AGGREGATES aggregate =
+					AggregateOrPivot.AGGREGATES.valueOf(column.getAggregate());
+			if(aggregate == AggregateOrPivot.AGGREGATES.EXPRESSION
+					|| aggregate == AggregateOrPivot.AGGREGATES.EXPRESSION2) {
+				groupedAop.addAggregate(aggregate,column.getLabel(),column.getAggregateExpression());
+			} else {
+				groupedAop.addAggregate(aggregate,column.getLabel());
+			}
+		}
+		if(groupedAop.getAggsArr().isEmpty()) {
+			computeAggregateDataSet((AggregateOrPivot)null);
+			return(null);
+		}
+		if(p_groupColumns != null) {
+			for(String columnLabel : p_groupColumns) {
+				if(getColumnByLabel(columnLabel) == null) {
+					throw new IllegalArgumentException("Unknown grouping column: " + columnLabel);
+				}
+				groupedAop.addRow(columnLabel);
+			}
+		}
+		computeAggregateDataSet(groupedAop);
+		return(groupedAop);
 	}
 	
 	/* currently only support sum of single field */
@@ -7252,9 +7326,7 @@ public class BiResult implements GetCellInterface {
 		if(resultTr == null) {
 			return;
 		}
-		Hashtable<String,AggregateDataSet> rhash = null;
-		rhash = new Hashtable<String,AggregateDataSet>();
-		List<String> rlist = new ArrayList<String>();
+		Map<GroupKey,AggregateDataSet> groupDataSets = new LinkedHashMap<GroupKey,AggregateDataSet>();
 		resultStatList.clear();
 		aop = p_aop;
 		aop.reset();
@@ -7270,7 +7342,7 @@ public class BiResult implements GetCellInterface {
 		}
 		for(int i = 0;i<resultTr.size();i++) {
 			AggregateDataSet aap = null;
-			String gStr = makeGroupByString(i,groupColumns);
+			GroupKey groupKey = makeGroupKey(i,groupColumns);
 			int idx = 0;
 			if(pivotColumns.size() > 0) {
 				Object colVals[] = new Object[pivotColumns.size()];
@@ -7281,7 +7353,7 @@ public class BiResult implements GetCellInterface {
 				idx = addOrGetPivotList(pivotColumns,colVals,aop);
 //				idx = aop.addOrGetPivotList(colVals);
 			} 
-			aap = rhash.get(gStr);
+			aap = groupDataSets.get(groupKey);
 			if(aap == null) {
 				/*
 				aap = new AggregateDataSet();
@@ -7291,7 +7363,7 @@ public class BiResult implements GetCellInterface {
 				if(hasPivotSubtotal) {
 					initAppValue(aggCnt,0, aap);
 				}
-				rhash.put(gStr, aap);
+				groupDataSets.put(groupKey, aap);
 				*/
 				aap = newAggregateDataSet(idx,hasPivotSubtotal,aggCnt);
 				aap.firstRec = i;
@@ -7300,8 +7372,7 @@ public class BiResult implements GetCellInterface {
 //					aap.sids.add((Integer)resultTr.getField(0,i));
 					aap.idxs.add(i);
 				}
-				rhash.put(gStr, aap);
-				rlist.add(gStr);
+				groupDataSets.put(groupKey, aap);
 			} else {
 				updateAggregateDataSet(aap,idx,aggCnt);
 				if(sublinks != null) {
@@ -7324,22 +7395,7 @@ public class BiResult implements GetCellInterface {
 				*/
 			}
 			if(aap.count[idx] == 0) {
-				for(int k=0;k<aggCnt;k++) {
-					initAppValue(aggCnt,idx, aap);
-					/*
-					AggregateOrPivot.AggregateRec agg = aop.getAggregate(k);
-					if(agg.aggregate == AggregateOrPivot.AGGREGATES.UNIQUECAT) {
-						aap.value[idx * aggCnt + k] = new LinkedHashSet();
-					} else if(agg.aggregate == AggregateOrPivot.AGGREGATES.STRCAT) {
-//						aap.value[idx * aggCnt + k] = "";
-						aap.value[idx * aggCnt + k] = new ArrayList();
-					} else if(agg.aggregate == AggregateOrPivot.AGGREGATES.FIRST) {
-					} else if(agg.aggregate == AggregateOrPivot.AGGREGATES.LAST) {
-					} else {
-						aap.value[idx * aggCnt + k] = 0.0;
-					}
-					*/
-				}
+				initAppValue(aggCnt,idx, aap);
 			}
 			if(aggregateSubtotal == null) {
 				aggregateSubtotal = newAggregateDataSet(idx,hasPivotSubtotal,aggCnt);
@@ -7347,9 +7403,7 @@ public class BiResult implements GetCellInterface {
 				updateAggregateDataSet(aggregateSubtotal,idx,aggCnt);
 			}
 			if(aggregateSubtotal.count[idx] == 0) {
-				for(int k=0;k<aggCnt;k++) {
-					initAppValue(aggCnt,idx, aggregateSubtotal);
-				}
+				initAppValue(aggCnt,idx, aggregateSubtotal);
 			}
 			try {
 				aap.count[idx] ++;
@@ -7377,15 +7431,16 @@ public class BiResult implements GetCellInterface {
 					break;
 					case SUM:
 //						aap.value[idx * aggCnt + j] = new Double((Double) aap.value[idx * aggCnt +j] + (Double) getColumnValueFromCache(agg.varId[0],i));
-						aap.value[idxx * aggCnt + j] = doAggregateSum((Double) aap.value[idxx * aggCnt +j] , (Double) getColumnValueFromCache(agg.varId[0],i));
+						Number sumValue = (Number) getColumnValueFromCache(agg.varId[0],i);
+						aap.value[idxx * aggCnt + j] = doAggregateSum((Double) aap.value[idxx * aggCnt +j],sumValue);
 						if(hasPivotSubtotal) {
 //							aap.value[j] = new Double((Double) aap.value[j] + (Double) getColumnValueFromCache(agg.varId[0],i));
-							aap.value[j] =  doAggregateSum((Double) aap.value[j] , (Double) getColumnValueFromCache(agg.varId[0],i));
+							aap.value[j] = doAggregateSum((Double) aap.value[j],sumValue);
 //							aggregateSubtotal.value[j] = new Double((Double) aggregateSubtotal.value[j] + (Double) getColumnValueFromCache(agg.varId[0],i));
-							aggregateSubtotal.value[j] = doAggregateSum((Double) aggregateSubtotal.value[j] , (Double) getColumnValueFromCache(agg.varId[0],i));
+							aggregateSubtotal.value[j] = doAggregateSum((Double) aggregateSubtotal.value[j],sumValue);
 						}
 //						aggregateSubtotal.value[idx * aggCnt + j] = new Double((Double) aggregateSubtotal.value[idx * aggCnt + j] + (Double) getColumnValueFromCache(agg.varId[0],i));
-						aggregateSubtotal.value[idxx * aggCnt + j] = doAggregateSum((Double) aggregateSubtotal.value[idxx * aggCnt + j] , (Double) getColumnValueFromCache(agg.varId[0],i));
+						aggregateSubtotal.value[idxx * aggCnt + j] = doAggregateSum((Double) aggregateSubtotal.value[idxx * aggCnt + j],sumValue);
 						break;
 					case COUNT:
 						aap.value[idxx * aggCnt + j] = new Double(aap.count[idxx]);
@@ -7461,7 +7516,7 @@ public class BiResult implements GetCellInterface {
 			}
 				idx=0;	
 		}
-		if(rhash != null) {
+		if(groupDataSets != null) {
 			AggregateEval agev = null;
 			for( int j = 0;j<aggCnt ;j++) {
 				AggregateOrPivot.AggregateRec agg = aop.getAggregate(j);
@@ -7478,17 +7533,7 @@ public class BiResult implements GetCellInterface {
 				}
 			}
 			
-			/*
-			for (Enumeration en=rhash.elements(); en.hasMoreElements(); ) {
-				AggregateDataSet aap = (AggregateDataSet) en.nextElement();
-				resultStatList.add(new TrStat(aap.firstRec,0,aap));
-				if(agev != null) {
-					agev.evalExpression(aap) ;
-				}
-			}
-			*/
-			for(String gstr:rlist) {
-				AggregateDataSet aap = rhash.get(gstr);
+			for(AggregateDataSet aap:groupDataSets.values()) {
 				resultStatList.add(new TrStat(aap.firstRec,0,aap));
 				if(agev != null) {
 					agev.evalExpression(aap,false) ;
@@ -7505,6 +7550,14 @@ public class BiResult implements GetCellInterface {
 			*/
 			if(agev != null) {
 				agev.evalExpression(aggregateSubtotal,true) ;
+			}
+			if(hasPivotSubtotal
+					&& aop.getPivotSubtotalMode() == AggregateOrPivot.PivotSubtotalMode.AVERAGE) {
+				int pivotDataColumnCount = aop.getPivotDataColumnCount();
+				for(AggregateDataSet dataSet : groupDataSets.values()) {
+					applyAveragePivotSubtotal(dataSet,aggCnt,pivotDataColumnCount);
+				}
+				applyAveragePivotSubtotal(aggregateSubtotal,aggCnt,pivotDataColumnCount);
 			}
 		}
 

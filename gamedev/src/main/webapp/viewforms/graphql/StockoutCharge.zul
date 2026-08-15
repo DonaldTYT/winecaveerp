@@ -1,0 +1,38 @@
+<zk xmlns:n="native">
+	<style dynamic="true">
+	</style>
+	<div class="zkbi-detail-toolbar-container">
+		<div class="zkbi-detail-toolbar-leftarea">
+		</div>
+		<toolbar id="detail_toolbar" align="end">
+		</toolbar>
+	</div>
+	<tabbox id="zkbiListTop" width="100%" height="80vh" sclass="zkbi-detail-tabbox">
+		<tabs width="100%">
+			<tab label="Detail"/>
+			<tab label="Stock Out Charge"/>
+		</tabs>
+		<tabpanels>
+			<tabpanel>
+				<div>
+					<zkbidiv jxId="storh_date"/>
+				</div>
+				<listbox id="list_graphql_StorageDet" vflex="1"/>
+			</tabpanel>
+			<tabpanel>
+				<div>
+					<zkbidiv jxId="storh_total"/>
+				</div>
+				<listbox id="list_graphql_StmpostExtOM" vflex="1"/>
+			</tabpanel>
+		</tabpanels>
+	</tabbox>
+	<div visible="false">
+		<zkbidiv jxId="storh_mrg"/>
+		<zkbidiv jxId="storh_createon"/>
+		<zkbidiv jxId="storh_createby"/>
+		<zkbidiv jxId="storh_poston"/>
+		<zkbidiv jxId="storh_postby"/>
+		<zkbidiv jxId="storh_type"/>
+	</div>
+</zk>

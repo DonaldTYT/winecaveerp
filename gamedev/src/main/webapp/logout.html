@@ -1,5 +1,5 @@
 <%@ page language="java" pageEncoding="utf-8" contentType="text/html;charset=utf-8"%>
-<%@ page import="java.util.*, com.uniinformation.utils.*,com.uniinformation.webcore.* " %>
+<%@ page import="java.util.*, com.uniinformation.utils.*,com.uniinformation.webcore.*,com.kikyosoft.utils.ShellSessionUtil,org.json.JSONArray,org.json.JSONObject " %>
 <%
 response.setHeader("Cache-Control", "no-cache, no-store, must-revalidate"); // HTTP 1.1.
 response.setHeader("Pragma", "no-cache"); // HTTP 1.0.
@@ -10,8 +10,60 @@ try {
 	SessionHelper sessionHelper = ZkSessionHelper.getSessionHelper(request, response);   
 	UniLog.log("logout: clearLoginToken");
 	boolean largeFlag = sessionHelper.getLargeFlag();
+	List<String> remoteLogoutUrls = ShellSessionUtil.getLoggedInOriginLogoutUrls(sessionHelper);
+	boolean remoteLogoutRequired = !remoteLogoutUrls.isEmpty()
+			&& !"Y".equals(request.getParameter("remoteLogoutDone"))
+			&& !"N".equals(request.getParameter("selfexe"));
+	if (remoteLogoutRequired) {
+		StringBuilder localLogoutUrl = new StringBuilder("logout.html?remoteLogoutDone=Y");
+		if (request.getParameter("agent") != null) {
+			localLogoutUrl.append("&agent=").append(java.net.URLEncoder.encode(request.getParameter("agent"), "UTF-8"));
+		}
+		if (request.getParameter("keeplt") != null) {
+			localLogoutUrl.append("&keeplt=").append(java.net.URLEncoder.encode(request.getParameter("keeplt"), "UTF-8"));
+		}
 	
 	
+%>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8" />
+<meta name="robots" content="noindex,nofollow" />
+<title>Signing out</title>
+</head>
+<body>
+<div style="font-family:Arial,sans-serif;padding:2rem">Signing out...</div>
+<script>
+(function () {
+	var logoutUrls = <%=new JSONArray(remoteLogoutUrls).toString()%>;
+	var pending = logoutUrls.length;
+	var continued = false;
+	var continueLocalLogout = function () {
+		if (continued) return;
+		continued = true;
+		window.location.replace(<%=JSONObject.quote(localLogoutUrl.toString())%>);
+	};
+	var completed = function () {
+		pending--;
+		if (pending <= 0) continueLocalLogout();
+	};
+	logoutUrls.forEach(function (logoutUrl) {
+		var frame = document.createElement("iframe");
+		frame.hidden = true;
+		frame.onload = completed;
+		frame.onerror = completed;
+		frame.src = logoutUrl;
+		document.body.appendChild(frame);
+	});
+	window.setTimeout(continueLocalLogout, 8000);
+})();
+</script>
+</body>
+</html>
+<%
+		return;
+	}
 %>
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
