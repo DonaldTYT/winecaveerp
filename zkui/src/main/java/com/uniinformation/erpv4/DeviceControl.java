@@ -555,7 +555,7 @@ public class DeviceControl extends CronJob {
 	@Override
 	public int runOnce() throws Exception {
 		// TODO Auto-generated method stub
-		if(fStop.get() || shutdownRequested.get()) return 0;
+		if(isShutdownRequested()) return 0;
 		
 		int udpPort = BiConfig.getInteger(sh, "DeviceControlUDPPort", 5678);
 		int udpSoTimeout = BiConfig.getInteger(sh, "DeviceControlUDPSoTimeout", 20000);
@@ -565,17 +565,18 @@ public class DeviceControl extends CronJob {
 		DatagramSocket socket = new DatagramSocket(udpPort);
 		udpSocket = socket;
 		try {
-		if(fStop.get() || shutdownRequested.get()) return 0;
+		if(isShutdownRequested()) return 0;
 		socket.setSoTimeout(udpSoTimeout);
 		
 		byte[] buf = new byte[256];
-		while(!fStop.get() && !shutdownRequested.get()) {
+		while(!isShutdownRequested()) {
 //			Thread.sleep(20000);
 //			UniLog.log("in Device Control Loop");
 			DatagramPacket packet = new DatagramPacket(buf, buf.length);
 			try {
 				//UniLog.log1("waiting for packet");
 				socket.receive(packet);
+				if(isShutdownRequested()) break;
 				String msg = new String(buf,packet.getOffset(),packet.getLength());
 				UniLog.log("DeviceControl UDP Received ["+msg+"]");
 				//sample msg
@@ -603,7 +604,7 @@ public class DeviceControl extends CronJob {
 				UniLog.log1("DeviceControl Wait UDP timeout");
 				
 				//cleanup and abort
-				if (fStop.get()) {
+				if (isShutdownRequested()) {
 					UniLog.log1("close socket and abort");
 					try {
 						socket.close();
@@ -616,7 +617,7 @@ public class DeviceControl extends CronJob {
 			}
 		}
 		} catch (Exception ex) {
-			if(fStop.get() || shutdownRequested.get()) return 0;
+			if(isShutdownRequested()) return 0;
 			//UniLog.log(ex);
 			UniLog.log1("error:" + ex.getMessage());
 			throw(ex);
@@ -627,6 +628,10 @@ public class DeviceControl extends CronJob {
 			}
 		}
 		return 0;
+	}
+
+	private boolean isShutdownRequested() {
+		return fStop.get() || shutdownRequested.get() || isCronServerStopRequested();
 	}
 
 	@Override

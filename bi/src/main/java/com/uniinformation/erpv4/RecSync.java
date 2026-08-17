@@ -76,12 +76,21 @@ public abstract class RecSync extends CronJob {
 			servthread.start();
 		}
 		*/
-		for(;;) {
+		while(!isCronServerStopRequested()) {
 			UniLog.log1("RecSync Wakeup (interval:%d)",recSyncInterval);
 			syncToRemote();
+			if(isCronServerStopRequested()) break;
 			synchronized(this) {
-				wait(recSyncInterval);
+				if(!isCronServerStopRequested()) wait(recSyncInterval);
 			}
+		}
+		return 0;
+	}
+
+	@Override
+	protected void onCronServerStopRequested() {
+		synchronized(this) {
+			notifyAll();
 		}
 	}
 
@@ -149,7 +158,7 @@ public abstract class RecSync extends CronJob {
 			PreparedStatement updstmt = conn.prepareStatement(updateSQL);
 			ResultSet rs = pstmt.executeQuery();	
 			RpcClient rpc;
-			while (rs.next()) {
+			while (!isCronServerStopRequested() && rs.next()) {
 				switch(rs.getInt(7)) {
 				case RECSYNC_STATE_UPDATE:	
 					SyncHandler shdr = viewHash.get(rs.getString(3));
@@ -165,7 +174,7 @@ public abstract class RecSync extends CronJob {
 					
 					JSONArray shosts = new JSONArray(rs.getString(4));
 					JSONArray rhosts = new JSONArray();
-					for(int i=0;i<shosts.length();i++) {
+					for(int i=0;i<shosts.length() && !isCronServerStopRequested();i++) {
 						String ag = shosts.getString(i);
 						RecSyncHost rh = serverHash.get(ag);
 						if(rh == null) {
@@ -210,6 +219,7 @@ public abstract class RecSync extends CronJob {
 							rhosts.put(ag);
 						}
 					}
+					if(isCronServerStopRequested()) break;
 					/*
 					String destAgent = "afsdev";
 					rpc = new RpcClient("192.168.17.204",6733);
@@ -415,9 +425,19 @@ public abstract class RecSync extends CronJob {
 	public void stop() {
 		super.stop();
 		UniLog.log1("called");
-		if (rpcServer != null) {
-			UniLog.log1("try to stop rpcserver");
-			rpcServer.stop();  //andrew230918 fix cannot restart recsync cronjob
+		synchronized(this) {
+			notifyAll();
 		}
+		synchronized(RecSync.class) {
+			if(agent != null && agentHash.get(agent) == this) agentHash.remove(agent);
+			if (rpcServer != null) {
+				UniLog.log1("try to stop rpcserver");
+				rpcServer.stop();  //andrew230918 fix cannot restart recsync cronjob
+				rpcServer = null;
+			}
+		}
+		viewHash.clear();
+		serverHash.clear();
+		sessionHelper = null;
 	}
 }

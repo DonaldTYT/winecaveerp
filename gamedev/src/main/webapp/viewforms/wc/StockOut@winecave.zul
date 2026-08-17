@@ -28,7 +28,7 @@ div.list_wc_StmdMoSi td.z-listbox-footer {
 		</tabs>
 		<tabpanels>
 			<tabpanel> 
-				<grid style="text-align:left;" id="detail_grid"> </grid>
+				<grid style="text-align:left;" id="detail_grid" sclass="zkbi-detail-grid"> </grid>
 			</tabpanel>
 			<tabpanel> 
 				<listbox id="list_wc_StmdMoSi" vflex="1"></listbox>

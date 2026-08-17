@@ -10,6 +10,7 @@ public class ZkBiComposerStorageKpi extends ZkBiComposerExtended {
 		//Selectors.wireComponents(p_comp, this, false);  //important for wire variable
 		useAverageForPivotSubtal = true;
 		hideRowCount = true;
+//    	if(hasAUDColumn == null) hasAUDColumn=false;
 		super.doAfterCompose(p_comp); 
 	}
 }

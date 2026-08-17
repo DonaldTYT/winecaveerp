@@ -102,6 +102,7 @@ import com.uniinformation.bicore.bischema.ExcelWorkSheetCache;
 import com.uniinformation.cell.Cell;
 import com.uniinformation.cell.CellCollection;
 import com.uniinformation.cell.CellVector;
+import com.uniinformation.cron.CronServer;
 import com.uniinformation.erpv4.BiConfig;
 import com.uniinformation.erpv4.RecSync;
 import com.uniinformation.utils.AnnoUtil;
@@ -144,6 +145,10 @@ public class JxZkSystem extends ZkComposerBase {
 	Listbox userList;
 	@Wire
 	Button btShutdown;
+	@Wire
+	Checkbox cbCronServerEnabled;
+	@Wire
+	Label lbCronServerStatus;
 	@Wire
 	Button btCloseCachedJdbcPool;
 	@Wire
@@ -401,6 +406,33 @@ public class JxZkSystem extends ZkComposerBase {
 			else{
 				btShutdown.setTooltiptext("Function Disabled");
 			}
+		}
+
+		if(cbCronServerEnabled != null) {
+			cbCronServerEnabled.setDisabled(!sessionHelper.isAdminUser());
+			refreshCronServerStatus();
+			cbCronServerEnabled.addEventListener(Events.ON_CHECK,new ZkBiEventListener<Event>() {
+				@Override
+				public void onZkBiEvent(Event event) throws Exception {
+					if(!sessionHelper.isAdminUser()) {
+						refreshCronServerStatus();
+						ZkUtil.warnMsg("Administrator access is required to change the Cron Server status");
+						return;
+					}
+					boolean enable = cbCronServerEnabled.isChecked();
+					boolean complete = CronServer.setEnabled(enable,60000L);
+					refreshCronServerStatus();
+					if(enable) {
+						ZkUtil.showMsg("Cron jobs enabled and restarting");
+					}
+					else if(complete) {
+						ZkUtil.showMsg("All Cron jobs stopped and resources released");
+					}
+					else {
+						ZkUtil.warnMsg("Cron jobs disabled. One or more active jobs are still finishing and will release their resources when runOnce returns.");
+					}
+				}
+			});
 		}
 		
 		if (btCloseCachedJdbcPool != null) {
@@ -2174,6 +2206,22 @@ public class JxZkSystem extends ZkComposerBase {
 				wherecl.appendArgument(value);
 			}
 			ZkUtil.executeInsertIntoSql(su, "dddviewrptlinks", fieldNameList, wherecl);
+		}
+	}
+
+	private void refreshCronServerStatus() {
+		boolean cronEnabled = CronServer.isEnabled();
+		int configuredCount = CronServer.getConfiguredServerCount();
+		int runningCount = CronServer.getRunningServerCount();
+		cbCronServerEnabled.setChecked(cronEnabled);
+		if(cronEnabled) {
+			lbCronServerStatus.setValue(String.format("Enabled (%d/%d jobs running)",runningCount,configuredCount));
+		}
+		else if(runningCount > 0) {
+			lbCronServerStatus.setValue(String.format("Disabled (%d jobs finishing)",runningCount));
+		}
+		else {
+			lbCronServerStatus.setValue(String.format("Disabled (%d jobs configured)",configuredCount));
 		}
 	}
 

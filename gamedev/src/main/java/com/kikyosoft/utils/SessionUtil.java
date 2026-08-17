@@ -200,13 +200,14 @@ public class SessionUtil {
 
 	/**
 	 * Builds the shell sidebar in the order declared by ShellMenuIds.
-	 * No root menu, caption, link, icon or access rule is supplied by code.
+	 * Configured entries are followed by the shell administration tools.
 	 */
 	static public List<MenuNode> generateConfiguredSideMenu(String p_contextPath,SessionHelper p_sp) {
 		List<MenuNode> menu = new ArrayList<MenuNode>();
 		String menuIds = BiConfig.getString(p_sp,"ShellMenuIds");
 		if(StringUtils.isBlank(menuIds)) {
 			UniLog.log1("ShellMenuIds is blank for agent %s",p_sp.getAgent());
+			addShellSystemTool(p_contextPath,menu,p_sp);
 			return menu;
 		}
 		for(String rawId : StringUtils.split(menuIds,',')) {
@@ -241,7 +242,18 @@ public class SessionUtil {
 				UniLog.log1("%sType is not tree or link. skip shell menu %s",prefix,id);
 			}
 		}
+		addShellSystemTool(p_contextPath,menu,p_sp);
 		return menu;
+	}
+
+	static void addShellSystemTool(String p_contextPath,List<MenuNode> p_menu,SessionHelper p_sp) {
+		if(p_sp.isAdminUser()) {
+			String url = "jxzkloader.html?zul=JxZkSystem.zul";
+			p_menu.add(new MenuNode("System Tool",
+					p_contextPath+(p_contextPath.contains("?") ? "&" : "?")
+							+"iframeUrl="+URLEncoder.encode(url,StandardCharsets.UTF_8),
+					"ti ti-tools"));
+		}
 	}
 	
 	static public String getContextPathForAgent(SessionHelper p_sp,String p_agent) {

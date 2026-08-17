@@ -4,6 +4,8 @@
 !/.gitignore
 !/README.md
 
+!/app/
+!/app/**
 !/bi/
 !/bi/**
 !/core/

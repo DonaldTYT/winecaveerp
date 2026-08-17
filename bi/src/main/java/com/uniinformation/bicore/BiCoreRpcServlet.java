@@ -216,7 +216,6 @@ public class BiCoreRpcServlet implements RpcServlet{
 					row.put("_aggregateValues", aggregateArray);
 				}
 				ja.put(row);
-				UniLog.log("fetch record " + i);
 			}
 		} catch (Exception ex) {
 			UniLog.log(ex);

@@ -255,9 +255,18 @@ public class IndexController extends HttpServlet {
     m.setIncomeThisWeek(new BigDecimal("7650"));
     m.setSalesThisWeek(new BigDecimal("7650"));
 
-    // Agent-configured KPI tiles. Each tile uses an independent BI result so
-    // conditions and aggregate state cannot leak between configured widgets.
-    List<KpiWidget> kpiWidgets = KpiWidgetConfigurator.load(sp);
+    String iframeUrl = req.getParameter("iframeUrl");
+    boolean showSetupScreen = getBool(req,"showSetupScreen",false);
+    boolean dashboardPage = StringUtils.isBlank(iframeUrl) && !showSetupScreen;
+
+    // Dashboard widgets must not be loaded or rendered while the shell is
+    // hosting a work page (iframe) or its setup screen.
+    List<KpiWidget> kpiWidgets = dashboardPage
+        ? KpiWidgetConfigurator.load(sp) : Collections.<KpiWidget>emptyList();
+    List<StatisticWidget> statisticWidgets = dashboardPage
+        ? StatisticWidgetConfigurator.load(sp) : Collections.<StatisticWidget>emptyList();
+    List<LedderWidget> ledderWidgets = dashboardPage
+        ? LedderWidgetConfigurator.load(sp) : Collections.<LedderWidget>emptyList();
 
     // ----- Recent Orders -----
     List<OrderRow> recentOrders = Arrays.asList(
@@ -300,7 +309,9 @@ public class IndexController extends HttpServlet {
     req.setAttribute("showSidebar",            getBool(req, "showSidebar", true));
     req.setAttribute("showHeader",             getBool(req, "showHeader", true));
     req.setAttribute("showFooter",             getBool(req, "showFooter", false));
-    req.setAttribute("showStatsTiles",         getBool(req, "showStatsTiles", !kpiWidgets.isEmpty()));
+    req.setAttribute("showStatsTiles",         dashboardPage && getBool(req, "showStatsTiles", !kpiWidgets.isEmpty()));
+    req.setAttribute("showStatisticWidgets",   dashboardPage && getBool(req, "showStatisticWidgets", !statisticWidgets.isEmpty()));
+    req.setAttribute("showLedderWidgets",      dashboardPage && getBool(req, "showLedderWidgets", !ledderWidgets.isEmpty()));
     req.setAttribute("showUniqueVisitor",      getBool(req, "showUniqueVisitor", false));
     req.setAttribute("showIncomeOverview",     getBool(req, "showIncomeOverview", false));
     req.setAttribute("showRecentOrders",       getBool(req, "showRecentOrders", false));
@@ -309,7 +320,6 @@ public class IndexController extends HttpServlet {
     req.setAttribute("showTransactionHistory", getBool(req, "showTransactionHistory", false));
     req.setAttribute("showPageHeader", 		   getBool(req, "showPageHeader", false));
     req.setAttribute("showListView", 		   getBool(req, "showListView", false));
-    String iframeUrl = req.getParameter("iframeUrl");
     if(!StringUtils.isBlank(iframeUrl)) {
     String agent = req.getParameter("agent");
     String fullPathUrl = null;
@@ -339,13 +349,15 @@ public class IndexController extends HttpServlet {
     	req.setAttribute("showIframe", 		   	   getBool(req, "showIframe", false));
     }
     req.setAttribute("showCalendar", 		   getBool(req, "showCalendar", false));
-    req.setAttribute("showSetupScreen", 	   getBool(req, "showSetupScreen", false));
-    req.setAttribute("showDashboard", 		   getBool(req, "showDashboard", true));
+    req.setAttribute("showSetupScreen", 	   showSetupScreen);
+    req.setAttribute("showDashboard", 		   dashboardPage && getBool(req, "showDashboard", true));
 
     // ----- Attributes for JSP -----
     req.setAttribute("pageTitle", "Home");
     req.setAttribute("metrics", m);
     req.setAttribute("kpiWidgets", kpiWidgets);
+    req.setAttribute("statisticWidgets", statisticWidgets);
+    req.setAttribute("ledderWidgets", ledderWidgets);
     req.setAttribute("recentOrders", recentOrders);
     req.setAttribute("analyticsReport", analyticsReport);
     req.setAttribute("transactions", transactions);

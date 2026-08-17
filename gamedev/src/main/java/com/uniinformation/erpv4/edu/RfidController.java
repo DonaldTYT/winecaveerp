@@ -4,7 +4,9 @@ import java.io.DataOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
 //import org.zkoss.zsoup.helper.StringUtil;
@@ -29,12 +31,14 @@ public class RfidController extends CronJob {
 
 	HashMap<String,RfidReader> attendanceReaders;
 	final static int SO_TIMEOUT = 30000;
+	final static long SHUTDOWN_WAIT_MS = 10000L;
 
 	class RfidReader implements Runnable  {
 		String devid;
 		Socket socket;
 		OutputStream dos;	
 		InputStream dis;	
+		volatile Thread readerThread;
 		public RfidReader(String p_devid,Socket p_socket) throws Exception {
 			devid = p_devid;
 			socket = p_socket;
@@ -43,6 +47,7 @@ public class RfidController extends CronJob {
 		}
 		@Override
 		public void run() {
+			readerThread = Thread.currentThread();
 			/* RFID reader handling code start here */
 			UniLog.log1("[%s] rfid reader thread started", devid);
 			
@@ -146,6 +151,7 @@ public class RfidController extends CronJob {
 						UniLog.log1("[%s] error:%s", devid, ex2.getMessage());
 					}
 				}
+				readerThread = null;
 			}
 		}
 		
@@ -195,11 +201,12 @@ public class RfidController extends CronJob {
 		}
 		//attendanceReaders.put("RFID01", null);
 		
-		for (;;) {
+		while(!isCronServerStopRequested()) {
 		//UniLog.log1("running..."); 
 			
 			/* check for any registered reader that is not yet connected to the controller */
 			for(String devid : attendanceReaders.keySet()) {  //andrew220111 risk: if key updated, it will throw concurrent modification error. 
+				if(isCronServerStopRequested()) break;
 				//RfidReader rfid = attendanceReaders.get(devid);  //andrew220111 fix get object multiple time
 				RfidReader rfid = null;
 				synchronized(attendanceReaders) {
@@ -254,7 +261,9 @@ public class RfidController extends CronJob {
 							//220111:andrew fix bug. spawn new thread for each rfidReader
 							RfidReader rfidReaderRunnnable = new RfidReader(devid,socket);
 							attendanceReaders.put(devid, rfidReaderRunnnable);
-							new Thread(rfidReaderRunnnable).start();
+							Thread readerThread = new Thread(rfidReaderRunnnable,"RfidReader-"+devid);
+							rfidReaderRunnnable.readerThread = readerThread;
+							readerThread.start();
 						}
 					} else {
 						UniLog.log1("connection failed, delay to next run");
@@ -263,9 +272,60 @@ public class RfidController extends CronJob {
 					UniLog.log1("device handler for " + devid + " not exist, delay to next run");
 				}
 			}
-			//Thread.sleep(10000);
-			Thread.sleep(30000);
+			synchronized(this) {
+				if(!isCronServerStopRequested()) wait(30000);
+			}
 		}
+		return 0;
+	}
+
+	@Override
+	protected void onCronServerStopRequested() {
+		synchronized(this) {
+			notifyAll();
+		}
+	}
+
+	@Override
+	public void stop() {
+		synchronized(this) {
+			notifyAll();
+		}
+		List<RfidReader> readers = new ArrayList<RfidReader>();
+		if(attendanceReaders != null) {
+			synchronized(attendanceReaders) {
+				for(RfidReader reader : attendanceReaders.values()) {
+					if(reader != null) readers.add(reader);
+				}
+			}
+		}
+		for(RfidReader reader : readers) {
+			try {
+				reader.socket.close();
+			}
+			catch(Exception ex) {
+				UniLog.log1("[%s] shutdown error:%s",reader.devid,ex.getMessage());
+			}
+		}
+		long shutdownDeadline = System.currentTimeMillis()+SHUTDOWN_WAIT_MS;
+		for(RfidReader reader : readers) {
+			Thread readerThread = reader.readerThread;
+			if(readerThread == null || readerThread == Thread.currentThread()) continue;
+			try {
+				long waitTime = Math.max(0L,shutdownDeadline-System.currentTimeMillis());
+				if(waitTime > 0L) readerThread.join(waitTime);
+			}
+			catch(InterruptedException ex) {
+				Thread.currentThread().interrupt();
+				break;
+			}
+		}
+		if(attendanceReaders != null) {
+			synchronized(attendanceReaders) {
+				attendanceReaders.clear();
+			}
+		}
+		sh = null;
 	}
 
 	@Override

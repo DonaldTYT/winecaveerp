@@ -552,6 +552,61 @@ body.iframe-mode .iframe-wrap {
           </div>
         </c:forEach>
       </c:if>
+      <c:if test="${showStatisticWidgets}">
+        <c:forEach var="statistic" items="${statisticWidgets}">
+          <div class="${statistic.columnClass}">
+            <div class="card h-100"><div class="card-body">
+              <h5 class="mb-3"><c:out value="${statistic.title}"/></h5>
+              <c:choose>
+                <c:when test="${statistic.showChart}">
+                  <div id="${statistic.domId}" class="shell-pie-chart"
+                       data-labels-base64="${statistic.labelsBase64}"
+                       data-values-base64="${statistic.valuesBase64}"></div>
+                </c:when>
+                <c:otherwise>
+                  <div class="text-muted text-sm py-5"><c:out value="${statistic.note}"/></div>
+                </c:otherwise>
+              </c:choose>
+            </div></div>
+          </div>
+        </c:forEach>
+      </c:if>
+      <c:if test="${showLedderWidgets}">
+        <c:forEach var="ledder" items="${ledderWidgets}">
+          <div class="${ledder.columnClass}">
+            <h5 class="mb-3"><c:out value="${ledder.title}"/></h5>
+            <div class="card">
+              <div class="list-group list-group-flush">
+                <c:choose>
+                  <c:when test="${ledder.available}">
+                    <c:forEach var="row" items="${ledder.rows}">
+                      <div class="list-group-item list-group-item-action">
+                        <div class="d-flex align-items-center">
+                          <div class="flex-shrink-0">
+                            <div class="avtar avtar-s rounded-circle text-primary bg-light-primary">
+                              <span class="fw-bold"><c:out value="${row.rank}"/></span>
+                            </div>
+                          </div>
+                          <div class="flex-grow-1 ms-3">
+                            <h6 class="mb-1"><c:out value="${row.label}"/></h6>
+                            <p class="mb-0 text-muted">Current storage</p>
+                          </div>
+                          <div class="flex-shrink-0 text-end">
+                            <h6 class="mb-1"><c:out value="${row.formattedValue}"/><c:out value="${row.suffix}"/></h6>
+                          </div>
+                        </div>
+                      </div>
+                    </c:forEach>
+                  </c:when>
+                  <c:otherwise>
+                    <div class="list-group-item text-muted"><c:out value="${ledder.note}"/></div>
+                  </c:otherwise>
+                </c:choose>
+              </div>
+            </div>
+          </div>
+        </c:forEach>
+      </c:if>
       <c:if test="${showUniqueVisitor}">
         <div class="col-md-12 col-xl-8">
           <div class="d-flex align-items-center justify-content-between mb-3">
@@ -730,6 +785,27 @@ body.iframe-mode .iframe-wrap {
     init('income-overview-chart');
     init('sales-report-chart');
     init('analytics-report-chart');
+
+    function decodeJson(value) {
+      try {
+        var bytes = Uint8Array.from(atob(value || ''), function (c) { return c.charCodeAt(0); });
+        return JSON.parse(new TextDecoder('utf-8').decode(bytes));
+      } catch (e) { return []; }
+    }
+    document.querySelectorAll('.shell-pie-chart').forEach(function (el) {
+      var labels = decodeJson(el.getAttribute('data-labels-base64'));
+      var series = decodeJson(el.getAttribute('data-values-base64'));
+      if (!labels.length || !series.length) return;
+      new ApexCharts(el, {
+        chart: { type: 'pie', height: 320 },
+        labels: labels,
+        series: series,
+        colors: ['#1890ff', '#13c2c2', '#faad14', '#52c41a', '#722ed1', '#eb2f96', '#fa541c', '#2f54eb', '#a0d911', '#08979c', '#d4380d'],
+        legend: { position: 'bottom', fontFamily: "'Public Sans', sans-serif" },
+        dataLabels: { enabled: true, formatter: function (value) { return value.toFixed(1) + '%'; } },
+        tooltip: { y: { formatter: function (value) { return Number(value).toLocaleString(); } } }
+      }).render();
+    });
   })();
 </script>
 <style>

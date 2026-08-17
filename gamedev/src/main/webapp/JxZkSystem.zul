@@ -135,6 +135,13 @@
 					<label style="font-weight:bold" value="Restart Service:">
 					</label>
 				</hbox>
+				<hbox align="center">
+					<label style="font-weight:bold" value="Cron Server:"></label>
+					<checkbox id="cbCronServerEnabled" mold="switch" checked="true"
+						tooltiptext="Enable or gracefully stop all configured Cron jobs."></checkbox>
+					<label id="lbCronServerStatus"></label>
+				</hbox>
+				<space></space>
 				<button id="btShutdown" label="System Shutdown" style="background:#f44336"> </button>
 				<space></space>
 				<hbox>

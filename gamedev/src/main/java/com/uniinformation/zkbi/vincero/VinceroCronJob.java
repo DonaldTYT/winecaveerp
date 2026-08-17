@@ -30,7 +30,7 @@ public class VinceroCronJob extends CronJob{
 	public int runOnce() throws Exception {
 		//UniLog.log1("called");
 		
-		for (;;) {
+		while(!isCronServerStopRequested()) {
 			if (!fEnable) {
 				UniLog.log1("feature disabled");
 				return 0;
@@ -52,8 +52,18 @@ public class VinceroCronJob extends CronJob{
 			}
 			catch(Exception ex) {
 				UniLog.log1("Exception (delay 30 sec):" + ex.getMessage());
-				Thread.sleep(30000);
+				synchronized(this) {
+					if(!isCronServerStopRequested()) wait(30000);
+				}
 			}
+		}
+		return 0;
+	}
+
+	@Override
+	protected void onCronServerStopRequested() {
+		synchronized(this) {
+			notifyAll();
 		}
 	}
 

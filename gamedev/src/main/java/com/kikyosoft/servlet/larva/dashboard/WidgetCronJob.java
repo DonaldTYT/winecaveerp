@@ -19,7 +19,7 @@ import com.uniinformation.webcore.ZkSessionHelper;
  * it is a comma-separated list of shell agents whose KPI configuration is
  * refreshed by this one cron server.
  */
-public class KpiWidgetCronJob extends CronJob {
+public class WidgetCronJob extends CronJob {
 	private SessionHelper cronSession;
 	private final List<SessionHelper> shellSessions = new ArrayList<SessionHelper>();
 
@@ -53,8 +53,10 @@ public class KpiWidgetCronJob extends CronJob {
 		for(SessionHelper shellSession : shellSessions) {
 			try {
 				KpiWidgetConfigurator.refresh(shellSession);
+				StatisticWidgetConfigurator.refresh(shellSession);
+				LedderWidgetConfigurator.refresh(shellSession);
 			} catch(Exception ex) {
-				UniLog.log1("KPI cron refresh failed for agent %s: %s",
+				UniLog.log1("Dashboard statistic cron refresh failed for agent %s: %s",
 						shellSession.getAgent(), ex.getMessage());
 			}
 		}

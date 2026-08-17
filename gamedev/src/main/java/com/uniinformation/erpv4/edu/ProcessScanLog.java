@@ -68,19 +68,40 @@ public class ProcessScanLog extends CronJob {
 
 	@Override
 	public int runOnce() throws Exception {
-		for (;;) {
+		while(!isCronServerStopRequested()) {
 			UniLog.log1("Wakeup (interval:%d)", processScanLogInterval);
 			updateAttend();
+			if(isCronServerStopRequested()) break;
 			
 			//andrew220322 construct card status map after updateAtend
 			//depend on the performance. if it's too slow, remove forceupdate flag
 			updateCardStatusMap(sessionHelper);
+			if(isCronServerStopRequested()) break;
 		
 			
 			synchronized(this) {
-				wait(processScanLogInterval);
+				if(!isCronServerStopRequested()) wait(processScanLogInterval);
 			}
 		}
+		return 0;
+	}
+
+	@Override
+	protected void onCronServerStopRequested() {
+		synchronized(this) {
+			notifyAll();
+		}
+	}
+
+	@Override
+	public void stop() {
+		synchronized(this) {
+			notifyAll();
+		}
+		synchronized(ProcessScanLog.class) {
+			if(processScanLogObject == this) processScanLogObject = null;
+		}
+		sessionHelper = null;
 	}
 
 	@Override
