@@ -56,6 +56,11 @@ public class JdbcPool implements Runnable, ThreadPoolRunnable {
 	public final static String MYSQL_DRIVER="com.mysql.jdbc.Driver";
 	public final static String POSTGRESQL_DRIVER="org.postgresql.Driver";
 
+	private String getPoolCountLog() {
+		return String.format("260818 pool:%d rpool:%d curCnt:%d connCnt:%d maxConnCnt:%d",
+				cPool.size(), rPool.size(), curCnt, connCnt, maxConnCnt);
+	}
+
 
 	public class ConnectionRecord implements Connection {
 		Connection conn;
@@ -650,14 +655,14 @@ public class JdbcPool implements Runnable, ThreadPoolRunnable {
 		if (cPool.size() >= connCnt) {
 			return;
 		}
-		if (fDebug.get()) UniLog.log1("[%s] called pool:%d curCnt:%d connCnt:%d maxConnCnt:%d", appName, cPool.size(), curCnt, connCnt, maxConnCnt);
+		if (fDebug.get()) UniLog.log1("[%s] called %s", appName, getPoolCountLog());
 		for (int i=0; i<maxConnCnt; i++) {
 			if (cPool.size() >= connCnt) {
 				break;
 			}
 			synchronized (this) {
 				if (curCnt >= maxConnCnt) {
-					UniLog.log1("[%s] max maconnection reached %d/%d", appName, curCnt, maxConnCnt);
+					UniLog.log1("[%s] max connection reached %s", appName, getPoolCountLog());
 					break;
 				}
 			}
@@ -676,7 +681,7 @@ public class JdbcPool implements Runnable, ThreadPoolRunnable {
 				synchronized (cPool) {
 					if (fDebug.get()) UniLog.logClass(JdbcPool.this, "["+appName+"]:"+"cPool.put("+cr.getId()+")");
 					cPool.put(cr, cr);
-					UniLog.log1("[%s] new cr:%s pool:%d rpool:%d curCnt:%d connCnt:%d maxConnCnt:%d", appName, cr, cPool.size(), rPool.size(), curCnt, connCnt, maxConnCnt);
+					UniLog.log1("[%s] new cr:%s %s", appName, cr, getPoolCountLog());
 					
 				}
 				new Thread(new Runnable() {
@@ -688,11 +693,11 @@ public class JdbcPool implements Runnable, ThreadPoolRunnable {
 				}).start();
 			}
 			catch (Exception ex) {
-				UniLog.log1("error:" + ex.getMessage());
+				UniLog.log1("[%s] error:%s %s", appName, ex.getMessage(), getPoolCountLog());
 				if (fDebug.get()) {
 					UniLog.log(ex);
 				}
-				UniLog.log1("[%s] resume in after timeout", appName);
+				UniLog.log1("[%s] resume in after timeout %s", appName, getPoolCountLog());
 				timeToMakeConnection = System.currentTimeMillis() + 60*1000;
 				return;
 			}
@@ -700,7 +705,7 @@ public class JdbcPool implements Runnable, ThreadPoolRunnable {
 	}
 
 	public void checkAllConnections() {
-		if (fDebug.get()) UniLog.log1("[%s] called pool:%d curCnt:%d connCnt:%d maxConnCnt:%d", appName, cPool.size(), curCnt, connCnt, maxConnCnt);
+		if (fDebug.get()) UniLog.log1("[%s] called %s", appName, getPoolCountLog());
 		Vector crs = null;
 		synchronized (cPool) {
 			crs = new VectorUtil(cPool.elements()).toVector();
@@ -743,7 +748,7 @@ public class JdbcPool implements Runnable, ThreadPoolRunnable {
 		if (timeToReleaseConnection > System.currentTimeMillis()) {  //andrew221230 seems timeToReleaseConnection is useless
 			return;
 		}
-		if (fDebug.get()) UniLog.log1("[%s] releasing connection connCnt:%d", appName, connCnt);
+		if (fDebug.get()) UniLog.log1("[%s] releasing connection %s", appName, getPoolCountLog());
 		timeToReleaseConnection = System.currentTimeMillis() + 5000;
 		synchronized (cPool) {
 			crs = new VectorUtil(cPool.elements()).toVector();
@@ -794,8 +799,8 @@ public class JdbcPool implements Runnable, ThreadPoolRunnable {
 			
 			//get connection timeout or exiting
 			if (System.currentTimeMillis() > timeout || fExiting) {
-				UniLog.logClass(this, "["+appName+"]:"+"Waiting for connection ("+appName+") ... timeout ["+rPool.size()+"]");
-				if (fDebug.get()) UniLog.log(new Exception("Waiting for connection ("+appName+") ... timeout ["+rPool.size()+"]"));
+				UniLog.log1("[%s] waiting for connection timeout %s", appName, getPoolCountLog());
+				if (fDebug.get()) UniLog.log(new Exception("Waiting for connection ("+appName+") ... timeout " + getPoolCountLog()));
 				return(null);
 			}
 			
@@ -863,7 +868,7 @@ public class JdbcPool implements Runnable, ThreadPoolRunnable {
 			}
 			
 			//when connection record not available
-			UniLog.log1("[%s] waiting for connection... pool:%d rpool:%d", appName, cPool.size(), rPool.size());
+			UniLog.log1("[%s] waiting for connection... %s", appName, getPoolCountLog());
 			synchronized (cPool) {
 				if (fDebug.get()) UniLog.logClass(JdbcPool.this, "["+appName+"]:notify to make more connection");
 				cPool.notifyAll();
@@ -894,7 +899,7 @@ public class JdbcPool implements Runnable, ThreadPoolRunnable {
 		synchronized(cPool) {
 			int oldCnt = curCnt;
 			curCnt += p_inc;
-			if (fDebug.get()) UniLog.log1("total count %d->%d", oldCnt, curCnt);
+			if (fDebug.get()) UniLog.log1("[%s] total count %d->%d %s", appName, oldCnt, curCnt, getPoolCountLog());
 		}
 	}
 	public void setMaxConnectionCount(int p_maxcnt) {
@@ -910,7 +915,7 @@ public class JdbcPool implements Runnable, ThreadPoolRunnable {
 		else {
 			maxConnCnt = p_maxcnt;
 		}
-		UniLog.log1("[%s] maxConnCnt(%d) %d->%d", appName, p_maxcnt, oldMaxConnCnt, maxConnCnt);
+		UniLog.log1("[%s] maxConnCnt(%d) %d->%d %s", appName, p_maxcnt, oldMaxConnCnt, maxConnCnt, getPoolCountLog());
 	}
 	public void setConnectionCount(int p_count) {
 		connCnt = p_count;

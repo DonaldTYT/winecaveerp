@@ -290,6 +290,8 @@ public class IndexController extends HttpServlet {
 		sp.putSessionData(sideMenuCacheKey,menu);
 	}
     req.setAttribute("sideMenu", menu);
+    RoadMapWidget roadMapWidget = dashboardPage
+        ? RoadMapWidgetConfigurator.load(sp, menu) : null;
     
     // ----- Analytics list (label, value) -----
     List<String[]> analyticsReport = Arrays.asList(
@@ -312,6 +314,8 @@ public class IndexController extends HttpServlet {
     req.setAttribute("showStatsTiles",         dashboardPage && getBool(req, "showStatsTiles", !kpiWidgets.isEmpty()));
     req.setAttribute("showStatisticWidgets",   dashboardPage && getBool(req, "showStatisticWidgets", !statisticWidgets.isEmpty()));
     req.setAttribute("showLedderWidgets",      dashboardPage && getBool(req, "showLedderWidgets", !ledderWidgets.isEmpty()));
+    req.setAttribute("showRoadMapWidget",      dashboardPage && roadMapWidget != null
+        && getBool(req, "showRoadMapWidget", true));
     req.setAttribute("showUniqueVisitor",      getBool(req, "showUniqueVisitor", false));
     req.setAttribute("showIncomeOverview",     getBool(req, "showIncomeOverview", false));
     req.setAttribute("showRecentOrders",       getBool(req, "showRecentOrders", false));
@@ -358,6 +362,7 @@ public class IndexController extends HttpServlet {
     req.setAttribute("kpiWidgets", kpiWidgets);
     req.setAttribute("statisticWidgets", statisticWidgets);
     req.setAttribute("ledderWidgets", ledderWidgets);
+    req.setAttribute("roadMapWidget", roadMapWidget);
     req.setAttribute("recentOrders", recentOrders);
     req.setAttribute("analyticsReport", analyticsReport);
     req.setAttribute("transactions", transactions);

@@ -193,7 +193,7 @@ public class SessionUtil {
 		return StringUtils.equalsAnyIgnoreCase(StringUtils.trim(p_value), "Y", "YES", "TRUE", "1");
 	}
 
-	static boolean allowConfiguredLink(SessionHelper p_sp,String p_access,boolean p_allowAdmin) {
+	static boolean allowConfiguredMenu(SessionHelper p_sp,String p_access,boolean p_allowAdmin) {
 		String access = StringUtils.trimToNull(p_access);
 		return access == null || p_sp.hasAccessRight(access) || (p_allowAdmin && p_sp.isAdminUser());
 	}
@@ -215,7 +215,11 @@ public class SessionUtil {
 			if(id == null) continue;
 			String prefix = "ShellMenu_" + id + "_";
 			String type = StringUtils.trimToEmpty(BiConfig.getString(p_sp,prefix + "Type"));
+			String access = BiConfig.getString(p_sp,prefix + "Access");
+			boolean allowAdmin = isYes(BiConfig.getString(p_sp,prefix + "AllowAdmin"));
+			boolean allowed = allowConfiguredMenu(p_sp,access,allowAdmin);
 			if(StringUtils.equalsIgnoreCase(type,"tree")) {
+				if(!allowed) continue;
 				String rootMenu = StringUtils.trimToNull(BiConfig.getString(p_sp,prefix + "RootMenu"));
 				if(rootMenu == null) {
 					UniLog.log1("%sRootMenu is blank. skip shell menu %s",prefix,id);
@@ -229,13 +233,11 @@ public class SessionUtil {
 			} else if(StringUtils.equalsIgnoreCase(type,"link")) {
 				String url = StringUtils.trimToNull(BiConfig.getString(p_sp,prefix + "Url"));
 				String text = StringUtils.trimToNull(BiConfig.getString(p_sp,prefix + "Text"));
-				String access = BiConfig.getString(p_sp,prefix + "Access");
-				boolean allowAdmin = isYes(BiConfig.getString(p_sp,prefix + "AllowAdmin"));
 				if(url == null || text == null) {
 					UniLog.log1("%sText or %sUrl is blank. skip shell menu %s",prefix,prefix,id);
 					continue;
 				}
-				if(allowConfiguredLink(p_sp,access,allowAdmin)) {
+				if(allowed) {
 					menu.add(new MenuNode(text,url,BiConfig.getString(p_sp,prefix + "Icon")));
 				}
 			} else {

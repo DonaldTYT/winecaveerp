@@ -36,6 +36,7 @@
 # Build output
 **/target/
 **/build/
+**/Build/
 **/out/
 
 # IDE and local workspace metadata

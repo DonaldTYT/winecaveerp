@@ -97,6 +97,64 @@ body.iframe-mode .pc-container .pc-content > div {
 body.iframe-mode .iframe-wrap {
   width: 100%;
 }
+
+.shell-roadmap-position { min-height: 31px; }
+.shell-roadmap-position .breadcrumb { flex-wrap: wrap; }
+.shell-roadmap-position .breadcrumb button {
+  border: 0;
+  padding: 0;
+  color: var(--bs-primary);
+  background: transparent;
+}
+.shell-roadmap-caption:not(:first-child) { margin-top: .5rem; }
+.shell-roadmap-tile {
+  min-height: 150px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: .65rem;
+  padding: 1.25rem;
+  border: 1px solid var(--bs-border-color);
+  border-radius: .75rem;
+  color: var(--bs-body-color);
+  background: var(--bs-body-bg);
+  text-align: center;
+  text-decoration: none;
+  transition: border-color .15s ease, box-shadow .15s ease, transform .15s ease;
+}
+.shell-roadmap-tile:hover,
+.shell-roadmap-tile:focus-visible {
+  border-color: var(--bs-primary);
+  color: var(--bs-primary);
+  box-shadow: 0 .25rem .75rem rgba(0, 0, 0, .08);
+  transform: translateY(-2px);
+}
+.shell-roadmap-media {
+  width: 72px;
+  height: 72px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 1rem;
+  color: var(--bs-primary);
+  background: var(--bs-primary-bg-subtle, rgba(24, 144, 255, .12));
+  font-size: 2.35rem;
+  overflow: hidden;
+}
+.shell-roadmap-media img { width: 100%; height: 100%; object-fit: cover; }
+.shell-roadmap-tile-title { font-size: 1rem; font-weight: 600; }
+.shell-roadmap-tile-hint { color: var(--bs-secondary-color); font-size: .75rem; }
+@media (max-width: 767.98px) {
+  .shell-roadmap-tile {
+    min-height: 96px;
+    flex-direction: row;
+    justify-content: flex-start;
+    text-align: left;
+  }
+  .shell-roadmap-media { width: 56px; height: 56px; flex: 0 0 56px; font-size: 1.8rem; }
+  .shell-roadmap-tile-hint { margin-left: auto; }
+}
   :root { --sidebar-logo-max-h: 48px; } /* tweak this value to taste */
 
   .pc-sidebar .m-header { 
@@ -607,6 +665,18 @@ body.iframe-mode .iframe-wrap {
           </div>
         </c:forEach>
       </c:if>
+      <c:if test="${showRoadMapWidget}">
+        <div class="${roadMapWidget.columnClass}">
+          <div class="card">
+            <div class="card-header">
+              <h5 class="mb-0"><c:out value="${roadMapWidget.title}"/></h5>
+            </div>
+            <div class="card-body">
+              <app:renderRoadMap nodes="${roadMapWidget.nodes}"/>
+            </div>
+          </div>
+        </div>
+      </c:if>
       <c:if test="${showUniqueVisitor}">
         <div class="col-md-12 col-xl-8">
           <div class="d-flex align-items-center justify-content-between mb-3">
@@ -805,6 +875,88 @@ body.iframe-mode .iframe-wrap {
         dataLabels: { enabled: true, formatter: function (value) { return value.toFixed(1) + '%'; } },
         tooltip: { y: { formatter: function (value) { return Number(value).toLocaleString(); } } }
       }).render();
+    });
+
+    document.querySelectorAll('[data-roadmap]').forEach(function (roadmap) {
+      var levels = Array.prototype.slice.call(roadmap.querySelectorAll('[data-roadmap-level]'));
+      var breadcrumb = roadmap.querySelector('[data-roadmap-breadcrumb]');
+      var backButton = roadmap.querySelector('[data-roadmap-back]');
+      var currentLevelId = 'root';
+
+      function findLevel(levelId) {
+        return levels.find(function (level) {
+          return level.getAttribute('data-roadmap-level') === levelId;
+        });
+      }
+
+      function levelTitle(level) {
+        var title = level && level.querySelector('[data-roadmap-level-title]');
+        return title ? title.textContent.trim() : '';
+      }
+
+      function levelTrail(level) {
+        var trail = [];
+        var item = level;
+        while (item) {
+          trail.unshift(item);
+          var parentId = item.getAttribute('data-roadmap-parent');
+          item = parentId ? findLevel(parentId) : null;
+        }
+        return trail;
+      }
+
+      function showLevel(levelId) {
+        var selected = findLevel(levelId);
+        if (!selected) return;
+
+        currentLevelId = levelId;
+        levels.forEach(function (level) {
+          level.classList.toggle('d-none', level !== selected);
+        });
+
+        breadcrumb.textContent = '';
+        levelTrail(selected).forEach(function (level, index, trail) {
+          var item = document.createElement('li');
+          item.className = 'breadcrumb-item';
+          if (index < trail.length - 1) {
+            var button = document.createElement('button');
+            button.type = 'button';
+            button.setAttribute('data-roadmap-goto', level.getAttribute('data-roadmap-level'));
+            button.textContent = levelTitle(level);
+            item.appendChild(button);
+          } else {
+            item.classList.add('active');
+            item.setAttribute('aria-current', 'page');
+            item.textContent = levelTitle(level);
+          }
+          breadcrumb.appendChild(item);
+        });
+
+        backButton.classList.toggle('d-none', levelId === 'root');
+      }
+
+      roadmap.addEventListener('click', function (event) {
+        var openButton = event.target.closest('[data-roadmap-target]');
+        if (openButton && roadmap.contains(openButton)) {
+          showLevel(openButton.getAttribute('data-roadmap-target'));
+          return;
+        }
+
+        var gotoButton = event.target.closest('[data-roadmap-goto]');
+        if (gotoButton && roadmap.contains(gotoButton)) {
+          showLevel(gotoButton.getAttribute('data-roadmap-goto'));
+          return;
+        }
+
+        var clickedBack = event.target.closest('[data-roadmap-back]');
+        if (clickedBack && roadmap.contains(clickedBack)) {
+          var current = findLevel(currentLevelId);
+          var parentId = current && current.getAttribute('data-roadmap-parent');
+          showLevel(parentId || 'root');
+        }
+      });
+
+      showLevel('root');
     });
   })();
 </script>

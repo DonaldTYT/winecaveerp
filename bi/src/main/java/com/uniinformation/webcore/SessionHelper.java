@@ -1351,6 +1351,12 @@ abstract public class SessionHelper {
 	public JdbcPool getJdbcPool() {
 		return(WebCoreUtil.getJdbcPoolByConnectionString(databaseLabel,databasePoolCnt,databaseMaxPoolCnt,databaseString,databaseLogin,databasePassword));
 	}
+	public String getJdbcPoolId() {
+		return StringUtils.defaultString(databaseLabel);
+	}
+	public String getLoginTokenJdbcPoolId() {
+		return StringUtils.isNotBlank(loginTokenDatabaseLabel) ? loginTokenDatabaseLabel : getJdbcPoolId();
+	}
 	public JdbcPool getLoginTokenJdbcPool() {
 		if(StringUtils.isNotBlank(loginTokenDatabaseLabel))
 			return(WebCoreUtil.getJdbcPoolByConnectionString(loginTokenDatabaseLabel,loginTokenDatabasePoolCnt,loginTokenDatabaseMaxPoolCnt,loginTokenDatabaseString,loginTokenDatabaseLogin,loginTokenDatabasePassword));
@@ -1625,6 +1631,8 @@ abstract public class SessionHelper {
 			return rtn;
 		}
 		String loginStrId = loginGetId(p_loginStr);
+		UniLog.log1("login pool mapping agent:%s loginId:%s databasePoolId:%s loginTokenPoolId:%s",
+				getAgent(), loginStrId, getJdbcPoolId(), getLoginTokenJdbcPoolId());
 		
 		//check allow new login
 		ReturnMsg allowNewLoginRtn = allowNewLogin(loginStrId);
@@ -1907,7 +1915,8 @@ abstract public class SessionHelper {
 					}
 				}
 				
-				UniLog.log1("loginByToken ok. login:%s trim:%s addr:%s",loginStr, loginStrId, remoteAddr);
+				UniLog.log1("loginByToken ok. login:%s trim:%s agent:%s databasePoolId:%s loginTokenPoolId:%s addr:%s",
+						loginStr, loginStrId, getAgent(), getJdbcPoolId(), getLoginTokenJdbcPoolId(), remoteAddr);
 
 				setLoginId(loginStrId);
 				setVcode(vcodeStrId);
@@ -4521,7 +4530,8 @@ abstract public class SessionHelper {
 	}
 	
 	public String toString(){
-		return(String.format("loginId:%s isLogin:%s agent:%s hashCode:%d", getLoginId(), isLogin(), getAgent(),this.hashCode()));
+		return(String.format("loginId:%s isLogin:%s agent:%s databasePoolId:%s loginTokenPoolId:%s hashCode:%d",
+				getLoginId(), isLogin(), getAgent(), getJdbcPoolId(), getLoginTokenJdbcPoolId(), this.hashCode()));
 		
 	}
 	public String getSessionKey() {

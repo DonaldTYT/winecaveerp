@@ -15,6 +15,7 @@ import com.uniinformation.utils.TableRec;
 import com.uniinformation.utils.UniLog;
 import com.uniinformation.utils.Wherecl;
 import com.uniinformation.webcore.SessionHelper;
+import com.uniinformation.winecave.webcore.WinecaveSessionHelper;
 
 import nl.basjes.parse.useragent.yauaa.shaded.org.apache.commons.lang3.StringUtils;
 
@@ -42,7 +43,10 @@ public class BiResultWebCustomerProfile extends BiResultErpv4 {
 		UniLog.log("user = " + getSelectUtil().getLoginId());
 		if(!BiSchema.hasAccessRight(sh, "#allcustomer")) {
 			Wherecl wcl1 = new Wherecl();
-			wcl1.genInList("and", "vd_loginid", "=", sh.getVcode());
+			String customerLoginId = sh instanceof WinecaveSessionHelper
+					? ((WinecaveSessionHelper) sh).getWebLoginId()
+					: sh.getVcode();
+			wcl1.genInList("and", "vd_loginid", "=", customerLoginId);
 			if(BiSchema.hasAccessRight(sh, "!!sales")) {
 				try {
 				SelectUtil su = getSelectUtil();
