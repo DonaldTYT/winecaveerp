@@ -1,0 +1,19 @@
+<zk>
+	<window title="Delivery Note Posting Control" border="normal" width="430px" closable="true">
+		<vlayout sclass="zkbi-form-content" spacing="12px">
+			<label value="Select an operation" sclass="zkbi-form-header" />
+			<radiogroup id="deliveryOperation">
+				<hlayout spacing="24px">
+					<radio id="opPost" label="Post" value="post" checked="true" />
+					<radio id="opUnpost" label="UnPost" value="unpost" />
+				</hlayout>
+			</radiogroup>
+			<div align="center" width="100%">
+				<hlayout spacing="10px">
+					<button id="btProceed" label="Proceed" width="100px" />
+					<button id="btCancel" label="Cancel" width="100px" />
+				</hlayout>
+			</div>
+		</vlayout>
+	</window>
+</zk>

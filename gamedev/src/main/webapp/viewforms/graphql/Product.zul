@@ -45,6 +45,14 @@ div.z-grid.zkbi-detail-grid {
 		<toolbar id="detail_toolbar" align="end">
 		</toolbar>
 	</div>
+	<tabbox id="zkbiListTop" width="100%" height="80vh" sclass="zkbi-detail-tabbox">
+		<tabs width="100%">
+			<tab label="Product Detail"/>
+			<tab label="Location and Owner"/>
+			<tab label="Transaction History"/>
+		</tabs>
+		<tabpanels>
+			<tabpanel>
 	<div sclass="product-detail-form">
 		<div sclass="product-section product-main-section">
 			<bs-row>
@@ -158,4 +166,13 @@ div.z-grid.zkbi-detail-grid {
 		</bs-row>
 		<grid id="detail_grid" sclass="zkbi-detail-grid"/>
 	</div>
+			</tabpanel>
+			<tabpanel>
+				<listbox id="list_graphql_locbinstatus" vflex="1"/>
+			</tabpanel>
+			<tabpanel>
+				<listbox id="list_graphql_Stmovd" vflex="1"/>
+			</tabpanel>
+		</tabpanels>
+	</tabbox>
 </zk>

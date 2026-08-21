@@ -1,0 +1,28 @@
+<zk>
+	<window title="Email or Print Consignment PO" border="normal" width="460px" closable="true">
+		<vlayout sclass="zkbi-form-content" spacing="14px">
+			<label value="Consignment Purchase Order Output" sclass="zkbi-form-header" />
+			<hlayout valign="middle" spacing="12px">
+				<label value="Output" width="110px" />
+				<radiogroup id="stockOutInvOutput">
+					<radio label="Print to PDF" value="pdf" checked="true" />
+					<radio label="Send by Email" value="email" />
+				</radiogroup>
+			</hlayout>
+			<hlayout valign="middle" spacing="12px">
+				<label value="Records" width="110px" />
+				<radiogroup id="stockOutInvScope">
+					<radio label="All" value="all" checked="true" />
+					<radio label="Selected" value="selected" />
+				</radiogroup>
+			</hlayout>
+			<separator />
+			<div align="center" width="100%">
+				<hlayout spacing="10px">
+					<button id="btProceed" label="Proceed" width="100px" />
+					<button id="btCancel" label="Cancel" width="100px" />
+				</hlayout>
+			</div>
+		</vlayout>
+	</window>
+</zk>

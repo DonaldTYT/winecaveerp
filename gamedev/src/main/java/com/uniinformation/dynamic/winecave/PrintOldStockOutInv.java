@@ -37,7 +37,7 @@ import com.uniinformation.bicore.BiResult;
 import com.uniinformation.cell.AbstractGetItemProperty;
 import com.uniinformation.cell.CellCollection;
 import com.uniinformation.erpv4.Erpv4Config;
-import com.uniinformation.erpv4.PrintOldDocMulti;
+import com.uniinformation.erpv4.PrintOrMailOldDocMulti;
 import com.uniinformation.jx.JxField;
 import com.uniinformation.jxapp.JxZkBiBase;
 import com.uniinformation.rpccall.RpcClient;
@@ -53,7 +53,7 @@ import com.uniinformation.zkbi.ZkBiComposerBase;
 import com.uniinformation.zkbi.ZkBiAiAgentContext;
 import com.uniinformation.zkf.ZkForm;
 
-public class PrintOldStockOutInv extends PrintOldDocMulti {
+public class PrintOldStockOutInv extends PrintOrMailOldDocMulti {
 	private static final boolean RealSendEmail = true;
 	private static final ArrayList<String> mail_cc_list = new ArrayList<String>(Arrays.asList(
 			"anita@winecavehk.com",
@@ -80,7 +80,7 @@ public class PrintOldStockOutInv extends PrintOldDocMulti {
 		return aiAgentContext;
 	}
 
-	boolean isRealEmailEnabled() {
+	public boolean isRealEmailEnabled() {
 		return RealSendEmail;
 	}
 
@@ -93,65 +93,22 @@ public class PrintOldStockOutInv extends PrintOldDocMulti {
 	protected String getChargeDescription() { return "Stock Out Charge Invoice"; }
 	protected String getChargeDescriptionLowerCase() { return "stock out charge invoice"; }
 	protected String getAttachmentPrefix() { return "StockOutInvoice"; }
+	@Override protected String getDocumentDescription() { return "invoice"; }
 
 	@Override
 	public ReturnMsg processAction(BiResult p_br,int p_idx) {
-		br.fetchOneRecV(p_idx);
-
-		// TODO Auto-generated method stub
-		List<BiCellCollection> outInvoices = br.getSubLink(getInvoiceSublinkName()).getRowCollectionList();
-		for(BiCellCollection bcol : outInvoices) {
-				int mrg = bcol.getCellInt("stmp_mrg");
-				String cocode = bcol.getCellString("stmp_cocode");
-				Value val = rpc.callSegment(getPrintSegmentName(),
-							new VectorUtil()
-							.addElement(mrg)
-							.addElement(cocode)
-							.addElement("CHNPRINT")
-							.addElement("VARIABLE")
-							.addElement("A4P")
-							.addElement("NORMAL")
-							.addElement("LPTRAW")
-							.toVector()
-						);
-				if(val != null && val.toString().startsWith("OK  ")) {
-					ReturnMsg rtn = printOneDocToPdf(val.toString().substring(4));
-					if(rtn != null && !rtn.getStatus()) return(rtn);
-				} else {
-					return(null);
-				}
-			
-		}
-		return ReturnMsg.defaultOk;
+		return super.processAction(p_br,p_idx);
 	}
 
 	@Override
 	public void actionPerformed(JxField field) {
-		JxZkBiBase jxf = (JxZkBiBase) field.getJxForm();
-		try {
-			final ZkForm printForm = new ZkForm(null,getSettingsFormPath());
-			final CellCollection settings = new CellCollection();
-			final Radiogroup printOutput = (Radiogroup) printForm.getComponent("stockOutInvOutput");
-			final Radiogroup printScope = (Radiogroup) printForm.getComponent("stockOutInvScope");
-			printForm.doModal(settings,new EventListener<Event>() {
-				@Override
-				public void onEvent(Event event) throws Exception {
-					if("btProceed".equals(event.getTarget().getId())) {
-						printForm.exitModal();
-						boolean sendByEmail = printOutput.getSelectedIndex() == 1;
-						if(printScope.getSelectedIndex() == 1) {
-							showInvoiceSelectionDialog(jxf,sendByEmail);
-						} else {
-							printStockOutInvoices(jxf,getStockOutInvoices(jxf),sendByEmail);
-						}
-					} else if("btCancel".equals(event.getTarget().getId())) {
-						printForm.exitModal();
-					}
-				}
-			});
-		} catch(Exception ex) {
-			UniLog.log(ex);
-		}
+		super.actionPerformed(field);
+	}
+
+	@Override
+	protected void outputDocuments(JxZkBiBase jxf,List<BiCellCollection> documents,
+			boolean sendByEmail) {
+		printStockOutInvoices(jxf,documents,sendByEmail);
 	}
 
 	private List<BiCellCollection> getStockOutInvoices(JxZkBiBase jxf) {
@@ -633,15 +590,7 @@ public class PrintOldStockOutInv extends PrintOldDocMulti {
 
 	@Override
 	protected void doInitRpcClient() {
-		// TODO Auto-generated method stub
-		rpc.callSegment("setCocodeBaseccy",
-		new VectorUtil()
-		.addElement( Erpv4Config.getDefaultCoCode(sh))
-		.addElement( Erpv4Config.getBaseCcy(br.getSessionHelper(),
-				Erpv4Config.getDefaultCoCode(sh)
-				))
-		.toVector()
-		);	
+		super.doInitRpcClient();
 	}
 
 }

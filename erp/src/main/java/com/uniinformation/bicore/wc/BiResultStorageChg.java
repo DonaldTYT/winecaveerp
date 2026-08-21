@@ -508,10 +508,10 @@ public class BiResultStorageChg extends BiResultErpv4 {
 
 		for(int i=0;i<detailResult.getRowCount();i++) {
 			if(detailResult.isMarkedDelete(detailResult.getTrStatObj(i))) continue;
-			if(!detailResult.loadOneRecV(i)) {
-				throw new Exception("Unable to load storage detail row " + i);
+			BiCellCollection detail = detailResult.getRowCollectionV(i);
+			if(detail == null) {
+				throw new Exception("Unable to access storage detail row " + i);
 			}
-			BiCellCollection detail = detailResult.getCurrentCollection();
 			String cocode = detail.getCellString("stord_cocode").trim();
 			StorageChargeVolumeRow volumes = volumesByCustomer.get(cocode);
 			if(volumes == null) {

@@ -2433,6 +2433,10 @@ public class BiResult implements GetCellInterface {
 	 */
 	public boolean loadOneRecV(int p_tridx)
 	{
+		if(getParent() != null) {
+			UniLog.log1("WARNING: loadOneRecV called for SubLink BiResult view:%s row:%d currentCol:%s",
+					getView().getName(), p_tridx, currentCol);
+		}
 		if(resultStatList.size() <= p_tridx) {
 			UniLog.log1("fatal loadOneRecV p_tridx > resultStatList size " + p_tridx + " : " + resultStatList.size());
 		}
@@ -5002,11 +5006,11 @@ public class BiResult implements GetCellInterface {
 		return(currentCol);
 	}
 
-	public void setCurrentCollection(BiCellCollection p_col)
-	{
-		currentCol = p_col;
+	/** Clears per-column change tracking after values have been bound to a form. */
+	public void clearColumnCellDirtyFlags() {
+		if(currentCol != null) currentCol.setDirty(false);
 	}
-	
+
 	void setJdbcServerTimeout(int p_sec) {
 		if(sqlEngine != BiSchema.SQLENGINE_SCORPION) return;
 		Vector arglist = new Vector();

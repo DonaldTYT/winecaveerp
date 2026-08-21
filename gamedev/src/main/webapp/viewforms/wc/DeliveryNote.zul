@@ -1,0 +1,327 @@
+<zk xmlns:n="native">
+<style dynamic="true">
+div.z-grid.zkbi-detail-grid &gt; div.z-grid-body {
+	height: auto;
+}
+div.z-grid.zkbi-detail-grid {
+	border: 1px solid transparent;
+}
+.delivery-note-form .zkbi-detail-grid .z-row-inner,
+.delivery-note-form .zkbi-detail-grid .z-cell {
+	padding: 2px 5px;
+}
+.delivery-note-form .field-caption {
+	font-weight: 600;
+	white-space: nowrap;
+}
+.delivery-note-form .address-listbox {
+	border: 1px solid #d8d8d8;
+}
+.delivery-note-form .address-listbox .z-listheader,
+.delivery-note-form .address-listbox .z-listhead-bar {
+	display: none;
+}
+.delivery-note-form .address-listbox .z-listcell {
+	border: none;
+	padding: 0 4px;
+}
+.delivery-note-form .address-listbox col:nth-child(4),
+.delivery-note-form .address-listbox .z-listheader:nth-child(4),
+.delivery-note-form .address-listbox .z-listcell:nth-child(4) {
+	width: 700px !important;
+	min-width: 700px !important;
+}
+.delivery-note-form .address-listbox .z-listcell:nth-child(4) input,
+.delivery-note-form .address-listbox .z-listcell:nth-child(4) textarea {
+	width: 100% !important;
+}
+.delivery-note-form .address-listbox .z-listcell:nth-child(4) .z-hlayout-inner,
+.delivery-note-form .address-listbox .z-listcell:nth-child(4) .z-hlayout-inner &gt; .z-div {
+	width: 100% !important;
+}
+.delivery-note-form .address-listbox .z-listheader:nth-child(2),
+.delivery-note-form .address-listbox .z-listheader:nth-child(3),
+.delivery-note-form .address-listbox .z-listcell:nth-child(2),
+.delivery-note-form .address-listbox .z-listcell:nth-child(3) {
+	width: 0 !important;
+	min-width: 0 !important;
+	max-width: 0 !important;
+	padding: 0 !important;
+	visibility: hidden;
+}
+.delivery-note-form .address-listbox col:nth-child(2),
+.delivery-note-form .address-listbox col:nth-child(3) {
+	width: 0 !important;
+}
+.delivery-note-form .delivery-items .z-listbox-body {
+	min-height: 235px;
+}
+.delivery-note-form .delivery-items .z-listcell {
+	vertical-align: top;
+}
+.delivery-note-form .delivery-options-grid .z-grid-header,
+.delivery-note-form .delivery-options-grid .z-column {
+	background: #f1f1f1;
+}
+.delivery-note-form .delivery-options-grid .z-row-inner,
+.delivery-note-form .delivery-options-grid .z-cell {
+	padding: 2px 8px;
+}
+.delivery-note-form .delivery-options-grid .option-name,
+.delivery-note-form .delivery-options-grid .option-chinese {
+	white-space: nowrap;
+}
+</style>
+
+	<div class="zkbi-detail-toolbar-container">
+		<div class="zkbi-detail-toolbar-leftarea" />
+		<toolbar id="detail_toolbar" align="end" />
+	</div>
+
+	<tabbox id="zkbiListTop" width="100%" height="75vh" sclass="delivery-note-form zkbi-detail-tabbox">
+		<tabs width="100%">
+			<tab id="tabInfoTab" visible="true">Delivery</tab>
+			<tab id="tabOptionsTab" visible="true">Options</tab>
+			<tab id="tabSystemTab" visible="true">System</tab>
+		</tabs>
+		<tabpanels>
+			<tabpanel>
+				<vlayout hflex="1" spacing="6px">
+					<grid hflex="1" sclass="zkbi-detail-grid delivery-header">
+						<columns>
+							<column width="85px" />
+							<column width="155px" />
+							<column width="75px" />
+							<column width="155px" />
+							<column width="75px" />
+							<column width="155px" />
+							<column width="95px" />
+							<column hflex="1" />
+						</columns>
+						<rows>
+							<row>
+								<label value="Date:" sclass="field-caption" />
+								<zkbidiv jxId="stm_date" labelPosition="invisible" />
+								<label value="Ref.:" sclass="field-caption" />
+								<zkbidiv jxId="stm_mrg" labelPosition="invisible" />
+								<label value="Post By:" sclass="field-caption" />
+								<zkbidiv jxId="stm_cfmuser" labelPosition="invisible" />
+								<label value="Deliver To:" sclass="field-caption" />
+								<cell rowspan="4">
+									<listbox id="list_wc_MemoStm" height="105px" hflex="1" sclass="address-listbox" />
+								</cell>
+							</row>
+							<row>
+								<label value="D/N:" sclass="field-caption" />
+								<zkbidiv jxId="stm_ref1" labelPosition="invisible" />
+								<label value="Pack By:" sclass="field-caption" />
+								<zkbidiv jxId="stm_ref3" labelPosition="invisible" />
+								<label value="On:" sclass="field-caption" />
+								<zkbidiv jxId="stm_cfmdate" labelPosition="invisible" />
+								<label value="" />
+							</row>
+							<row>
+								<label value="Customer:" sclass="field-caption" />
+								<zkbidiv jxId="stm_ref2" labelPosition="invisible" />
+								<label value="Name:" sclass="field-caption" />
+								<cell colspan="3">
+									<zkbidiv jxId="vd_vname" labelPosition="invisible" />
+								</cell>
+								<label value="" />
+							</row>
+							<row>
+								<label value="Delivery:" sclass="field-caption" />
+								<cell colspan="3">
+									<zkbidiv jxId="stm_ctrspec" labelPosition="invisible" />
+								</cell>
+								<label value="Post Status:" sclass="field-caption" />
+								<zkbidiv jxId="stm_status" labelPosition="invisible" />
+								<label value="" />
+							</row>
+							<row>
+								<label value="Void:" sclass="field-caption" />
+								<zkbidiv jxId="stm_void" labelPosition="invisible" />
+								<label value="Currency:" sclass="field-caption" />
+								<zkbidiv jxId="stm_cur" labelPosition="invisible" />
+								<label value="Customer Code:" sclass="field-caption" />
+								<zkbidiv jxId="vd_vcode" labelPosition="invisible" />
+								<label value="" />
+								<label value="" />
+							</row>
+						</rows>
+					</grid>
+
+					<listbox id="list_wc_DeliveryDetail" hflex="1" vflex="1" sclass="delivery-items" />
+				</vlayout>
+			</tabpanel>
+
+			<tabpanel>
+				<grid hflex="1" sclass="zkbi-detail-grid delivery-options-grid">
+					<columns>
+						<column label="Name" width="185px" />
+						<column label="Chinese" width="150px" />
+						<column label="Yes/No" width="85px" align="center" />
+						<column label="Quantity" width="110px" align="right" />
+						<column label="" width="55px" />
+						<column label="Amount" width="125px" align="right" />
+						<column label="A/C Code" width="90px" />
+						<column hflex="1" />
+					</columns>
+					<rows>
+						<row>
+							<label value="Bubble wrap" sclass="option-name" />
+							<label value="氣泡膜" sclass="option-chinese" />
+							<checkbox id="delio_opt0" />
+							<intbox id="delio_qty0" width="95px" />
+							<label value="Pcs" />
+							<doublebox id="delio_amt0" width="110px" format="##,##0.00" />
+							<label value="50300" />
+							<label />
+						</row>
+						<row>
+							<label value="Inflatable bottle bag" sclass="option-name" />
+							<label value="充氣瓶袋" sclass="option-chinese" />
+							<checkbox id="delio_opt1" />
+							<intbox id="delio_qty1" width="95px" />
+							<label value="Pcs" />
+							<doublebox id="delio_amt1" width="110px" format="##,##0.00" />
+							<label value="50300" />
+							<label />
+						</row>
+						<row>
+							<label value="Bubble wine bag" sclass="option-name" />
+							<label value="泡泡酒袋" sclass="option-chinese" />
+							<checkbox id="delio_opt2" />
+							<intbox id="delio_qty2" width="95px" />
+							<label value="Pcs" />
+							<doublebox id="delio_amt2" width="110px" format="##,##0.00" />
+							<label value="50300" />
+							<label />
+						</row>
+						<row>
+							<label value="Self Pick Up" sclass="option-name" />
+							<label value="自取" sclass="option-chinese" />
+							<checkbox id="delio_opt3" />
+							<intbox id="delio_qty3" width="95px" />
+							<label value="Lot" />
+							<doublebox id="delio_amt3" width="110px" format="##,##0.00" />
+							<label value="50300" />
+							<label />
+						</row>
+						<row>
+							<label value="Delivery" sclass="option-name" />
+							<label value="送貨" sclass="option-chinese" />
+							<checkbox id="delio_opt4" />
+							<intbox id="delio_qty4" width="95px" />
+							<label value="Lot" />
+							<doublebox id="delio_amt4" width="110px" format="##,##0.00" />
+							<label value="62800" />
+							<label />
+						</row>
+						<row>
+							<label value="urgent fee" sclass="option-name" />
+							<label value="urgent fee" sclass="option-chinese" />
+							<checkbox id="delio_opt5" />
+							<intbox id="delio_qty5" width="95px" />
+							<label value="Lot" />
+							<doublebox id="delio_amt5" width="110px" format="##,##0.00" />
+							<label value="50300" />
+							<label />
+						</row>
+						<row>
+							<label value="Carton Case" sclass="option-name" />
+							<label value="紙箱" sclass="option-chinese" />
+							<checkbox id="delio_opt6" />
+							<intbox id="delio_qty6" width="95px" />
+							<label value="Pcs" />
+							<doublebox id="delio_amt6" width="110px" format="##,##0.00" />
+							<label value="50300" />
+							<label />
+						</row>
+						<row>
+							<label value="Foam Box" sclass="option-name" />
+							<label value="飛機空運箱" sclass="option-chinese" />
+							<checkbox id="delio_opt7" />
+							<intbox id="delio_qty7" width="95px" />
+							<label value="Pcs" />
+							<doublebox id="delio_amt7" width="110px" format="##,##0.00" />
+							<label value="50300" />
+							<label />
+						</row>
+						<row>
+							<label value="Label Sticking" sclass="option-name" />
+							<label value="標籤張貼" sclass="option-chinese" />
+							<checkbox id="delio_opt8" />
+							<intbox id="delio_qty8" width="95px" />
+							<label value="Pcs" />
+							<doublebox id="delio_amt8" width="110px" format="##,##0.00" />
+							<label value="50300" />
+							<label />
+						</row>
+						<row>
+							<label value="Wooden Case Opening" sclass="option-name" />
+							<label value="木箱開封" sclass="option-chinese" />
+							<checkbox id="delio_opt9" />
+							<intbox id="delio_qty9" width="95px" />
+							<label value="Lot" />
+							<doublebox id="delio_amt9" width="110px" format="##,##0.00" />
+							<label value="50300" />
+							<label />
+						</row>
+						<row>
+							<label value="Palletization" sclass="option-name" />
+							<label value="卡板自取" sclass="option-chinese" />
+							<checkbox id="delio_opt10" />
+							<intbox id="delio_qty10" width="95px" />
+							<label value="Lot" />
+							<doublebox id="delio_amt10" width="110px" format="##,##0.00" />
+							<label value="50300" />
+							<label />
+						</row>
+						<row>
+							<label value="Palletized Delivery" sclass="option-name" />
+							<label value="以卡板交付" sclass="option-chinese" />
+							<checkbox id="delio_opt11" />
+							<intbox id="delio_qty11" width="95px" />
+							<label value="Lot" />
+							<doublebox id="delio_amt11" width="110px" format="##,##0.00" />
+							<label value="50300" />
+							<label />
+						</row>
+					</rows>
+				</grid>
+			</tabpanel>
+
+			<tabpanel>
+				<grid id="detail_grid" sclass="zkbi-detail-grid">
+					<columns>
+						<column width="180px" />
+						<column hflex="1" />
+					</columns>
+					<rows>
+						<row>
+							<label value="Created By" sclass="field-caption" />
+							<zkbidiv jxId="stm_cuser" labelPosition="invisible" />
+						</row>
+						<row>
+							<label value="Created On" sclass="field-caption" />
+							<zkbidiv jxId="stm_cdate" labelPosition="invisible" />
+						</row>
+						<row>
+							<label value="Updated By" sclass="field-caption" />
+							<zkbidiv jxId="stm_uuser" labelPosition="invisible" />
+						</row>
+						<row>
+							<label value="Updated On" sclass="field-caption" />
+							<zkbidiv jxId="stm_udate" labelPosition="invisible" />
+						</row>
+					</rows>
+				</grid>
+			</tabpanel>
+		</tabpanels>
+	</tabbox>
+
+	<template name="template_wc_MemoStm_mm_desc" twidth="700px">
+		<zkbidiv jxId="mm_desc" labelPosition="invisible" compWidth="100%" />
+	</template>
+</zk>

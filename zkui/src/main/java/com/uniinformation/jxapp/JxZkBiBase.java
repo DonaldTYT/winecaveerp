@@ -433,26 +433,6 @@ public class JxZkBiBase extends JxZkBase
 		}
 		}	
 	}
-	public void bindSublinkList2(JxField sv , BiResult sl) {
-		Vector subCols = sl.getListColumns();
-		sv.clear();
-		sv.gridSetRow(sl.getRowCount());
-		BiCellCollection fds = sl.getCurrentCollection();
-		if(fds == null) {
-			fds = sl.newRowCollection();
-			sl.setCurrentCollection(fds);
-		}
-		for(int j = 0;j<sl.getRowCount();j++) {
-			sl.loadOneRecV(j);
-			for(int k=0;k<subCols.size();k++) {
-				BiColumn cl = (BiColumn) subCols.get(k);
-				Cell ce = fds.testCell(cl.getLabel());
-				if(ce != null) {
-					sv.gridSetValue(k, j, ce.getObject());
-				}
-			}
-		}
-	}
 	public void bindCellCollection(BiResult c,int mode) {
 		
 		//set custom gipi
@@ -968,6 +948,7 @@ public class JxZkBiBase extends JxZkBase
 				jxSetEnable(bt, !bah.isDisabled(c, false));
 			}
 		}
+		c.clearColumnCellDirtyFlags();
 	}
 	
 

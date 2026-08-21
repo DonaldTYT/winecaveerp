@@ -78,7 +78,6 @@ public class DetAccount extends JxZkBiBase {
 //		}
 //		sr.appendWherecl(new Wherecl().appendString(wstr.toString()));
 //		sr.query();
-//		bindSublinkList2(sv , sr);
 //		Listbox lb = (Listbox) sv.getNativeObject();
 //		ListModelList lm = (ListModelList) lb.getListModel();
 //		int n = lm.getSize();

@@ -224,7 +224,6 @@ public class ColumnCell extends Cell {
 	protected void cellUpdated() {
 		super.cellUpdated();
 		if(cl != null) cl.setDirty(true);
-		if(col == null  || !col.allowUndo()) return;
 		if(!isDirty()) {
 			if(setDirty()) {
 				try {
@@ -234,6 +233,7 @@ public class ColumnCell extends Cell {
 				}
 			}
 		}
+		if(col == null  || !col.allowUndo()) return;
 	}
 	
 	@Override

@@ -655,8 +655,12 @@ public class BiCellCollection extends CellCollection {
 
 				@Override
 				public void gotCellArray(String p_cellName, Cell[] p_cellArray) throws Exception {
-					// TODO Auto-generated method stub
-					
+					if(p_cellArray == null) return;
+					for(Cell cell : p_cellArray) {
+						if(cell instanceof ColumnCell) {
+							((ColumnCell) cell).clearDirty();
+						}
+					}
 				}
 
 				@Override

@@ -25,6 +25,7 @@ div.list_wc_StmdMoSi td.z-listbox-footer {
 			<tab id="tabInfoTab" visible="true">Information</tab>
 			<tab id="tabItemsTab" visible="true">Items</tab>
 			<tab id="tabConsgnTab" visible="true">Consigments</tab>
+			<tab id="tabDeliveryTab" visible="true">Delivery</tab>
 		</tabs>
 		<tabpanels>
 			<tabpanel> 
@@ -33,8 +34,11 @@ div.list_wc_StmdMoSi td.z-listbox-footer {
 			<tabpanel> 
 				<listbox id="list_wc_StmdMoSi" vflex="1"></listbox>
 			</tabpanel>
-			<tabpanel> 
+			<tabpanel>
 				<listbox id="list_wc_StmpostExt" vflex="1"></listbox>
+			</tabpanel>
+			<tabpanel>
+				<listbox id="list_wc_OM_KOSO" vflex="1"></listbox>
 			</tabpanel>
 		</tabpanels>	
 	</tabbox>

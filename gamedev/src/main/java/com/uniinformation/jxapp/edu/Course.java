@@ -337,8 +337,9 @@ public class Course extends JxZkBiBase {
 		JxField sv = jxAdd(sr);
 		int delCnt = 0;
 		for (int i=0; i<sr.getRowCount(); i++) {
-			sr.loadOneRecV(i);
-			Date date = sr.getCellDate("essncs_date",true);
+			CellCollection row = sr.getRowCollectionV(i);
+			if (row == null) continue;
+			Date date = row.getCellDate("essncs_date");
 			UniLog.log1("checking date:%s", date);
 			if (date != null && date.getTime() >= p_date0.getTime() && date.getTime() <= p_date1.getTime()) {
 				o = sr.getTrStatObj(new Integer(i));

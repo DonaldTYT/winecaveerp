@@ -94,6 +94,19 @@ public class BiResultWcStmovd extends BiResult {
 							);
 				if(or_cocode.equals("WINECAVE")) {
 					col.getCell("stmd_stkqty").set(col.getCell("stmd_qty").getDouble());
+					if("Y".equals(Erpv4Config.getString(sh, "NEWWINECAVEERP"))) {
+						NewStockCost nstc = new NewStockCost(getSelectUtil());
+						try {
+							double cost = nstc.newstcost_getuprice(
+									col.getCell("stmd_irg").getInt(),
+									col.getCell("stmd_org").getInt(),
+									new java.util.Date()
+									);
+							col.getCell("stmd_pcost").set(cost);
+						} catch (Exception ex) {
+							UniLog.log(ex);
+						}
+					} else {
 					RpcClient rpc = null;
 					if(rpc == null) {
 //						SessionHelper sessionHelper = (SessionHelper) Executions.getCurrent().getSession().getAttribute(SessionHelper.getNameByContextPath(Executions.getCurrent().getContextPath()));	
@@ -108,6 +121,7 @@ public class BiResultWcStmovd extends BiResult {
 							);
 					rpc.close();
 					col.getCell("stmd_pcost").set(v.toDouble());
+					}
 				} else {
 					col.getCell("stmd_pcost").set(col.getCell("stmd_fref1").getDouble());
 				}

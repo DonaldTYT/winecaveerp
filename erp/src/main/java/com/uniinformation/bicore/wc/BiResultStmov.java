@@ -2,14 +2,12 @@ package com.uniinformation.bicore.wc;
 
 import java.util.Vector;
 
-import com.kyoko.common.DateUtil;
 import com.kyoko.common.ReturnMsg;
 import com.kyoko.common.StringUtil;
 import com.uniinformation.bicore.BiCellCollection;
 import com.uniinformation.bicore.BiResult;
 import com.uniinformation.bicore.BiView;
 import com.uniinformation.bicore.erpv4.BiResultErpv4;
-import com.uniinformation.bicore.erpv4.Erpv4BaseCellCollection;
 import com.uniinformation.cell.CellCollection;
 import com.uniinformation.cell.CellException;
 import com.uniinformation.erpv4.GenbucketUtil;
@@ -32,9 +30,7 @@ public class BiResultStmov extends BiResultErpv4 {
 	protected ReturnMsg biBeforeDeleteCurrent(CellCollection col) {
 		ReturnMsg rtnMsg = super.biBeforeDeleteCurrent(col);
 		if(rtnMsg != null && !rtnMsg.getStatus()) return(rtnMsg);
-		if(col.testCell("stm_void2") != null) {
-			if(getCellString("stm_void2").equals("Y")) return(rtnMsg);
-		}
+
 		rtnMsg = genbucketBegin();
 		if(rtnMsg != null && !rtnMsg.getStatus()) return(rtnMsg);
 		rtnMsg = genbucketAdd(col.getCell("stm_mrg").getInt(),-1.0);
@@ -72,7 +68,7 @@ public class BiResultStmov extends BiResultErpv4 {
    		Vector args = new Vector();
 		args.add(p_mrg);
 		args.add(p_factor);
-		Value v = rpc.callSegment( "erpv3StmovAdd", args);
+		Value v = rpc.callSegment( "erpv3StmovAddIfNotVoid", args);
 		if(v == null || !v.toString().startsWith("OK")) return(new ReturnMsg(false,"Unknown Error",true));
 		return(new ReturnMsg(true));
 	}
@@ -80,7 +76,6 @@ public class BiResultStmov extends BiResultErpv4 {
 	protected ReturnMsg biBeforeAddCurrent(CellCollection pcol) {
 		ReturnMsg rtnMsg = super.biBeforeAddCurrent(pcol);
 		if(rtnMsg != null && !rtnMsg.getStatus()) return(rtnMsg);
-		if(getCellString("stm_void").equals("Y")) return(rtnMsg);
 		rtnMsg = genbucketBegin();
 		if(rtnMsg != null && !rtnMsg.getStatus()) return(rtnMsg);
 		return(new ReturnMsg(true));
@@ -89,14 +84,8 @@ public class BiResultStmov extends BiResultErpv4 {
 	protected ReturnMsg biBeforeUpdateCurrent(CellCollection pcol) {
 		ReturnMsg rtnMsg = super.biBeforeUpdateCurrent(pcol);
 		if(rtnMsg != null && !rtnMsg.getStatus()) return(rtnMsg);
-		if(pcol.testCell("stm_void2") != null) {
-			if( getCellString("stm_void").equals("Y") && getCellString("stm_void2").equals("Y")) return(rtnMsg);
-		}
 		rtnMsg = genbucketBegin();
 		if(rtnMsg != null && !rtnMsg.getStatus()) return(rtnMsg);
-		if(pcol.testCell("stm_void2") != null) {
-			if( getCellString("stm_void2").equals("Y")) return(rtnMsg);
-		}
 		rtnMsg = genbucketAdd(pcol.getCell("stm_mrg").getInt(),-1.0);
 		if(rtnMsg != null && !rtnMsg.getStatus()) return(rtnMsg);
 		return(new ReturnMsg(true));
@@ -105,13 +94,8 @@ public class BiResultStmov extends BiResultErpv4 {
 	protected ReturnMsg biAfterAddUpdateCurrent(BiCellCollection col, boolean p_isUpdate) {
 		ReturnMsg rtnMsg = super.biAfterAddUpdateCurrent(col,p_isUpdate);
 		if(rtnMsg != null && !rtnMsg.getStatus()) return(rtnMsg);
-		if(col.testCell("stm_void2") != null) {
-		if( getCellString("stm_void").equals("Y") && getCellString("stm_void2").equals("Y")) return(rtnMsg);
-		}
-		if(!getCellString("stm_void").equals("Y")) {
-			rtnMsg = genbucketAdd(col.getCell("stm_mrg").getInt(),1.0);
-			if(rtnMsg != null && !rtnMsg.getStatus()) return(rtnMsg);
-		}
+		rtnMsg = genbucketAdd(col.getCell("stm_mrg").getInt(),1.0);
+		if(rtnMsg != null && !rtnMsg.getStatus()) return(rtnMsg);
 		rtnMsg = genbucketCommit();
 		if(rtnMsg != null && !rtnMsg.getStatus()) return(rtnMsg);
 		return(new ReturnMsg(true));
