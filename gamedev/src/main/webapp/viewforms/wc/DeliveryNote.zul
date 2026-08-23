@@ -108,7 +108,11 @@ div.z-grid.zkbi-detail-grid {
 								<zkbidiv jxId="stm_cfmuser" labelPosition="invisible" />
 								<label value="Deliver To:" sclass="field-caption" />
 								<cell rowspan="4">
-									<listbox id="list_wc_MemoStm" height="105px" hflex="1" sclass="address-listbox" />
+									<vlayout hflex="1" spacing="0">
+										<listbox id="list_wc_MemoStm" visible="false" height="105px"
+											hflex="1" sclass="address-listbox" />
+										<zkbidiv jxId="stmov_deliaddr" labelPosition="invisible" />
+									</vlayout>
 								</cell>
 							</row>
 							<row>

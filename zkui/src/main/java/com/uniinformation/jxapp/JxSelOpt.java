@@ -12,14 +12,17 @@ import org.zkoss.zk.ui.event.KeyEvent;
 import org.zkoss.zul.Div;
 import org.zkoss.zul.Idspace;
 import org.zkoss.zul.Listbox;
+import org.zkoss.zul.Toolbarbutton;
 import org.zkoss.zul.Window;
 import org.zkoss.zul.impl.XulElement;
 
+import com.uniinformation.bicore.BiActionListener;
 import com.uniinformation.jx.JxActionListener;
 import com.uniinformation.jx.JxField;
 import com.uniinformation.jx.JxForm;
 import com.uniinformation.jx.JxFormCloseListener;
 import com.uniinformation.jx.zk.JxZkGadgetProvider;
+import com.uniinformation.utils.PopupWindowAction;
 import com.uniinformation.utils.UniLog;
 import com.uniinformation.utils.ZkUtil;
 import com.uniinformation.webcore.SessionHelper;
@@ -90,12 +93,27 @@ public class JxSelOpt extends JxForm {
 		return(js);
 	}
 	public static JxSelOpt createPopupJxSelOpt(SessionHelper sessionHelper) {
-		JxZkGadgetProvider pvdr = (JxZkGadgetProvider) sessionHelper.getSessionData("jxzkgadgetprovider");
+		return createPopupJxSelOpt(sessionHelper, false);
+	}
+	public static JxSelOpt createPopupJxSelOpt(SessionHelper sessionHelper, final boolean p_freeOnClose) {
+		return createPopupJxSelOpt(sessionHelper, p_freeOnClose, ZkUtil.getMainComp());
+	}
+	public static JxSelOpt createPopupJxSelOpt(SessionHelper sessionHelper, final boolean p_freeOnClose,
+			Component p_parent) {
+		final JxZkGadgetProvider pvdr = (JxZkGadgetProvider) sessionHelper.getSessionData("jxzkgadgetprovider");
 		if(pvdr == null) return(null);
-		Window thisPopup = ZkUtil.newPopupWindow(sessionHelper.isMobile(),sessionHelper.getLabel("Pick By Select"), 
-				ZkUtil.getMainComp()
+		final Window[] popupHolder = new Window[1];
+		Window thisPopup = ZkUtil.newPopupWindow(sessionHelper.isMobile(),sessionHelper.getLabel("Pick By Select"),
+				p_parent == null ? ZkUtil.getMainComp() : p_parent, p_freeOnClose, p_freeOnClose ? new PopupWindowAction() {
+					@Override
+					public void onClose() {
+						Window popup = popupHolder[0];
+						if (popup != null) pvdr.jxUnRegisterForm(popup.getId());
+					}
+				} : null
 //				Executions.getCurrent().getDesktop().getFirstPage().getFirstRoot()	
 				);
+		popupHolder[0] = thisPopup;
 		
 		thisPopup.setSclass("jxselopt-popup");
 		thisPopup.setStyle("background:#305496; opacity:1;");
@@ -108,7 +126,7 @@ public class JxSelOpt extends JxForm {
 		selopt.addFormCloseListener(
 				new JxFormCloseListener( ) {
 					public int formClose(JxForm jxf) {
-						return(JxFormCloseListener.caHide);
+						return(p_freeOnClose ? JxFormCloseListener.caFree : JxFormCloseListener.caHide);
 					}
 				}	
 			);
@@ -130,6 +148,19 @@ public class JxSelOpt extends JxForm {
 		if (jxBtSelect != null){
 			jxBtSelect.addActionListener(p_listener);
 		}
+	}
+	public <T> void addCustomButton(String p_butName, final BiActionListener<? super T> p_action, final T p_value) {
+		final Toolbarbutton customButton = new Toolbarbutton(p_butName);
+		customButton.setId(p_butName);
+		customButton.addEventListener(Events.ON_CLICK, new EventListener<Event>() {
+			@Override
+			public void onEvent(Event p_event) throws Exception {
+				if (p_action != null) p_action.actionPerformed(p_value);
+			}
+		});
+
+		Component clearButton = (Component) jxAdd("btClear").getNativeObject();
+		clearButton.getParent().insertBefore(customButton, clearButton);
 	}
 	public void setUserData(Object p_userdata) {
 		userdata = p_userdata;

@@ -1,0 +1,49 @@
+<window title="Create Product" border="normal" width="760px" height="90%"
+	closable="false" sizable="true" position="center">
+	<vlayout hflex="1" vflex="1" spacing="10px" style="padding: 14px;">
+		<div vflex="1" style="overflow-y: auto; padding-right: 8px;">
+			<grid hflex="1" sizedByContent="false">
+				<columns>
+					<column width="175px" />
+					<column hflex="1" />
+				</columns>
+				<rows>
+					<row><label value="st_irg" /><intbox id="st_irg" hflex="1" /></row>
+					<row><label value="st_msubtype" /><intbox id="st_msubtype" hflex="1" /></row>
+					<row><label value="mt_tpname" /><textbox id="mt_tpname" hflex="1" /></row>
+					<row><label value="mt_tpcode" /><intbox id="mt_tpcode" hflex="1" /></row>
+					<row><label value="mt_tpcname" /><textbox id="mt_tpcname" hflex="1" /></row>
+					<row><label value="mt_tptype" /><textbox id="mt_tptype" hflex="1" /></row>
+					<row><label value="st_mtype" /><textbox id="st_mtype" hflex="1" /></row>
+					<row><label value="sttp_name" /><textbox id="sttp_name" hflex="1" /></row>
+					<row><label value="st_icode" /><textbox id="st_icode" hflex="1" /></row>
+					<row><label value="Stock Name" /><textbox id="st_iname" hflex="1" /></row>
+					<row><label value="Btl/Cs" /><doublebox id="st_msize1" hflex="1" /></row>
+					<row><label value="Volume" /><doublebox id="st_msize2" hflex="1" /></row>
+					<row><label value="Brand Code" /><textbox id="st_mbrand" hflex="1" /></row>
+					<row><label value="Brand Name" /><textbox id="stbd_name" hflex="1" /></row>
+					<row><label value="品牌" /><textbox id="stbd_cname" hflex="1" /></row>
+					<row><label value="stbd_origin" /><textbox id="stbd_origin" hflex="1" /></row>
+					<row><label value="storg_name" /><textbox id="storg_name" hflex="1" /></row>
+					<row><label value="storg_cname" /><textbox id="storg_cname" hflex="1" /></row>
+					<row><label value="st_mszrange" /><textbox id="st_mszrange" hflex="1" /></row>
+					<row><label value="st_mszrange2" /><textbox id="st_mszrange2" hflex="1" /></row>
+					<row><label value="Vintage" /><doublebox id="st_msize3" hflex="1" /></row>
+					<row><label value="Mature" /><textbox id="st_maturity" hflex="1" /></row>
+					<row><label value="Classification" /><textbox id="st_modelno" hflex="1" /></row>
+					<row><label value="Score" /><textbox id="st_scorerange" hflex="1" /></row>
+					<row><label value="Alt Stock Code" /><textbox id="st_oicode" hflex="1" /></row>
+					<row><label value="Major Base Stock Code" /><textbox id="st_origin" hflex="1" /></row>
+					<row><label value="Sell By Case" /><checkbox id="kelvin" /></row>
+					<row><label value="last_updtime" /><datebox id="last_updtime" hflex="1" format="yyyy-MM-dd HH:mm:ss" /></row>
+				</rows>
+			</grid>
+		</div>
+		<div align="center">
+			<hlayout spacing="10px">
+				<button id="btCreate" label="Create" width="100px" />
+				<button id="btCancel" label="Cancel" width="100px" />
+			</hlayout>
+		</div>
+	</vlayout>
+</window>

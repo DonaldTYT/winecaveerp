@@ -10,6 +10,7 @@ import com.uniinformation.webcore.SessionHelper;
 import com.uniinformation.rpccall.*;
 
 import java.util.Iterator;
+import java.util.List;
 import java.util.Vector;
 
 import org.apache.commons.lang3.StringUtils;
@@ -24,6 +25,8 @@ import org.zkoss.zul.impl.*;
 import org.apache.commons.lang3.tuple.Pair;
 public class JxZkInputElement extends JxZkElement {
 	private final static boolean longOpFlag = true;
+	private static final String TEXT_WRAP_CONFIG = "JxZkInputElement.textwrap.config";
+	private static final String TEXT_WRAP_LISTENER = "JxZkInputElement.textwrap.listener";
 	String textValue = null; 
 	String orgValue  = null; 
 	JxChangeListener changeListener = null;
@@ -489,12 +492,90 @@ public class JxZkInputElement extends JxZkElement {
 	}
 	@Override
 	public void setAttribute(String p_attr,String p_value)
-	{	
+	{
 		if(p_attr.equals("multiLine")) {
 			if(comp instanceof Textbox) {
 				int n = Integer.parseInt(p_value);
 				((Textbox) comp).setRows(n);
 			}
+		}
+		if(p_attr.equals("textwrap")) {
+			setTextWrap(p_value);
+		}
+	}
+
+	private void setTextWrap(String p_value) {
+		if(!(comp instanceof Textbox) || !((Textbox) comp).isMultiline()) return;
+
+		final Textbox textbox = (Textbox) comp;
+		textbox.setAttribute(TEXT_WRAP_CONFIG, TextWrapConfig.parse(p_value));
+		ZkCompStyleUtil.setProperty(textbox, "white-space", "pre");
+		ZkCompStyleUtil.setProperty(textbox, "overflow-wrap", "normal");
+		ZkCompStyleUtil.setProperty(textbox, "word-break", "normal");
+		ZkCompStyleUtil.setProperty(textbox, "overflow-x", "auto");
+
+		if(Boolean.TRUE.equals(textbox.getAttribute(TEXT_WRAP_LISTENER))) return;
+		textbox.setAttribute(TEXT_WRAP_LISTENER, Boolean.TRUE);
+		textbox.addEventListener(1000, Events.ON_CHANGE, new EventListener<InputEvent>() {
+			@Override
+			public void onEvent(InputEvent p_event) throws Exception {
+				TextWrapConfig config = (TextWrapConfig) textbox.getAttribute(TEXT_WRAP_CONFIG);
+				if(config == null) return;
+				List<String> lines = ChnftrParser.splitText(p_event.getValue(), config.engFont,
+						config.chnFont, config.fontSize, config.width);
+				if(config.maxLines > 0 && lines.size() > config.maxLines) {
+					p_event.stopPropagation();
+					textbox.setValue(orgValue == null ? "" : orgValue);
+					throw new WrongValueException(textbox,
+							"Maximum " + config.maxLines + " lines allowed");
+				}
+				StringBuilder wrapped = new StringBuilder();
+				boolean firstLine = true;
+				for(String line : lines) {
+					if(!firstLine) wrapped.append('\n');
+					wrapped.append(line);
+					firstLine = false;
+				}
+				textbox.setValue(wrapped.toString());
+			}
+		});
+	}
+
+	private static final class TextWrapConfig {
+		private final String engFont;
+		private final String chnFont;
+		private final float fontSize;
+		private final int width;
+		private final int maxLines;
+
+		private TextWrapConfig(String p_engFont, String p_chnFont, float p_fontSize,
+				int p_width, int p_maxLines) {
+			engFont = p_engFont;
+			chnFont = p_chnFont;
+			fontSize = p_fontSize;
+			width = p_width;
+			maxLines = p_maxLines;
+		}
+
+		private static TextWrapConfig parse(String p_value) {
+			String value = StringUtils.trimToEmpty(p_value);
+			if(value.matches("\\d+")) {
+				return new TextWrapConfig("helv_nr", "chinese", 10.0f,
+						Integer.parseInt(value), 0);
+			}
+			String[] values = value.split(",");
+			if(values.length == 2) {
+				return new TextWrapConfig("helv_nr", "chinese", 10.0f,
+						Integer.parseInt(values[0].trim()), Integer.parseInt(values[1].trim()));
+			}
+			if(values.length != 4 && values.length != 5) {
+				throw new IllegalArgumentException(
+						"textwrap must be width[,maxLines] or "
+						+ "engFont,chnFont,fontSize,width[,maxLines]");
+			}
+			return new TextWrapConfig(values[0].trim(), values[1].trim(),
+					Float.parseFloat(values[2].trim()), Integer.parseInt(values[3].trim()),
+					values.length == 5 ? Integer.parseInt(values[4].trim()) : 0);
 		}
 	}
 	

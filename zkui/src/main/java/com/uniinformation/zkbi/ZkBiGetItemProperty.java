@@ -145,7 +145,7 @@ public class ZkBiGetItemProperty extends BiGetItemProperty {
 							final BiGipiPickViewInterface pvi = 
 										(pickViewHash == null || pickViewHash.get(bcc.getCellLabel()) == null) ? bcc.getBiColumn() : pickViewHash.get(bcc.getCellLabel());
 							if(pvi.getPickViewName() != null) {
-							biBase.pickBySelect(biBase.getSessionHelper(),pvi.getPickViewName(),pvi.getPickCondition(bcc), new EventListener() {
+							biBase.pickBySelectCached(bigibr,bcc,pvi.getPickViewName(),pvi.getPickCondition(bcc), new EventListener() {
 									@Override
 									public void onEvent(Event arg0) throws Exception {
 										// TODO Auto-generated method stub

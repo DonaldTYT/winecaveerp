@@ -25,6 +25,7 @@ import java.util.Vector;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang.math.NumberUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.Pair;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.zkoss.zk.ui.Component;
@@ -184,6 +185,7 @@ public class JxZkBiBase extends JxZkBase
 	private Hashtable <String,AbstractGetItemProperty> gipiHash;
 	private DetailDecoration curDetailDecoration = null;
 	protected boolean needRefreshFlag = false;
+	private boolean fastCreateMode = false;
 	boolean abortFlag = false;
 //	boolean defaultUpdateAndCloseFlag = false;
 //	boolean defaultAddAndCloseFlag = false;
@@ -1499,7 +1501,8 @@ public class JxZkBiBase extends JxZkBase
 //				}
 				if(defaultAddCloseAction == CloseAction.Close) {
 					ReturnMsg rtnMsg = processAdd(JxZkBiBase.AFTERADDUPDATE_ACTION_CLOSE);
-					if(rtnMsg != null && StringUtils.isNotBlank(rtnMsg.getMsg())){
+					if(rtnMsg != null && StringUtils.isNotBlank(rtnMsg.getMsg())
+							&& (!fastCreateMode || !rtnMsg.getStatus())){
 						messageBox(rtnMsg.getMsg());
 					}
 					return;
@@ -1603,7 +1606,12 @@ public class JxZkBiBase extends JxZkBase
 			{
 				
 				UniLog.log("Close Pressed");
-				doClose(true);
+				if(fastCreateMode) {
+					if(br != null && br.inBeginWork()) br.rollbackWork();
+					doClose(false);
+				} else {
+					doClose(true);
+				}
 				/*if (sessionHelper.getURLParamBool("closetab")) {
 					UniLog.log1("closetab");
 					ZkUtil.js("closeTab()");
@@ -1919,19 +1927,6 @@ public class JxZkBiBase extends JxZkBase
 			String pv = bc.getPickViewName();
 			if(pv != null) {
 				String condition = getBr().getPickColumnCondition(ccell);
-				PickBySelectCacheEntry cacheEntry = pickBySelectCache.get(pv);
-				boolean queryRequired = cacheEntry == null || !StringUtils.equals(cacheEntry.condition, condition);
-				if(cacheEntry == null) {
-					BiSchema schema = BiSchema.loadSchema(sessionHelper);
-					BiView pickView = schema.getViewByName(pv);
-					if(pickView == null) {
-						throw new ZkBiRuntimeException("Pick view not found: " + pv);
-					}
-					BiResult pickResult = pickView.newBiResult(sessionHelper.getLoginId(), null, null, sessionHelper);
-					cacheEntry = new PickBySelectCacheEntry(pickResult, condition);
-				}
-
-				final PickBySelectCacheEntry selectedCacheEntry = cacheEntry;
 				ZkBiEventListener selectListener = new ZkBiEventListener() {
 
 					@Override
@@ -1945,14 +1940,7 @@ public class JxZkBiBase extends JxZkBase
 					}
 				};
 
-				JxSelOpt selopt = JxSelOpt.createPopupJxSelOpt(sessionHelper);
-				if(queryRequired) {
-					JxZkBiBase.pickBySelect(selopt, selectedCacheEntry.biResult, condition, selectListener);
-					selectedCacheEntry.condition = condition;
-					pickBySelectCache.put(pv, selectedCacheEntry);
-				} else {
-					JxZkBiBase.pickBySelect(selopt, selectedCacheEntry.biResult, selectListener);
-				}
+				pickBySelectCached(getBr(), ccell, pv, condition, selectListener);
 			}
 		}
 	}
@@ -3285,6 +3273,9 @@ public class JxZkBiBase extends JxZkBase
 //							btExtraAction.setAttribute("tlkey", "bt_detail_attach");
 //							btExtraAction.setImage("images/icons/zkweb/092-file-cancel-25x25.png");
 							btExtraAction.setId("btExtraJxFormAction_"+i);
+							if(JxZkBiFastCreate.isFastCreateContainer(dWin)) {
+								btExtraAction.setVisible(false);
+							}
 							abHelper.addButton(btExtraAction, true, true, ss2[1],1000);
 //							((JxZkSkin) getSkin()).addOneElementToSkin(bt);
 						} catch (Exception ex){
@@ -3461,6 +3452,10 @@ public class JxZkBiBase extends JxZkBase
 		} else {
 			jxSetVisible("btNext",true);
 			jxSetVisible("btPrevious",true);
+		}
+		if(fastCreateMode) {
+			jxSetVisible("btNext", false);
+			jxSetVisible("btPrevious", false);
 		}
 		jxSetVisible("btReloadDetail", allowReloadDetail && p_mode == MODE_UPDATE);
 
@@ -4165,6 +4160,12 @@ public class JxZkBiBase extends JxZkBase
 	public void setAddAndClose(CloseAction p_action) {
 		defaultAddCloseAction = p_action;
 	}
+	public void setFastCreateMode(boolean p_fastCreateMode) {
+		fastCreateMode = p_fastCreateMode;
+	}
+	public boolean isFastCreateMode() {
+		return fastCreateMode;
+	}
 	public void setUpdateAndClose(CloseAction p_action) {
 		defaultUpdateCloseAction = p_action;
 	}
@@ -4207,6 +4208,43 @@ public class JxZkBiBase extends JxZkBase
 		BiResult br = schema.getViewByName(p_view).newBiResult(p_sh.getLoginId(), null, null, p_sh);
 		JxSelOpt selopt = JxSelOpt.createPopupJxSelOpt(p_sh);
 		pickBySelect(selopt,br,p_condition,p_listener);
+	}
+	public void pickBySelectCached(String p_view,String p_condition,final EventListener p_listener) throws Exception {
+		pickBySelectCached(null, null, p_view, p_condition, p_listener);
+	}
+	public void removePickBySelectCache(String p_view) {
+		if(p_view != null) pickBySelectCache.remove(p_view);
+	}
+	public void pickBySelectCached(BiResult p_sourceResult,ColumnCell p_sourceCell,String p_view,String p_condition,final EventListener p_listener) throws Exception {
+		PickBySelectCacheEntry cacheEntry = pickBySelectCache.get(p_view);
+		boolean queryRequired = cacheEntry == null || !StringUtils.equals(cacheEntry.condition, p_condition);
+		if(cacheEntry == null) {
+			BiSchema schema = BiSchema.loadSchema(sessionHelper);
+			BiView pickView = schema.getViewByName(p_view);
+			if(pickView == null) {
+				throw new ZkBiRuntimeException("Pick view not found: " + p_view);
+			}
+			BiResult pickResult = pickView.newBiResult(sessionHelper.getLoginId(), null, null, sessionHelper);
+			cacheEntry = new PickBySelectCacheEntry(pickResult, p_condition);
+		}
+
+		JxSelOpt selopt = JxSelOpt.createPopupJxSelOpt(sessionHelper, true,
+				curComp == null ? ZkUtil.getMainComp() : curComp);
+		if(p_sourceResult != null && p_sourceCell != null) {
+			List<Pair<String,BiActionListener<ColumnCell>>> extraButtons = p_sourceResult.getPickColumnExtraButton(p_sourceCell);
+			if(extraButtons != null) {
+				for(Pair<String,BiActionListener<ColumnCell>> extraButton : extraButtons) {
+					if(extraButton != null) selopt.addCustomButton(extraButton.getLeft(), extraButton.getRight(), p_sourceCell);
+				}
+			}
+		}
+		if(queryRequired) {
+			pickBySelect(selopt, cacheEntry.biResult, p_condition, p_listener);
+			cacheEntry.condition = p_condition;
+			pickBySelectCache.put(p_view, cacheEntry);
+		} else {
+			pickBySelect(selopt, cacheEntry.biResult, p_listener);
+		}
 	}
 	public static void pickBySelect(BiResult p_br,String p_condition,final EventListener p_listener) throws Exception {
 		JxSelOpt selopt = JxSelOpt.createPopupJxSelOpt(p_br.getSessionHelper());

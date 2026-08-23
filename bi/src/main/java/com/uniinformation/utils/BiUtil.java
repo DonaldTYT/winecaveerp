@@ -62,6 +62,85 @@ import com.uniinformation.jx.JxField;
 import com.uniinformation.webcore.SessionHelper;
 
 public class BiUtil {
+	/**
+	 * Copies the rows of one sublink column into a newline-separated master
+	 * memo field. Rows currently marked for deletion are omitted.
+	 */
+	public static ReturnMsg copySublinkColumnToMemoField(BiResult p_masterResult,
+			BiCellCollection p_masterCollection, String p_sublinkView,
+			String p_sublinkColumn, String p_memoField) {
+		if(p_masterResult == null || p_masterCollection == null
+				|| p_masterCollection.testCell(p_memoField) == null) return ReturnMsg.defaultOk;
+
+		BiResult sublink = p_masterResult.getSubLink(p_sublinkView);
+		if(sublink == null) return new ReturnMsg(false, "Sublink not found: " + p_sublinkView, true);
+
+		try {
+			StringBuilder memo = new StringBuilder();
+			boolean firstLine = true;
+			for(int i = 0; i < sublink.getRowCount(); i++) {
+				Object trStat = sublink.getTrStatObj(i);
+				if(sublink.isMarkedDelete(trStat)) continue;
+				if(!firstLine) memo.append('\n');
+				memo.append(sublink.getRowCollectionV(i).getCellString(p_sublinkColumn));
+				firstLine = false;
+			}
+			p_masterCollection.getCell(p_memoField).set(memo.toString());
+			return ReturnMsg.defaultOk;
+		} catch(Exception ex) {
+			UniLog.log(ex);
+			return new ReturnMsg(false, "Unable to copy " + p_sublinkView
+					+ " to " + p_memoField + ": " + ex.getMessage(), true);
+		}
+	}
+
+	/**
+	 * Copies a newline-separated master memo field into ordered sublink rows.
+	 * Existing rows are reused, missing rows are inserted, and surplus rows are
+	 * marked for deletion.
+	 */
+	public static ReturnMsg copyMemoFieldToSublinkColumn(BiResult p_masterResult,
+			BiCellCollection p_masterCollection, String p_memoField,
+			String p_sublinkView, String p_sublinkColumn) {
+		if(p_masterResult == null || p_masterCollection == null
+				|| p_masterCollection.testCell(p_memoField) == null) return ReturnMsg.defaultOk;
+
+		BiResult sublink = p_masterResult.getSubLink(p_sublinkView);
+		if(sublink == null) return new ReturnMsg(false, "Sublink not found: " + p_sublinkView, true);
+
+		String memo = p_masterCollection.getCellString(p_memoField);
+		String[] lines = memo == null || memo.length() == 0
+				? new String[0] : memo.split("\\r\\n|\\r|\\n", -1);
+		int lineCount = lines.length;
+		if(lineCount > 0 && lines[lineCount - 1].length() == 0) lineCount--;
+
+		try {
+			int existingCount = sublink.getRowCount();
+			for(int i = 0; i < lineCount; i++) {
+				if(i < existingCount) {
+					Object trStat = sublink.getTrStatObj(i);
+					if(sublink.isMarkedDelete(trStat)) sublink.markDelete(trStat, false);
+					sublink.getRowCollectionV(i).getCell(p_sublinkColumn).set(lines[i]);
+				} else {
+					BiCellCollection row = sublink.newRowCollection();
+					row.getCell(p_sublinkColumn).set(lines[i]);
+					ReturnMsg result = sublink.addSubRecord(row, sublink.getRowCount(), "");
+					if(result == null) return new ReturnMsg(false,
+							"Unable to add row to " + p_sublinkView, true);
+					if(!result.getStatus()) return result;
+				}
+			}
+			for(int i = lineCount; i < existingCount; i++) {
+				sublink.markDelete(sublink.getTrStatObj(i), true);
+			}
+			return ReturnMsg.defaultOk;
+		} catch(Exception ex) {
+			UniLog.log(ex);
+			return new ReturnMsg(false, "Unable to copy " + p_memoField
+					+ " to " + p_sublinkView + ": " + ex.getMessage(), true);
+		}
+	}
+
 	/*
    	public final static int pxPerChar = 10;
    	public final static int pxForInt  = 140;

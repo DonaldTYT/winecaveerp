@@ -1,6 +1,9 @@
 package com.uniinformation.jx;
 
-public interface JxActionListener
+import com.uniinformation.bicore.BiActionListener;
+
+public interface JxActionListener extends BiActionListener<JxField>
 {
+  @Override
   public void actionPerformed(JxField field);  
 }

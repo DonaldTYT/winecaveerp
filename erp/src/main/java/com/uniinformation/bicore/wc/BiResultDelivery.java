@@ -11,6 +11,7 @@ import com.uniinformation.cell.CellException;
 import com.uniinformation.erpv4.Erpv4Config;
 import com.uniinformation.rpccall.RpcClient;
 import com.uniinformation.rpccall.Value;
+import com.uniinformation.utils.BiUtil;
 import com.uniinformation.utils.SelectUtil;
 import com.uniinformation.utils.UniLog;
 import com.uniinformation.webcore.SessionHelper;
@@ -76,6 +77,10 @@ public class BiResultDelivery extends BiResultStmov {
 
 	@Override
 	protected ReturnMsg biBeforeAddUpdateCurrent(BiCellCollection pcol, boolean isUpdate) {
+		ReturnMsg addressResult = BiUtil.copyMemoFieldToSublinkColumn(this, pcol,
+				"stmov_deliaddr", "wc.MemoStm", "mm_desc");
+		if(addressResult != null && !addressResult.getStatus()) return addressResult;
+
 		RpcClient rpc = getSelectUtil().getRpcClient();
 		Vector<BiCellCollection> deliveryDetails = getSubLink("wc.DeliveryDetail").getRowCollectionList();
 		for (BiCellCollection detail : deliveryDetails) {
@@ -99,6 +104,14 @@ public class BiResultDelivery extends BiResultStmov {
 		}
 
 		return new ReturnMsg(true);
+	}
+
+	@Override
+	protected void afterFetch() {
+		super.afterFetch();
+		ReturnMsg result = BiUtil.copySublinkColumnToMemoField(this, getCurrentCollection(),
+				"wc.MemoStm", "mm_desc", "stmov_deliaddr");
+		if(result != null && !result.getStatus()) UniLog.log(result.getMsg());
 	}
 
 	@Override

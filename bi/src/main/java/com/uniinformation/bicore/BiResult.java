@@ -7081,6 +7081,9 @@ public class BiResult implements GetCellInterface {
 	public String getPickColumnCondition(ColumnCell p_cc) {
 		return(null);
 	}
+	public List<Pair<String,BiActionListener<ColumnCell>>> getPickColumnExtraButton(ColumnCell p_cc) {
+		return(null);
+	}
 	
 	public BiColumn[] getPrimaryColumns() {
 		return(primaryColumns);
