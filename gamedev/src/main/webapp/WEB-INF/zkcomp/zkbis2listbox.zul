@@ -4,7 +4,7 @@
 			<label id="lb" style="float:right;" use="com.uniinformation.zkcomp.ZkBiHeaderLabel"></label>
 		</div>
 		<div id="compDiv" sclass="zkbitextbox-lb-div" width="80%">
-		<listbox id="comp" mold="select"> <custom-attributes select2-enable="Y"></custom-attributes> </listbox>
+		<listbox id="comp" use="com.uniinformation.zkcomp.Select2Listbox"/>
 		</div>
 	</n:div>
 </zk>

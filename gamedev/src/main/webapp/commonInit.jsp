@@ -290,6 +290,7 @@
 %>
 		<link href="<%=jsHome%>/select2/css/select2.css<%=versionTag%>" rel="stylesheet" />
 		<script type="text/javascript" src="<%=jsHome%>/select2/js/select2.js<%=versionTag%>"></script>
+		<script type="text/javascript" src="<%=request.getContextPath()%>/js/zkbi-select2.js<%=versionTag%>"></script>
 <%
 	}
 %>
@@ -2171,132 +2172,7 @@
 	}
 	
 	
-	var zkbis2 = (function() {
-		let setup = function(p_uuid, p_multiple, p_tags, p_placeholder, p_allowClear, p_allowListenResizeEvent) {
-			//console.log('setup:'+ p_uuid +" comp:" + zk.Widget.$('#' + p_uuid) + " id:" + (zk.Widget.$('#' + p_uuid) == null ? "na" : zk.Widget.$('#' + p_uuid).id) );
-   			//const comp = zk.Widget.$('#' + p_uuid);  //210511 pass const comp obj to inner function will trigger Cannot read property 'desktop' of null bug. probably a zk bug
-   			const selectEvent = function(e) {
-				//console.log('selectevent:'+ p_uuid +" comp:" + zk.Widget.$('#' + p_uuid) + " id:" + (zk.Widget.$('#' + p_uuid) == null ? "na" : zk.Widget.$('#' + p_uuid).id) );
-   				const comp = zk.Widget.$('#' + p_uuid);
-				const selectedItemIds = [];
-				const removeItemIds = [];
-				const tagItemValues = [];
-				$(e.target).find('option').each(function(i, opt){
-					if (opt.selected) {
-						if (opt.id)
-							selectedItemIds.push(opt.id);
-						else {
-							tagItemValues.push(opt.value);
-							$(opt).remove();
-						}
-					}
-					else if ($(opt).attr('data-select2-tag') && opt.id)
-						removeItemIds.push(opt.id);
-				});
-				zAu.send(new zk.Event(comp, 'onSelect2Select', {listboxId: comp.id, selectedItemIds: selectedItemIds, removeItemIds: removeItemIds, tagItemValues: tagItemValues}, {toServer:true}));
-   			};
-   			opts = {};
-   			if (typeof p_multiple !== "undefined"){
-   				opts.multiple = p_multiple;
-			}
-   			if (typeof p_tags !== "undefined"){
-   				opts.tags = p_tags;
-			}
-    		if (typeof p_placeholder !== "undefined" && p_placeholder){
-   				opts.placeholder = p_placeholder;
-    		}
-    		if (typeof p_allowClear !== "undefined"){
-    			opts.allowClear = p_allowClear;
-    		}
-    		
-    		//change the matcher
-    		opts.matcher = customMatcher;
-    		
-    		//console.log(opts);
-    		var $uuid = $('#'+p_uuid);
-    		if ($uuid.data('setupSelect2Status') == 'Y') {
-    			if ($uuid.data('resizeObserver') && $uuid.data('observeResizeElement'))
-    				$uuid.data('resizeObserver').unobserve($uuid.data('observeResizeElement'));
-				$uuid.select2('destroy')
-					.off('select2:open')
-					.off('select2:close')
-					.off('select2:select')
-					.off('select2:unselect')
-					.off('select2:clear')
-					.off('change')
-					.data('setupSelect2Status', '');
-    		}
-			$uuid.select2(opts)
-						.on('select2:open', function(e){
-							console.log('open', e);
-						})
-						.on('select2:close', function(e){
-							console.log('close', e);
-						})
-						.on('select2:select', function(e){
-							console.log('select', e);
-							selectEvent(e);
-						})
-						.on('select2:unselect', function(e){
-							console.log('unselect', e);
-							selectEvent(e);
-						})
-						.on('select2:clear', function(e){
-							console.log('clear', e);
-						})
-						.on('change', function(e){
-							console.log('change', e);
-						})
-						.data('setupSelect2Status', 'Y')
-						;
-
-			//handle select2 resize event
-    		if (p_allowListenResizeEvent !== "undefined" && p_allowListenResizeEvent && typeof ResizeObserver === 'function') {
-				const resizeObserver = new ResizeObserver(function(entries) {
-					for (var i in entries) {
-						var entry = entries[i];
-						if ($(entry.target).hasClass('select2')) {
-            				var zkComp = zk.Widget.$('#' + p_uuid);
-							if (zkComp !== null && zAu !== null && zk !== null)
-								zAu.send(new zk.Event(zkComp, "onResize", {width: entry.contentRect.width, height: entry.contentRect.height}, {toServer:true}));
-						}
-					}
-				});
-				const observeEle = $uuid.closest('div').find('.select2')[0];
-				resizeObserver.observe(observeEle);
-				$uuid.data('resizeObserver', resizeObserver);
-				$uuid.data('observeResizeElement', observeEle);
-			}
-		}
-		let destroyAll = function() {
-			$('select').each(function() {
-    			if ($(this).data('select2')) {
-					console.log('destroy', this);
-    				$(this).select2('destroy');
-    			}
-			});
-		};
-		function customMatcher(params, data) {
-		    params.term = params.term || '';
-			//console.log('params.term:' + params.term);
-			//console.log('data.text:' + data.text);
-			
-			//match from beginning
-			if (params.term.startsWith("=")){
-		    	if (data.text.toUpperCase().indexOf(params.term.substring(1).toUpperCase()) == 0) {
-		    	    return data;
-		    	}
-			}
-			else{
-		    	if (data.text.toUpperCase().indexOf(params.term.toUpperCase()) >= 0) {
-		    	    return data;
-		    	}
-			}
-			return false;
-		}	
-		return { setup:setup, destroyAll:destroyAll };
-		
-	})();
+	// Select2 integration is implemented in js/zkbi-select2.js.
 	
 	//change inputmode based on css class 
 	function zkbiInputModeRefresh(p_delay){

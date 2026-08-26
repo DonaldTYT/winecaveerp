@@ -96,6 +96,7 @@ import com.uniinformation.bicore.ColumnCell;
 import com.uniinformation.cell.AbstractGetItemProperty;
 import com.uniinformation.cell.Cell;
 import com.uniinformation.cell.CellCollection;
+import com.uniinformation.zkcomp.Select2Configurable;
 import com.uniinformation.jx.JxActionListener;
 import com.uniinformation.jx.JxChangeListener;
 import com.uniinformation.jx.JxField;
@@ -2364,7 +2365,10 @@ public class ZkUtil extends BiUtil{
 			UniLog.log1("function disabled for mobile");
 			return false;
 		}
-		if (p_comp instanceof Listbox && StringUtils.equals((String)p_comp.getAttribute("select2-enable"), "Y")) {
+		if (p_comp instanceof Select2Configurable && ((Select2Configurable)p_comp).isSelect2Enabled()) {
+			return true;
+		}
+		if (p_comp instanceof Listbox && StringUtils.equals((String)p_comp.getAttribute(Select2Configurable.ATTRIBUTE_ENABLED), Select2Configurable.ENABLED_VALUE)) {
 			return true;
 		}
 		return false;
@@ -2401,10 +2405,20 @@ public class ZkUtil extends BiUtil{
 		if (isSelect2(sh,p_comp,p_allowMobile)) {
 			if (fDebug.get()) UniLog.log1("process %s %s", p_comp, p_comp.getId());
 			final boolean allowClear = p_allowClear != null ? p_allowClear : sh.getS2AllowClearDef(); //andrew230607 allowClear default obtain from ini
-			final String placeholder = (String) (p_comp.getAttribute("placeholder") == null ? "" : p_comp.getAttribute("placeholder"));
 			final Listbox listbox = (Listbox) p_comp;
-			final boolean multiple = StringUtils.equals((String)p_comp.getAttribute("select2-multiple"), "Y"); //for select multiple item
-			final boolean tags = StringUtils.equals((String)p_comp.getAttribute("select2-tags"), "Y");  //for add new item
+			final Select2Configurable select2Config = p_comp instanceof Select2Configurable
+					? (Select2Configurable)p_comp : null;
+			final String placeholder = select2Config == null
+					? (String)(p_comp.getAttribute(Select2Configurable.ATTRIBUTE_PLACEHOLDER) == null ? "" : p_comp.getAttribute(Select2Configurable.ATTRIBUTE_PLACEHOLDER))
+					: select2Config.getSelect2Placeholder();
+			final String select2Multiple = select2Config == null
+					? (String)p_comp.getAttribute(Select2Configurable.ATTRIBUTE_MULTIPLE) : null;
+			final boolean multiple = select2Config == null
+					? (select2Multiple == null ? listbox.isMultiple() : StringUtils.equals(select2Multiple, Select2Configurable.ENABLED_VALUE))
+					: select2Config.isSelect2Multiple(); //for select multiple item
+			final boolean tags = select2Config == null
+					? StringUtils.equals((String)p_comp.getAttribute(Select2Configurable.ATTRIBUTE_TAGS), Select2Configurable.ENABLED_VALUE)
+					: select2Config.isSelect2Tags(); //for add new item
 			if (fDebug.get()) UniLog.log1("call zkbis2.setup('%s',%s,%s)",listbox.getUuid(), multiple, tags);
 			
 			//call js to build select2 

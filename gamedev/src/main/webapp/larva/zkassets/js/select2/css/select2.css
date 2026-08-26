@@ -480,3 +480,7 @@
 
 .select2-container--classic.select2-container--open .select2-dropdown {
   border-color: #5897fb; }
+.select2-selection:focus {
+  outline: 2px solid #189cf8 !important;
+  outline-offset: 1px;
+}
