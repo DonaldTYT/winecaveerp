@@ -1,0 +1,23 @@
+<zk>
+	<window title="G/L Voucher" border="normal" width="420px" closable="true">
+		<vlayout sclass="zkbi-form-content" spacing="14px">
+			<label value="G/L Voucher Output" sclass="zkbi-form-header" />
+
+			<hlayout valign="middle" spacing="12px">
+				<label value="Output" width="110px" />
+				<radiogroup id="documentOutput">
+					<radio label="Download PDF" value="pdf" checked="true" />
+					<radio label="Send by Email" value="email" />
+				</radiogroup>
+			</hlayout>
+
+			<separator />
+			<div align="center" width="100%">
+				<hlayout spacing="10px">
+					<button id="btProceed" label="Proceed" width="100px" />
+					<button id="btCancel" label="Cancel" width="100px" />
+				</hlayout>
+			</div>
+		</vlayout>
+	</window>
+</zk>

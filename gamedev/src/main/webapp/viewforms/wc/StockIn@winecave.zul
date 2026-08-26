@@ -31,6 +31,7 @@ div.z-grid.zkbi-detail-grid {
 	<template name="template_wc_StmdMi_stmd_itemdiv" twidth="hflex=min">
 		 	<vlayout>
 			<zkbidiv jxId="st_icode" labelPosition="invisible"></zkbidiv>
+			<zkbidiv jxId="st_iname" labelPosition="invisible"></zkbidiv>
 		 	</vlayout>
 	</template>
 </zk>

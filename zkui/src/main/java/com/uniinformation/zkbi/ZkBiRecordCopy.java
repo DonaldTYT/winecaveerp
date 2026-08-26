@@ -14,6 +14,7 @@ import org.apache.commons.compress.utils.Sets;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
+import org.json.JSONObject;
 import org.zkoss.zk.ui.Component;
 import org.zkoss.zk.ui.event.CheckEvent;
 import org.zkoss.zk.ui.event.Event;
@@ -45,6 +46,7 @@ import com.google.gson.JsonParser;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.uniinformation.jxapp.JxZkBiBase;
+import com.uniinformation.bicore.BiResult;
 import com.uniinformation.utils.GsonUtil;
 import com.uniinformation.utils.MapUtil;
 import com.kyoko.common.*;
@@ -67,12 +69,17 @@ public class ZkBiRecordCopy {
 	private Component curComponent;
   	private Component parentComponent;
 	private String curViewName;
+	private boolean useBiCopyAndPaste;
 
    	private Button btnPaste = new ZkBiButton();
 	
 	public void setBiBase(JxZkBiBase bibase) {
 		UniLog.log1("setBiBase:%s", bibase);
 		this.bibase = bibase;
+	}
+
+	public void setUseBiCopyAndPaste(boolean useBiCopyAndPaste) {
+		this.useBiCopyAndPaste = useBiCopyAndPaste;
 	}
 
 	public Button buildButtonGroup(final SessionHelper sessionHelper, Component component, String viewName, String buttonGroupId) {
@@ -202,8 +209,9 @@ public class ZkBiRecordCopy {
 	
 	private boolean copy() {
 		try {
-			String json = saveCurrentComponentDatasToJson();
-			UniLog.log1("json:%s", json);
+			String json = useBiCopyAndPaste
+					? saveCurrentBiResultDataToJson()
+					: saveCurrentComponentDatasToJson();
 			sessionHelper.putSessionData("recordcopy.copiedjson", json);
 			ZkUtil.showMsg(sessionHelper.getLabel("Current record copied"));
 		} catch (Exception e) {
@@ -217,8 +225,9 @@ public class ZkBiRecordCopy {
 	
 	private void exportToFile() {
 		try {
-			String json = saveCurrentComponentDatasToJson();
-			UniLog.log1("json:%s", json);
+			String json = useBiCopyAndPaste
+					? saveCurrentBiResultDataToJson()
+					: saveCurrentComponentDatasToJson();
 			Filedownload.save(json, "application/json", String.format("recordcopy_%s_%s.json", curViewName, fsdf.format(DateUtil.now())));
 			ZkUtil.showMsg(sessionHelper.getLabel("Current record exported to file"));
 		} catch (Exception e) {
@@ -234,8 +243,12 @@ public class ZkBiRecordCopy {
 	private void paste() {
 		try {
 			String json = getCopiedJson();
-			fillCurrentComponentDatas(json);
-			if(bibase != null) bibase.afterPaste();
+			if(useBiCopyAndPaste) {
+				pasteCurrentBiResultData(json);
+			} else {
+				fillCurrentComponentDatas(json);
+				if(bibase != null) bibase.afterPaste();
+			}
 		} catch (Exception e) {
 			UniLog.log1("Error:%s", e.getMessage());
 			ZkUtil.showErrMsg(sessionHelper.getLabel("Error") + ": %s", e.getMessage());
@@ -266,6 +279,9 @@ public class ZkBiRecordCopy {
 				new ZkBiAbstractLongOp(event.getTarget(), sessionHelper.getLabel("Copying..."), LONGOP_DEFAULT_DELAY){
 					@Override
 					public ReturnMsg longOp() {
+						if(useBiCopyAndPaste) {
+							return copyAndAddWithBiResult();
+						}
 						Button btClose = (Button) curComponent.getFellowIfAny("btClose", false);
 						if (btClose == null) {
 							ZkUtil.showErrMsg(sessionHelper.getLabel("Close button not found"));
@@ -403,6 +419,64 @@ public class ZkBiRecordCopy {
 		componentDatasToMap(curComponent, jo1, MAX_RECURSIVE_LEVEL);
 		return GsonUtil.objToStr(jo);
 	}
+
+	private String saveCurrentBiResultDataToJson() throws Exception {
+		if(bibase == null || bibase.optBr() == null) {
+			throw new Exception("BiResult not found");
+		}
+		JSONObject root = new JSONObject();
+		JSONObject view = new JSONObject();
+		view.put("viewid", curViewName);
+		view.put("data", new org.json.JSONArray().put(
+				bibase.getBr().copyCurrentCollection()));
+		root.put("viewlist", new org.json.JSONArray().put(view));
+		return root.toString();
+	}
+
+	private JSONObject getCurrentBiResultJsonData(String json) throws Exception {
+		Map<String, Object> values = getCurrentViewJsonData(json);
+		String errMsg = (String) values.get("errMsg");
+		if(errMsg != null) throw new Exception(errMsg);
+		JsonObject data = (JsonObject) values.get("data");
+		if(data == null) throw new Exception("Copied BiResult data is missing");
+		return new JSONObject(data.toString());
+	}
+
+	private void pasteCurrentBiResultData(String json) throws Exception {
+		if(bibase == null || bibase.optBr() == null) {
+			throw new Exception("BiResult not found");
+		}
+		if(bibase.getCurMode() == JxZkBiBase.MODE_DISPLAY) {
+			throw new Exception("Enter add or edit mode before pasting");
+		}
+		ReturnMsg rtn = bibase.getBr().pasteCurrentCollection(
+				getCurrentBiResultJsonData(json));
+		if(rtn != null && !rtn.getStatus()) throw new Exception(rtn.getMsg());
+		bibase.bindCellCollection(bibase.getBr(), bibase.getCurMode());
+		bibase.setDirtyFlag(true);
+		bibase.afterPaste();
+		ZkUtil.showMsg(sessionHelper.getLabel("Paste completed"));
+	}
+
+	private ReturnMsg copyAndAddWithBiResult() {
+		try {
+			if(!copy()) return new ReturnMsg(false, "Invalid copied data");
+			BiResult result = bibase.getBr();
+			ReturnMsg rtn = result.copyAndPasteCurrentCollection();
+			if(rtn != null && !rtn.getStatus()) return rtn;
+			bibase.enterAddModeAfterBiCopyAndPaste();
+			bibase.setDirtyFlag(true);
+			bibase.afterPaste();
+			ZkUtil.showMsg(sessionHelper.getLabel("Paste completed"));
+			return ReturnMsg.defaultOk;
+		} catch(Exception ex) {
+			UniLog.log(ex);
+			String error = StringUtils.defaultIfBlank(ex.getMessage(), ex.getClass().getSimpleName());
+			UniLog.log1("BiResult copy and paste failed: %s", error);
+			ZkUtil.showErrMsg(sessionHelper.getLabel("Paste fail") + ": " + error);
+			return new ReturnMsg(false, error);
+		}
+	}
 	
 	private Map<String, Object> getCurrentViewJsonData(String json) {
 		try {
@@ -412,7 +486,7 @@ public class ZkBiRecordCopy {
 			JsonObject jo1 = jo.getAsJsonArray("viewlist").get(0).getAsJsonObject();
 			String viewId = jo1.get("viewid").getAsString();
 			if (!StringUtils.equals(curViewName, viewId))
-				return MapUtil.of("The json is not same as current view");
+				return MapUtil.of("errMsg", "The json is not same as current view");
 			JsonObject jo2 = jo1.getAsJsonArray("data").get(0).getAsJsonObject();
 			return MapUtil.of("data", jo2);
 		}

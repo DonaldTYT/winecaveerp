@@ -13,7 +13,6 @@ import com.uniinformation.bicore.BiCellCollection;
 import com.uniinformation.bicore.BiResult;
 import com.uniinformation.bicore.BiTable;
 import com.uniinformation.bicore.BiView;
-import com.uniinformation.bicore.ColumnCell;
 import com.uniinformation.cell.CellCollection;
 import com.uniinformation.cell.CellException;
 import com.uniinformation.erpv4.Erpv4Config;
@@ -33,6 +32,7 @@ public class BiResultGlTran extends BiResultErpv4 {
 	public BiResultGlTran(BiResult p_parent, BiView p_view, SelectUtil p_su, Vector p_tabList, String p_whereStr,
 			SessionHelper p_sh) throws CellException {
 		super(p_parent, p_view, p_su, p_tabList, p_whereStr, p_sh);
+		logUserPrefix = "tr";
 		// TODO Auto-generated constructor stub
 	}
 
@@ -62,6 +62,24 @@ public class BiResultGlTran extends BiResultErpv4 {
 		} catch (CellException cex) {
 			UniLog.log(cex);
 		}
+	}
+
+	@Override
+	protected ReturnMsg beforeCopyToNew() throws Exception {
+		if(!"GJ".equals(getCellString("tr_jcode"))) {
+			return new ReturnMsg(false,
+					"Only GJ transactions can be copied to a new transaction");
+		}
+		return ReturnMsg.defaultOk;
+	}
+
+	@Override
+	protected void resetToNew() throws Exception {
+		getCell("tr_srcno").set("");
+		getCell("tr_xno").set(0);
+		getCell("tr_post").set("U");
+		getCell("tr_puser").set("");
+		getCell("tr_pdate").set(DateUtil.zeroDate);
 	}
 	
 	@Override

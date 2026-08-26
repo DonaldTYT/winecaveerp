@@ -76,6 +76,9 @@ body {
 .zkbi-linkcomp-listbox > .z-listbox-body .z-listcell {
     background: #FFF !important;
 }
+.zkbi-linkcomp-listbox .z-listitem > .z-listcell {
+    vertical-align: top !important;
+}
 
 /*240223 formula cell */
 :not(.zkbi-linkcomp-listbox):not(.jxselopt) > .z-listbox-body .z-listbox-odd .z-listcell.zkbi-formula {

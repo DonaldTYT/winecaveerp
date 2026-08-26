@@ -17,17 +17,32 @@ public class BiCellCollectionToJsonInterface extends CellCollectionToJsonInterfa
 	}
 	@Override
 	public void gotCollectionList(String p_collectionName, Vector p_collectionList) throws Exception {
-		// TODO Auto-generated method stub
 		JSONArray ja = new JSONArray();
 		jo.put(p_collectionName, ja);
-		for(int i=0;i<p_collectionList.size();i++) {
-			BiCellCollection col = (BiCellCollection) p_collectionList.get(i);
-			Object o = col.br.getTrStatObj(i);
-			if(!col.br.isMarkedDelete(o)) {
-				JSONObject jo2 = new JSONObject();
-				col.browse(new BiCellCollectionToJsonInterface(jo2),new Hashtable());
-				ja.put(jo2);
+		if(p_collectionList == null || p_collectionList.isEmpty()) {
+			return;
+		}
+
+		/*
+		 * A sublink's collection vector is stored in physical record order, while
+		 * resultStatList contains its current logical order and delete state.  Using
+		 * the vector index as a resultStat index copied the wrong row after a row was
+		 * inserted, deleted or resequenced.  Always walk the owning BiResult instead.
+		 */
+		BiCellCollection first = (BiCellCollection) p_collectionList.get(0);
+		BiResult detailResult = first.br;
+		for(int i=0;i<detailResult.getRowCount();i++) {
+			Object rowState = detailResult.getTrStatObj(i);
+			if(detailResult.isMarkedDelete(rowState)) {
+				continue;
 			}
+			BiCellCollection col = detailResult.getRowCollectionV(i);
+			if(col == null) {
+				continue;
+			}
+			JSONObject jo2 = new JSONObject();
+			col.browse(new BiCellCollectionToJsonInterface(jo2),new Hashtable());
+			ja.put(jo2);
 		}
 	}
 	static public JSONObject BiCellCollectionToJSON(BiCellCollection p_col) throws Exception {

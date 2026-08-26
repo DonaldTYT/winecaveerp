@@ -17,6 +17,7 @@ import org.zkoss.zul.Window;
 import org.zkoss.zul.impl.XulElement;
 
 import com.uniinformation.bicore.BiActionListener;
+import com.uniinformation.cell.CellCollection;
 import com.uniinformation.jx.JxActionListener;
 import com.uniinformation.jx.JxField;
 import com.uniinformation.jx.JxForm;
@@ -35,6 +36,8 @@ public class JxSelOpt extends JxForm {
 //	JxField jxFormArea = null;
 	XulElement filterComp;
 	JxActionListener al;
+	BiActionListener<CellCollection> selectedItemAction;
+	BiActionListener<JxSelOpt> closeAction;
 	
 	public void afterBind() {
 		jxBtSelect = jxAdd("btSelect");
@@ -126,6 +129,7 @@ public class JxSelOpt extends JxForm {
 		selopt.addFormCloseListener(
 				new JxFormCloseListener( ) {
 					public int formClose(JxForm jxf) {
+						if(jxf instanceof JxSelOpt) ((JxSelOpt) jxf).notifyClosing();
 						return(p_freeOnClose ? JxFormCloseListener.caFree : JxFormCloseListener.caHide);
 					}
 				}	
@@ -161,6 +165,24 @@ public class JxSelOpt extends JxForm {
 
 		Component clearButton = (Component) jxAdd("btClear").getNativeObject();
 		clearButton.getParent().insertBefore(customButton, clearButton);
+	}
+	public void setSelectedItemAction(BiActionListener<CellCollection> p_action) {
+		selectedItemAction = p_action;
+	}
+	public void setCloseAction(BiActionListener<JxSelOpt> p_action) {
+		closeAction = p_action;
+	}
+	private void notifyClosing() {
+		if(closeAction != null) closeAction.actionPerformed(this);
+	}
+	/**
+	 * Completes this selector with an item supplied by a custom action. This is
+	 * useful when that action creates a new record which should be selected
+	 * immediately without requiring the user to find it in the pick list.
+	 */
+	public void setSelectedItem(CellCollection p_selectedItem) {
+		closeForm();
+		if(selectedItemAction != null) selectedItemAction.actionPerformed(p_selectedItem);
 	}
 	public void setUserData(Object p_userdata) {
 		userdata = p_userdata;

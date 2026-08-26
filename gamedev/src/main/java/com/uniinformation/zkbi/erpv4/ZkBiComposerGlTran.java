@@ -21,6 +21,11 @@ import com.uniinformation.zkcomp.ZkBiButton;
 
 public class ZkBiComposerGlTran extends ZkBiComposerBase {
 	@Override
+	public boolean useBiCopyAndPaste() {
+		return true;
+	}
+
+	@Override
     protected void setupExtraButton(final BiResult result)
 	{
 		Button btnGlPost,btnGlUnPost;

@@ -132,10 +132,18 @@ public class ZkBiComposerAIHelperContext implements ZkBiAiAgentContext {
             operations.put(operation("export_list_to_excel", "Download the current list view as an Excel workbook"));
         if (state.canOpenDetail)
             operations.put(operation("open_record_detail", "Open one listed record's detail form"));
+        if (state.canAdd)
+            operations.put(operation("add_record", "Open a blank detail form and add a new record"));
+        if (state.canSaveNew)
+            operations.put(operation("save_new_record", "Validate and save the new record in the open add form"));
         if (state.canUpdate) {
             operations.put(operation("update_record", "Open, modify and save an existing record"));
             operations.put(operation("save_record", "Save changes in an open record detail form"));
         }
+        if (state.canDeleteRecords)
+            operations.put(operation("delete_records", "Select and permanently delete one or more list records after confirmation"));
+        if (state.canDeleteCurrent)
+            operations.put(operation("delete_current_record", "Permanently delete the record open in the detail form after confirmation"));
         if (state.detailOpen || (state.detailForm != null && state.detailForm.isFormVisible()))
             operations.put(operation("return_to_list", "Close the detail form and return to the list"));
 
@@ -180,10 +188,18 @@ public class ZkBiComposerAIHelperContext implements ZkBiAiAgentContext {
             buildExportListToExcel(state, help);
         else if ("open_record_detail".equals(id))
             buildOpenDetail(state, help);
+        else if ("add_record".equals(id))
+            buildAddRecord(state, help);
+        else if ("save_new_record".equals(id))
+            buildSaveNewRecord(state, help);
         else if ("update_record".equals(id))
             buildUpdateRecord(state, help);
         else if ("save_record".equals(id))
             buildSaveRecord(state, help);
+        else if ("delete_records".equals(id))
+            buildDeleteRecords(state, help);
+        else if ("delete_current_record".equals(id))
+            buildDeleteCurrentRecord(state, help);
         else if ("return_to_list".equals(id))
             buildReturnToList(state, help);
         else if (composer.buildAiActionOperationHelp(id, help)) {
@@ -717,6 +733,109 @@ public class ZkBiComposerAIHelperContext implements ZkBiAiAgentContext {
                 .put("Save can remain disabled until a field has actually changed."));
     }
 
+    private void buildAddRecord(PageState state, JSONObject help) throws JSONException {
+        boolean addFormOpen = state.detailForm != null && state.detailForm.isFormVisible()
+                && state.detailForm.getCurMode() == JxZkBiBase.MODE_ADD;
+        availability(help, state.canAdd || addFormOpen,
+                "Adding records is unavailable for this view, page state or logged-in user.");
+        if (!state.canAdd && !addFormOpen)
+            return;
+
+        SessionHelper sessionHelper = getAiHelpSessionHelper();
+        help.put("controls", new JSONObject()
+                .put("startAdd", sessionHelper.getBtLabel("Add"))
+                .put("startAddComponentId", "btAdd")
+                .put("saveNew", sessionHelper.getTtLabel("Save New Record"))
+                .put("saveNewComponentId", "btAdd"));
+        JSONArray steps = new JSONArray();
+		if (!addFormOpen && state.detailForm != null && state.detailForm.isFormVisible())
+			steps.put("Close the current detail form and return to the record list. Resolve any unsaved-change warning before continuing.");
+        if (!addFormOpen)
+            steps.put("Click Add in the list page action bar to open a blank record detail form in add mode.");
+        steps.put("Enter the required values and any permitted optional values in the new-record form.");
+        steps.put("Click Save New Record in the detail form.");
+        steps.put("If validation reports an error, correct the indicated field and click Save New Record again.");
+        steps.put("After a successful save, choose one of the follow-up choices offered by the form, such as adding another record, updating the new record, or closing, when those choices are available.");
+        help.put("steps", steps);
+        help.put("fieldGuidance", new JSONObject()
+                .put("editableFieldsSource", "get_page_context fields[].editableWhenAdding")
+                .put("note", "Required values and validation rules are view-specific. Do not guess them when they are not supplied by the page."));
+        help.put("commitPoint", "Clicking Save New Record starts validation and, when validation succeeds, permanently adds the record.");
+        help.put("notes", new JSONArray()
+                .put("The Add button on the list starts a new record; the Save New Record button inside the add form commits it. Both controls use component id btAdd in their respective ZK id spaces.")
+                .put("Closing the add form before a successful save does not add the new record."));
+    }
+
+    private void buildSaveNewRecord(PageState state, JSONObject help) throws JSONException {
+        availability(help, state.canSaveNew,
+                "No enabled new-record form is currently open.");
+        if (!state.canSaveNew)
+            return;
+
+        help.put("control", new JSONObject()
+                .put("label", getAiHelpSessionHelper().getTtLabel("Save New Record"))
+                .put("componentId", "btAdd")
+                .put("location", "open record detail form")
+                .put("trigger", "single_click"));
+        help.put("steps", new JSONArray()
+                .put("Complete the required fields and review the permitted optional fields in the open add form.")
+                .put("Click Save New Record.")
+                .put("If validation reports an error, correct the indicated value and click Save New Record again.")
+                .put("After a successful save, choose the desired follow-up option offered by the form."));
+        help.put("commitPoint", "A successful Save New Record permanently creates the record.");
+    }
+
+    private void buildDeleteRecords(PageState state, JSONObject help) throws JSONException {
+        availability(help, state.canDeleteRecords,
+                "Deleting records from the list is unavailable for this view, device or logged-in user.");
+        if (!state.canDeleteRecords)
+            return;
+
+        SessionHelper sessionHelper = getAiHelpSessionHelper();
+        help.put("controls", new JSONObject()
+                .put("delete", sessionHelper.getBtLabel("Delete"))
+                .put("deleteComponentId", "btDelete")
+                .put("proceed", sessionHelper.getBtLabel("Proceed"))
+                .put("back", sessionHelper.getBtLabel("Back"))
+                .put("finalConfirmation", sessionHelper.getLabel("Confirm Save Changes?")));
+        JSONArray steps = new JSONArray();
+		if (state.detailForm != null && state.detailForm.isFormVisible())
+			steps.put("Close the current detail form and return to the record list. Resolve any unsaved-change warning before continuing.");
+        if (!state.deleteSelectionActive)
+            steps.put("Click Delete in the list page action bar. This enters the Delete batch-selection workflow; it does not immediately delete a record.");
+        steps.put("Select every record that should be deleted. Review the selection carefully.");
+        steps.put("Click Proceed to mark the selected records for deletion, or Back to leave the Delete workflow without proceeding.");
+        steps.put("Review the added/updated/deleted count in the Confirm Save Changes dialog.");
+        steps.put("Click OK to commit the deletion, or Cancel to cancel and refresh instead of committing it.");
+        help.put("steps", steps);
+        help.put("selection", new JSONObject()
+                .put("currentSelectedRowCount", state.selectedRowCount)
+                .put("multipleRecordsSupported", true)
+                .put("desktopOnly", true));
+        help.put("commitPoint", "The selected records are permanently deleted only after OK is chosen in Confirm Save Changes.");
+        help.put("warning", "Deletion is destructive. Confirm the selected rows and the deleted count before clicking OK.");
+    }
+
+    private void buildDeleteCurrentRecord(PageState state, JSONObject help) throws JSONException {
+        availability(help, state.canDeleteCurrent,
+                "The current record cannot be deleted in the present detail mode or by this logged-in user.");
+        if (!state.canDeleteCurrent)
+            return;
+
+        help.put("control", new JSONObject()
+                .put("label", getAiHelpSessionHelper().getBtLabel("Delete"))
+                .put("componentId", "btDelCurrent")
+                .put("location", "open record detail form")
+                .put("trigger", "single_click"));
+        help.put("steps", new JSONArray()
+                .put("Verify that the open detail form is the record that should be deleted.")
+                .put("Click Delete in the detail form.")
+                .put("At Confirm Delete ?, click Yes to permanently delete the current record, or No to keep it.")
+                .put("After a successful deletion, the detail form closes and the list is marked for refresh."));
+        help.put("commitPoint", "Clicking Yes in Confirm Delete ? permanently deletes the current record.");
+        help.put("warning", "This operation is destructive and acts on the single record currently open in the detail form.");
+    }
+
     private void buildSaveRecord(PageState state, JSONObject help) throws JSONException {
         JxZkBiBase form = state.detailForm;
         boolean visible = form != null && form.isFormVisible();
@@ -811,7 +930,12 @@ public class ZkBiComposerAIHelperContext implements ZkBiAiAgentContext {
         boolean canExportList;
         int exportRowCount;
         boolean canOpenDetail;
+        boolean canAdd;
+        boolean canSaveNew;
         boolean canUpdate;
+        boolean canDeleteRecords;
+        boolean deleteSelectionActive;
+        boolean canDeleteCurrent;
         boolean mobileRecordCards;
         boolean adminUser;
         int batchUpdateMaxRows;

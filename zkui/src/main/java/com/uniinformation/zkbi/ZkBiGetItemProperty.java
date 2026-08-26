@@ -11,6 +11,7 @@ import org.zkoss.zk.ui.event.EventListener;
 import org.zkoss.zk.ui.util.Template;
 import org.zkoss.zul.Idspace;
 
+import com.kyoko.common.ReturnMsg;
 import com.uniinformation.bicore.BiCellCollection;
 
 import com.uniinformation.bicore.BiColumn;
@@ -18,7 +19,6 @@ import com.uniinformation.bicore.BiGetItemProperty;
 import com.uniinformation.bicore.BiGipiPickViewInterface;
 import com.uniinformation.bicore.BiResult;
 import com.uniinformation.bicore.ColumnCell;
-import com.uniinformation.cell.Cell;
 import com.uniinformation.cell.CellCollection;
 import com.uniinformation.jx.zk.JxZkGadgetProvider;
 import com.uniinformation.jx.zk.ZkJxPickInput;
@@ -26,6 +26,7 @@ import com.uniinformation.jxapp.JxZkBiBase;
 import com.uniinformation.utils.MapUtil;
 import com.uniinformation.utils.UniLog;
 import com.uniinformation.utils.Wherecl;
+import com.uniinformation.utils.ZkUtil;
 import com.uniinformation.webcore.SessionHelper;
 
 public class ZkBiGetItemProperty extends BiGetItemProperty {
@@ -137,6 +138,11 @@ public class ZkBiGetItemProperty extends BiGetItemProperty {
 			if(useDefaultPickup) {
 				switch(p_ctype) {
 				case GIPI_PULLDOWN_OPENED:
+					ReturnMsg validation = bigibr.validatePickColumn(bcc);
+					if(validation != null && !validation.getStatus()) {
+						ZkUtil.showErrMsg(validation.getMsg());
+						break;
+					}
 					ZkBiCellValueMapper zcvm = (ZkBiCellValueMapper) bcc.getMapper();
 					if(zcvm.getComponent() instanceof ZkJxPickInput) {
 						try {
@@ -149,14 +155,11 @@ public class ZkBiGetItemProperty extends BiGetItemProperty {
 									@Override
 									public void onEvent(Event arg0) throws Exception {
 										// TODO Auto-generated method stub
-										CellCollection col = (CellCollection) arg0.getData();
+										BiCellCollection col = (BiCellCollection) arg0.getData();
 										
 										String pcl = pvi.getPickColName();
 										if(pcl == null) pcl = bcc.getCellLabel();
-										Cell cc = col.getCell(pcl);
-										if(cc != null) {
-											bcc.update(cc.getObject());
-										}
+										bigibr.afterPickColumn(bcc, col, pcl, true);
 									}
 								}
 							);

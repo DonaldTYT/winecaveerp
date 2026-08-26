@@ -128,6 +128,8 @@ import com.uniinformation.jx.zk.ZkJxQueryInput.EventListenerCallback;
 import com.uniinformation.jxapp.JxZkBiBase;
  
 public class ZkBiComposerBase extends ZkBiComposerView implements Composer<Component>, ZkBiSearchInterface, ZkBiHotkeyInterface, JxZkBiBaseCallback, ZkBiAiAgentContext {
+	/** Feature flag for the BiResult-based record copy/paste implementation. */
+	public static boolean USE_BI_COPYANDPASTE = false;
 	public static final String AI_HELP_ENABLED_CONFIG = "AI_HELP_ENABLED";
 	private static final String AI_ACTION_BATCH_MODE_ATTRIBUTE = "zkBiAiActionBatchMode";
 	private static final String AI_ACTION_SCOPE_ATTRIBUTE = "zkBiAiActionScope";
@@ -6963,7 +6965,31 @@ public class ZkBiComposerBase extends ZkBiComposerView implements Composer<Compo
 				&& aiHelpResult.getView().newBatchUpdate();
 		state.canOpenDetail = aiHelpResult != null && aiHelpResult.allowDetail()
 				&& !multiSelect && (state.mobileRecordCards || hasDetailButton);
+		state.canAdd = aiHelpResult != null && aiHelpResult.allowAdd()
+				&& Boolean.TRUE.equals(hasAUDColumn);
 		state.canUpdate = state.canOpenDetail && aiHelpResult.allowUpdate();
+		Component deleteProceed = masterWin == null ? null
+				: masterWin.query("#btDeleteBatchOk");
+		state.deleteSelectionActive = deleteProceed instanceof Button
+				&& deleteProceed.isVisible();
+		state.canDeleteRecords = aiHelpResult != null && aiHelpResult.allowDelete()
+				&& Boolean.TRUE.equals(hasAUDColumn) && !isMobile();
+		if (state.detailForm != null && state.detailForm.isFormVisible()) {
+			JxField saveNewField = state.detailForm.jxAdd("btAdd");
+			Object saveNewObject = saveNewField == null ? null : saveNewField.getNativeObject();
+			state.canSaveNew = aiHelpResult != null && aiHelpResult.allowAdd()
+					&& state.detailForm.getCurMode() == JxZkBiBase.MODE_ADD
+					&& saveNewObject instanceof Button && ((Button)saveNewObject).isVisible()
+					&& !((Button)saveNewObject).isDisabled();
+			JxField deleteCurrentField = state.detailForm.jxAdd("btDelCurrent");
+			Object deleteCurrentObject = deleteCurrentField == null ? null
+					: deleteCurrentField.getNativeObject();
+			state.canDeleteCurrent = aiHelpResult != null && aiHelpResult.allowDelete()
+					&& state.detailForm.getCurMode() == JxZkBiBase.MODE_UPDATE
+					&& deleteCurrentObject instanceof Button
+					&& ((Button)deleteCurrentObject).isVisible()
+					&& !((Button)deleteCurrentObject).isDisabled();
+		}
 		return state;
 	}
 
@@ -8473,6 +8499,17 @@ public class ZkBiComposerBase extends ZkBiComposerView implements Composer<Compo
 		//detailForm.changeMode(p_result, JxZkBiBase.MODE_ADD, JxZkBiBase.getDetailWindow(masterWin, p_result)); //moved to bindCellCollection
 		return(true);
     } 
+
+	@Override
+	public boolean useBiCopyAndPaste() {
+		return USE_BI_COPYANDPASTE;
+	}
+
+	@Override
+	public boolean biCopyAndPasteEnterAddMode(BiResult p_result) {
+		return doAddOneRow(masterWin, p_result);
+	}
+
     protected boolean isMobile() {
     	if (sessionHelper == null) {
     		return false;

@@ -43,7 +43,7 @@
     	</auxhead>
     	-->
 	   <listfoot >
-        <listfooter span="9"></listfooter>
+        <listfooter span="8"></listfooter>
         <listfooter><div style="text-align:right;"><label id="tr_plamount"/></div></listfooter>
         <listfooter><div style="text-align:right;"><label id="tr_nlamount"/></div></listfooter>
        </listfoot>

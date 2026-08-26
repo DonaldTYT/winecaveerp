@@ -126,7 +126,7 @@ div.z-grid.zkbi-detail-grid {
 							</row>
 							<row>
 								<label value="Customer:" sclass="field-caption" />
-								<zkbidiv jxId="stm_ref2" labelPosition="invisible" />
+								<zkbidiv jxId="vd_vcode" labelPosition="invisible" />
 								<label value="Name:" sclass="field-caption" />
 								<cell colspan="3">
 									<zkbidiv jxId="vd_vname" labelPosition="invisible" />
@@ -148,9 +148,16 @@ div.z-grid.zkbi-detail-grid {
 								<label value="Currency:" sclass="field-caption" />
 								<zkbidiv jxId="stm_cur" labelPosition="invisible" />
 								<label value="Customer Code:" sclass="field-caption" />
-								<zkbidiv jxId="vd_vcode" labelPosition="invisible" />
 								<label value="" />
 								<label value="" />
+							</row>
+							<row>
+								<label value="TolQty:" sclass="field-caption" />
+								<zkbidiv jxId="stm_tolqty"/>
+								<label value="Packed:" sclass="field-caption" />
+								<zkbidiv jxId="stm_packed" labelPosition="invisible" />
+								<label value="Complete:" sclass="field-caption" />
+								<zkbidiv jxId="stm_complete" labelPosition="invisible" />
 							</row>
 						</rows>
 					</grid>
@@ -328,4 +335,12 @@ div.z-grid.zkbi-detail-grid {
 	<template name="template_wc_MemoStm_mm_desc" twidth="700px">
 		<zkbidiv jxId="mm_desc" labelPosition="invisible" compWidth="100%" />
 	</template>
+		<template name="template_wc_DeliveryDetail_stmd_itemdiv" twidth="hflex=min">
+		 	<vlayout>
+			<zkbidiv jxId="st_icode" labelPosition="invisible"></zkbidiv>
+			<zkbidiv jxId="st_iname" labelPosition="invisible"></zkbidiv>
+		 	</vlayout>
+	</template>
+	
+	
 </zk>

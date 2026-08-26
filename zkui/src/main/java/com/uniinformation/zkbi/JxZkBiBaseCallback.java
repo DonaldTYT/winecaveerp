@@ -9,6 +9,16 @@ import com.kyoko.common.*;
 
 //TODO make method more generic!
 public interface JxZkBiBaseCallback {
+	/** Use BiResult collection copy/paste instead of replaying ZK component events. */
+	default boolean useBiCopyAndPaste() {
+		return false;
+	}
+
+	/** Switch the existing detail form to add mode after a BiResult paste. */
+	default boolean biCopyAndPasteEnterAddMode(BiResult p_result) {
+		return false;
+	}
+
 	/***
 	 * fresh one row
 	 * @param p_dataObj

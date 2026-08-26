@@ -6,6 +6,7 @@ import com.kyoko.common.ReturnMsg;
 import com.uniinformation.bicore.BiCellCollection;
 import com.uniinformation.bicore.BiResult;
 import com.uniinformation.bicore.BiView;
+import com.uniinformation.bicore.ColumnCell;
 import com.uniinformation.cell.Cell;
 import com.uniinformation.cell.CellException;
 import com.uniinformation.erpv4.Erpv4Config;
@@ -59,6 +60,45 @@ public class BiResultDelivery extends BiResultStmov {
 	public BiResultDelivery(BiResult p_parent, BiView p_view, SelectUtil p_su, Vector p_tabList, String p_whereStr,
 			SessionHelper p_sh) throws CellException {
 		super(p_parent, p_view, p_su, p_tabList, p_whereStr, p_sh);
+	}
+
+	@Override
+	public void afterPickColumn(ColumnCell p_pickColumn,
+			BiCellCollection p_pickedCollection, String p_pickedColumnName,
+			boolean p_update) throws CellException {
+		if(!"vd_vcode".equals(p_pickColumn.getCellLabel())) {
+			super.afterPickColumn(p_pickColumn, p_pickedCollection,
+					p_pickedColumnName, p_update);
+			return;
+		}
+
+		String[] addressColumnNames = {
+				"vd_addr0", "vd_addr1", "vd_addr2", "vd_addr3"
+		};
+		StringBuilder address = new StringBuilder();
+		for(String addressColumnName : addressColumnNames) {
+			Cell addressCell = p_pickedCollection.testCell(addressColumnName);
+			if(addressCell == null) {
+				throw new CellException(addressColumnName
+						+ " is missing from the selected delivery-address row");
+			}
+			String addressLine = addressCell.getString().trim();
+			if(addressLine.length() > 0) {
+				if(address.length() > 0) address.append('\n');
+				address.append(addressLine);
+			}
+		}
+
+		Cell deliveryAddress = p_pickColumn.getCollection()
+				.testCell("stmov_deliaddr");
+		if(deliveryAddress == null) {
+			throw new CellException(
+					"stmov_deliaddr is missing from the Delivery row");
+		}
+
+		super.afterPickColumn(p_pickColumn, p_pickedCollection,
+				p_pickedColumnName, p_update);
+		deliveryAddress.set(address.toString());
 	}
 
 	/**
@@ -145,4 +185,6 @@ public class BiResultDelivery extends BiResultStmov {
 		Cell cell = pcol.testCell(cellName);
 		return cell != null && cell.isDirty();
 	}
+
+
 }

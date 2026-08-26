@@ -23,11 +23,12 @@ public class CreateProduct extends JxZkBiBase {
 							JxZkBiFastCreate.open(
 									getSessionHelper(),
 									sr.getSelectUtil(),
-									"wc.StBrand",
+									"wc.CreateBrand",
 									new BiActionListener<BiResult>() {
 										@Override
 										public void actionPerformed(BiResult p_createdResult) {
 											removePickBySelectCache(pickView);
+											setPickBySelectSelectedItem(p_createdResult.getCurrentCollection());
 										}
 									});
 						}

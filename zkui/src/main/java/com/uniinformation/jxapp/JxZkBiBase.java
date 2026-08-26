@@ -169,6 +169,7 @@ public class JxZkBiBase extends JxZkBase
 	
 	private BiResult br = null;  //andrew200717: br change to private to avoid br null exception, please use getBr() to obtain biresult object
 	private final Map<String, PickBySelectCacheEntry> pickBySelectCache = new HashMap<String, PickBySelectCacheEntry>();
+	private ActivePickBySelect activePickBySelect;
 	protected JxZkBiBaseCallback zkcb = null;
 	public boolean isMobile = false;
 	boolean hasAUDColumn = true;
@@ -213,6 +214,22 @@ public class JxZkBiBase extends JxZkBase
 
 		private PickBySelectCacheEntry(BiResult p_biResult, String p_condition) {
 			biResult = p_biResult;
+			condition = p_condition;
+		}
+	}
+	private static class ActivePickBySelect {
+		private final JxSelOpt selopt;
+		private final BiResult pickResult;
+		private final ColumnCell sourceCell;
+		private final String view;
+		private final String condition;
+
+		private ActivePickBySelect(JxSelOpt p_selopt, BiResult p_pickResult,
+				ColumnCell p_sourceCell, String p_view, String p_condition) {
+			selopt = p_selopt;
+			pickResult = p_pickResult;
+			sourceCell = p_sourceCell;
+			view = p_view;
 			condition = p_condition;
 		}
 	}
@@ -670,13 +687,14 @@ public class JxZkBiBase extends JxZkBase
 							}
 
 							if(getGipi(sl.getView().getName()) != null) {
-								if((mode != MODE_DISPLAY) && c.getView().linkAllowAdd(sl.getView(),c.getSessionHelper())) {
+								boolean canInsert = (mode != MODE_DISPLAY)
+										&& c.getView().linkAllowAdd(sl.getView(),c.getSessionHelper());
+								if(canInsert) {
 									sv.setAttribute("mode", "canInsert");
-									jxSetVisible("btadd_list_"+replaceViewName(sl.getView().getName()),true);
 								} else {
 									sv.setAttribute("mode", "noInsert");
-									jxSetVisible("btadd_list_"+replaceViewName(sl.getView().getName()),false);
 								}
+								setSubLinkAddButtonVisible(sv, sl.getView().getName(), canInsert);
 							}
 							if(getGipi(sl.getView().getName()) != null) {
 //								int n = getGipi(sl.getView().getName()).getColumnCount(null);
@@ -1923,6 +1941,11 @@ public class JxZkBiBase extends JxZkBase
 	protected void doPickInputByJxField(JxField p_field) throws Exception {
 		final ColumnCell ccell = getBr().getCell(p_field.getName());
 		if(ccell != null) {
+			ReturnMsg validation = getBr().validatePickColumn(ccell);
+			if(validation != null && !validation.getStatus()) {
+				ZkUtil.showErrMsg(validation.getMsg());
+				return;
+			}
 			BiColumn bc = ccell.getBiColumn();
 			String pv = bc.getPickViewName();
 			if(pv != null) {
@@ -1931,11 +1954,10 @@ public class JxZkBiBase extends JxZkBase
 
 					@Override
 					public void onZkBiEvent(Event arg0) throws Exception {
-						CellCollection col = (CellCollection) arg0.getData();
+						BiCellCollection col = (BiCellCollection) arg0.getData();
 						String pcl = ccell.getBiColumn().getPickColName();
 						if(pcl == null) pcl = ccell.getCellLabel();
-						Object o = col.getCell(pcl).getObject();
-						ccell.set(o);
+						getBr().afterPickColumn(ccell, col, pcl, false);
 						afterPickField(pcl);
 					}
 				};
@@ -3118,6 +3140,7 @@ public class JxZkBiBase extends JxZkBase
 					Button bgRecordCopy = (Button) dWin.getFellowIfAny(bgRecordCopyId, true);
 					if (bgRecordCopy == null) {
 						recordCopy = new ZkBiRecordCopy();
+						recordCopy.setUseBiCopyAndPaste(zkcb != null && zkcb.useBiCopyAndPaste());
 						bgRecordCopy = recordCopy.buildButtonGroup(sessionHelper, dWin, result.getView().getName(), bgRecordCopyId);
 					}
 					if (bgRecordCopy != null) {
@@ -3460,9 +3483,12 @@ public class JxZkBiBase extends JxZkBase
 		jxSetVisible("btReloadDetail", allowReloadDetail && p_mode == MODE_UPDATE);
 
 		if (sessionHelper.getAllowRecordCopy()) {
-			jxSetEnable("btRecordCopyWithCopy", p_mode == MODE_UPDATE);
-			jxSetEnable("btRecordCopyWithCopyAndAdd", p_mode == MODE_UPDATE);
-			jxSetEnable("btRecordCopyWithExportToFile", p_mode == MODE_UPDATE);
+			boolean useBiCopy = zkcb != null && zkcb.useBiCopyAndPaste();
+			boolean copyEnabled = p_mode == MODE_UPDATE
+					|| (useBiCopy && p_mode == MODE_DISPLAY);
+			jxSetEnable("btRecordCopyWithCopy", copyEnabled);
+			jxSetEnable("btRecordCopyWithCopyAndAdd", copyEnabled);
+			jxSetEnable("btRecordCopyWithExportToFile", copyEnabled);
 		}
 		
 		//abHelper.attachButtonsToContainer();
@@ -3738,9 +3764,9 @@ public class JxZkBiBase extends JxZkBase
 						}
 					});
 	   			}
-	   			*/
-	   		}
-		}
+								*/
+							}
+						}
 		private void setFocusNextComp(HtmlBasedComponent curComp, HtmlBasedComponent nextComp) {
 			if (nextComp != null && !checkTabComp(nextComp, false))
 				nextComp = findNextTabComp(nextComp);
@@ -4215,6 +4241,46 @@ public class JxZkBiBase extends JxZkBase
 	public void removePickBySelectCache(String p_view) {
 		if(p_view != null) pickBySelectCache.remove(p_view);
 	}
+	/**
+	 * Reloads the active pick view after a custom action, finds the corresponding
+	 * newly-created row, and immediately returns that pick row to the field which
+	 * opened the JxSelOpt. If it cannot find the row, the refreshed selector is
+	 * left open for manual selection.
+	 */
+	public boolean setPickBySelectSelectedItem(CellCollection p_selectedItem) {
+		ActivePickBySelect active = activePickBySelect;
+		if(active == null || p_selectedItem == null || active.sourceCell == null) return false;
+		try {
+			queryPickResult(active.pickResult, active.condition);
+			setupPickList(active.selopt, active.pickResult);
+			pickBySelectCache.put(active.view,
+					new PickBySelectCacheEntry(active.pickResult, active.condition));
+
+			String pickColumn = active.sourceCell.getBiColumn().getPickColName();
+			if(StringUtils.isBlank(pickColumn)) pickColumn = active.sourceCell.getCellLabel();
+			Cell selectedCell = p_selectedItem.testCell(pickColumn);
+			Object selectedValue = selectedCell == null ? null : selectedCell.getObject();
+			if(selectedCell != null) {
+				for(int i = 0; i < active.pickResult.getRowCount(); i++) {
+					CellCollection pickRow = active.pickResult.getRowCollectionV(i);
+					Cell pickCell = pickRow.testCell(pickColumn);
+					Object pickValue = pickCell == null ? null : pickCell.getObject();
+					boolean sameValue = selectedValue == null ? pickValue == null
+							: selectedValue.equals(pickValue)
+								|| (pickValue != null && selectedValue.toString().equals(pickValue.toString()));
+					if(sameValue) {
+						active.selopt.setSelectedItem(pickRow);
+						return true;
+					}
+				}
+			}
+			active.selopt.beginPick(false);
+		} catch(Exception ex) {
+			UniLog.log(ex);
+			ZkUtil.showErrMsg(ex.getMessage() == null ? ex.toString() : ex.getMessage());
+		}
+		return false;
+	}
 	public void pickBySelectCached(BiResult p_sourceResult,ColumnCell p_sourceCell,String p_view,String p_condition,final EventListener p_listener) throws Exception {
 		PickBySelectCacheEntry cacheEntry = pickBySelectCache.get(p_view);
 		boolean queryRequired = cacheEntry == null || !StringUtils.equals(cacheEntry.condition, p_condition);
@@ -4228,8 +4294,19 @@ public class JxZkBiBase extends JxZkBase
 			cacheEntry = new PickBySelectCacheEntry(pickResult, p_condition);
 		}
 
-		JxSelOpt selopt = JxSelOpt.createPopupJxSelOpt(sessionHelper, true,
+		final JxSelOpt selopt = JxSelOpt.createPopupJxSelOpt(sessionHelper, true,
 				curComp == null ? ZkUtil.getMainComp() : curComp);
+		activePickBySelect = new ActivePickBySelect(
+				selopt, cacheEntry.biResult, p_sourceCell, p_view, p_condition);
+		selopt.setCloseAction(
+			new BiActionListener<JxSelOpt>() {
+				@Override
+				public void actionPerformed(JxSelOpt p_closedSelOpt) {
+					if(activePickBySelect != null
+							&& activePickBySelect.selopt == p_closedSelOpt) activePickBySelect = null;
+				}
+			}
+		);
 		if(p_sourceResult != null && p_sourceCell != null) {
 			List<Pair<String,BiActionListener<ColumnCell>>> extraButtons = p_sourceResult.getPickColumnExtraButton(p_sourceCell);
 			if(extraButtons != null) {
@@ -4251,26 +4328,25 @@ public class JxZkBiBase extends JxZkBase
 		pickBySelect(selopt,p_br,p_condition,p_listener);
 	}
 	public static void pickBySelect(final JxSelOpt p_selopt,BiResult p_br,String p_condition,final EventListener p_listener) throws Exception {
-		BiResult pbr = p_br;
-		pbr.clear();
-		pbr.clearCondition();
-		pbr.clearOrderBy();
-		if(p_condition != null) pbr.addCustomCondition(p_condition);
-		pbr.query();
+		queryPickResult(p_br, p_condition);
 		pickBySelect(p_selopt,p_br,p_listener);
+	}
+	private static void queryPickResult(BiResult p_br, String p_condition) throws Exception {
+		p_br.clear();
+		p_br.clearCondition();
+		p_br.clearOrderBy();
+		if(p_condition != null) p_br.addCustomCondition(p_condition);
+		p_br.query();
 	}
 	public static void pickBySelect(final JxSelOpt p_selopt,BiResult p_br,final EventListener p_listener) throws Exception {
 		BiResult pbr = p_br;
-		p_selopt.setOnSelectAction (
-			new JxActionListener() {
-				public void actionPerformed(JxField fd) {
-					Object o  = fd.getValue();
-					BiGetItemProperty gipi = (BiGetItemProperty) p_selopt.getUserData();
-					CellCollection col = gipi.getCellCollectionByValue(o);
-					p_selopt.closeForm();
+		p_selopt.setSelectedItemAction(
+			new BiActionListener<CellCollection>() {
+				@Override
+				public void actionPerformed(CellCollection p_selectedItem) {
 					if(p_listener != null) {
 						try {
-							p_listener.onEvent(new Event(EV_ON_SELOPT_OK,null,col));
+							p_listener.onEvent(new Event(EV_ON_SELOPT_OK,null,p_selectedItem));
 						} catch (Exception ex) {
 							UniLog.log(ex);
 						}
@@ -4278,18 +4354,31 @@ public class JxZkBiBase extends JxZkBase
 				}
 			}
 		);
+		p_selopt.setOnSelectAction (
+			new JxActionListener() {
+				public void actionPerformed(JxField fd) {
+					Object o  = fd.getValue();
+					BiGetItemProperty gipi = (BiGetItemProperty) p_selopt.getUserData();
+					CellCollection col = gipi.getCellCollectionByValue(o);
+					p_selopt.setSelectedItem(col);
+				}
+			}
+		);
+		setupPickList(p_selopt, pbr);
+		p_selopt.modalForm();
+	}
+	private static void setupPickList(JxSelOpt p_selopt, BiResult pbr) {
 		BiGetItemProperty gipi = new BiGetItemProperty(pbr);
 		gipi.setItemMode(BiGetItemProperty.GETITEM_MODE_PICK);
 		JxField pickListBox = p_selopt.jxAdd("pickListBox");
 		pickListBox.setAttribute("onDemand", "100");
 		pickListBox.setItemListInterface(gipi);
 		p_selopt.setUserData(gipi);
-		if(p_br.getSessionHelper().isMobile()) {
+		if(pbr.getSessionHelper().isMobile()) {
 		} else {
 			p_selopt.setPopupWidth(""+gipi.getRowWidth()+"px");
 		}
-		p_selopt.modalForm();
-	}		
+	}
 	
 	/***
 	 * use method to wrap the br object. workaround for br is null exception.
@@ -4521,6 +4610,15 @@ public class JxZkBiBase extends JxZkBase
 		
 	}
 
+	public boolean enterAddModeAfterBiCopyAndPaste() {
+		if(zkcb != null && zkcb.biCopyAndPasteEnterAddMode(getBr())) {
+			return true;
+		}
+		bindCellCollection(getBr(), MODE_ADD);
+		doAdd();
+		return true;
+	}
+
 	protected void lockSubLink(String p_subLinkView)
 	{
 		JxField sv = jxAdd("list_"+replaceViewName(p_subLinkView));
@@ -4529,6 +4627,7 @@ public class JxZkBiBase extends JxZkBase
 				((BiGetItemProperty) gipi).setItemMode(BiGetItemProperty.GETITEM_MODE_LIST);
 		sv.setAttribute("mode", "noDelete");
 		sv.setAttribute("mode", "noInsert");
+		setSubLinkAddButtonVisible(sv, p_subLinkView, false);
 	}
 	protected void unlockSubLink(String p_subLinkView)
 	{
@@ -4537,6 +4636,37 @@ public class JxZkBiBase extends JxZkBase
 		((BiGetItemProperty) gipi).setItemMode(BiGetItemProperty.GETITEM_MODE_INPUT);
 		sv.setAttribute("mode", "canDelete");
 		sv.setAttribute("mode", "canInsert");
+		setSubLinkAddButtonVisible(sv, p_subLinkView, true);
+	}
+	private void setSubLinkAddButtonVisible(JxField p_listField, String p_subLinkView, boolean p_enabled)
+	{
+		String buttonId = "btadd_list_" + replaceViewName(p_subLinkView);
+		jxSetVisible(buttonId, true);
+		jxSetEnable(buttonId, p_enabled);
+
+		JxField buttonField = jxAdd(buttonId);
+		Object nativeButton = buttonField == null ? null : buttonField.getNativeObject();
+		Component button = nativeButton instanceof Component ? (Component) nativeButton : null;
+		if(button == null) {
+			Object nativeList = p_listField == null ? null : p_listField.getNativeObject();
+			if(nativeList instanceof Component) {
+				button = findComponentById((Component) nativeList, buttonId);
+			}
+		}
+		if(button == null) return;
+		button.setVisible(true);
+		if(button instanceof Disable) {
+			((Disable) button).setDisabled(!p_enabled);
+		}
+	}
+	private Component findComponentById(Component p_root, String p_id)
+	{
+		if(p_id.equals(p_root.getId())) return p_root;
+		for(Component child : p_root.getChildren()) {
+			Component match = findComponentById(child, p_id);
+			if(match != null) return match;
+		}
+		return null;
 	}
 	
 	static boolean useMobileLink(boolean p_isMobile , boolean p_useCompDiv) {

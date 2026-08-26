@@ -15,6 +15,8 @@ import com.uniinformation.utils.UniLog;
 import com.uniinformation.utils.VectorUtil;
 import com.uniinformation.webcore.SessionHelper;
 
+import nl.basjes.parse.useragent.yauaa.shaded.org.apache.commons.lang3.StringUtils;
+
 public class BiResultStockIn extends BiResultStmov {
 
 	public BiResultStockIn(BiResult p_parent, BiView p_view, SelectUtil p_su, Vector p_tabList, String p_whereStr,
@@ -51,6 +53,8 @@ public class BiResultStockIn extends BiResultStmov {
    			return(new ReturnMsg(false,"Fail to get org",true));
    		}
 		
+   		String ref1 = pcol.getCellString("stm_ref1");
+   		if(StringUtils.isBlank(ref1)) {
    		args = new Vector();
 		args.add("smimvh");
 		args.add(pcol.getCell("stm_date").getDate());
@@ -62,6 +66,7 @@ public class BiResultStockIn extends BiResultStmov {
 			UniLog.log(ex);
 			return(new ReturnMsg(false,"Unknown Error",true));
 		}
+   		}
 //		rtnMsg = super.biBeforeAddCurrent(pcol);
 //		if(rtnMsg != null && !rtnMsg.getStatus()) return(rtnMsg);
 		return(new ReturnMsg(true));

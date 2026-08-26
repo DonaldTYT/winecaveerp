@@ -98,6 +98,22 @@ public class BiResult implements GetCellInterface {
 							);
 		
 	}
+
+	/** Re-evaluates aggregate formulas after a master/detail collection is bulk-loaded. */
+	void recalculateAggregateCellValues() throws CellException {
+		if(sublinks != null) {
+			for(BiResult sublink : sublinks) {
+				sublink.recalculateAggregateCellValues();
+			}
+		}
+		if(!actionEnabled || subLinkActions == null) return;
+		for(Vector<BiAggregateCellValueAction> actions : subLinkActions.values()) {
+			for(BiAggregateCellValueAction action : actions) {
+				action.cellAction_onchange(null);
+			}
+		}
+	}
+
 	public class BiAggregateCellValueAction extends CellValueAction {
 		ColumnCell aggCell;
 		String detCellLabel;
@@ -3746,6 +3762,13 @@ public class BiResult implements GetCellInterface {
 	
 	public void clearCurrentRec()
 	{
+		if(currentCol != null) {
+			try {
+				currentCol.unlock();
+			} catch (CellException cex) {
+				UniLog.log(cex);
+			}
+		}
 		Vector<BiColumn> v = biView.getColumns();
 		//UniLog.log("clearCurrentRec");
 		if(getParent() == null) {
@@ -6070,6 +6093,121 @@ public class BiResult implements GetCellInterface {
 	 */
 	protected void afterLoadCollection(boolean p_isFetch,BiCellCollection p_cc){
 		
+	}
+
+	/** Serializes the current master/detail collection tree for record copy. */
+	public JSONObject copyCurrentCollection() throws Exception {
+		return BiResultCopyAndPaste.copyCurrentCollection(this);
+	}
+
+	/**
+	 * Copies the current master/detail tree and prepares the result as a pasted
+	 * new record. The UI should bind this result in its normal add mode after a
+	 * successful return; this method does not insert the record into the database.
+	 */
+	public ReturnMsg copyAndPasteCurrentCollection() throws Exception {
+		return BiResultCopyAndPaste.copyAndPasteCurrentCollection(this);
+	}
+
+	/**
+	 * Pastes copied values into the already initialized current collection.
+	 * The caller must enter normal add mode before invoking this method.
+	 */
+	public ReturnMsg pasteCurrentCollection(JSONObject p_json) throws Exception {
+		return BiResultCopyAndPaste.pasteCurrentCollection(this, p_json);
+	}
+
+	/** Allows a subclass to remove or refine values before JSON is retained. */
+	protected void beforeCopyCollection(BiCellCollection p_source, JSONObject p_json) throws Exception {
+	}
+
+	/** Allows a subclass to validate or alter JSON before values are applied. */
+	protected ReturnMsg beforePasteCollection(BiCellCollection p_target, JSONObject p_json) throws Exception {
+		return ReturnMsg.defaultOk;
+	}
+
+	/**
+	 * Controls destination-side paste eligibility. Serial identifiers and
+	 * columns marked no-paste are excluded by default.
+	 */
+	protected boolean allowPasteColumn(BiColumn p_column) {
+		if(p_column == null || p_column.isNoPaste()) return false;
+		BiField field = p_column.getField();
+		if(field == null || field.getTable() == null) return true;
+		String serialId = field.getTable().getSerialId();
+		return serialId == null || !serialId.equals(field.getName());
+	}
+
+	/** Called before a pasted detail row is created. */
+	protected ReturnMsg beforePasteSubRecord(BiResult p_parent, BiResult p_sublink, int p_idx) {
+		return ReturnMsg.defaultOk;
+	}
+
+	/** Validates whether the current record may be copied into a new record. */
+	protected ReturnMsg beforeCopyToNew() throws Exception {
+		return ReturnMsg.defaultOk;
+	}
+
+	/**
+	 * Refines a copied record before it is presented as a new record. This hook
+	 * is called by Copy & Add only; an ordinary paste does not call it.
+	 */
+	protected void resetToNew() throws Exception {
+	}
+
+	/** Called after the complete master/detail tree has been pasted. */
+	protected ReturnMsg afterPasteCollection(BiCellCollection p_target, JSONObject p_json) throws Exception {
+		return ReturnMsg.defaultOk;
+	}
+
+	/**
+	 * Handles a value selected by a pick input.
+	 *
+	 * <p>The default implementation copies the selected row's configured pick
+	 * column into the source column. Subclasses may override this method and call
+	 * {@code super.afterPickColumn(...)} before or after their custom processing,
+	 * or omit the call to suppress the default assignment.</p>
+	 *
+	 * @param p_pickColumn the source column which will receive the picked value
+	 * @param p_pickedCollection the complete row selected from the pick view
+	 * @param p_pickedColumnName the column in the selected row whose value is to
+	 *        be assigned
+	 * @param p_update {@code true} to assign with {@link ColumnCell#update(Object)};
+	 *        {@code false} to assign with {@link ColumnCell#set(Object)}
+	 * @throws CellException if the default assignment fails
+	 */
+	public void afterPickColumn(ColumnCell p_pickColumn,
+			BiCellCollection p_pickedCollection, String p_pickedColumnName,
+			boolean p_update) throws CellException {
+		if(p_pickColumn == null) {
+			throw new CellException("Pick target column is missing");
+		}
+		if(p_pickedCollection == null) {
+			throw new CellException("Picked row is missing");
+		}
+		if(StringUtils.isBlank(p_pickedColumnName)) {
+			throw new CellException("Picked column name is missing");
+		}
+		Cell pickedCell = p_pickedCollection.testCell(p_pickedColumnName);
+		if(pickedCell == null) {
+			throw new CellException("Picked column not found: " + p_pickedColumnName);
+		}
+		if(p_update) {
+			p_pickColumn.update(pickedCell.getObject());
+		} else {
+			p_pickColumn.set(pickedCell.getObject());
+		}
+	}
+
+	/**
+	 * Validates whether a pick-input operation may start for the supplied
+	 * column in the current record state.
+	 *
+	 * @param p_cc the source column whose picker is about to open
+	 * @return an unsuccessful result to abort the pick; successful by default
+	 */
+	public ReturnMsg validatePickColumn(ColumnCell p_cc) {
+		return ReturnMsg.defaultOk;
 	}
 	public double sumDouble(String p_cell) {
 		double d=0.0;

@@ -28,6 +28,7 @@ public class StockIn extends JxZkBiBase {
 										@Override
 										public void actionPerformed(BiResult p_createdResult) {
 											removePickBySelectCache(pickView);
+											setPickBySelectSelectedItem(p_createdResult.getCurrentCollection());
 										}
 									});
 						}
