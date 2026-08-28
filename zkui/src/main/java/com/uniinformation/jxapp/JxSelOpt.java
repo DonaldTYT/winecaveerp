@@ -37,7 +37,9 @@ public class JxSelOpt extends JxForm {
 	XulElement filterComp;
 	JxActionListener al;
 	BiActionListener<CellCollection> selectedItemAction;
+	BiActionListener<Vector<CellCollection>> selectedItemsAction;
 	BiActionListener<JxSelOpt> closeAction;
+	boolean allowMultirow = false;
 	
 	public void afterBind() {
 		jxBtSelect = jxAdd("btSelect");
@@ -169,6 +171,9 @@ public class JxSelOpt extends JxForm {
 	public void setSelectedItemAction(BiActionListener<CellCollection> p_action) {
 		selectedItemAction = p_action;
 	}
+	public void setSelectedItemsAction(BiActionListener<Vector<CellCollection>> p_action) {
+		selectedItemsAction = p_action;
+	}
 	public void setCloseAction(BiActionListener<JxSelOpt> p_action) {
 		closeAction = p_action;
 	}
@@ -184,6 +189,23 @@ public class JxSelOpt extends JxForm {
 		closeForm();
 		if(selectedItemAction != null) selectedItemAction.actionPerformed(p_selectedItem);
 	}
+	public void setSelectedItems(Vector<CellCollection> p_selectedItems) {
+		closeForm();
+		if(selectedItemsAction != null) selectedItemsAction.actionPerformed(
+				p_selectedItems == null ? new Vector<CellCollection>() : p_selectedItems);
+	}
+	public void setAllowMultirow(boolean p_allowMultirow) {
+		allowMultirow = p_allowMultirow;
+		if(jxPickListBox != null) {
+			jxPickListBox.setAttribute("mode", p_allowMultirow ? "multiselect" : "singleselect");
+			// In multi-row mode a single click only marks/unmarks a row. The
+			// Select button, Enter, or a double click confirms the selection.
+			jxPickListBox.setAttribute("mode", p_allowMultirow ? "doubleClickAction" : "singleClickAction");
+		}
+	}
+	public boolean isAllowMultirow() {
+		return allowMultirow;
+	}
 	public void setUserData(Object p_userdata) {
 		userdata = p_userdata;
 	}
@@ -195,6 +217,9 @@ public class JxSelOpt extends JxForm {
 			return(jxPickListBox.getValue());
 		}
 		return(null);
+	}
+	public Vector getPickListBoxSelectList() {
+		return jxPickListBox == null ? new Vector() : jxPickListBox.getSelectList();
 	}
 	void setSelectedRow( boolean p_isrelative, int p_idx) {
 		int curidx;

@@ -255,6 +255,28 @@ public class TranslateUtil {
 			
 
 	}
+
+	/**
+	 * Returns a keyed translation for an explicit language without changing the
+	 * language stored in the user's session. This is intended for read-only
+	 * metadata consumers which need to recognise labels in every supported
+	 * language.
+	 */
+	public static String getTextForLanguage(SessionHelper p_sh, String p_key,
+			String p_type, String p_lang, String p_defaultValue) {
+		if (p_sh == null || !p_sh.getAllowTranslate()
+				|| StringUtils.isBlank(p_lang) || StringUtils.isBlank(p_key)
+				|| !StringUtils.defaultString(p_type).matches("LABEL|BUTTON|MENU|OPTION")) {
+			return p_defaultValue;
+		}
+		loadTranslate(p_sh);
+		synchronized(translateHM) {
+			String text = translateHM.get(buildKey(
+					p_sh.getAgent(), p_key, p_type, p_lang));
+			return StringUtils.isNotBlank(text) ? text : p_defaultValue;
+		}
+	}
+
 	/***
 	 * update the cache translation update
 	 * TODO: delete old cache

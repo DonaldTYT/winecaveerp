@@ -89,6 +89,9 @@ public class ZkBiComponent extends NoDOM implements /* IdSpace ,*/ AfterCompose 
 	public void setLabel(String p_value) {
 		if (lb != null) {
 			lb.setValue(p_value);
+			// Preserve a page-specific ZUL caption even if normal form binding later
+			// translates/replaces the internal label value.
+			lb.setAttribute("zkbiDeclaredLabel", p_value);
 		}
 	}
 	

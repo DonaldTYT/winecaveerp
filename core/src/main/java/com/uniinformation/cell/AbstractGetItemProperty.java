@@ -54,6 +54,16 @@ public abstract class AbstractGetItemProperty {
 	public abstract Object getRow(int p_row);
 	public abstract int getRowCount();
 	public abstract int getIndexOf(Object item);
+	public CellCollection getCellCollectionByValue(Object p_value) {
+		return null;
+	}
+	/**
+	 * Refreshes any data maintained by this item provider before a bound field
+	 * reloads its displayed rows. Providers backed directly by live data do not
+	 * need to override this method.
+	 */
+	public void refresh() {
+	}
 //	public abstract void onValueChanged(Object value,int p_ctype);
 	public void onValueChanged(Object value,int p_ctype){};
 	public String getColumnWidth(Object item,int p_col){

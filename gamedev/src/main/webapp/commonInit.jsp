@@ -290,7 +290,7 @@
 %>
 		<link href="<%=jsHome%>/select2/css/select2.css<%=versionTag%>" rel="stylesheet" />
 		<script type="text/javascript" src="<%=jsHome%>/select2/js/select2.js<%=versionTag%>"></script>
-		<script type="text/javascript" src="<%=request.getContextPath()%>/js/zkbi-select2.js<%=versionTag%>"></script>
+		<script type="text/javascript" src="<%=request.getContextPath()%>/js/zkbi-select2.js<%=versionTag%>&amp;s2focus=20260827g"></script>
 <%
 	}
 %>
@@ -600,10 +600,228 @@
  			}
 	 	%>
 			
+		function getTopmostZkPopup() {
+			var topPopup = null;
+			var topZIndex = -1;
+			$('.z-window-modal:visible, .z-window-highlighted:visible').each(function() {
+				var zIndex = parseInt($(this).css('z-index'), 10);
+				if (isNaN(zIndex)) zIndex = 0;
+				if (zIndex >= topZIndex) {
+					topPopup = this;
+					topZIndex = zIndex;
+				}
+			});
+			return topPopup === null ? $() : $(topPopup);
+		}
+
+		function getDetailFocusScope(p_target) {
+			var popup = getTopmostZkPopup();
+			if (popup.length) return popup;
+			var target = $(p_target);
+			var zkf = target.closest('.zkbi-form:visible');
+			if (zkf.length) return zkf;
+			var mainWindow = target.closest('.zkbi-main-window:visible');
+			if (mainWindow.length && mainWindow.find('.zkbi-detail-grid').length)
+				return mainWindow;
+			return $();
+		}
+
+		function getDetailFocusable(p_scope) {
+			return p_scope.find('a[href],button:not([disabled]),'
+					+ 'input:not([disabled]):not([type=hidden]),select:not([disabled]),'
+					+ 'textarea:not([disabled]),[contenteditable="true"],'
+					+ '[tabindex]:not([tabindex="-1"])')
+				.filter(':visible').not('[aria-hidden="true"],.z-focus-a');
+		}
+		window.zkbiGetDetailFocusScope = getDetailFocusScope;
+		window.zkbiGetDetailFocusable = getDetailFocusable;
+		function sublinkEditorPopupIsOpen(p_target) {
+			var target = $(p_target);
+			var select2Container = target.closest('.select2');
+			if (select2Container.length) {
+				var source = select2Container.prev('.select2-hidden-accessible');
+				var select2 = source.data('select2');
+				if (select2 && typeof select2.isOpen === 'function' && select2.isOpen())
+					return true;
+			}
+			if (typeof zk !== 'undefined' && zk.Widget) {
+				var widget = zk.Widget.$(p_target);
+				if (widget && typeof widget.isOpen === 'function' && widget.isOpen())
+					return true;
+			}
+			return false;
+		}
+		function getSublinkCellEditors(p_cell) {
+			return p_cell.find('input:not([disabled]):not([type=hidden]):not([tabindex="-1"]),'
+					+ 'select:not([disabled]):not([tabindex="-1"]),'
+					+ 'textarea:not([disabled]):not([tabindex="-1"]),'
+					+ 'button:not([disabled]):not([tabindex="-1"]),'
+					+ '.select2-selection:not([tabindex="-1"]),'
+					+ '[contenteditable="true"]:not([tabindex="-1"])')
+				.filter(':visible').not('.z-focus-a,[aria-hidden="true"]');
+		}
+		function focusAdjacentSublinkRow(p_target, p_forward) {
+			var target = $(p_target);
+			var row = target.closest('.z-listitem:visible');
+			var cell = target.closest('.z-listcell');
+			if (!row.length || !cell.length || sublinkEditorPopupIsOpen(p_target))
+				return false;
+			var cells = row.children('.z-listcell');
+			var cellIndex = cells.index(cell);
+			if (cellIndex < 0) return false;
+			var targetRow = p_forward
+					? row.nextAll('.z-listitem:visible').first()
+					: row.prevAll('.z-listitem:visible').first();
+			if (targetRow.length) {
+				var sourceEditors = getSublinkCellEditors(cell);
+				var sourceEditor = target.closest('input,select,textarea,button,.select2-selection,[contenteditable="true"]');
+				var editorIndex = Math.max(0, sourceEditors.index(sourceEditor));
+				var targetEditors = getSublinkCellEditors(targetRow.children('.z-listcell').eq(cellIndex));
+				if (targetEditors.length)
+					targetEditors.eq(Math.min(editorIndex, targetEditors.length - 1)).focus();
+			}
+			return true;
+		}
+		if (!window.zkbiSublinkShiftRowSetup) {
+			window.zkbiSublinkShiftRowSetup = true;
+			window.addEventListener('keydown', function(e) {
+				if (!e.shiftKey || e.altKey || e.ctrlKey || e.metaKey
+						|| (e.key !== 'ArrowUp' && e.key !== 'ArrowDown')) return;
+				if (focusAdjacentSublinkRow(e.target, e.key === 'ArrowDown')) {
+					e.preventDefault();
+					e.stopImmediatePropagation();
+				}
+			}, true);
+		}
+		function removeZkTabHeadersFromTabOrder() {
+			$('.z-tab, .z-tab-content').attr('tabindex', '-1');
+		}
+		removeZkTabHeadersFromTabOrder();
+		if (document.body && typeof MutationObserver !== 'undefined'
+				&& !window.zkbiZkTabFocusObserverSetup) {
+			window.zkbiZkTabFocusObserverSetup = true;
+			new MutationObserver(removeZkTabHeadersFromTabOrder).observe(document.body, {
+				childList: true,
+				subtree: true
+			});
+		}
+		if (!window.zkbiDetailBoundaryTrapSetup) {
+			window.zkbiDetailBoundaryTrapSetup = true;
+			window.addEventListener('focusin', function(e) {
+				var buttonGroupPopup = $(e.target).closest('.zkbi-button-group-popup');
+				if (buttonGroupPopup.length && e.relatedTarget
+						&& !buttonGroupPopup[0].contains(e.relatedTarget)) {
+					buttonGroupPopup.data('zkbiReturnFocus', e.relatedTarget);
+				}
+			}, true);
+			window.addEventListener('keydown', function(e) {
+				if (e.key !== 'Tab' || e.altKey || e.ctrlKey || e.metaKey) return;
+				var buttonGroupPopup = $(e.target).closest('.zkbi-button-group-popup:visible');
+				if (buttonGroupPopup.length) {
+					var popupFocusable = getDetailFocusable(buttonGroupPopup);
+					var popupFocusIndex = popupFocusable.index(e.target);
+					if ((!e.shiftKey && popupFocusIndex === popupFocusable.length - 1)
+							|| (e.shiftKey && popupFocusIndex === 0)) {
+						e.preventDefault();
+						e.stopImmediatePropagation();
+						(e.shiftKey ? popupFocusable.last() : popupFocusable.first()).focus();
+					}
+					return;
+				}
+				var focusScope = getDetailFocusScope(e.target);
+				if (!focusScope.length) return;
+				var focusable = getDetailFocusable(focusScope);
+				if (!focusable.length) return;
+				var focusIndex = focusable.index(e.target);
+				var isZkFocusAnchor = $(e.target).hasClass('z-focus-a');
+				if ((!e.shiftKey && focusIndex === focusable.length - 1)
+						|| (isZkFocusAnchor && !e.shiftKey)) {
+					e.preventDefault();
+					e.stopImmediatePropagation();
+					focusable.first().focus();
+				} else if ((e.shiftKey && focusIndex === 0)
+						|| (isZkFocusAnchor && e.shiftKey)) {
+					e.preventDefault();
+					e.stopImmediatePropagation();
+					focusable.last().focus();
+				}
+			}, true);
+		}
+
+		function closeTopmostS2DropdownOnEsc() {
+			var source = $('.select2-hidden-accessible').filter(function() {
+				var instance = $(this).data('select2');
+				return instance && typeof instance.isOpen === 'function' && instance.isOpen();
+			}).last();
+			if (!source.length) {
+				var openSelection = $('.select2-container--open:visible').filter(function() {
+					return $(this).prev().data('select2');
+				}).last();
+				if (openSelection.length) source = openSelection.prev();
+			}
+			if (!source.length || typeof source.select2 !== 'function') return false;
+			source.select2('close');
+			return true;
+		}
+		if (!window.zkbiS2EscCaptureSetup) {
+			window.zkbiS2EscCaptureSetup = true;
+			window.addEventListener('keydown', function(e) {
+				if ((e.key === 'Escape' || e.keyCode === 27)
+						&& closeTopmostS2DropdownOnEsc()) {
+					e.preventDefault();
+					e.stopImmediatePropagation();
+				}
+			}, true);
+		}
+
+		function closeTopmostZkPopupOnEsc() {
+			var actionPopup = null;
+			var actionPopupZIndex = -1;
+			$('.zkbi-button-group-popup.z-popup-open:visible').each(function() {
+				var zIndex = parseInt($(this).css('z-index'), 10);
+				if (isNaN(zIndex)) zIndex = 0;
+				if (zIndex >= actionPopupZIndex) {
+					actionPopup = this;
+					actionPopupZIndex = zIndex;
+				}
+			});
+			if (actionPopup !== null && typeof zk !== 'undefined' && zk.Widget) {
+				var actionPopupWidget = zk.Widget.$(actionPopup);
+				if (actionPopupWidget !== null && typeof actionPopupWidget.close === 'function') {
+					var returnFocus = $(actionPopup).data('zkbiReturnFocus');
+					actionPopupWidget.close();
+					if (returnFocus && typeof returnFocus.focus === 'function'
+							&& document.documentElement.contains(returnFocus)) {
+						window.setTimeout(function() { returnFocus.focus(); }, 0);
+					}
+					return true;
+				}
+			}
+			var topPopup = getTopmostZkPopup();
+			if (!topPopup.length || typeof zk === 'undefined' || !zk.Widget) return false;
+			var popupWidget = zk.Widget.$(topPopup[0]);
+			if (popupWidget === null) return false;
+			// Respect dialogs intentionally created without a close control.
+			if (typeof popupWidget.isClosable !== 'function' || popupWidget.isClosable()) {
+				popupWidget.fire('onClose');
+			}
+			return true;
+		}
+
 		$(document).on('keydown', function ( e ) {
 			//TODO: should obtain key list from server side
 			//esc
-		    if (e.keyCode == 27) {
+			if (e.keyCode == 27) {
+				if (closeTopmostS2DropdownOnEsc()) {
+					e.preventDefault();
+					e.stopImmediatePropagation();
+					return;
+				}
+				if (closeTopmostZkPopupOnEsc()) {
+					e.preventDefault();
+					e.stopImmediatePropagation();
+					return;
+				}
 	        	var zkComp = zk.Widget.$('$zkbibrowser');  //get component by id
 	        	if (zkComp !== null && zAu !== null){
 	        		zAu.send(new zk.Event(zkComp, "onCustomEsc", null, {toServer:true}));	        		
@@ -623,6 +841,64 @@
 				return;
 			}
 			if (e.which === 0){
+				return;
+			}
+			// Move between the current detail form's enabled tab panels.
+			if (e.which === 33 || e.which === 34) { // Page Up / Page Down
+				var detailActionBar = $('.zkbi-detail-actionbar:visible').first();
+				if (!detailActionBar.length) return;
+				var detailRoot = detailActionBar.closest('.z-window,.zkbi-main-window');
+				if (!detailRoot.length) detailRoot = detailActionBar.parent();
+				var tabbox = $(e.target).closest('.z-tabbox:visible');
+				if (!tabbox.length || !$.contains(detailRoot[0], tabbox[0]))
+					tabbox = detailRoot.find('.z-tabbox:visible').first();
+				if (!tabbox.length) return;
+				var tabs = tabbox.find('.z-tab:visible').filter(function() {
+					var widget = zk.Widget.$(this);
+					return $(this).closest('.z-tabbox')[0] === tabbox[0]
+							&& !(widget && typeof widget.isDisabled === 'function' && widget.isDisabled());
+				});
+				if (tabs.length < 2) return;
+				var selectedIndex = tabs.index(tabs.filter('.z-tab-selected').first());
+				var nextIndex = e.which === 34
+						? (selectedIndex + 1 + tabs.length) % tabs.length
+						: (selectedIndex < 0 ? tabs.length - 1 : (selectedIndex - 1 + tabs.length) % tabs.length);
+				var nextTab = tabs.eq(nextIndex);
+				var clickTarget = nextTab.find('.z-tab-content').get(0) || nextTab.get(0);
+				clickTarget.click();
+				e.preventDefault();
+				e.stopImmediatePropagation();
+				return;
+			}
+			// Save the current detail record; close when saving is unavailable.
+			if (e.which === 35) { // End
+				function clickEnabledDetailButton(id) {
+					var widget = zk.Widget.$('$' + id);
+					var node = widget && widget.$n ? widget.$n() : null;
+					if (!node || !$(node).is(':visible') || node.disabled
+							|| (typeof widget.isDisabled === 'function' && widget.isDisabled()))
+						return false;
+					node.click();
+					return true;
+				}
+				if (!clickEnabledDetailButton('btUpdate')
+						&& !clickEnabledDetailButton('btAdd'))
+					clickEnabledDetailButton('btClose');
+				e.preventDefault();
+				e.stopImmediatePropagation();
+				return;
+			}
+			// Select2 sublink editors handle Alt+A (append) and Alt+R (remove)
+			// themselves and forward them to their row's ZK component.
+			if ((e.which == 'A'.charCodeAt() || e.which == 'R'.charCodeAt())
+					&& ($(e.target).closest('.z-listitem').length
+							|| $(e.target).closest('.select2-container').length)) {
+				if (!$(e.target).closest('.select2-container').length
+						&& typeof zkbis2 !== 'undefined'
+						&& typeof zkbis2.restoreRowFocusAfterAltKey === 'function') {
+					zkbis2.restoreRowFocusAfterAltKey($(e.target),
+							String.fromCharCode(e.which));
+				}
 				return;
 			}
 			

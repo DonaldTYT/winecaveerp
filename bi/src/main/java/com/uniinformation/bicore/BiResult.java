@@ -6209,6 +6209,40 @@ public class BiResult implements GetCellInterface {
 	public ReturnMsg validatePickColumn(ColumnCell p_cc) {
 		return ReturnMsg.defaultOk;
 	}
+
+	/**
+	 * Determines whether the pick selector for a column allows multiple rows.
+	 * Existing pick inputs remain single-row selectors unless a subclass opts in.
+	 *
+	 * @param p_cell the source column whose picker is being opened
+	 * @return {@code true} to enable multiple-row selection
+	 */
+	public boolean pickColumnAllowMultrow(ColumnCell p_cell) {
+		return false;
+	}
+
+	/**
+	 * Creates the item-property provider with the optional source column that
+	 * triggered the picker. The default keeps the original provider behavior.
+	 *
+	 * @param p_br queried result displayed by the picker
+	 * @param p_pickColumn source column that opened the picker, or {@code null}
+	 */
+	public AbstractGetItemProperty pickColumnGetItemProperty(BiResult p_br,
+			ColumnCell p_pickColumn) {
+		BiGetItemProperty gipi = new BiGetItemProperty(p_br);
+		gipi.setItemMode(BiGetItemProperty.GETITEM_MODE_PICK);
+		return gipi;
+	}
+
+	/**
+	 * Handles the rows confirmed by a multi-row pick selector. The default
+	 * implementation intentionally performs no assignment.
+	 */
+	public void afterPickColumnRows(ColumnCell p_pickColumn,
+			Iterator<BiCellCollection> pickedCollectionsIterator,
+			String p_pickedColumnName, boolean p_update) throws CellException {
+	}
 	public double sumDouble(String p_cell) {
 		double d=0.0;
 		for(CellCollection cl : getRowCollectionList()) {

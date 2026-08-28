@@ -27,6 +27,7 @@ import org.zkoss.zul.Radio;
 import org.zkoss.zul.Radiogroup;
 import org.zkoss.zul.Timebox;
 import org.zkoss.zul.impl.InputElement;
+import org.zkoss.zul.impl.XulElement;
 
 import com.kyoko.common.ChineseConvert;
 import com.kyoko.common.DateUtil;
@@ -53,10 +54,62 @@ public class ZkBiCellValueMapper implements CellValueMapper {
 	Component ic;
 	Cell bindedCell;
 	AbstractGetItemProperty gipi;
+
+	private Component findRowAction(Component p_component, String p_attribute,
+			Object p_value) {
+		if(p_component == null) return null;
+		Object value = p_component.getAttribute(p_attribute);
+		if(p_value == null ? value != null : p_value.equals(value)) return p_component;
+		for(Component child : p_component.getChildren()) {
+			Component found = findRowAction(child, p_attribute, p_value);
+			if(found != null) return found;
+		}
+		return null;
+	}
+
+	private void triggerRowAction(String p_attribute, Object p_value) {
+		Component row = ic;
+		while(row != null && !(row instanceof Listitem)) row = row.getParent();
+		Component action = findRowAction(row, p_attribute, p_value);
+		if(action != null && action.isVisible()) {
+			Component list = action;
+			while(list != null && !(list instanceof Listbox)) list = list.getParent();
+			boolean focusInsertedRow = "isAddButton".equals(p_attribute);
+			if(focusInsertedRow && list != null) {
+				list.setAttribute("focusInsertedRowAfterKeyboardInsert", true);
+			}
+			try {
+				Events.sendEvent(Events.ON_CLICK, action, null);
+			} finally {
+				if(focusInsertedRow && list != null) {
+					list.removeAttribute("focusInsertedRowAfterKeyboardInsert");
+				}
+			}
+		}
+	}
+
+	private void triggerRowShortcut(int p_keyCode) {
+		if(p_keyCode == 65) {
+			triggerRowAction("isAddButton", true);
+		} else if(p_keyCode == 82) {
+			triggerRowAction("JxZkListbox.deleteItemButton", "Y");
+		}
+	}
+
 	public ZkBiCellValueMapper(Component comp,AbstractGetItemProperty p_gipi) {
 		ic = comp;
-		if(comp instanceof S2Listbox) {
+		final boolean isS2Listbox = comp instanceof S2Listbox;
+		if(isS2Listbox) {
 			ic = ((S2Listbox) comp).getComp();
+			ic.addEventListener("onS2AltKey", new EventListener<Event>() {
+				@Override
+				public void onEvent(Event p_event) throws Exception {
+					Object data = p_event.getData();
+					if(data != null && data.toString().length() == 1) {
+						triggerRowShortcut(Character.toUpperCase(data.toString().charAt(0)));
+					}
+				}
+			});
 		}
 		gipi = p_gipi;
 		if(ic instanceof Bandbox) {
@@ -277,13 +330,22 @@ public class ZkBiCellValueMapper implements CellValueMapper {
 				}		
 			}
 		);	
-		if(ic instanceof InputElement) {
-			((InputElement) ic).setCtrlKeys("^d");
+		if(ic instanceof XulElement) {
+			((XulElement) ic).setCtrlKeys(ic instanceof InputElement ? "^d@a@r" : "@a@r");
 			ic.addEventListener(Events.ON_CTRL_KEY, 
 				new EventListener() {
 				public void onEvent(Event ev) throws Exception {
 					UniLog.log("control key pressed");
-				if(((KeyEvent) ev ).isCtrlKey() && ((KeyEvent) ev).getKeyCode() == 68) {
+				KeyEvent keyEvent = (KeyEvent) ev;
+				if(keyEvent.isAltKey() && keyEvent.getKeyCode() == 65) {
+					triggerRowShortcut(keyEvent.getKeyCode());
+					ev.stopPropagation();
+				}
+				else if(keyEvent.isAltKey() && keyEvent.getKeyCode() == 82) {
+					triggerRowShortcut(keyEvent.getKeyCode());
+					ev.stopPropagation();
+				}
+				else if(keyEvent.isCtrlKey() && keyEvent.getKeyCode() == 68) {
 					try {
 //					if(bindedCell.getMode() == Cell.VMODE_OVERRIDED) {
 //						bindedCell.syncMode(Cell.VMODE_PROTECTED);
@@ -297,7 +359,9 @@ public class ZkBiCellValueMapper implements CellValueMapper {
 				}
 				}		
 			}
-			);	
+			);
+		}
+		if(ic instanceof InputElement) {
 			ic.addEventListener(Events.ON_SWIPE, 
 				new EventListener() {
 				public void onEvent(Event ev) throws Exception {

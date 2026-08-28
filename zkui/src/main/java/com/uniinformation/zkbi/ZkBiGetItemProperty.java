@@ -1,6 +1,7 @@
 package com.uniinformation.zkbi;
 
 import java.util.Hashtable;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Vector;
 
@@ -154,12 +155,20 @@ public class ZkBiGetItemProperty extends BiGetItemProperty {
 							biBase.pickBySelectCached(bigibr,bcc,pvi.getPickViewName(),pvi.getPickCondition(bcc), new EventListener() {
 									@Override
 									public void onEvent(Event arg0) throws Exception {
-										// TODO Auto-generated method stub
-										BiCellCollection col = (BiCellCollection) arg0.getData();
-										
 										String pcl = pvi.getPickColName();
 										if(pcl == null) pcl = bcc.getCellLabel();
-										bigibr.afterPickColumn(bcc, col, pcl, true);
+										try {
+											if(arg0.getData() instanceof Iterator) {
+												bigibr.afterPickColumnRows(bcc,
+														(Iterator<BiCellCollection>) arg0.getData(), pcl, true);
+											} else {
+												bigibr.afterPickColumn(bcc,
+														(BiCellCollection) arg0.getData(), pcl, true);
+											}
+										} catch (Exception ex) {
+											UniLog.log(ex);
+											ZkUtil.showErrMsg(ex.getMessage() == null ? ex.toString() : ex.getMessage());
+										}
 									}
 								}
 							);

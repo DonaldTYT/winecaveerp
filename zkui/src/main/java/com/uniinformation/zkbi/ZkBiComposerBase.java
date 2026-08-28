@@ -3951,8 +3951,26 @@ public class ZkBiComposerBase extends ZkBiComposerView implements Composer<Compo
         			Messagebox.show(
         					strMsg,
         					sessionHelper.getLabel("Confirm Save Changes?"), Messagebox.OK | Messagebox.CANCEL, Messagebox.QUESTION, new ZkBiEventListener() {
-        			    public void onZkBiEvent(Event evt) throws InterruptedException {
-        			    	if(importAsSingle) {
+							Timer keepAliveTimer = null;
+							{
+								if (importAsSingle) {
+									keepAliveTimer = new Timer();
+									keepAliveTimer.setPage(masterWin.getPage());
+									keepAliveTimer.setDelay(10000);
+									keepAliveTimer.setRepeats(true);
+									keepAliveTimer.addEventListener(Events.ON_TIMER, (Event) -> {
+										UniLog.log1("batch update keepAlive fbegin %b", p_result.inBeginWork());
+										p_result.getSelectUtil().setAliveUntil(10000);
+									});
+									keepAliveTimer.setRunning(true);
+								}
+							}
+							public void onZkBiEvent(Event evt) throws InterruptedException {
+								if (keepAliveTimer != null) {
+									keepAliveTimer.stop();
+									keepAliveTimer.detach();
+								}
+								if(importAsSingle) {
         			        if (evt.getName().equals("onOK")) {
         			        	UniLog.log("Confirm OK commit work");
         			        	try {
@@ -6991,6 +7009,40 @@ public class ZkBiComposerBase extends ZkBiComposerView implements Composer<Compo
 					&& !((Button)deleteCurrentObject).isDisabled();
 		}
 		return state;
+	}
+
+	/** Returns the final label currently rendered for a BI column, when present. */
+	String getAiHelpRenderedColumnLabel(BiColumn column) {
+		if (column == null)
+			return null;
+		if (masterWin != null && detailFormName != null && getDetailForm() != null
+				&& getDetailForm().isFormVisible()) {
+			Component label = masterWin.getFellowIfAny("lb_" + column.getLabel(), true);
+			if (label instanceof org.zkoss.zul.Label) {
+				String renderedLabel = ((org.zkoss.zul.Label)label).getValue();
+				if (StringUtils.isNotBlank(renderedLabel))
+					return renderedLabel;
+				Object declaredLabel = label.getAttribute("zkbiDeclaredLabel");
+				if (declaredLabel instanceof String
+						&& StringUtils.isNotBlank((String)declaredLabel)) {
+					return (String)declaredLabel;
+				}
+			}
+		}
+		if (listbox != null && listbox.getListhead() != null) {
+			for (Component component : listbox.getListhead().getChildren()) {
+				if (!(component instanceof Listheader))
+					continue;
+				Object mapped = component.getAttribute("ma_bicolumn");
+				if (mapped instanceof BiColumn
+						&& StringUtils.equals(((BiColumn)mapped).getLabel(), column.getLabel())) {
+					String label = ((Listheader)component).getLabel();
+					if (StringUtils.isNotBlank(label))
+						return label;
+				}
+			}
+		}
+		return null;
 	}
 
 	/** Allows a view-specific composer to append additional semantic operations. */

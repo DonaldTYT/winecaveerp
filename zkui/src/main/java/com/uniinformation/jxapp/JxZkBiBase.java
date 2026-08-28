@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.LinkedHashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -865,6 +866,11 @@ public class JxZkBiBase extends JxZkBase
 											ReturnMsg rtn = listboxAddRow(biBase, sl, svx, fd, insIdx);
 											if(!rtn.getStatus()) {
 												messageBox(rtn.getMsg());
+											} else if(Boolean.TRUE.equals(((Component)svx.getNativeObject())
+													.getAttribute("focusInsertedRowAfterKeyboardInsert"))
+													&& rtn.getData() instanceof Number) {
+												svx.gridSetDataFormat(-1,
+														((Number)rtn.getData()).intValue(), "editmode");
 											}
 											break;
 										default:
@@ -988,8 +994,6 @@ public class JxZkBiBase extends JxZkBase
 		if (mComponentsFocusManage == null)
 			mComponentsFocusManage = new ComponentsFocusManage(sessionHelper);
 		if (curMode == p_mode){
-    		if (p_mode == MODE_ADD)
-    			mComponentsFocusManage.setFocusFirstComp(p_dWin);
 			return;
 		}
 		curMode = p_mode;
@@ -1014,11 +1018,8 @@ public class JxZkBiBase extends JxZkBase
 		    }
 		}
 		if (mComponentsFocusManage.process()) {
-			//When add record, set focus to first input element which is editable. This changes apply for add new record only.
-    		if (p_mode == MODE_ADD)
-    			mComponentsFocusManage.setFocusFirstComp(p_dWin);
-    		//Add focus to next input element logic when user choose a option or enter deleted. This apply to both add record and update record.
-    		mComponentsFocusManage.setFocusNextComp();
+			//Add focus to next input element logic when user choose a option or enter deleted. This apply to both add record and update record.
+			mComponentsFocusManage.setFocusNextComp();
 		}
 	}
 	
@@ -1449,6 +1450,10 @@ public class JxZkBiBase extends JxZkBase
 						ZkBiMsgbox.show(sessionHelper.getLabel("Record Saved"), btns.toArray(new ZkBiMsgboxButton[btns.size()]), new ZkBiEventListener(){
 							@Override
 							public void onZkBiEvent(Event event) throws Exception {
+								// The form may have been closed while this modal result dialog
+								// was still visible. Ignore its stale action and return normally
+								// so ZkBiEventListener can complete message-box cleanup.
+								if (!checkBr()) return;
 								ZkBiMsgboxButton btn = (ZkBiMsgboxButton) event.getTarget();
 								if (btn.getName().equals("addNext")) {
 									getBr().clearCurrentRec();
@@ -1954,17 +1959,38 @@ public class JxZkBiBase extends JxZkBase
 
 					@Override
 					public void onZkBiEvent(Event arg0) throws Exception {
-						BiCellCollection col = (BiCellCollection) arg0.getData();
 						String pcl = ccell.getBiColumn().getPickColName();
 						if(pcl == null) pcl = ccell.getCellLabel();
-						getBr().afterPickColumn(ccell, col, pcl, false);
-						afterPickField(pcl);
+						try {
+							if(arg0.getData() instanceof Iterator) {
+								getBr().afterPickColumnRows(ccell,
+										(Iterator<BiCellCollection>) arg0.getData(), pcl, false);
+							} else {
+								getBr().afterPickColumn(ccell,
+										(BiCellCollection) arg0.getData(), pcl, false);
+							}
+							afterPickField(pcl);
+						} catch (Exception ex) {
+							UniLog.log(ex);
+							ZkUtil.showErrMsg(ex.getMessage() == null ? ex.toString() : ex.getMessage());
+						}
 					}
 				};
 
 				pickBySelectCached(getBr(), ccell, pv, condition, selectListener);
 			}
 		}
+	}
+
+	private void setInitialFocusFirstInput(Component p_dWin) {
+		// Initial page focus is a UI requirement and must not depend on the
+		// optional allowFocusIndex feature used by legacy Enter-key navigation.
+		ZkUtil.delayJs(p_dWin, null, 50,
+				"if (!$('.z-window-modal:visible,.z-window-highlighted:visible,.z-popup-open:visible').length) {"
+				+ "var $f=$('#%s').find('input:not([disabled]):not([type=hidden]):not([tabindex=\"-1\"]),"
+				+ "select:not([disabled]):not([tabindex=\"-1\"]),textarea:not([disabled]):not([tabindex=\"-1\"]),"
+				+ "[contenteditable=\"true\"]:not([tabindex=\"-1\"])').filter(':visible').first();"
+				+ "if ($f.length) $f.focus();}", p_dWin.getUuid());
 	}
 	protected boolean checkBr() {
 		if (br == null) {
@@ -2523,6 +2549,14 @@ public class JxZkBiBase extends JxZkBase
 		ZkUtil.addCompMark(comp, biColumn);
 	}
 	
+	private static String getDetailFieldLabel(SessionHelper sessionHelper, BiColumn biColumn, Label fieldLabel) {
+		Object declaredLabel = fieldLabel.getAttribute("zkbiDeclaredLabel");
+		String defaultLabel = declaredLabel instanceof String && StringUtils.isNotBlank((String) declaredLabel)
+				? sessionHelper.getLabel((String) declaredLabel)
+				: sessionHelper.getLabel(biColumn);
+		return ZkBiTranslateHelper.getText(sessionHelper, biColumn.getCellFullName(), "LABEL", defaultLabel);
+	}
+
     static public JxZkBiBase buildDetailWindow(BiResult result,final Component dWin,boolean p_isMobile,boolean p_hasAUDColumn,JxZkBiBaseCallback zkcb) {
     	return buildDetailWindow(result,dWin,p_isMobile,p_hasAUDColumn,zkcb,null);
     }
@@ -2878,7 +2912,7 @@ public class JxZkBiBase extends JxZkBase
    			    	fieldLabel.setWidth("95%");
    			    	row.appendChild(fieldLabel);
 			    } else {
-			    	fieldLabel.setValue(ZkBiTranslateHelper.getText(sessionHelper, biColumn.getCellFullName(), "LABEL", sessionHelper.getLabel(biColumn)));
+					fieldLabel.setValue(getDetailFieldLabel(sessionHelper, biColumn, fieldLabel));
 			    }
 			    
 		    	//fieldLabel.setStyle("font-style:italic !important;font-family:\"Times New Roman\", Times, serif, DFKai-sb, BiauKai !important");
@@ -2907,7 +2941,7 @@ public class JxZkBiBase extends JxZkBase
 		    		Label fieldLabel = null;
 		    		fieldLabel = (Label) dWin.getFellowIfAny("lb_"+biColumn.getLabel(),true);
 		    		if(fieldLabel != null) {
-			    		fieldLabel.setValue(ZkBiTranslateHelper.getText(sessionHelper, biColumn.getCellFullName(), "LABEL", sessionHelper.getLabel(biColumn)));
+					fieldLabel.setValue(getDetailFieldLabel(sessionHelper, biColumn, fieldLabel));
 			    		JxZkBiBase.addContextMenu(sessionHelper,fieldLabel, MapUtil.of("changeLabel", MapUtil.of("key",biColumn.getCellFullName(),"defaultValue",biColumn.getEngName())));
 			    		UniLog.log("fieldLabel round1:"+fieldLabel.getValue());
 			    	}
@@ -3095,6 +3129,7 @@ public class JxZkBiBase extends JxZkBase
 								((Toolbarbutton) addBt).setImage("images/row_add20.png");
 								((Toolbarbutton) addBt).setTooltiptext(sessionHelper.getTtLabel("Add Item"));
 								((Toolbarbutton) addBt).setSclass("narrowtoolbarbutton");
+								((Toolbarbutton) addBt).setTabindex(-1);
 //								addBt.setId("btadd_list_"+sl.getView().getName().replace(".", "_"));
 								addBt.setId("btadd_list_"+replaceViewName(sl.getView().getName()));
 								lhdr.appendChild(addBt);
@@ -3510,6 +3545,11 @@ public class JxZkBiBase extends JxZkBase
 		showForm();	
 		zkcb.biBaseOpen();
 		afterDisplayAction(curComp, MODE_DISPLAY);
+		if (!isMobile) {
+			Component editButton = curComp.getFellowIfAny("btEdit");
+			if (editButton instanceof HtmlBasedComponent)
+				mComponentsFocusManage.setFocusComp(curComp, (HtmlBasedComponent) editButton);
+		}
 	}
 	public void doUpdate() {
 		isAddModeWhenOpen = false;
@@ -3518,6 +3558,8 @@ public class JxZkBiBase extends JxZkBase
 		showForm();	
 		zkcb.biBaseOpen();
 		afterDisplayAction(curComp, MODE_UPDATE);
+		if (!isMobile)
+			setInitialFocusFirstInput(curComp);
 	}
 	public void doAdd(){
 		isAddModeWhenOpen = true;
@@ -3526,6 +3568,8 @@ public class JxZkBiBase extends JxZkBase
 		showForm();	
 		zkcb.biBaseOpen();
 		afterDisplayAction(curComp, MODE_ADD);
+		if (!isMobile)
+			setInitialFocusFirstInput(curComp);
 	}
 	public void doModalUpdate() {
 		isAddModeWhenOpen = false;
@@ -3667,7 +3711,12 @@ public class JxZkBiBase extends JxZkBase
 				firstComp = findNextTabComp(firstComp);
 			if (firstComp == null)
 				return;
-			final HtmlBasedComponent firstComp1 = firstComp;
+			setFocusComp(p_dWin, firstComp);
+		}
+		public void setFocusComp(Component p_dWin, HtmlBasedComponent p_comp) {
+			if (p_comp == null)
+				return;
+			final HtmlBasedComponent firstComp1 = p_comp;
 	 		final Timer initTimer = new Timer();
 	    	initTimer.setPage(p_dWin.getPage());
 	    	initTimer.setDelay(1);
@@ -3876,6 +3925,7 @@ public class JxZkBiBase extends JxZkBase
 	protected static ReturnMsg listboxAddRow(JxZkBiBase p_biBase, BiResult p_sl, JxField p_svx, JxField p_fd, int p_insIdx){
 		UniLog.logm(null,"listbox insert idx:%d", p_insIdx);
 		CellCollection col = p_sl.newRowCollection();
+		int insertedRowIdx = -1;
 	
 		//beforeAddLink block
 		ReturnMsg rtnMsg = p_biBase.beforeAddLink(p_fd,p_sl,col,p_insIdx) ;
@@ -3893,6 +3943,7 @@ public class JxZkBiBase extends JxZkBase
 			}
 			Object tr = rtn.getData();
 			int rowIdx = p_biBase.getGipi(p_sl.getView().getName()).getIndexOf(tr);
+			insertedRowIdx = rowIdx;
 			//p_svx.addItemToList(tr, p_insIdx);
 			p_svx.addItemToList(tr, rowIdx);
 			p_svx.gridSetCurrentRow(-1);
@@ -3913,6 +3964,7 @@ public class JxZkBiBase extends JxZkBase
 			}
 			Object tr = rtn.getData();
 			int rowIdx = p_sl.getRowCount() - 1;
+			insertedRowIdx = rowIdx;
 			p_svx.gridSetRow(p_sl.getRowCount());
 			Vector<BiColumn> subCols = p_sl.getListColumns();
 			for(int k=0;k<subCols.size();k++) {
@@ -3929,7 +3981,7 @@ public class JxZkBiBase extends JxZkBase
 			//listbox updatebtn has duplicate id problem, so post click event by id no longer work
 			//ZkBiComposerBase.postEventDelay(Events.ON_CLICK,(Component)p_fd.getNativeObject(),String.format("btupdate_list_row%d_list_%s",rowIdx,p_sl.getView().getName()),null,10);
 		}
-		return(new ReturnMsg(true));
+		return(new ReturnMsg(true).setData(insertedRowIdx));
 		
 	}
 	/***
@@ -3982,6 +4034,12 @@ public class JxZkBiBase extends JxZkBase
 					ReturnMsg addRowResult = listboxAddRow(p_biBase, p_sl, p_svx, fd, insIdx);
 					if (!addRowResult.getStatus()){
 						return;
+					}
+					Component listComp = (Component)p_svx.getNativeObject();
+					if(Boolean.TRUE.equals(listComp.getAttribute("focusInsertedRowAfterKeyboardInsert"))
+							&& addRowResult.getData() instanceof Number) {
+						p_svx.gridSetDataFormat(-1,
+								((Number)addRowResult.getData()).intValue(), "editmode");
 					}
 				}
 			}
@@ -4233,10 +4291,11 @@ public class JxZkBiBase extends JxZkBase
 		BiSchema schema = BiSchema.loadSchema(p_sh);
 		BiResult br = schema.getViewByName(p_view).newBiResult(p_sh.getLoginId(), null, null, p_sh);
 		JxSelOpt selopt = JxSelOpt.createPopupJxSelOpt(p_sh);
+		initializePickList(selopt, br, br, null);
 		pickBySelect(selopt,br,p_condition,p_listener);
 	}
 	public void pickBySelectCached(String p_view,String p_condition,final EventListener p_listener) throws Exception {
-		pickBySelectCached(null, null, p_view, p_condition, p_listener);
+		pickBySelectCached(getBr(), null, p_view, p_condition, p_listener);
 	}
 	public void removePickBySelectCache(String p_view) {
 		if(p_view != null) pickBySelectCache.remove(p_view);
@@ -4252,7 +4311,7 @@ public class JxZkBiBase extends JxZkBase
 		if(active == null || p_selectedItem == null || active.sourceCell == null) return false;
 		try {
 			queryPickResult(active.pickResult, active.condition);
-			setupPickList(active.selopt, active.pickResult);
+			refreshPickList(active.selopt);
 			pickBySelectCache.put(active.view,
 					new PickBySelectCacheEntry(active.pickResult, active.condition));
 
@@ -4296,6 +4355,11 @@ public class JxZkBiBase extends JxZkBase
 
 		final JxSelOpt selopt = JxSelOpt.createPopupJxSelOpt(sessionHelper, true,
 				curComp == null ? ZkUtil.getMainComp() : curComp);
+		BiResult formResult = p_sourceResult == null ? getBr() : p_sourceResult;
+		initializePickList(selopt, formResult, cacheEntry.biResult, p_sourceCell);
+		if(p_sourceResult != null && p_sourceCell != null) {
+			selopt.setAllowMultirow(p_sourceResult.pickColumnAllowMultrow(p_sourceCell));
+		}
 		activePickBySelect = new ActivePickBySelect(
 				selopt, cacheEntry.biResult, p_sourceCell, p_view, p_condition);
 		selopt.setCloseAction(
@@ -4325,6 +4389,7 @@ public class JxZkBiBase extends JxZkBase
 	}
 	public static void pickBySelect(BiResult p_br,String p_condition,final EventListener p_listener) throws Exception {
 		JxSelOpt selopt = JxSelOpt.createPopupJxSelOpt(p_br.getSessionHelper());
+		initializePickList(selopt, p_br, p_br, null);
 		pickBySelect(selopt,p_br,p_condition,p_listener);
 	}
 	public static void pickBySelect(final JxSelOpt p_selopt,BiResult p_br,String p_condition,final EventListener p_listener) throws Exception {
@@ -4354,30 +4419,58 @@ public class JxZkBiBase extends JxZkBase
 				}
 			}
 		);
+		p_selopt.setSelectedItemsAction(
+			new BiActionListener<Vector<CellCollection>>() {
+				@Override
+				public void actionPerformed(Vector<CellCollection> p_selectedItems) {
+					if(p_listener != null) {
+						try {
+							p_listener.onEvent(new Event(EV_ON_SELOPT_OK, null,
+									p_selectedItems.iterator()));
+						} catch (Exception ex) {
+							UniLog.log(ex);
+						}
+					}
+				}
+			}
+		);
 		p_selopt.setOnSelectAction (
 			new JxActionListener() {
 				public void actionPerformed(JxField fd) {
+					AbstractGetItemProperty gipi = (AbstractGetItemProperty) p_selopt.getUserData();
+					if(p_selopt.isAllowMultirow()) {
+						Vector<CellCollection> selectedCollections = new Vector<CellCollection>();
+						Vector selectedValues = p_selopt.getPickListBoxSelectList();
+						for(Object selectedValue : selectedValues) {
+							selectedCollections.add(gipi.getCellCollectionByValue(selectedValue));
+						}
+						p_selopt.setSelectedItems(selectedCollections);
+						return;
+					}
 					Object o  = fd.getValue();
-					BiGetItemProperty gipi = (BiGetItemProperty) p_selopt.getUserData();
 					CellCollection col = gipi.getCellCollectionByValue(o);
 					p_selopt.setSelectedItem(col);
 				}
 			}
 		);
-		setupPickList(p_selopt, pbr);
+		refreshPickList(p_selopt);
 		p_selopt.modalForm();
 	}
-	private static void setupPickList(JxSelOpt p_selopt, BiResult pbr) {
-		BiGetItemProperty gipi = new BiGetItemProperty(pbr);
-		gipi.setItemMode(BiGetItemProperty.GETITEM_MODE_PICK);
+	private static void initializePickList(JxSelOpt p_selopt, BiResult p_formResult,
+			BiResult p_pickResult, ColumnCell p_sourceCell) {
+		AbstractGetItemProperty gipi = p_formResult.pickColumnGetItemProperty(
+				p_pickResult, p_sourceCell);
 		JxField pickListBox = p_selopt.jxAdd("pickListBox");
 		pickListBox.setAttribute("onDemand", "100");
 		pickListBox.setItemListInterface(gipi);
 		p_selopt.setUserData(gipi);
-		if(pbr.getSessionHelper().isMobile()) {
+		if(p_pickResult.getSessionHelper().isMobile()) {
 		} else {
 			p_selopt.setPopupWidth(""+gipi.getRowWidth()+"px");
 		}
+	}
+	private static void refreshPickList(JxSelOpt p_selopt) {
+		p_selopt.jxAdd("pickListBox").invalidate();
 	}
 	
 	/***

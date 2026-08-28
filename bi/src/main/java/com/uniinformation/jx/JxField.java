@@ -1839,9 +1839,9 @@ UniLog.log("addNode:haha:2");
 		} 
 	}
 	
-	public void invlidate(){
+	public void invalidate(){
 		if (jxskinelement != null){
-			jxskinelement.invlidate();
+			jxskinelement.invalidate();
 		}
 	}
 	

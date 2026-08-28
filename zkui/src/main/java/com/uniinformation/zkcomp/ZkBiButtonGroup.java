@@ -23,9 +23,11 @@ public class ZkBiButtonGroup {
 	String label = "Button Group";
 	String id = null;
 	String tooltiptext;
+	boolean isMobile;
 	
 	public ZkBiButtonGroup(SessionHelper sh) {
 		tooltiptext = sh.getLabel("Click to expand button group");
+		isMobile = sh.isMobile();
 	}
 	
 	public class GMainButton extends Button{
@@ -99,6 +101,7 @@ public class ZkBiButtonGroup {
 			return mainButton;
 		}
 		final Popup popup = new Popup();
+		popup.setSclass("zkbi-button-group-popup");
 		popup.appendChild(new Vlayout() {{
 			for (Component comp : comps) {
 				
@@ -146,8 +149,18 @@ public class ZkBiButtonGroup {
 		mainButton.addEventListener("onClick", new ZkBiEventListener() {
 			@Override
 			public void onZkBiEvent(Event event) throws Exception {
-				//popup.open(mainButton, "top_left");
-				popup.open(mainButton, "at_pointer");
+				// Keep grouped actions attached to their button.  "at_pointer" gives
+				// an arbitrary/stale position when the button is invoked by keyboard.
+				popup.open(mainButton, "after_start");
+				if (!isMobile) {
+					for (Component comp : comps) {
+						if (comp instanceof Button && !((Button) comp).isDisabled()
+								&& ((Button) comp).isVisible()) {
+							((Button) comp).setFocus(true);
+							break;
+						}
+					}
+				}
 			}
 			
 		});

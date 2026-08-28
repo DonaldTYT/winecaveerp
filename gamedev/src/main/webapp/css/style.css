@@ -1003,3 +1003,17 @@ button.zkbi-xsmall-button.z-messagebox-button {
 {
 	border: 0px solid #bcbcbc !important;
 }
+/* Make keyboard focus on detail action buttons as visible as dialog buttons. */
+.zkbi-detail-actionbar button.z-button:focus,
+.zkbi-detail-actionbar button.z-button:focus-visible,
+.zkbi-button-group-popup button.z-button:focus,
+.zkbi-button-group-popup button.z-button:focus-visible,
+.z-window-modal button.z-button:focus-visible,
+.z-window-highlighted button.z-button:focus-visible,
+button.z-messagebox-button:focus-visible {
+	color: #fff !important;
+	background-color: #0093f9 !important;
+	border: 2px solid #ffa516 !important;
+	box-shadow: 0 0 0 2px rgba(255, 165, 22, 0.35) !important;
+	outline: none !important;
+}

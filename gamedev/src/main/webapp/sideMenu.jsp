@@ -38,6 +38,19 @@
 						}
 					}
 				%>
+				function removeSideMenuNavigationFromTabOrder() {
+					$('#sidr, #sidemenu-button-container, body > .sidemenu-container').find(
+							'a,button,input,select,textarea,[tabindex]')
+						.attr('tabindex', '-1');
+				}
+				removeSideMenuNavigationFromTabOrder();
+				var sidrElement = document.getElementById('sidr');
+				if (sidrElement && typeof MutationObserver !== 'undefined') {
+					new MutationObserver(removeSideMenuNavigationFromTabOrder).observe(sidrElement, {
+						childList: true,
+						subtree: true
+					});
+				}
 				
 			});
 		}

@@ -490,9 +490,10 @@ public class JxZkListbox extends JxZkElement {
 
 						if(canInsert) {
 							Toolbarbutton b = new Toolbarbutton(); 
-    						//b.setIconSclass("z-icon-pencil-square-o z-icon-2x");
-    						b.setIconSclass("z-icon-plus-square z-icon-2x");
-    						b.setSclass("narrowtoolbarbutton");
+							//b.setIconSclass("z-icon-pencil-square-o z-icon-2x");
+							b.setIconSclass("z-icon-plus-square z-icon-2x");
+							b.setSclass("narrowtoolbarbutton");
+							b.setTabindex(-1);
 							b.setTooltiptext(sh.getTtLabel("Insert Item"));
 							b.setAttribute("isAddButton", true);
 							b.addEventListener(Events.ON_CLICK,insBtnListener);
@@ -514,8 +515,9 @@ public class JxZkListbox extends JxZkElement {
 						}
 						if(canDelete && allowDeleteFlag) {
 							Toolbarbutton b = new Toolbarbutton(); 
-    						b.setIconSclass("z-icon-trash-o z-icon-2x");
-    						b.setSclass("narrowtoolbarbutton");
+							b.setIconSclass("z-icon-trash-o z-icon-2x");
+							b.setSclass("narrowtoolbarbutton");
+							b.setTabindex(-1);
     						b.setAttribute("JxZkListbox.deleteItemButton","Y");
 							b.setTooltiptext(sh.getTtLabel("Delete Item"));
 							if (deletedFlag){
@@ -878,7 +880,8 @@ public class JxZkListbox extends JxZkElement {
 								if(tb instanceof InputElement) {
 									//((InputElement) tb).setHflex("max"); //set hflex to max no effect, it does not occupy the space.
 									((InputElement) tb).setHflex("true");
-									((InputElement) tb).setCtrlKeys("#up#down");
+									// Preserve the cell mapper shortcuts while adding row navigation.
+									((InputElement) tb).setCtrlKeys("^d@a@r#up#down");
 									((InputElement) tb).setInstant(true); //set instance  by default
 									tb.addEventListener(Events.ON_CHANGE, tbChangeListener);
 								} else {
@@ -983,6 +986,18 @@ public class JxZkListbox extends JxZkElement {
 										if(tb instanceof InputElement){
 											UniLog.log("delayExecute: textbox focus");
 											((InputElement) tb).focus();
+											ZkUtil.js("setTimeout(function(){zkbis2.focusComponent('%s')},30)",
+													tb.getUuid());
+										} else if(tb instanceof S2Listbox) {
+											Component s2Comp = ((S2Listbox)tb).getComp();
+											if(s2Comp != null) {
+												ZkUtil.js("setTimeout(function(){zkbis2.focus('%s')},30)",
+														s2Comp.getUuid());
+											}
+										} else if(tb instanceof HtmlBasedComponent) {
+											((HtmlBasedComponent)tb).focus();
+											ZkUtil.js("setTimeout(function(){zkbis2.focusComponent('%s')},30)",
+													tb.getUuid());
 										}
 										return null;
 									}
@@ -1317,9 +1332,10 @@ public class JxZkListbox extends JxZkElement {
 					if(!listbox.isMultiple() && !isMobile) {
 						if(canInsert) {
 							Toolbarbutton b = new Toolbarbutton(); 
-    						//b.setIconSclass("z-icon-pencil-square-o z-icon-2x");
-    						b.setIconSclass("z-icon-plus-square z-icon-2x");
-    						b.setSclass("narrowtoolbarbutton");
+							//b.setIconSclass("z-icon-pencil-square-o z-icon-2x");
+							b.setIconSclass("z-icon-plus-square z-icon-2x");
+							b.setSclass("narrowtoolbarbutton");
+							b.setTabindex(-1);
 							b.setTooltiptext(sh.getTtLabel("Insert Item"));
 							b.setAttribute("isAddButton", true);
 							b.addEventListener(Events.ON_CLICK,insBtnListener);
@@ -1364,8 +1380,9 @@ public class JxZkListbox extends JxZkElement {
 						}
 						if(canDelete && allowDeleteFlag) {
 							Toolbarbutton b = new Toolbarbutton(); 
-    						b.setIconSclass("z-icon-trash-o z-icon-2x");
-    						b.setSclass("narrowtoolbarbutton");
+							b.setIconSclass("z-icon-trash-o z-icon-2x");
+							b.setSclass("narrowtoolbarbutton");
+							b.setTabindex(-1);
     						b.setAttribute("JxZkListbox.deleteItemButton","Y");
 							b.setTooltiptext(sh.getTtLabel("Delete Item"));
 							if (deletedFlag){
@@ -2038,6 +2055,41 @@ public class JxZkListbox extends JxZkElement {
 			editRow.clear();
 			editingRow = -1;
 		}
+	}
+
+	/**
+	 * In addition to invalidating the ZK component, a listbox with an attached
+	 * GIPI refreshes that provider and rebuilds its model. Keep this behavior in
+	 * mind when using invalidate(): for a GIPI-backed listbox it is a data refresh,
+	 * not only a visual redraw.
+	 */
+	@Override
+	public void invalidate() {
+		if(gipi != null) {
+			gipi.refresh();
+			listModelList.clear();
+			resetOnDemandLoad();
+			rowAttrHM.clear();
+			listbox.clearSelection();
+			if(editRow != null) editRow.clear();
+			editingRow = -1;
+
+			if(loadOnDemand) {
+				loadRecordToList(appliedFilter);
+			} else {
+				int rowCount = gipi.getRowCount();
+				List<Object> modelRows = new ArrayList<Object>(rowCount);
+				for(int i = 0; i < rowCount; i++) {
+					Object row = gipi.getRow(i);
+					if(appliedFilter == null
+							|| ZkBiSearchHelper.match(gipi.getString(row), appliedFilter)) {
+						modelRows.add(row);
+					}
+				}
+				listModelList.addAll(modelRows);
+			}
+		}
+		super.invalidate();
 	}
 
 	@Override

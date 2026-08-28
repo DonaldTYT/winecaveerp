@@ -13,6 +13,8 @@ import org.zkoss.zk.ui.Component;
 import com.uniinformation.bicore.BiColumn;
 import com.uniinformation.bicore.BiResult;
 import com.uniinformation.jxapp.JxZkBiBase;
+import com.uniinformation.utils.TranslateUtil;
+import com.uniinformation.webcore.LabelHelper;
 import com.uniinformation.webcore.SessionHelper;
 
 /**
@@ -69,6 +71,9 @@ public class ZkBiComposerAIHelperContext implements ZkBiAiAgentContext {
             context.put("detailVisible", false);
             context.put("detailMode", "none");
         }
+        context.put("detailPageKeyboardShortcuts", detailPageKeyboardShortcuts());
+        context.put("detailPageKeyboardShortcutsActive",
+                state.detailForm != null && state.detailForm.isFormVisible());
 
         BiResult result = state.result;
         if (result == null) {
@@ -96,10 +101,7 @@ public class ZkBiComposerAIHelperContext implements ZkBiAiAgentContext {
         int limit = Math.min(columns.size(), 200);
         for (int i = 0; i < limit; i++) {
             BiColumn column = (BiColumn)columns.elementAt(i);
-            fields.put(new JSONObject()
-                    .put("id", column.getLabel())
-                    .put("name", column.getEngName())
-                    .put("type", column.getColumnType())
+            fields.put(columnMetadata(column)
                     .put("editableWhenAdding", !column.isNoEntry(sessionHelper))
                     .put("editableWhenUpdating", !column.isNoUpdate(sessionHelper)));
         }
@@ -146,6 +148,8 @@ public class ZkBiComposerAIHelperContext implements ZkBiAiAgentContext {
             operations.put(operation("delete_current_record", "Permanently delete the record open in the detail form after confirmation"));
         if (state.detailOpen || (state.detailForm != null && state.detailForm.isFormVisible()))
             operations.put(operation("return_to_list", "Close the detail form and return to the list"));
+        operations.put(operation("detail_page_keyboard_shortcuts",
+                "Review the keyboard shortcuts available when using a record detail form"));
 
         JSONObject catalog = new JSONObject()
                 .put("viewId", state.viewId)
@@ -202,6 +206,8 @@ public class ZkBiComposerAIHelperContext implements ZkBiAiAgentContext {
             buildDeleteCurrentRecord(state, help);
         else if ("return_to_list".equals(id))
             buildReturnToList(state, help);
+        else if ("detail_page_keyboard_shortcuts".equals(id))
+            buildDetailPageKeyboardShortcuts(state, help);
         else if (composer.buildAiActionOperationHelp(id, help)) {
             // The linked action context populated the operation help.
         }
@@ -439,10 +445,7 @@ public class ZkBiComposerAIHelperContext implements ZkBiAiAgentContext {
                     continue;
                 total++;
                 if (fields.length() < 200) {
-                    fields.put(new JSONObject()
-                            .put("id", column.getLabel())
-                            .put("name", column.getEngName())
-                            .put("type", column.getColumnType())
+                    fields.put(columnMetadata(column)
                             .put("sourceView", result.getView().getName()));
                 }
             }
@@ -570,10 +573,7 @@ public class ZkBiComposerAIHelperContext implements ZkBiAiAgentContext {
         Vector<BiColumn> listColumns = state.result.getListColumns();
         for (BiColumn column : listColumns) {
             if (!column.isNoUpdate(sessionHelper) && column.allowBatchUpdate()) {
-                columns.put(new JSONObject()
-                        .put("id", column.getLabel())
-                        .put("name", column.getEngName())
-                        .put("type", column.getColumnType()));
+                columns.put(columnMetadata(column));
             }
         }
 
@@ -872,6 +872,86 @@ public class ZkBiComposerAIHelperContext implements ZkBiAiAgentContext {
         help.put("steps", new JSONArray()
                 .put("Click Close on the record detail form.")
                 .put("If the page warns about unsaved changes, choose whether to keep editing or discard them."));
+    }
+
+    private void buildDetailPageKeyboardShortcuts(PageState state, JSONObject help)
+            throws JSONException {
+        availability(help, true, null);
+        help.put("currentlyActive",
+                state.detailForm != null && state.detailForm.isFormVisible());
+        help.put("shortcuts", detailPageKeyboardShortcuts());
+        help.put("notes", new JSONArray()
+                .put("These shortcuts can be reviewed from the list page, but they become active when a record Detail Page is open.")
+                .put("The shortcuts act only when their required Detail Page control, tab or sublink row is available.")
+                .put("Escape closes only the topmost open dropdown or popup first; press it again to close the Detail Page if appropriate.")
+                .put("Alt+End prefers Save or Save New Record when enabled, and otherwise closes the Detail Page."));
+    }
+
+    private JSONArray detailPageKeyboardShortcuts() throws JSONException {
+        return new JSONArray()
+                .put(shortcut("Tab", "Move to the next enabled control; from the last control, return to the first control in the Detail Page or open action popup."))
+                .put(shortcut("Shift+Tab", "Move to the previous enabled control; from the first control, return to the last control in the Detail Page or open action popup."))
+                .put(shortcut("Escape", "Close the topmost open Select2 dropdown, action popup or modal first; when none is open, close the Detail Page."))
+                .put(shortcut("Alt+Page Up", "Select the previous enabled tab in the current Detail Page tab set, wrapping from the first tab to the last."))
+                .put(shortcut("Alt+Page Down", "Select the next enabled tab in the current Detail Page tab set, wrapping from the last tab to the first."))
+                .put(shortcut("Alt+End", "Click Save in update mode or Save New Record in add mode when that button is visible and enabled; otherwise click Close."))
+                .put(shortcut("Shift+Arrow Up", "In an editable sublink list, move focus to the same field in the previous visible row."))
+                .put(shortcut("Shift+Arrow Down", "In an editable sublink list, move focus to the same field in the next visible row."))
+                .put(shortcut("Alt+A", "From an editable sublink row, append a row and move focus to the first editor in the inserted row."))
+                .put(shortcut("Alt+R", "From an editable sublink row, remove that row and move focus to the next row, or the previous row when no next row remains."));
+    }
+
+    private JSONObject shortcut(String keys, String behavior) throws JSONException {
+        return new JSONObject().put("keys", keys).put("behavior", behavior);
+    }
+
+    private JSONObject columnMetadata(BiColumn column) throws JSONException {
+        SessionHelper sessionHelper = getAiHelpSessionHelper();
+        String renderedLabel = composer.getAiHelpRenderedColumnLabel(column);
+        String translatedLabel = ZkBiTranslateHelper.getText(sessionHelper,
+                column.getCellFullName(), "LABEL", sessionHelper.getLabel(column));
+        String displayLabel = StringUtils.defaultIfBlank(renderedLabel, translatedLabel);
+
+        JSONObject translations = new JSONObject();
+        LinkedHashSet<String> aliases = new LinkedHashSet<String>();
+        addAlias(aliases, column.getLabel());
+        addAlias(aliases, column.getEngName());
+        addAlias(aliases, displayLabel);
+        String[] languages = new String[] {
+                LabelHelper.LANG_ENG, LabelHelper.LANG_TCHN,
+                LabelHelper.LANG_SCHN, LabelHelper.LANG_JAP,
+                LabelHelper.LANG_KOR
+        };
+        for (String language : languages) {
+            String standardLabel = LabelHelper.getText(
+                    column.getEngName(), LabelHelper.TYPE_LB, language);
+            String label = TranslateUtil.getTextForLanguage(sessionHelper,
+                    column.getCellFullName(), "LABEL", language, standardLabel);
+            if (StringUtils.isNotBlank(label)) {
+                translations.put(language, label);
+                addAlias(aliases, label);
+            }
+        }
+
+        JSONArray aliasArray = new JSONArray();
+        for (String alias : aliases)
+            aliasArray.put(alias);
+        return new JSONObject()
+                .put("id", column.getLabel())
+                .put("columnId", column.getLabel())
+                .put("name", column.getEngName())
+                .put("englishName", column.getEngName())
+                .put("displayLabel", displayLabel)
+                .put("displayLabelSource", StringUtils.isNotBlank(renderedLabel)
+                        ? "renderedPage" : "currentLanguageTranslation")
+                .put("translations", translations)
+                .put("aliases", aliasArray)
+                .put("type", column.getColumnType());
+    }
+
+    private void addAlias(Set<String> aliases, String value) {
+        if (StringUtils.isNotBlank(value))
+            aliases.add(value.trim());
     }
 
     private String modeName(int mode) {

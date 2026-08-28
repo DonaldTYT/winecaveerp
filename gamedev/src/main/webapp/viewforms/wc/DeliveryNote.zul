@@ -10,9 +10,25 @@ div.z-grid.zkbi-detail-grid {
 .delivery-note-form .zkbi-detail-grid .z-cell {
 	padding: 2px 5px;
 }
+.delivery-note-form .delivery-header .z-row-inner,
+.delivery-note-form .delivery-header .z-cell {
+	border: 0 !important;
+}
 .delivery-note-form .field-caption {
 	font-weight: 600;
 	white-space: nowrap;
+}
+.delivery-note-form .delivery-header .zkbifdiv {
+	flex-wrap: nowrap;
+	width: 100%;
+}
+.delivery-note-form .delivery-header .zkbifdiv-lbdiv {
+	flex: 0 0 auto;
+	min-width: 0;
+	max-width: none;
+}
+.delivery-note-form .delivery-header .zkbifdiv-compdiv {
+	min-width: 0;
 }
 .delivery-note-form .address-listbox {
 	border: 1px solid #d8d8d8;
@@ -89,75 +105,51 @@ div.z-grid.zkbi-detail-grid {
 				<vlayout hflex="1" spacing="6px">
 					<grid hflex="1" sclass="zkbi-detail-grid delivery-header">
 						<columns>
-							<column width="85px" />
-							<column width="155px" />
-							<column width="75px" />
-							<column width="155px" />
-							<column width="75px" />
-							<column width="155px" />
-							<column width="95px" />
+							<column width="240px" />
+							<column width="230px" />
+							<column width="230px" />
 							<column hflex="1" />
 						</columns>
 						<rows>
 							<row>
-								<label value="Date:" sclass="field-caption" />
-								<zkbidiv jxId="stm_date" labelPosition="invisible" />
-								<label value="Ref.:" sclass="field-caption" />
-								<zkbidiv jxId="stm_mrg" labelPosition="invisible" />
-								<label value="Post By:" sclass="field-caption" />
-								<zkbidiv jxId="stm_cfmuser" labelPosition="invisible" />
-								<label value="Deliver To:" sclass="field-caption" />
+								<zkbifdiv jxId="stm_date" label="Date:" labelWidth="85px" />
+								<zkbifdiv jxId="stm_mrg" label="Ref.:" labelWidth="75px" />
+								<zkbifdiv jxId="stm_cfmuser" label="Post By:" labelWidth="75px" />
 								<cell rowspan="4">
 									<vlayout hflex="1" spacing="0">
+										<zkbifdiv jxId="stmov_deliaddr" label="Deliver To:"
+											labelWidth="95px" compWidth="350px"
+											compStyle="flex:0 0 350px;max-width:350px;" />
 										<listbox id="list_wc_MemoStm" visible="false" height="105px"
 											hflex="1" sclass="address-listbox" />
-										<zkbidiv jxId="stmov_deliaddr" labelPosition="invisible" />
 									</vlayout>
 								</cell>
 							</row>
 							<row>
-								<label value="D/N:" sclass="field-caption" />
-								<zkbidiv jxId="stm_ref1" labelPosition="invisible" />
-								<label value="Pack By:" sclass="field-caption" />
-								<zkbidiv jxId="stm_ref3" labelPosition="invisible" />
-								<label value="On:" sclass="field-caption" />
-								<zkbidiv jxId="stm_cfmdate" labelPosition="invisible" />
-								<label value="" />
+								<zkbifdiv jxId="stm_ref1" label="D/N:" labelWidth="85px" />
+								<zkbifdiv jxId="stm_ref3" label="Pack By:" labelWidth="75px" />
+								<zkbifdiv jxId="stm_cfmdate" label="On:" labelWidth="75px" />
 							</row>
 							<row>
-								<label value="Customer:" sclass="field-caption" />
-								<zkbidiv jxId="vd_vcode" labelPosition="invisible" />
-								<label value="Name:" sclass="field-caption" />
-								<cell colspan="3">
-									<zkbidiv jxId="vd_vname" labelPosition="invisible" />
+								<zkbifdiv jxId="vd_vcode" label="Customer:" labelWidth="85px" />
+								<cell colspan="2">
+									<zkbifdiv jxId="vd_vname" label="Name:" labelWidth="75px" />
 								</cell>
-								<label value="" />
 							</row>
 							<row>
-								<label value="Delivery:" sclass="field-caption" />
-								<cell colspan="3">
-									<zkbidiv jxId="stm_ctrspec" labelPosition="invisible" />
+								<cell colspan="2">
+									<zkbifdiv jxId="stm_ctrspec" label="Delivery:" labelWidth="85px" />
 								</cell>
-								<label value="Post Status:" sclass="field-caption" />
-								<zkbidiv jxId="stm_status" labelPosition="invisible" />
-								<label value="" />
+								<zkbifdiv jxId="stm_status" label="Post Status:" labelWidth="75px" />
 							</row>
 							<row>
-								<label value="Void:" sclass="field-caption" />
-								<zkbidiv jxId="stm_void" labelPosition="invisible" />
-								<label value="Currency:" sclass="field-caption" />
-								<zkbidiv jxId="stm_cur" labelPosition="invisible" />
-								<label value="Customer Code:" sclass="field-caption" />
-								<label value="" />
-								<label value="" />
+								<zkbifdiv jxId="stm_void" label="Void:" labelWidth="85px" />
+								<zkbifdiv jxId="stm_cur" label="Currency:" labelWidth="75px" />
 							</row>
 							<row>
-								<label value="TolQty:" sclass="field-caption" />
-								<zkbidiv jxId="stm_tolqty"/>
-								<label value="Packed:" sclass="field-caption" />
-								<zkbidiv jxId="stm_packed" labelPosition="invisible" />
-								<label value="Complete:" sclass="field-caption" />
-								<zkbidiv jxId="stm_complete" labelPosition="invisible" />
+								<zkbifdiv jxId="stm_tolqty" label="TolQty:" labelWidth="85px" />
+								<zkbifdiv jxId="stm_packed" label="Packed:" labelWidth="75px" />
+								<zkbifdiv jxId="stm_complete" label="Complete:" labelWidth="75px" />
 							</row>
 						</rows>
 					</grid>
@@ -306,25 +298,20 @@ div.z-grid.zkbi-detail-grid {
 			<tabpanel>
 				<grid id="detail_grid" sclass="zkbi-detail-grid">
 					<columns>
-						<column width="180px" />
 						<column hflex="1" />
 					</columns>
 					<rows>
 						<row>
-							<label value="Created By" sclass="field-caption" />
-							<zkbidiv jxId="stm_cuser" labelPosition="invisible" />
+							<zkbifdiv jxId="stm_cuser" label="Created By" labelWidth="180px" />
 						</row>
 						<row>
-							<label value="Created On" sclass="field-caption" />
-							<zkbidiv jxId="stm_cdate" labelPosition="invisible" />
+							<zkbifdiv jxId="stm_cdate" label="Created On" labelWidth="180px" />
 						</row>
 						<row>
-							<label value="Updated By" sclass="field-caption" />
-							<zkbidiv jxId="stm_uuser" labelPosition="invisible" />
+							<zkbifdiv jxId="stm_uuser" label="Updated By" labelWidth="180px" />
 						</row>
 						<row>
-							<label value="Updated On" sclass="field-caption" />
-							<zkbidiv jxId="stm_udate" labelPosition="invisible" />
+							<zkbifdiv jxId="stm_udate" label="Updated On" labelWidth="180px" />
 						</row>
 					</rows>
 				</grid>

@@ -2,6 +2,8 @@ package com.uniinformation.bicore.wc;
 
 import java.util.Vector;
 
+import org.apache.commons.lang3.StringUtils;
+
 import com.kyoko.common.ReturnMsg;
 import com.uniinformation.bicore.BiCellCollection;
 import com.uniinformation.bicore.BiResult;
@@ -66,6 +68,8 @@ public class BiResultDelivery extends BiResultStmov {
 	public void afterPickColumn(ColumnCell p_pickColumn,
 			BiCellCollection p_pickedCollection, String p_pickedColumnName,
 			boolean p_update) throws CellException {
+		if(p_pickedCollection != null) {
+			
 		if(!"vd_vcode".equals(p_pickColumn.getCellLabel())) {
 			super.afterPickColumn(p_pickColumn, p_pickedCollection,
 					p_pickedColumnName, p_update);
@@ -95,10 +99,13 @@ public class BiResultDelivery extends BiResultStmov {
 			throw new CellException(
 					"stmov_deliaddr is missing from the Delivery row");
 		}
-
+		deliveryAddress.set(address.toString());
+		} else {
+			Exception ex = new Exception("pickCollection is null 2");
+			UniLog.log(ex);
+		}
 		super.afterPickColumn(p_pickColumn, p_pickedCollection,
 				p_pickedColumnName, p_update);
-		deliveryAddress.set(address.toString());
 	}
 
 	/**
@@ -128,9 +135,11 @@ public class BiResultDelivery extends BiResultStmov {
 				return new ReturnMsg(false, "Order id is required for every delivery item", true);
 			}
 		}
-
+		
+		String ss = pcol.getCellString("stm_ref1");
+		if(StringUtils.isBlank(ss)) {
 		Vector args = new Vector();
-		args.add("smomvh");
+		args.add("smdnvh");
 		args.add(pcol.getCell("stm_date").getDate());
 		Value value = rpc.callSegment("erpv3GetrgByControl", args);
 		if (value == null || !value.toString().startsWith("OK")) {
@@ -141,6 +150,7 @@ public class BiResultDelivery extends BiResultStmov {
 		} catch (CellException ex) {
 			UniLog.log(ex);
 			return new ReturnMsg(false, "Unknown Error", true);
+		}
 		}
 
 		return new ReturnMsg(true);

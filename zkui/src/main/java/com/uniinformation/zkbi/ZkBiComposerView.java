@@ -19,9 +19,12 @@ public class ZkBiComposerView extends ZkComposerBase {
    			UniLog.log("tablId for " + desktopId + " = " + tabId);
    	    });
 
-   	    // Ask client to send it back
-   	    Clients.evalJavaScript(
-   	      "zAu.send(new zk.Event(zk.Widget.$('$" + comp.getUuid() + "'), 'onTabId', getOrCreateTabId()));"
-   	    );	
+	    // Ask client to send it back
+	    Clients.evalJavaScript(
+	      "if (typeof getOrCreateTabId === 'function') {"
+	      + "zAu.send(new zk.Event(zk.Widget.$('$" + comp.getUuid()
+	      + "'), 'onTabId', getOrCreateTabId()));"
+	      + "}"
+	    );
    	}
 }

@@ -204,6 +204,7 @@ public class BiGetItemProperty extends AbstractGetItemProperty {
 		return(bigibr);
 	}
 	
+	@Override
 	public CellCollection getCellCollectionByValue(Object p_value) {
 		CellCollection col = bigibr.getRowCollectionO(p_value);
 		return(col);

@@ -36,6 +36,9 @@ public final class ZkBiAiAgentDialog {
           + "or other generic web behavior. Base page-specific claims only on tool results. "
           + "Explain the returned steps clearly and concisely. Available operations depend on the "
           + "current view, page state and logged-in user's permissions. "
+          + "When the user names a field or column, match it against fields[].displayLabel, "
+          + "fields[].aliases and fields[].translations; do not require the user to know the "
+          + "internal columnId. Prefer the live displayLabel when referring to that field. "
           + "Never claim that you performed an action or changed data. If a requested operation is "
           + "not supported by the supplied tools, say that exact instructions are not available. "
           + "If an operation tool fails, do not fill the gap with generic UI advice or guessed "
@@ -313,7 +316,9 @@ public final class ZkBiAiAgentDialog {
         @Override
         public String getDescription() {
             return "Returns live, read-only metadata for the invoking BI page, including its current "
-                    + "list/detail state, permissions and fields. It never returns record values.";
+                    + "list/detail state, permissions and fields. Field metadata includes the "
+                    + "internal columnId, live displayLabel and translated aliases. It never "
+                    + "returns record values.";
         }
 
         @Override

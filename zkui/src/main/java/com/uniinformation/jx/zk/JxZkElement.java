@@ -670,7 +670,7 @@ abstract class JxZkElement extends JxSkinElement
 	}
 
 	@Override
-	public void invlidate() {
+	public void invalidate() {
 		comp.invalidate();
 	}
 	

@@ -10,6 +10,7 @@ import com.uniinformation.bicore.erpv4.BiResultErpv4;
 import com.uniinformation.cell.Cell;
 import com.uniinformation.cell.CellException;
 import com.uniinformation.utils.SelectUtil;
+import com.uniinformation.utils.UniLog;
 import com.uniinformation.webcore.SessionHelper;
 
 public class BiResultDeliDetail extends BiResultErpv4 {
@@ -23,7 +24,11 @@ public class BiResultDeliDetail extends BiResultErpv4 {
 	public String getPickColumnCondition(ColumnCell p_cc) {
 		if(p_cc.getCellLabel().equals("st_icode")) {
 			BiCellCollection bc = p_cc.getCollection();
-			return(" or_cocode = '"+bc.getCellString("stm_ref2")+"' ");
+			return(" pdls_loc in ('STOR','WH01') and or_cocode = '"+bc.getCellString("stm_ref2")+"' ");
+		}
+		if(p_cc.getCellLabel().equals("stmom_ref1")) {
+			BiCellCollection bc = p_cc.getCollection();
+			return(" stm_ref2 = '"+bc.getCellString("stm_ref2")+"' ");
 		}
 		if(p_cc.getCellLabel().equals("stmd_ref3")) {
 			BiCellCollection bc = p_cc.getCollection();
@@ -39,6 +44,8 @@ public class BiResultDeliDetail extends BiResultErpv4 {
 	public void afterPickColumn(ColumnCell p_pickColumn,
 			BiCellCollection p_pickedCollection, String p_pickedColumnName,
 			boolean p_update) throws CellException {
+		if(p_pickedCollection != null) {
+			
 		if("st_icode".equals(p_pickColumn.getCellLabel())) {
 			Cell pdlsIrg = p_pickedCollection.testCell("pdls_irg");
 			if(pdlsIrg == null) {
@@ -71,10 +78,15 @@ public class BiResultDeliDetail extends BiResultErpv4 {
 				throw new CellException(
 						"stmd_loc is missing from the DeliveryDetail row");
 			}
-
+			Cell stmdQorg = p_pickColumn.getCollection().testCell("stmd_qorg");
+			if(stmdQorg == null) {
+				throw new CellException(
+						"stmd_loc is missing from the DeliveryDetail row");
+			}
 			stmdOrg.set(pdlsOrg.getObject());
 			stmdIrg.set(pdlsIrg.getObject());
 			stmdLoc.set(pdlsLoc.getObject());
+			stmdQorg.set(0);
 			return;
 		}
 
@@ -124,6 +136,10 @@ public class BiResultDeliDetail extends BiResultErpv4 {
 			stmdQorg.set(palcQorg.getObject());
 			stmdLoc.set("SOLD");
 			return;
+		}
+		} else {
+			Exception ex = new Exception("pickCollection is null 2");
+			UniLog.log(ex);
 		}
 
 		super.afterPickColumn(p_pickColumn, p_pickedCollection,

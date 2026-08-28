@@ -204,7 +204,7 @@ public abstract class JxSkinElement
 	public abstract int getActionType();
 	public abstract Object getActionEvent();
 	public abstract void setItemStyle(int p_idx,String p_style);
-	public abstract void invlidate();
+	public abstract void invalidate();
 	public abstract void setInstant(boolean p_flag);
 	public abstract Object getValue();
 	public abstract void setFormat(String p_format);
