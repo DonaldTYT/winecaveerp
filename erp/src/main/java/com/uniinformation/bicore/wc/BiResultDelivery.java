@@ -1,5 +1,6 @@
 package com.uniinformation.bicore.wc;
 
+import java.util.HashMap;
 import java.util.Vector;
 
 import org.apache.commons.lang3.StringUtils;
@@ -20,6 +21,9 @@ import com.uniinformation.utils.UniLog;
 import com.uniinformation.webcore.SessionHelper;
 
 public class BiResultDelivery extends BiResultStmov {
+	private final HashMap<Integer,Double> palcCommitedHash = new HashMap<Integer,Double>();
+	private final HashMap<Integer,Double> icodeCommitedHash = new HashMap<Integer,Double>();
+
 	private static final DeliveryOptionInfo[] DELIVERY_OPTIONS = {
 			new DeliveryOptionInfo("Bubble wrap", "氣泡膜", "50300"),
 			new DeliveryOptionInfo("Inflatable bottle bag", "充氣瓶袋", "50300"),
@@ -62,6 +66,21 @@ public class BiResultDelivery extends BiResultStmov {
 	public BiResultDelivery(BiResult p_parent, BiView p_view, SelectUtil p_su, Vector p_tabList, String p_whereStr,
 			SessionHelper p_sh) throws CellException {
 		super(p_parent, p_view, p_su, p_tabList, p_whereStr, p_sh);
+	}
+
+	@Override
+	public void clearCurrentRec() {
+		super.clearCurrentRec();
+		if(palcCommitedHash != null) palcCommitedHash.clear();
+		if(icodeCommitedHash != null) icodeCommitedHash.clear();
+	}
+
+	public HashMap<Integer,Double> getPalcCommitedHash() {
+		return palcCommitedHash;
+	}
+
+	public HashMap<Integer,Double> getIcodeCommitedHash() {
+		return icodeCommitedHash;
 	}
 
 	@Override
@@ -159,9 +178,45 @@ public class BiResultDelivery extends BiResultStmov {
 	@Override
 	protected void afterFetch() {
 		super.afterFetch();
+		rebuildCommitedHashes();
 		ReturnMsg result = BiUtil.copySublinkColumnToMemoField(this, getCurrentCollection(),
 				"wc.MemoStm", "mm_desc", "stmov_deliaddr");
 		if(result != null && !result.getStatus()) UniLog.log(result.getMsg());
+	}
+
+	private void rebuildCommitedHashes() {
+		palcCommitedHash.clear();
+		icodeCommitedHash.clear();
+		if(!"Y".equals(getCurrentCollection().getCellString("stm_void"))) {
+			BiResult deliveryDetail = getSubLink("wc.DeliveryDetail");
+			if(deliveryDetail != null) {
+				for(BiCellCollection detail : deliveryDetail.getRowCollectionList()) {
+					int palcSid = detail.getCellInt("palc_sid");
+					if(palcSid > 0) {
+						Integer palcKey = Integer.valueOf(palcSid);
+						Double palcQty = palcCommitedHash.get(palcKey);
+						palcCommitedHash.put(palcKey, Double.valueOf(
+								(palcQty == null ? 0.0 : palcQty.doubleValue())
+								+ detail.getCellDouble("stmd_dqty")));
+					}
+					int icodeSid = detail.getCellInt("pdls_sid");
+					if(icodeSid > 0) {
+						Integer icodeKey = Integer.valueOf(icodeSid);
+						Double icodeQty = icodeCommitedHash.get(icodeKey);
+						icodeCommitedHash.put(icodeKey, Double.valueOf(
+								(icodeQty == null ? 0.0 : icodeQty.doubleValue())
+								+ detail.getCellDouble("stmd_dqty")));
+					}
+				}
+			}
+		}
+	}
+
+	@Override
+	public boolean commitWork() throws Exception {
+		boolean committed = super.commitWork();
+		if(committed) rebuildCommitedHashes();
+		return(committed);
 	}
 
 	@Override

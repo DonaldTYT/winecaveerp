@@ -1,19 +1,75 @@
 package com.uniinformation.bicore.wc;
 
+import java.util.HashMap;
 import java.util.Vector;
 
 import com.uniinformation.bicore.BiCellCollection;
+import com.uniinformation.bicore.BiColumn;
+import com.uniinformation.bicore.BiGetItemProperty;
 import com.uniinformation.bicore.BiResult;
 import com.uniinformation.bicore.BiView;
 import com.uniinformation.bicore.ColumnCell;
 import com.uniinformation.bicore.erpv4.BiResultErpv4;
 import com.uniinformation.cell.Cell;
+import com.uniinformation.cell.AbstractGetItemProperty;
 import com.uniinformation.cell.CellException;
+import com.uniinformation.erpv4.Erpv4GetItemProperty;
 import com.uniinformation.utils.SelectUtil;
 import com.uniinformation.utils.UniLog;
 import com.uniinformation.webcore.SessionHelper;
 
 public class BiResultDeliDetail extends BiResultErpv4 {
+	public class DnPalcGetItemProperty extends Erpv4GetItemProperty {
+		public DnPalcGetItemProperty(BiResult p_pickBr, ColumnCell p_pickCell) {
+			super(BiResultDeliDetail.this, p_pickBr, p_pickCell,
+					new BiColumn[] {
+							p_pickBr.getView().getColumnByLabel("palc_org"),
+							p_pickBr.getView().getColumnByLabel("palc_irg"),
+							p_pickBr.getView().getColumnByLabel("palc_qorg")
+					},
+					p_pickBr.getView().getColumnByLabel("palc_netqty"),
+					new BiColumn[] {
+							getView().getColumnByLabel("stmd_org"),
+							getView().getColumnByLabel("stmd_irg"),
+							getView().getColumnByLabel("stmd_qorg")
+					},
+					getView().getColumnByLabel("stmd_dqty"));
+			setItemMode(BiGetItemProperty.GETITEM_MODE_PICK);
+		}
+
+		@Override
+		protected HashMap<Integer,Double> getCommitedValues() {
+			BiResult parent = BiResultDeliDetail.this.getParent();
+			if(!(parent instanceof BiResultDelivery)) return(null);
+			return(((BiResultDelivery) parent).getPalcCommitedHash());
+		}
+	}
+
+	public class IcodeGetItemProperty extends Erpv4GetItemProperty {
+		public IcodeGetItemProperty(BiResult p_pickBr, ColumnCell p_pickCell) {
+			super(BiResultDeliDetail.this, p_pickBr, p_pickCell,
+					new BiColumn[] {
+							p_pickBr.getView().getColumnByLabel("pdls_org"),
+							p_pickBr.getView().getColumnByLabel("pdls_irg"),
+							p_pickBr.getView().getColumnByLabel("pdls_loc")
+					},
+					p_pickBr.getView().getColumnByLabel("pdls_stockqty"),
+					new BiColumn[] {
+							getView().getColumnByLabel("stmd_org"),
+							getView().getColumnByLabel("stmd_irg"),
+							getView().getColumnByLabel("stmd_loc")
+					},
+					getView().getColumnByLabel("stmd_dqty"));
+			setItemMode(BiGetItemProperty.GETITEM_MODE_PICK);
+		}
+
+		@Override
+		protected HashMap<Integer,Double> getCommitedValues() {
+			BiResult parent = BiResultDeliDetail.this.getParent();
+			if(!(parent instanceof BiResultDelivery)) return(null);
+			return(((BiResultDelivery) parent).getIcodeCommitedHash());
+		}
+	}
 
 	public BiResultDeliDetail(BiResult p_parent, BiView p_view, SelectUtil p_su, Vector p_tabList, String p_whereStr,
 			SessionHelper p_sh) throws CellException {
@@ -21,14 +77,55 @@ public class BiResultDeliDetail extends BiResultErpv4 {
 		// TODO Auto-generated constructor stub
 	}
 	@Override
+	public AbstractGetItemProperty pickColumnGetItemProperty(BiResult p_br,
+			ColumnCell p_pickColumn) {
+		if(p_pickColumn != null && "stmom_ref1".equals(p_pickColumn.getCellLabel())) {
+			return(new DnPalcGetItemProperty(p_br, p_pickColumn));
+		}
+		if(p_pickColumn != null && "st_icode".equals(p_pickColumn.getCellLabel())) {
+			return(new IcodeGetItemProperty(p_br, p_pickColumn));
+		}
+		return(super.pickColumnGetItemProperty(p_br, p_pickColumn));
+	}
+
+	@Override
 	public String getPickColumnCondition(ColumnCell p_cc) {
 		if(p_cc.getCellLabel().equals("st_icode")) {
 			BiCellCollection bc = p_cc.getCollection();
-			return(" pdls_loc in ('STOR','WH01') and or_cocode = '"+bc.getCellString("stm_ref2")+"' ");
+			String icodeCondition = " pdls_loc in ('STOR','WH01') and pdls_stockqty > 0 and or_cocode = '"
+					+bc.getCellString("stm_ref2")+"' ";
+			BiResult parent = getParent();
+			if(!(parent instanceof BiResultDelivery)) return(icodeCondition);
+
+			HashMap<Integer,Double> icodeCommitedHash = ((BiResultDelivery) parent).getIcodeCommitedHash();
+			if(icodeCommitedHash == null || icodeCommitedHash.isEmpty()) return(icodeCondition);
+
+			StringBuilder icodeSidList = new StringBuilder();
+			for(Integer icodeSid : icodeCommitedHash.keySet()) {
+				if(icodeSid == null) continue;
+				if(icodeSidList.length() > 0) icodeSidList.append(',');
+				icodeSidList.append(icodeSid.intValue());
+			}
+			if(icodeSidList.length() == 0) return(icodeCondition);
+			return("(("+icodeCondition+") or serial_id in("+icodeSidList+") )");
 		}
 		if(p_cc.getCellLabel().equals("stmom_ref1")) {
 			BiCellCollection bc = p_cc.getCollection();
-			return(" stm_ref2 = '"+bc.getCellString("stm_ref2")+"' ");
+			String condition = " palc_delqty+palc_actdelqty > 0 and stm_ref2 = '"+bc.getCellString("stm_ref2")+"' ";
+			BiResult parent = getParent();
+			if(!(parent instanceof BiResultDelivery)) return(condition);
+
+			HashMap<Integer,Double> palcCommitedHash = ((BiResultDelivery) parent).getPalcCommitedHash();
+			if(palcCommitedHash == null || palcCommitedHash.isEmpty()) return(condition);
+
+			StringBuilder sidList = new StringBuilder();
+			for(Integer sid : palcCommitedHash.keySet()) {
+				if(sid == null) continue;
+				if(sidList.length() > 0) sidList.append(',');
+				sidList.append(sid.intValue());
+			}
+			if(sidList.length() == 0) return(condition);
+			return("(("+condition+") or serial_id in("+sidList+") )");
 		}
 		if(p_cc.getCellLabel().equals("stmd_ref3")) {
 			BiCellCollection bc = p_cc.getCollection();

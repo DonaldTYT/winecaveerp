@@ -2509,6 +2509,18 @@ public class BiResult implements GetCellInterface {
 		}
 		return(-1);
 	}
+	/**
+	 * Returns the position of a selected table's SID in resultTr.
+	 *
+	 * @param bt selected master table or subtable
+	 * @return zero-based SID position, or {@code -1} when the table is not selected
+	 */
+	protected int getSelectedTableSidPosition(BiTable bt) {
+		for(int i = 0; i < tabList.size(); i++) {
+			if(bt == (BiTable) tabList.get(i)) return(i);
+		}
+		return(-1);
+	}
 	protected boolean loadOneRec(int p_recidx,BiCellCollection col,boolean p_isFetch) {
 		boolean rtn = loadOneRec_real(p_recidx,col,p_isFetch);
 		if(virtualMaster && resultCache != null) {

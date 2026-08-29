@@ -1085,6 +1085,7 @@ public class JxZkBiBase extends JxZkBase
 			UniLog.log("addCurrent error " + " fatal ? " + rtnMsg.isFatal() + " " + rtnMsg.getMsg() + " data " + rtnMsg.getData());
 			return(new ReturnMsg(false,sessionHelper.getLabel("Error !!! Add Record Failed") + ":-\n" + rtnMsg.getMsg() + ((sessionHelper.isAdminUser() && rtnMsg.getData() != null )? rtnMsg.getData().toString() : "")));
 		}
+		pickBySelectCache.clear();
 		
 		//afterUpdate(br);   //required to call afterUpdate??
 		// afterAdd(br);  // 2020/11/30 moved to do before commitwork
@@ -1248,6 +1249,7 @@ public class JxZkBiBase extends JxZkBase
 			UniLog.log("updateCurrent error " + " fatal ? " + rtnMsg.isFatal() + " " + rtnMsg.getMsg() + " data " + rtnMsg.getData());
 			return(new ReturnMsg(false,sessionHelper.getLabel("Error !!! Update Record Failed") + ":-\n" + rtnMsg.getMsg() + ((sessionHelper.isAdminUser() && rtnMsg.getData() != null )? rtnMsg.getData().toString() : "")));
 		}
+		pickBySelectCache.clear();
 		setDirtyFlag(false);
 		
 		/*
