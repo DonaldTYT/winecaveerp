@@ -32,7 +32,8 @@ public class ZkBiComposerAsAtReport extends ZkBiComposerAggregateReport {
 
 	@Override
 	protected ReturnMsg setAdditionalQueryCondition(BiResult result) {
-    	Cell cdc = rptCol.testCell("rptCondition");
+		applyAgingDateMode(result);
+		Cell cdc = rptCol.testCell("rptCondition");
     	if(cdc != null) {
    		try {
     	String conditions = inputFieldsList.getCustomCondition();
@@ -80,6 +81,9 @@ public class ZkBiComposerAsAtReport extends ZkBiComposerAggregateReport {
     }
 	@Override
 	protected void onSetupParameterChange(BiResult result,String p_id) {
+		if(p_id.equals("agingDateType")) {
+			applyAgingDateMode(result);
+		}
 		if(p_id.equals("useFifoAging")) {
 			boolean needResetHeader = ((BiAsAtReportInterface)result).setFifoAging(rptCol.getCell("useFifoAging").getBoolean());
     		if(needResetHeader) {
@@ -99,6 +103,17 @@ public class ZkBiComposerAsAtReport extends ZkBiComposerAggregateReport {
 //    			resetListHeader(result);
 //    		}
     	}
+		Component fifoAgingRow = zkbiListTop.getFellowIfAny("fifoAgingRow", true);
+		if(fifoAgingRow != null) {
+			fifoAgingRow.setVisible(((BiAsAtReportInterface) result).showFifoAgingOption());
+		}
+		applyAgingDateMode(result);
+	}
+
+	private void applyAgingDateMode(BiResult result) {
+		Cell dateType = rptCol.testCell("agingDateType");
+		boolean byInvoiceDate = dateType != null && dateType.getInt() == 1;
+		((BiAsAtReportInterface) result).setAgingByInvoiceDate(byInvoiceDate);
 	}
 	
 	Object trStatList;

@@ -897,8 +897,8 @@ public class ZkBiComposerAIHelperContext implements ZkBiAiAgentContext {
                 .put(shortcut("Alt+End", "Click Save in update mode or Save New Record in add mode when that button is visible and enabled; otherwise click Close."))
                 .put(shortcut("Shift+Arrow Up", "In an editable sublink list, move focus to the same field in the previous visible row."))
                 .put(shortcut("Shift+Arrow Down", "In an editable sublink list, move focus to the same field in the next visible row."))
-                .put(shortcut("Alt+A", "From an editable sublink row, append a row and move focus to the first editor in the inserted row."))
-                .put(shortcut("Alt+R", "From an editable sublink row, remove that row and move focus to the next row, or the previous row when no next row remains."));
+                .put(shortcut("Alt+Enter", "From an editable sublink row, append a row and move focus to the first editor in the inserted row."))
+                .put(shortcut("Alt+Delete", "From an editable sublink row, remove that row and move focus to the next row, or the previous row when no next row remains."));
     }
 
     private JSONObject shortcut(String keys, String behavior) throws JSONException {

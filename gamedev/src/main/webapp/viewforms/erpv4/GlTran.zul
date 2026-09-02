@@ -15,6 +15,9 @@
 	border-right: none; 
 	border-bottom: none; 
 } 
+div.z-grid.zkbi-detail-grid.gridLayoutNoBorder > div.z-grid-body {
+	height: auto;
+}
 .listboxNoSeparator .z-listitem > .z-listcell {
 	border-top: none; 
 	vertical-align: top;
@@ -27,7 +30,7 @@
 		<button id="btCopyTran" label="Copy Tran" visible="true"><custom-attributes tlkey="bt_CopyTran"></custom-attributes></button>
 	</toolbar>
 	<div height="20px"/>
-	<grid style="text-align:left;border: 1px solid #ececec; border-bottom: none;" id="detail_grid" sclass="gridLayoutNoBorder">
+	<grid style="text-align:left;border: 1px solid #ececec; border-bottom: none;" id="detail_grid" sclass="zkbi-detail-grid gridLayoutNoBorder">
 	</grid>
 	<listbox id="list_erpv4_GlJn" height="450px">
 	<!--

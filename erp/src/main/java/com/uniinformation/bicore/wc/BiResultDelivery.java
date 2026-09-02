@@ -87,8 +87,10 @@ public class BiResultDelivery extends BiResultStmov {
 	public void afterPickColumn(ColumnCell p_pickColumn,
 			BiCellCollection p_pickedCollection, String p_pickedColumnName,
 			boolean p_update) throws CellException {
-		if(p_pickedCollection != null) {
-			
+		if(p_pickedCollection == null) {
+			UniLog.log1("No delivery row selected; skip afterPickColumn");
+			return;
+		}
 		if(!"vd_vcode".equals(p_pickColumn.getCellLabel())) {
 			super.afterPickColumn(p_pickColumn, p_pickedCollection,
 					p_pickedColumnName, p_update);
@@ -119,10 +121,6 @@ public class BiResultDelivery extends BiResultStmov {
 					"stmov_deliaddr is missing from the Delivery row");
 		}
 		deliveryAddress.set(address.toString());
-		} else {
-			Exception ex = new Exception("pickCollection is null 2");
-			UniLog.log(ex);
-		}
 		super.afterPickColumn(p_pickColumn, p_pickedCollection,
 				p_pickedColumnName, p_update);
 	}

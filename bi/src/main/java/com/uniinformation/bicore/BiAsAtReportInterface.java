@@ -17,5 +17,11 @@ public interface BiAsAtReportInterface {
 	public void setSkipSummaryColumns(HashSet<String> p_cols);
 	public boolean skipForSummary(String p_aggLabel,AggregateOrPivotHeader p_app);
 	public boolean setFifoAging(boolean sw);
+	public default boolean showFifoAgingOption() {
+		return(false);
+	}
+	public default boolean setAgingByInvoiceDate(boolean sw) {
+		return(false);
+	}
 //	public BiColumn getCumulatorKey();
 }

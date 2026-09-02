@@ -1,5 +1,6 @@
 package com.uniinformation.bicore.erpv4;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
@@ -33,10 +34,11 @@ public class BiResultAgingAsAt extends BiResultErpv4 implements BiAsAtReportInte
 		// TODO Auto-generated constructor stub
 	}
 
-	private enum FuncName { FUNC_getAsAtDate, FUNC_agingPeriod,FUNC_duePeriod,FUNC_duePeriod2,
+	private enum FuncName { FUNC_getAsAtDate, FUNC_agingDate, FUNC_agingPeriod,FUNC_duePeriod,FUNC_duePeriod2,FUNC_genAgingPeriod,
 					NOT_DEFINED }
 	Date asAtDate;
 	String asAtColumn;
+	boolean agingByInvoiceDate;
 	HashSet<String>skipPivotColumns;
 	HashSet<String>skipSummaryColumns;
 	class LocationAsAtCellCollection extends Erpv4BaseCellCollection {
@@ -80,8 +82,29 @@ public class BiResultAgingAsAt extends BiResultErpv4 implements BiAsAtReportInte
 				case FUNC_getAsAtDate: {
 					return(asAtDate);
 				}
+				case FUNC_agingDate: {
+					if (p_args.size() != 2) {
+						throw new CellException("agingDate requires due date and invoice date arguments");
+					}
+					Object dateArg = p_args.get(agingByInvoiceDate ? 1 : 0);
+					if (dateArg != null && !(dateArg instanceof Date)) {
+						throw new CellException("agingDate arguments must be dates");
+					}
+					return(dateArg);
+				}
 				case FUNC_duePeriod2: {
 					return(CellPair.of(0, "HAHA"));
+				}
+				case FUNC_genAgingPeriod: {
+					if (p_args.isEmpty()) {
+						throw new CellException("genAgingPeriod requires a date and at least one day/name pair");
+					}
+					Object dateArg = p_args.get(0);
+					if (!(dateArg instanceof Date)) {
+						throw new CellException("genAgingPeriod first argument must be a date");
+					}
+					return(genAgingPeriod((Date) dateArg,
+							p_args.subList(1, p_args.size()).toArray()));
 				}
 
 				case FUNC_duePeriod: {
@@ -133,6 +156,56 @@ public class BiResultAgingAsAt extends BiResultErpv4 implements BiAsAtReportInte
 			return(super.evalFunction(p_fname,p_args) );
 		}
 		
+	}
+
+	/**
+	 * Generates an ordered aging-period value for use as a pivot column.
+	 * Each day/name pair defines an inclusive lower boundary relative to the
+	 * report's as-at date. The pairs are sorted from newest to oldest, so callers
+	 * may supply them in either order. The oldest label is also used as the
+	 * catch-all for dates older than its boundary.
+	 */
+	public CellPair genAgingPeriod(Date p_date, Object... p_dayNamePairs) throws CellException {
+		if (p_dayNamePairs == null || p_dayNamePairs.length < 2
+				|| p_dayNamePairs.length % 2 != 0) {
+			throw new CellException("genAgingPeriod requires one or more day/name pairs");
+		}
+		if (p_date == null || !p_date.after(DateUtil.minDate)) {
+			return(CellPair.of(0, "Aging Unknown"));
+		}
+		if (asAtDate == null) {
+			throw new CellException("genAgingPeriod as-at date is not initialized");
+		}
+
+		List<Pair<Integer, String>> periods = new ArrayList<Pair<Integer, String>>();
+		for (int i = 0; i < p_dayNamePairs.length; i += 2) {
+			Object dayArg = p_dayNamePairs[i];
+			Object nameArg = p_dayNamePairs[i + 1];
+			if (!(dayArg instanceof Number)) {
+				throw new CellException("genAgingPeriod day argument must be numeric");
+			}
+			if (!(nameArg instanceof String)) {
+				throw new CellException("genAgingPeriod name argument must be text");
+			}
+			int day = ((Number) dayArg).intValue();
+			for (Pair<Integer, String> period : periods) {
+				if (period.getLeft().intValue() == day) {
+					throw new CellException("genAgingPeriod contains duplicate day boundary " + day);
+				}
+			}
+			periods.add(Pair.of(day, (String) nameArg));
+		}
+		periods.sort((p1, p2) -> Integer.compare(p2.getLeft(), p1.getLeft()));
+
+		int dateOffset = DateUtil.getJulianDate(p_date) - DateUtil.getJulianDate(asAtDate);
+		for (int i = 0; i < periods.size(); i++) {
+			Pair<Integer, String> period = periods.get(i);
+			if (dateOffset >= period.getLeft()) {
+				return(CellPair.of(i + 1, period.getRight()));
+			}
+		}
+		Pair<Integer, String> oldestPeriod = periods.get(periods.size() - 1);
+		return(CellPair.of(periods.size(), oldestPeriod.getRight()));
 	}
 	
 	@Override
@@ -236,6 +309,13 @@ public class BiResultAgingAsAt extends BiResultErpv4 implements BiAsAtReportInte
 	public boolean setFifoAging(boolean sw) {
 		// TODO Auto-generated method stub
 		return(false);
+	}
+
+	@Override
+	public boolean setAgingByInvoiceDate(boolean sw) {
+		boolean changed = agingByInvoiceDate != sw;
+		agingByInvoiceDate = sw;
+		return(changed);
 	}
 
 //	@Override

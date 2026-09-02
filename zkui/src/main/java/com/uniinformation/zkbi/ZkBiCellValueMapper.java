@@ -88,29 +88,27 @@ public class ZkBiCellValueMapper implements CellValueMapper {
 		}
 	}
 
-	private void triggerRowShortcut(int p_keyCode) {
-		if(p_keyCode == 65) {
+	private void triggerRowShortcut(String p_key) {
+		if("Enter".equals(p_key)) {
 			triggerRowAction("isAddButton", true);
-		} else if(p_keyCode == 82) {
+		} else if("Delete".equals(p_key)) {
 			triggerRowAction("JxZkListbox.deleteItemButton", "Y");
 		}
 	}
 
 	public ZkBiCellValueMapper(Component comp,AbstractGetItemProperty p_gipi) {
 		ic = comp;
-		final boolean isS2Listbox = comp instanceof S2Listbox;
-		if(isS2Listbox) {
+		if(comp instanceof S2Listbox) {
 			ic = ((S2Listbox) comp).getComp();
-			ic.addEventListener("onS2AltKey", new EventListener<Event>() {
-				@Override
-				public void onEvent(Event p_event) throws Exception {
-					Object data = p_event.getData();
-					if(data != null && data.toString().length() == 1) {
-						triggerRowShortcut(Character.toUpperCase(data.toString().charAt(0)));
-					}
-				}
-			});
 		}
+		ic.addEventListener("onS2AltKey", new EventListener<Event>() {
+			@Override
+			public void onEvent(Event p_event) throws Exception {
+				Object data = p_event.getData();
+				if(data != null)
+					triggerRowShortcut(data.toString());
+			}
+		});
 		gipi = p_gipi;
 		if(ic instanceof Bandbox) {
 			ic.addEventListener("onOpen",new EventListener() {
@@ -331,21 +329,14 @@ public class ZkBiCellValueMapper implements CellValueMapper {
 			}
 		);	
 		if(ic instanceof XulElement) {
-			((XulElement) ic).setCtrlKeys(ic instanceof InputElement ? "^d@a@r" : "@a@r");
+			if(ic instanceof InputElement)
+				((XulElement) ic).setCtrlKeys("^d");
 			ic.addEventListener(Events.ON_CTRL_KEY, 
 				new EventListener() {
 				public void onEvent(Event ev) throws Exception {
 					UniLog.log("control key pressed");
 				KeyEvent keyEvent = (KeyEvent) ev;
-				if(keyEvent.isAltKey() && keyEvent.getKeyCode() == 65) {
-					triggerRowShortcut(keyEvent.getKeyCode());
-					ev.stopPropagation();
-				}
-				else if(keyEvent.isAltKey() && keyEvent.getKeyCode() == 82) {
-					triggerRowShortcut(keyEvent.getKeyCode());
-					ev.stopPropagation();
-				}
-				else if(keyEvent.isCtrlKey() && keyEvent.getKeyCode() == 68) {
+				if(keyEvent.isCtrlKey() && keyEvent.getKeyCode() == 68) {
 					try {
 //					if(bindedCell.getMode() == Cell.VMODE_OVERRIDED) {
 //						bindedCell.syncMode(Cell.VMODE_PROTECTED);

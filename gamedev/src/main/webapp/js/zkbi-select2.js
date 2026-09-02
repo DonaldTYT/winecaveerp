@@ -26,7 +26,7 @@ var zkbis2 = (function() {
 			return false;
 		// The native select is rendered before Select2 adds its marker class.
 		// Detect it immediately so an early retry cannot fall through to Description.
-		const select2Source = p_row.find('select').first();
+		const select2Source = p_row.find('select.select2-hidden-accessible').first();
 		const select2Selection = select2Source.next('.select2').find('.select2-selection');
 		if (select2Selection.length) {
 			select2Selection.focus();
@@ -46,33 +46,51 @@ var zkbis2 = (function() {
 	}
 
 	function restoreRowFocusAfterAltKey(p_source, p_key) {
-		const sourceUuid = p_source.attr('id');
 		const row = p_source.closest('.z-listitem');
-		const rowUuid = row.attr('id');
-		const nextRowUuid = row.nextAll('.z-listitem:visible').first().attr('id') || '';
-		const previousRowUuid = row.prevAll('.z-listitem:visible').first().attr('id') || '';
-		let restored = false;
-		const restore = function() {
-			if (restored)
-				return;
-			let target;
-			if (p_key === 'A') {
-				const currentRow = $('#' + sourceUuid).closest('.z-listitem');
-				const insertedRow = currentRow.nextAll('.z-listitem:visible').first();
-				if (!currentRow.length || !insertedRow.length
-						|| insertedRow.attr('id') === nextRowUuid)
-					return;
-				target = insertedRow;
-			} else {
-				if ($('#' + rowUuid).length)
-					return;
-				target = nextRowUuid ? $('#' + nextRowUuid) : $('#' + previousRowUuid);
-			}
-			restored = focusFirstRowEditor(target);
+		const listbox = row.closest('.z-listbox');
+		const listboxNode = listbox.get(0);
+		const listboxId = listbox.attr('id');
+		const rowsBefore = listbox.find('.z-listitem:visible');
+		const rowIndex = rowsBefore.index(row);
+		const rowCount = rowsBefore.length;
+		let userInteracted = false;
+		const stopFocusRetry = function() {
+			userInteracted = true;
 		};
-		[50, 150, 300, 600, 1000].forEach(function(delay) {
+		['keydown', 'mousedown', 'touchstart'].forEach(function(eventName) {
+			document.addEventListener(eventName, stopFocusRetry, true);
+		});
+		const removeFocusRetryListeners = function() {
+			['keydown', 'mousedown', 'touchstart'].forEach(function(eventName) {
+				document.removeEventListener(eventName, stopFocusRetry, true);
+			});
+		};
+		const restore = function() {
+			if (userInteracted || rowIndex < 0)
+				return;
+			const currentListboxNode = listboxId
+					? document.getElementById(listboxId) : listboxNode;
+			if (!currentListboxNode)
+				return;
+			const currentRows = $(currentListboxNode).find('.z-listitem:visible');
+			let target = $();
+			if (p_key === 'Enter') {
+				if (currentRows.length <= rowCount || rowIndex + 1 >= currentRows.length)
+					return;
+				target = currentRows.eq(rowIndex + 1);
+			} else {
+				if (currentRows.length >= rowCount || !currentRows.length)
+					return;
+				target = currentRows.eq(Math.min(rowIndex, currentRows.length - 1));
+			}
+			// ZK and Select2 can apply their own focus after the row first appears.
+			// Reassert the first-editor focus on each retry until the user acts.
+			focusFirstRowEditor(target);
+		};
+		[50, 150, 300, 600, 1000, 1500, 2000].forEach(function(delay) {
 			setTimeout(restore, delay);
 		});
+		setTimeout(removeFocusRetryListeners, 2100);
 	}
 
 	function setupReverseTab() {
@@ -122,17 +140,22 @@ var zkbis2 = (function() {
 		const forwardRowAltKey = function(event) {
 			if (!event.altKey || event.ctrlKey || event.metaKey)
 				return false;
-			const key = (event.key || '').toUpperCase();
-			if (key !== 'A' && key !== 'R')
+			const physicalKey = event.key || '';
+			const actionKey = physicalKey === 'Enter' ? 'Enter'
+					: (physicalKey === 'Delete' ? 'Delete' : '');
+			if (!actionKey)
 				return false;
 			const widget = typeof zk !== 'undefined' && zk.Widget
 					? zk.Widget.$('#' + p_source.attr('id')) : null;
 			if (!widget || typeof zAu === 'undefined')
 				return false;
 			event.preventDefault();
-			event.stopPropagation();
-			restoreRowFocusAfterAltKey(p_source, key);
-			zAu.send(new zk.Event(widget, 'onS2AltKey', key, {toServer:true}));
+			event.stopImmediatePropagation();
+			event.zkbiRowAltKeyHandled = true;
+			if (p_source.data('select2'))
+				p_source.select2('close');
+			restoreRowFocusAfterAltKey(p_source, actionKey);
+			zAu.send(new zk.Event(widget, 'onS2AltKey', actionKey, {toServer:true}));
 			return true;
 		};
 		const focusSelect2 = function() {

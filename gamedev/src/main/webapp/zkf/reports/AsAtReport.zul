@@ -14,11 +14,20 @@
 			</div>
 			<datebox id="edate" format="yyyy/MM/dd"></datebox>
 		</hlayout>
-		<hlayout>
+		<hlayout id="fifoAgingRow">
 			<div width="120px" align="right">
 				<label>Fifo Aging</label>
 			</div>
 			<checkbox id="useFifoAging"></checkbox>
+		</hlayout>
+		<hlayout>
+			<div width="120px" align="right">
+				<label>Aging By</label>
+			</div>
+			<radiogroup id="agingDateType">
+				<radio label="Due Date" checked="true"/>
+				<radio label="Invoice Date"/>
+			</radiogroup>
 		</hlayout>
 	</vlayout>
 		<hlayout>

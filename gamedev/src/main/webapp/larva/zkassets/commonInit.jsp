@@ -289,7 +289,7 @@
 %>
 		<link href="<%=jsHome%>/select2/css/select2.css<%=versionTag%>" rel="stylesheet" />
 		<script type="text/javascript" src="<%=jsHome%>/select2/js/select2.js<%=versionTag%>"></script>
-		<script type="text/javascript" src="<%=request.getContextPath()%>/js/zkbi-select2.js<%=versionTag%>&amp;s2focus=20260827g"></script>
+		<script type="text/javascript" src="<%=request.getContextPath()%>/js/zkbi-select2.js<%=versionTag%>&amp;s2focus=20260901b"></script>
 <%
 	}
 %>
@@ -626,7 +626,7 @@
 		}
 
 		function getDetailFocusable(p_scope) {
-			return p_scope.find('a[href],button:not([disabled]),'
+			return p_scope.find('a[href]:not([tabindex="-1"]),button:not([disabled]):not([tabindex="-1"]),'
 					+ 'input:not([disabled]):not([type=hidden]),select:not([disabled]),'
 					+ 'textarea:not([disabled]),[contenteditable="true"],'
 					+ '[tabindex]:not([tabindex="-1"])')
@@ -693,7 +693,8 @@
 			}, true);
 		}
 		function removeZkTabHeadersFromTabOrder() {
-			$('.z-tab, .z-tab-content').attr('tabindex', '-1');
+			$('.z-tab, .z-tab-content, .zkbi-main-headerlabeldiv .z-toolbarbutton')
+				.attr('tabindex', '-1');
 		}
 		removeZkTabHeadersFromTabOrder();
 		if (document.body && typeof MutationObserver !== 'undefined'
@@ -869,20 +870,65 @@
 				e.stopImmediatePropagation();
 				return;
 			}
-			// Save the current detail record; close when saving is unavailable.
-			if (e.which === 35) { // End
+			// Save the current detail record only when its mode-specific save button is enabled.
+			if (e.which === 121) { // F10
 				function clickEnabledDetailButton(id) {
-					var widget = zk.Widget.$('$' + id);
-					var node = widget && widget.$n ? widget.$n() : null;
+					var detailRoot = $(e.target).closest('.z-window,.zkbi-main-window');
+					var actionBar = detailRoot.find('.zkbi-detail-actionbar:visible').first();
+					if (!actionBar.length)
+						actionBar = $('.zkbi-detail-actionbar:visible').first();
+					var widget = null;
+					var node = null;
+					actionBar.find('*').each(function() {
+						var candidate = zk.Widget.$(this);
+						if (candidate && (typeof candidate.getId === 'function'
+								? candidate.getId() : candidate.id) === id) {
+							widget = candidate;
+							node = candidate.$n ? candidate.$n() : null;
+							return false;
+						}
+					});
 					if (!node || !$(node).is(':visible') || node.disabled
 							|| (typeof widget.isDisabled === 'function' && widget.isDisabled()))
 						return false;
 					node.click();
 					return true;
 				}
-				if (!clickEnabledDetailButton('btUpdate')
-						&& !clickEnabledDetailButton('btAdd'))
-					clickEnabledDetailButton('btClose');
+				if (!clickEnabledDetailButton('btUpdate'))
+					clickEnabledDetailButton('btAdd');
+				e.preventDefault();
+				e.stopImmediatePropagation();
+				return;
+			}
+			// Select2 sublink editors handle Alt+Enter (append) and Alt+Delete
+			// (remove) themselves and forward them to their row's ZK component.
+			if ((e.key === 'Enter' || e.key === 'Delete')
+					&& ($(e.target).closest('.z-listitem').length
+							|| $(e.target).closest('.select2-container').length)) {
+				if (!e.zkbiRowAltKeyHandled) {
+					var actionKey = e.key === 'Enter' ? 'Enter' : 'Delete';
+					var select2Container = $(e.target).closest('.select2-container');
+					var eventSource = select2Container.length
+							? select2Container.prev('select.select2-hidden-accessible')
+							: $(e.target);
+					if (eventSource.data('select2'))
+						eventSource.select2('close');
+					if (typeof zkbis2 !== 'undefined'
+							&& typeof zkbis2.restoreRowFocusAfterAltKey === 'function')
+						zkbis2.restoreRowFocusAfterAltKey(eventSource, actionKey);
+					var rowWidget = eventSource.length
+							? zk.Widget.$('#' + eventSource.attr('id')) : null;
+					if (rowWidget !== null && typeof zAu !== 'undefined')
+						zAu.send(new zk.Event(rowWidget, 'onS2AltKey', actionKey, {toServer:true}));
+				}
+				e.preventDefault();
+				e.stopImmediatePropagation();
+				return;
+			}
+			// Retired row shortcuts must not fall through to page-wide Alt actions.
+			if ((e.which == 'A'.charCodeAt() || e.which == 'R'.charCodeAt())
+					&& ($(e.target).closest('.z-listitem').length
+							|| $(e.target).closest('.select2-container').length)) {
 				e.preventDefault();
 				e.stopImmediatePropagation();
 				return;

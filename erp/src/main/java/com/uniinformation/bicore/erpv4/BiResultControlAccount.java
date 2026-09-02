@@ -64,6 +64,11 @@ public class BiResultControlAccount extends BiResultErpv4 {
 	public BiResultControlAccount(BiResult p_parent, BiView p_view, SelectUtil p_su, Vector p_tabList,
 			String p_whereStr, SessionHelper p_sh) throws CellException {
 		super(p_parent, p_view, p_su, p_tabList, p_whereStr, p_sh);
+		if (StringUtils.equals(p_view.getName(), "erpv4.ChartOfAccountG2")) {
+			addTempColumn("ca_dispname", "Display Name",
+					"leftpedding(ca_level * 5,ca_aname)", "", "char", null, 80, "ca_aname");
+			hideViewColumn(getColumnByLabel("ca_aname"));
+		}
 		accountTree = new NetworkNodeUtil();
 		logUserPrefix = "ca";
 	}

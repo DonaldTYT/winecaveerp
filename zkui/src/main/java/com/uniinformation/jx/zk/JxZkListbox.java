@@ -880,8 +880,8 @@ public class JxZkListbox extends JxZkElement {
 								if(tb instanceof InputElement) {
 									//((InputElement) tb).setHflex("max"); //set hflex to max no effect, it does not occupy the space.
 									((InputElement) tb).setHflex("true");
-									// Preserve the cell mapper shortcuts while adding row navigation.
-									((InputElement) tb).setCtrlKeys("^d@a@r#up#down");
+									// Alt+Enter/Alt+Delete are handled by the row/S2 browser key handler.
+									((InputElement) tb).setCtrlKeys("^d#up#down");
 									((InputElement) tb).setInstant(true); //set instance  by default
 									tb.addEventListener(Events.ON_CHANGE, tbChangeListener);
 								} else {
@@ -1780,6 +1780,9 @@ public class JxZkListbox extends JxZkElement {
 	public void grid_setRow(int n)
 	{
 		ListModelList lm = (ListModelList) listbox.getListModel();
+		if(editingRow >= n) {
+			editingRow = -1;
+		}
 		for(int i = lm.size();i<n;i++) {
 			lm.add(null);
 		}
@@ -1974,6 +1977,11 @@ public class JxZkListbox extends JxZkElement {
 		*/
 		ListModelList lm = (ListModelList) listbox.getListModel();
 		if(p_format.equals("editmode")) {
+			if(editingRow >= lm.size()) {
+				UniLog.logm(this, "editingRow %d exceeds model size %d, reset",
+						editingRow, lm.size());
+				editingRow = -1;
+			}
 			if(listrow >= lm.size()) {
 				UniLog.logm(this, "row > list size, ignore");
 				return;
@@ -2053,8 +2061,8 @@ public class JxZkListbox extends JxZkElement {
 		rowAttrHM.clear();
 		if(editRow != null) {
 			editRow.clear();
-			editingRow = -1;
 		}
+		editingRow = -1;
 	}
 
 	/**
@@ -2115,6 +2123,7 @@ public class JxZkListbox extends JxZkElement {
 		listModelList.clear();
 		resetOnDemandLoad();
 		rowAttrHM.clear();
+		editingRow = -1;
 		appliedFilter = null;
 		if(filterInput != null) filterInput.setText("");
 		if(editRow != null) {

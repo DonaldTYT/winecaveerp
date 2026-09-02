@@ -70,8 +70,6 @@ public class JxSelOpt extends JxForm {
 			@Override
 			public void onEvent(Event p_event) throws Exception {
 				if(al != null) al.actionPerformed(jxPickListBox);
-				
-				closeForm();
 		}});
 		filterComp.addEventListener(Events.ON_CTRL_KEY, new EventListener(){
 			@Override
@@ -186,6 +184,13 @@ public class JxSelOpt extends JxForm {
 	 * immediately without requiring the user to find it in the pick list.
 	 */
 	public void setSelectedItem(CellCollection p_selectedItem) {
+		// An empty pick result has no current row. Do not close the popup and
+		// invoke afterPickColumn with null: the callback cannot apply a value and
+		// closing first leaves the UI in an inconsistent modal state on failure.
+		if(p_selectedItem == null) {
+			ZkUtil.showWarnMsg("No record selected");
+			return;
+		}
 		closeForm();
 		if(selectedItemAction != null) selectedItemAction.actionPerformed(p_selectedItem);
 	}

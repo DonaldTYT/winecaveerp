@@ -172,6 +172,11 @@ public class BiResultStockAsAt extends BiResultAgingAsAt{
 	}
 
 	@Override
+	public boolean showFifoAgingOption() {
+		return(true);
+	}
+
+	@Override
 	public void resetViewList() {
 		super.resetViewList();
 		if(useFifoAging) {
