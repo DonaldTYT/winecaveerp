@@ -28,6 +28,7 @@
        	<url-pattern>/bio_login.html</url-pattern>
 	<url-pattern>/continuebarcode.html</url-pattern>
 	<url-pattern>/continuebarcode2.html</url-pattern>
+	<url-pattern>/chatbot.html</url-pattern>
 	<url-pattern>/custom_menu.html</url-pattern>
 	<url-pattern>/devredir.html</url-pattern>
 	<url-pattern>/dlogin.html</url-pattern>

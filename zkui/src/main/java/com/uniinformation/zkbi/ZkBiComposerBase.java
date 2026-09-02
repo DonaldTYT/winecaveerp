@@ -32,6 +32,7 @@ import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Set;
 import java.util.UUID;
 import java.util.Vector;
@@ -135,6 +136,8 @@ public class ZkBiComposerBase extends ZkBiComposerView implements Composer<Compo
 	private static final String AI_ACTION_SCOPE_ATTRIBUTE = "zkBiAiActionScope";
 	/** SessionHelper session-data key containing the current user's AI API key. */
 	public static final String AI_HELP_API_KEY_SESSION_DATA_KEY = "zkBiAiHelperApiKey";
+	private static final String AI_HELP_SECRETS_RESOURCE = "application-secrets.properties";
+	private static final String AI_HELP_API_KEY_PROPERTY = "openai.api-key";
 	final static long maxClickSelectGap = 50;
    	protected final static int defaultSortIdx = 0;
    	protected final static boolean defaultSortDesc = true;
@@ -6665,7 +6668,20 @@ public class ZkBiComposerBase extends ZkBiComposerView implements Composer<Compo
 		Object value = sessionHelper.getSessionData(AI_HELP_API_KEY_SESSION_DATA_KEY);
 		if (value instanceof String && StringUtils.isNotBlank((String)value))
 			return (String)value;
-		return System.getenv("OPENAI_API_KEY");
+		ClassLoader loader = Thread.currentThread().getContextClassLoader();
+		if (loader == null)
+			loader = ZkBiComposerBase.class.getClassLoader();
+		try (InputStream input = loader.getResourceAsStream(AI_HELP_SECRETS_RESOURCE)) {
+			if (input == null)
+				return null;
+			Properties secrets = new Properties();
+			secrets.load(input);
+			return StringUtils.trimToNull(secrets.getProperty(AI_HELP_API_KEY_PROPERTY));
+		}
+		catch (IOException ex) {
+			UniLog.log(ex);
+			return null;
+		}
 	}
 
 	@Override

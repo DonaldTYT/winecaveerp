@@ -78,3 +78,7 @@
 # Local environment files
 **/.env
 **/.env.*
+# Local Saleor credentials (never commit)
+/saleorsync/src/main/resources/config/application-secrets.properties
+# Local gamedev AI credentials (never commit)
+/gamedev/src/main/resources/application-secrets.properties

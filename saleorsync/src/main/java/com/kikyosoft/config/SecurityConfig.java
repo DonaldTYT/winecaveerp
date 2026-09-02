@@ -30,6 +30,7 @@ public class SecurityConfig {
       // Ignore CSRF for GraphQL and ERP login endpoint (POSTs without token)
       .csrf(csrf -> csrf.ignoringAntMatchers(
           "/graphql",
+          "/mcp",
           "/ai/chat",
           "/erp/login",
           "/erp/logout",

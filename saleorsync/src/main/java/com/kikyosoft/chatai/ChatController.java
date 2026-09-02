@@ -1,14 +1,20 @@
   package com.kikyosoft.chatai;
 
+  import org.springframework.beans.factory.annotation.Value;
   import org.springframework.http.MediaType;
   import org.springframework.web.bind.annotation.*;
   import org.json.JSONArray;
   import org.json.JSONObject;
 
+  import com.fasterxml.jackson.databind.JsonNode;
+  import com.fasterxml.jackson.databind.ObjectMapper;
+  import com.fasterxml.jackson.databind.node.ObjectNode;
+  import com.kikyosoft.api.ProductMcpController;
+
   import java.io.IOException;
   import java.nio.charset.StandardCharsets;
+  import java.util.List;
   import java.util.Map;
-  import java.util.Objects;
 
   /**
    * POST /ai/chat
@@ -16,8 +22,8 @@
    * Response: {"reply":"..."}
    *
    * Uses OpenAI Chat Completions + tool calling.
-   * - Model: gpt-4o-mini
-   * - Tool: get_order_status(order_number)
+   * - Model: gpt-5-mini
+   * - Tools: mock order status plus the read-only Saleor Product MCP catalogue
    * - Safe tool reply shape (role=tool, tool_call_id, content)
    */
   @RestController
@@ -25,78 +31,121 @@
   public class ChatController {
 
     private static final String OPENAI_URL = "https://api.openai.com/v1/chat/completions";
-    private static final String MODEL = "gpt-4o-mini";
-    private static final String Secret_Ai_Key = "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";
-    private static final String OPENAI_KEY =
-        Objects.requireNonNullElse(System.getenv("OPENAI_API_KEY"), Secret_Ai_Key);
+    private static final String MODEL = "gpt-5-mini";
+    private static final int MAX_TOOL_ROUNDS = 6;
+    private static final int MAX_HISTORY_MESSAGES = 20;
+    private static final int MAX_MESSAGE_LENGTH = 12000;
+    private static final int MAX_HISTORY_CHARACTERS = 24000;
+    private static final int MAX_CHAT_TOOL_PAGE_SIZE = 10;
+    private final String openAiKey;
+    private final ProductMcpController productMcp;
+    private final ObjectMapper mapper;
+
+    public ChatController(@Value("${openai.chat.api-key}") String openAiKey,
+                          ProductMcpController productMcp,
+                          ObjectMapper mapper) {
+      if (openAiKey == null || openAiKey.trim().isEmpty()) {
+        throw new IllegalStateException("openai.chat.api-key is not configured");
+      }
+      this.openAiKey = openAiKey.trim();
+      this.productMcp = productMcp;
+      this.mapper = mapper;
+    }
 
     // Toggle to false once you wire Saleor GraphQL
     private static final boolean USE_MOCK_ORDER = true;
 
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
     public Map<String, Object> chat(@RequestBody Map<String, Object> body) throws Exception {
-      final String userMsg = String.valueOf(body.getOrDefault("message", "")).trim();
-      if (userMsg.isEmpty()) {
-        throw new IllegalArgumentException("missing 'message'");
-      }
-
-      // --- 1) First round: let the model decide if it wants a tool ---
-      final JSONArray tools = new JSONArray().put(toolSchema());
+      final JSONArray tools = openAiTools();
       final JSONArray messages = new JSONArray()
           .put(new JSONObject().put("role","system").put("content",
-              "You are a helpful Saleor help-desk assistant. Be concise."))
-          .put(new JSONObject().put("role","user").put("content", userMsg));
+              "You are a helpful Saleor catalogue assistant. Use the supplied read-only "
+              + "product tools whenever the user asks for live products, variants, product "
+              + "types or attributes. The customer catalogue channel is always hk; never request, "
+              + "suggest or display products from another channel. Product Code is product.productCode "
+              + "(sourced from metadata.icode); "
+              + "SKU belongs only to a product variant's sku field. Never label Product Code as SKU. "
+              + "When a product has variants, report their actual SKUs from productVariants.edges[].node.sku. "
+              + "For prices, use pricing.priceRange for hk. Show one price when start equals stop; "
+              + "otherwise show the minimum-to-maximum range, using gross or net according to displayGrossPrices. "
+              + "When a thumbnail URL is available, render it as Markdown image syntax: "
+              + "![Product thumbnail](URL). Do not invent catalogue data. Be concise."))
+          ;
+      JSONArray history = validatedHistory(body);
+      for (int i = 0; i < history.length(); i++) messages.put(history.getJSONObject(i));
 
-      final JSONObject req1 = new JSONObject()
-          .put("model", MODEL)
-          .put("messages", messages)
-          .put("tools", tools)
-          .put("tool_choice", "auto");
-
-      final JSONObject r1 = postJson(OPENAI_URL, req1);
-      final JSONObject msg1 = r1.getJSONArray("choices").getJSONObject(0).getJSONObject("message");
-
-      // --- 2) If tool requested, execute it and do a follow-up call ---
-      if (msg1.has("tool_calls")) {
-        final JSONObject tc = msg1.getJSONArray("tool_calls").getJSONObject(0);
-        final JSONObject fn = tc.getJSONObject("function");
-        final String name = fn.getString("name");
-        final JSONObject args = new JSONObject(fn.optString("arguments","{}"));
-
-        JSONObject toolResult;
-        if ("get_order_status".equals(name)) {
-          final String orderNo = args.optString("order_number","").trim();
-          toolResult = orderNo.isEmpty()
-              ? new JSONObject().put("error","order_number_required")
-              : getOrderStatus(orderNo);
-        } else {
-          toolResult = new JSONObject().put("error","unknown_tool");
+      for (int round = 0; round < MAX_TOOL_ROUNDS; round++) {
+        final JSONObject request = new JSONObject()
+            .put("model", MODEL)
+            .put("messages", messages)
+            .put("tools", tools)
+            .put("tool_choice", "auto");
+        final JSONObject response = postJson(OPENAI_URL, request);
+        final JSONObject assistant = response.getJSONArray("choices").getJSONObject(0)
+            .getJSONObject("message");
+        final JSONArray calls = assistant.optJSONArray("tool_calls");
+        if (calls == null || calls.length() == 0) {
+          return Map.of("reply", assistant.optString("content", "(no content)"));
         }
 
-        final JSONArray messages2 = new JSONArray()
-            .put(new JSONObject().put("role","system").put("content",
-                "You are a helpful Saleor help-desk assistant. Be concise."))
-            .put(new JSONObject().put("role","user").put("content", userMsg))
-            .put(msg1) // the assistant message that contains tool_calls
-            .put(new JSONObject()
-                .put("role","tool")
-                .put("tool_call_id", tc.getString("id"))
-                // IMPORTANT: no "name" on tool messages; only tool_call_id + content
-                .put("content", toolResult.toString()));
-
-        final JSONObject req2 = new JSONObject()
-            .put("model", MODEL)
-            .put("messages", messages2);
-
-        final JSONObject r2 = postJson(OPENAI_URL, req2);
-        final String reply2 = r2.getJSONArray("choices").getJSONObject(0)
-                                .getJSONObject("message").optString("content","(no content)");
-        return Map.of("reply", reply2);
+        messages.put(assistant);
+        for (int i = 0; i < calls.length(); i++) {
+          final JSONObject call = calls.getJSONObject(i);
+          final JSONObject function = call.getJSONObject("function");
+          final String name = function.getString("name");
+          final JSONObject arguments = new JSONObject(function.optString("arguments", "{}"));
+          messages.put(new JSONObject()
+              .put("role", "tool")
+              .put("tool_call_id", call.getString("id"))
+              .put("content", executeTool(name, arguments)));
+        }
       }
+      throw new IllegalStateException("AI exceeded the maximum tool-call rounds");
+    }
 
-      // --- 3) No tool needed ---
-      final String reply = msg1.optString("content","(no content)");
-      return Map.of("reply", reply);
+    /** Accepts only bounded user/assistant history; system and tool roles remain server-controlled. */
+    private static JSONArray validatedHistory(Map<String, Object> body) {
+      Object supplied = body.get("messages");
+      JSONArray history = new JSONArray();
+      if (supplied instanceof List<?>) {
+        List<?> source = (List<?>) supplied;
+        int start = source.size();
+        int retainedCharacters = 0;
+        while (start > 0 && source.size() - start < MAX_HISTORY_MESSAGES) {
+          Object candidate = source.get(start - 1);
+          int candidateLength = candidate instanceof Map<?, ?>
+              ? String.valueOf(((Map<?, ?>) candidate).get("content")).length()
+              : 0;
+          if (retainedCharacters + candidateLength > MAX_HISTORY_CHARACTERS && start < source.size()) break;
+          retainedCharacters += candidateLength;
+          start--;
+        }
+        for (int i = start; i < source.size(); i++) {
+          Object item = source.get(i);
+          if (!(item instanceof Map<?, ?>)) throw new IllegalArgumentException("Each history message must be an object");
+          Map<?, ?> message = (Map<?, ?>) item;
+          String role = String.valueOf(message.get("role"));
+          if (!"user".equals(role) && !"assistant".equals(role)) {
+            throw new IllegalArgumentException("History role must be user or assistant");
+          }
+          Object rawContent = message.get("content");
+          String content = rawContent == null ? "" : String.valueOf(rawContent).trim();
+          if (content.isEmpty()) throw new IllegalArgumentException("History message content is required");
+          if (content.length() > MAX_MESSAGE_LENGTH) {
+            throw new IllegalArgumentException("History message exceeds " + MAX_MESSAGE_LENGTH + " characters");
+          }
+          history.put(new JSONObject().put("role", role).put("content", content));
+        }
+      } else {
+        // Backward compatibility for existing clients that send {"message":"..."}.
+        String content = String.valueOf(body.getOrDefault("message", "")).trim();
+        if (!content.isEmpty()) history.put(new JSONObject().put("role", "user").put("content", content));
+      }
+      if (history.length() == 0 || !"user".equals(history.getJSONObject(history.length() - 1).optString("role"))) {
+        throw new IllegalArgumentException("The conversation must end with a user message");
+      }
+      return history;
     }
 
     // Optional quick sanity check
@@ -104,7 +153,7 @@
     public Map<String, String> ping() { return Map.of("ok","true"); }
 
     // ---------- Tool schema ----------
-    private static JSONObject toolSchema() {
+    private static JSONObject orderToolSchema() {
       final JSONObject params = new JSONObject()
           .put("type","object")
           .put("properties", new JSONObject()
@@ -116,6 +165,48 @@
               .put("name","get_order_status")
               .put("description","Lookup an order status by order number")
               .put("parameters", params));
+    }
+
+    /** Converts the Product MCP catalogue to the OpenAI function-tool format. */
+    private JSONArray openAiTools() {
+      JSONArray result = new JSONArray().put(orderToolSchema());
+      for (Map<String, Object> tool : productMcp.tools()) {
+        JSONObject function = new JSONObject()
+            .put("name", tool.get("name"))
+            .put("description", tool.get("description"))
+            .put("parameters", new JSONObject(castMap(tool.get("inputSchema"))));
+        result.put(new JSONObject().put("type", "function").put("function", function));
+      }
+      return result;
+    }
+
+    private String executeTool(String name, JSONObject arguments) throws Exception {
+      if ("get_order_status".equals(name)) {
+        String orderNo = arguments.optString("order_number", "").trim();
+        return (orderNo.isEmpty()
+            ? new JSONObject().put("error", "order_number_required")
+            : getOrderStatus(orderNo)).toString();
+      }
+      clampListPageSize(name, arguments);
+      ObjectNode params = mapper.createObjectNode();
+      params.put("name", name);
+      JsonNode argumentNode = mapper.readTree(arguments.toString());
+      params.set("arguments", argumentNode);
+      JsonNode mcpResult = mapper.valueToTree(productMcp.callTool(params));
+      JsonNode result = mcpResult.path("structuredContent").path("result");
+      return mapper.writeValueAsString(result);
+    }
+
+    private static void clampListPageSize(String name, JSONObject arguments) {
+      if (!name.startsWith("list_")) return;
+      int requested = arguments.optInt("first", MAX_CHAT_TOOL_PAGE_SIZE);
+      if (requested < 1 || requested > MAX_CHAT_TOOL_PAGE_SIZE) requested = MAX_CHAT_TOOL_PAGE_SIZE;
+      arguments.put("first", requested);
+    }
+
+    @SuppressWarnings("unchecked")
+    private static Map<String, Object> castMap(Object value) {
+      return (Map<String, Object>) value;
     }
 
     // ---------- Tool implementation ----------
@@ -143,10 +234,10 @@
     }
 
     // ---------- HTTP helpers ----------
-    private static JSONObject postJson(String url, JSONObject payload) throws IOException {
+    private JSONObject postJson(String url, JSONObject payload) throws IOException {
       final java.net.HttpURLConnection conn = (java.net.HttpURLConnection) new java.net.URL(url).openConnection();
       conn.setRequestMethod("POST");
-      conn.setRequestProperty("Authorization", "Bearer " + OPENAI_KEY);
+      conn.setRequestProperty("Authorization", "Bearer " + openAiKey);
       conn.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
       conn.setConnectTimeout(15_000);
       conn.setReadTimeout(60_000);

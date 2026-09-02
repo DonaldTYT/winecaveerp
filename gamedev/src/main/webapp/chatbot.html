@@ -1,0 +1,35 @@
+<%@ page language="java" pageEncoding="utf-8" contentType="text/html;charset=utf-8"%>
+<%@ page import="com.uniinformation.utils.*,com.uniinformation.webcore.*,com.uniinformation.erpv4.Erpv4Config" %>
+<%
+response.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
+response.setHeader("Pragma", "no-cache");
+response.setHeader("Expires", "0");
+try {
+    SessionHelper sessionHelper = ZkSessionHelper.getSessionHelper(request, response);
+    sessionHelper.validateLogin(request, response);
+
+    // The sibling webapp context is deployment-specific and is configured in
+    // erpv4config.ini. Restrict it to a local context path to prevent redirects
+    // to another host if the configuration is entered incorrectly.
+    String chatbotContextPath = Erpv4Config.getString(
+        sessionHelper, "ChatbotContextPath", "/saleorsync");
+    chatbotContextPath = chatbotContextPath == null ? "" : chatbotContextPath.trim();
+    if (!chatbotContextPath.startsWith("/")
+        || chatbotContextPath.startsWith("//")
+        || chatbotContextPath.indexOf('\\') >= 0
+        || chatbotContextPath.indexOf('?') >= 0
+        || chatbotContextPath.indexOf('#') >= 0
+        || chatbotContextPath.indexOf('\r') >= 0
+        || chatbotContextPath.indexOf('\n') >= 0) {
+        throw new IllegalStateException(
+            "Invalid ChatbotContextPath in erpv4config.ini: " + chatbotContextPath);
+    }
+    while (chatbotContextPath.endsWith("/") && chatbotContextPath.length() > 1) {
+        chatbotContextPath = chatbotContextPath.substring(0, chatbotContextPath.length() - 1);
+    }
+    response.sendRedirect(chatbotContextPath + "/chatbot.html");
+} catch (Exception ex) {
+    UniLog.log(ex);
+    throw ex;
+}
+%>
